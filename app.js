@@ -23,6 +23,13 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(require('less-middleware')(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
+var session = require('express-session');
+//这里传入了一个密钥加session id
+app.use(cookieParser('wengsr'));
+//使用靠就这个中间件
+app.use(session({ secret: 'wengsr'}));
+
+
 
 app.use('/', routes);
 app.use('/users', users);
