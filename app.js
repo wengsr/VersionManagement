@@ -27,7 +27,7 @@ var session = require('express-session');
 //这里传入了一个密钥加session id
 app.use(cookieParser('wengsr'));
 //使用靠就这个中间件
-app.use(session({ secret: 'wengsr'}));
+//app.use(session({ secret: 'wengsr'}));
 
 
 
