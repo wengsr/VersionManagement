@@ -3,15 +3,24 @@
  */
 var pool = require('../util/connPool.js').getPool();
 
-pool.getConnection(function(err, connection) {
-    var useDbSql = 'select * from tasks';
-    connection.query(useDbSql, function (err,rows,fields) {
-        if (err) {
-            console.log("USE Error: " + err.message);
-            return;
-        }
-        console.log(rows);
-        console.log('USE succeed');
+
+exports.addTask = function (taskInfo, callback) {
+    pool.getConnection(function (err, connection) {
+        var userAddSql = 'INSERT INTO tasks(name,creater) VALUES(?,?)';
+        var userAddSql_Params = [taskInfo.name, taskInfo.tasker];
+        connection.query(userAddSql, userAddSql_Params, function (err, result) {
+            if (err) {
+                console.log('[INSERT ERROR] - ', err.message);
+                callback('err');
+                return;
+            }
+
+            console.log('--------------------------INSERT----------------------------');
+            //console.log('INSERT ID:',result.insertId);
+            console.log('INSERT ID:', result);
+            console.log('-----------------------------------------------------------------\n\n');
+        });
         connection.release();
+        callback('添加成功');
     });
-});
+};

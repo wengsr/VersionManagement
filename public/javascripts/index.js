@@ -4,8 +4,14 @@
 jQuery(document).ready(function() {
     $('#btnAddTask').click(function(){
         $('#divAddTask').load("/task/addTaskPage",function(){
+            $('#btnSubmit').click(function () {
+                debugger;
+                $('#formAddTask').submit();
+
+            });
                     });
         $('#divTaskDialog').modal();
     });
+
 
 })

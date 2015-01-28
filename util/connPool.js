@@ -2,7 +2,7 @@
  * Created by wengs_000 on 2015/1/26 0026.
  */
 var mysql = require('mysql');
-var DB_NAME = 'taskmanage';
+var DB_NAME = 'versionmanage';
 
 var pool = mysql.createPool({
     host: 'localhost',
