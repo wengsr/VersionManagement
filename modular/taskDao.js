@@ -14,6 +14,7 @@ exports.addTask = function (taskInfo, callback) {
                 callback('err');
                 return;
             }
+            callback('success');
 
             console.log('--------------------------INSERT----------------------------');
             //console.log('INSERT ID:',result.insertId);
@@ -21,6 +22,6 @@ exports.addTask = function (taskInfo, callback) {
             console.log('-----------------------------------------------------------------\n\n');
         });
         connection.release();
-        callback('添加成功');
+
     });
 };
