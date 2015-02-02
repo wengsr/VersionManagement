@@ -13,10 +13,8 @@ exports.addTask = function (taskInfo, callback) {
                 console.log('[INSERT ERROR] - ', err.message);
                 callback('err');
                 return;
-            }else{
-                //callback('success');
             }
-            callback('success');
+            callback('success');//
 
             console.log('--------------------------INSERT----------------------------');
             //console.log('INSERT ID:',result.insertId);
