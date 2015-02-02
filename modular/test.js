@@ -2,13 +2,13 @@
  * Created by wengs_000 on 2015/1/27 0027.
  */
 var mysql = require('mysql');
-
+//wengsr
 var connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'root',
+    host: '127.0.0.1',
+    user: 'versionmanage',
+    password: 'versionmanage',
     charset: 'UTF8_GENERAL_CI',
-    database: 'taskmanage'
+    database: 'versionmanage'
 });
 
 connection.connect();
