@@ -14,7 +14,7 @@ exports.addTask = function (taskInfo, callback) {
                 callback('err');
                 return;
             }else{
-                callback('success');
+                //callback('success');
             }
 
             console.log('--------------------------INSERT----------------------------');
