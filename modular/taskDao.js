@@ -13,6 +13,8 @@ exports.addTask = function (taskInfo, callback) {
                 console.log('[INSERT ERROR] - ', err.message);
                 callback('err');
                 return;
+            }else{
+                //callback('success');
             }
             callback('success');
 
