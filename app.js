@@ -1,5 +1,5 @@
 var express = require('express');
-var path = require('path');
+var path = require('zpath');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
@@ -10,10 +10,13 @@ var users = require('./routes/users');
 var task = require('./routes/task');
 
 var app = express();
+var session = require('express-session');
+var partials = require('express-partials');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+app.use(partials());
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(__dirname + '/public/favicon.ico'));
@@ -23,17 +26,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(require('less-middleware')(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
-var session = require('express-session');
 //这里传入了一个密钥加session id
 app.use(cookieParser('wengsr'));
 //使用靠就这个中间件
-//app.use(session({ secret: 'wengsr'}));
+app.use(session({ secret: 'wengsr'}));//开启session
 
-
-
-app.use('/', routes);
-app.use('/users', users);
-app.use('/task', task);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -43,6 +40,34 @@ app.use(function(req, res, next) {
 });
 
 // error handlers
+
+// 返回成功和失败的信息
+app.use(function(err,req, res, next){
+//    console.log("进入成功失败信息处理中间件");
+    //声明变量
+    var err = req.session.error;
+    var msg = req.session.success;
+    //删除会话中原有属性
+    delete req.session.error;
+    delete req.session.success;
+    //将错误和正确信息存放到动态视图助手变量中。
+    res.locals.message = '';
+    if(err) res.locals.message = '<div id="successTip" class="alert alert-danger alert-dismissible" role="alert"><button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button><strong>' + err + '</strong></div>';
+    if(msg) res.locals.message = '<div id="successTip" class="alert alert-success alert-dismissible" role="alert"><button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button><strong>' + msg + '</strong></div>';
+//    console.log('err='+err);
+//    console.log('msg='+msg);
+//    console.log('outMsg=' + res.locals.message);
+    next(err);
+});
+// 把user设置成动态视图助手
+app.use(function(err,req, res, next){
+    //console.log("进入设置动态视图助手中间件");
+//    res.locals({
+//        user : req.session.user
+//    });
+    res.locals.user = req.session.user;
+    next();
+});
 
 // development error handler
 // will print stacktrace
@@ -66,5 +91,8 @@ app.use(function(err, req, res, next) {
     });
 });
 
+app.use('/', routes);
+app.use('/users', users);
+app.use('/task', task);
 
 module.exports = app;

@@ -7,11 +7,9 @@ jQuery(document).ready(function() {
             $('#btnSubmit').click(function () {
                 debugger;
                 $('#formAddTask').submit();
-
             });
-                    });
+        });
         $('#divTaskDialog').modal();
     });
-
 
 })
