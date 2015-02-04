@@ -53,7 +53,8 @@ router.post('/doReg', function(req, res) {
                 newUser.userId = insertId;
                 req.session.user = newUser;
                 req.session.success = "注册成功";
-                res.render('index',{title:"首页",user:req.session.user});
+                return res.redirect("/");
+                //res.render('index',{title:"首页",user:req.session.user});
             }
         })
     })
