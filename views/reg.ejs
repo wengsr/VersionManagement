@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title %></title>
+    <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+<%- message %>
+<div class="span8 text-center">
+    <form action="/users/doReg" id="formReg" class=" bs-component form-horizontal" method='post'>
+        <div class="modal-header">
+            <h4 class="modal-title" id="myLargeModalLabel">用户注册</h4>
+        </div>
+
+        <div class="modal-body">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-4"></div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label for="inputTaskName" class="col-sm-2 control-label">用户名</label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control"  name="username" id="username" placeholder="用户名">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password" class="col-sm-2 control-label">密码</label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control"  name="password" id="password" placeholder="密码">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password-repeat" class="col-sm-2 control-label">确认密码</label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control"  name="password-repeat" id="password-repeat" placeholder="确认密码">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-actions">
+            <a href="/"><button type="button" class="btn btn-default">返回</button></a>
+            <button type="submit" class="btn btn-primary">注册</button>
+        </div>
+    </form>
+</div>
+<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+<script src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>
+<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+<script src="http://cdn.bootcss.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+</body>
+</html>
