@@ -1,5 +1,5 @@
 var express = require('express');
-var path = require('zpath');
+var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
@@ -52,7 +52,7 @@ app.use(function(err,req, res, next){
     delete req.session.success;
     //将错误和正确信息存放到动态视图助手变量中。
     res.locals.message = '';
-    if(err) res.locals.message = '<div id="successTip" class="alert alert-danger alert-dismissible" role="alert"><button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button><strong>' + err + '</strong></div>';
+    if(err) res.locals.message = '<div id="errTip" class="alert alert-danger alert-dismissible" role="alert"><button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button><strong>' + err + '</strong></div>';
     if(msg) res.locals.message = '<div id="successTip" class="alert alert-success alert-dismissible" role="alert"><button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button><strong>' + msg + '</strong></div>';
 //    console.log('err='+err);
 //    console.log('msg='+msg);

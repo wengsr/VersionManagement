@@ -12,4 +12,8 @@ jQuery(document).ready(function() {
         $('#divTaskDialog').modal();
     });
 
+   //隐藏页面上方提示条
+   setTimeout(function(){$('#errTip').slideUp(1000)},2000);
+   setTimeout(function(){$('#successTip').slideUp(1000)},1000);
+
 })
