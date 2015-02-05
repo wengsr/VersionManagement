@@ -22,9 +22,32 @@
 
           <!-- Collect the nav links, forms, and other content for toggling -->
           <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-              <ul class="nav navbar-nav">
-                  <li class="active"><a href="#">首页<span class="sr-only">(current)</span></a></li>
-                  <li ><a id="btnAddTask" href="#">申请变更单</a></li>
+              <ul id="navMenu" class="nav navbar-nav">
+                  <li><a href="#">首页<span class="sr-only">(current)</span></a></li>
+                  <!--<li class="active"><a id="btnAddTask" href="#">申请变更单</a></li>-->
+                  <%if(menus&&menus!=null){ var secFlag=false; var thirdFlag=false;%>
+                  <li class="dropdown">
+                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">操作<span class="caret"></span></a>
+                      <ul class="dropdown-menu" role="menu">
+                            <% menus.forEach(function(menu){ %>
+                                <%var menuId = menu.menuId; var menuName = menu.menuName; var menuBtnName=menu.menuBtnName; var menuUrl=menu.url;%>
+                                <% if(menuId<=3){ %>
+                                    <li><a class="menuBtn" btnName="<%=menuBtnName%>" btnUrl="<%=menuUrl%>" href="#"> <%= menuName %> </a></li>
+                                <% }else if(menuId>3 && menuId<=5){  %>
+                                    <% if(!secFlag){ %><!--分隔条-->
+                                        <li class="divider"></li>
+                                    <% secFlag=true;} %>
+                                    <li><a class="menuBtn" btnName="<%=menuBtnName%>" btnUrl="<%=menuUrl%>" href="#"> <%= menuName %> </a></li>
+                                <% }else if(menuId>5){  %>
+                                    <% if(!thirdFlag){ %><!--分隔条2-->
+                                        <li class="divider"></li>
+                                    <% thirdFlag=true;} %>
+                                    <li><a class="menuBtn" btnName="<%=menuBtnName%>" btnUrl="<%=menuUrl%>" href="#"> <%= menuName %> </a></li>
+                                <% } %>
+                            <% }) %>
+                      </ul>
+                  </li>
+                  <% } %>
               </ul>
               <form class="navbar-form navbar-left" role="search">
                   <div class="form-group">
@@ -86,10 +109,9 @@
 
       </div>
 
-
-  <div id="divTaskDialog" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div id="divModelDialog" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-lg">
-          <div class="modal-content" id="divAddTask">
+          <div class="modal-content" id="divModel">
 
           </div>
       </div>

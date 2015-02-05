@@ -7,6 +7,8 @@ function User(user){
     this.userId = user.userId;
     this.userName = user.userName;
     this.password = user.password;
+    this.roleId = user.roleId;
+    this.permissionId = user.permissionId;
 }
 
 

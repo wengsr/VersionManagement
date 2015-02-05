@@ -2,6 +2,20 @@ var express = require('express');
 var router = express.Router();
 var crypto = require('crypto');
 var User = require('../modular/user');
+var Menu = require('../modular/menu');
+
+/**
+ * 查找当前用户所能显示的菜单
+ */
+var findMenu = function(userId,req,callback){
+    Menu.findMenuByUserId(userId,function(msg,menus){
+        if('success'!=msg){
+            req.session.error = "查找用户菜单时发生错误,请记录并联系管理员";
+            return null;
+        }
+        callback(menus);
+    });
+}
 
 /**
  * 跳转至注册页面
@@ -53,7 +67,15 @@ router.post('/doReg', function(req, res) {
                 newUser.userId = insertId;
                 req.session.user = newUser;
                 req.session.success = "注册成功";
-                return res.redirect("/");
+                //查找菜单
+                findMenu(newUser.userId,req,function(menus){
+                    if(menus.length>0){
+                        req.session.menus = menus;
+                    }else{
+                        req.session.menus = null;
+                    }
+                    res.redirect("/");
+                });
                 //res.render('index',{title:"首页",user:req.session.user});
             }
         })
@@ -97,8 +119,16 @@ router.post('/doLogin', function(req, res) {
         //记录到session，登录
         req.session.user = user;
         req.session.success = "登录成功";
-        return res.redirect("/");
-        //res.render('index',{title:"首页",user:req.session.user});
+
+        //查找菜单
+        findMenu(user.userId,req,function(menus){
+            if(menus.length>0){
+                req.session.menus = menus;
+            }else{
+                req.session.menus = null;
+            }
+            res.redirect("/");
+        });
     })
 });
 
@@ -107,6 +137,7 @@ router.post('/doLogin', function(req, res) {
  */
 router.get('/logout', function(req, res) {
     req.session.user = null;
+    req.session.menus = null;
     req.session.success = "退出成功";
     return res.redirect("/");
     //res.render('index',{title:"首页",user:req.session.user});
