@@ -9,9 +9,6 @@
  * @param formName
  */
 function showModelDialog(btnName, url, formName){
-    btnName = 'btnAddTask';
-    url = "/task/addTaskPage"
-    formName = 'formAddTask';
     var findBtn = '#' + btnName;
     var findFormName = '#' + formName;
     $(findBtn).click(function(){
