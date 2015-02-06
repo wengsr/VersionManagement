@@ -75,6 +75,8 @@
           </div><!-- /.navbar-collapse -->
       </div><!-- /.container-fluid -->
   </nav>
+
+  <% if(tasks){%>
   <div class="container-fluid">
       <div class="panel panel-primary">
           <div class="panel-heading">我的待处理任务</div>
@@ -101,14 +103,27 @@
                       <td>上库</td>
                       <td>郭丽丽</td>
                   </tr>
+                  <% tasks.forEach(function(task,i){ %>
+                      <tr>
+                          <td><%=i+1%></td>
+                          <td><a><%=task.taskcode%></a></td>
+                          <td><a><%=task.taskname%></a></td>
+                          <td><%=task.createrName%></td>
+                          <td><%=task.state%></td>
+                          <td><%=task.stepName%></td>
+                          <td><%=task.dealerName==null?'':task.dealerName%></td>
+                      </tr>
+                  <% }); %>
                  </tbody>
               </table>
-          </div>
-          <div class="panel-footer">共1条</div>
-          </div>
 
+          </div>
+          <% if(taskCount){%>
+          <div class="panel-footer">共<%=taskCount%>条</div>
+          <% } %>
       </div>
-
+  </div>
+  <% }%>
   <div id="divModelDialog" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-lg">
           <div class="modal-content" id="divModel">

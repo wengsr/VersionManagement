@@ -3,6 +3,7 @@ var router = express.Router();
 var crypto = require('crypto');
 var User = require('../modular/user');
 var Menu = require('../modular/menu');
+var Task = require('../modular/task');
 
 /**
  * 查找当前用户所能显示的菜单
@@ -16,6 +17,36 @@ var findMenu = function(userId,req,callback){
         callback(menus);
     });
 }
+
+/**
+ * 查找当前用户所能操作的变更单
+ */
+var findTask = function(userId,req,callback){
+    Task.findTaskByUserId(userId,function(msg,tasks){
+        if('success'!=msg){
+            req.session.error = "查找变更单信息时发生错误,请记录并联系管理员";
+            return null;
+        }
+        callback(tasks);
+    });
+}
+
+/**
+ * 查询到的变更单的总数量
+ * @param userId
+ * @param req
+ * @param callback
+ */
+var findTaskCount = function(userId,req,callback){
+    Task.findTaskByUserIdCount(userId,function(msg,taskCount){
+        if('success'!=msg){
+            req.session.error = "查找变更单信息时发生错误,请记录并联系管理员";
+            return null;
+        }
+        callback(taskCount);
+    });
+}
+
 
 /**
  * 跳转至注册页面
@@ -71,10 +102,22 @@ router.post('/doReg', function(req, res) {
                 findMenu(newUser.userId,req,function(menus){
                     if(menus.length>0){
                         req.session.menus = menus;
+                        //查找当前用户能操作的变更单
+                        findTask(newUser.userId,req,function(tasks){
+                            if(tasks.length>0){
+                                req.session.tasks = tasks;
+                                req.session.taskCount = tasks.length;
+                                res.redirect("/");
+                            }else{
+                                req.session.tasks = null;
+                                req.session.taskCount = null;
+                                return res.redirect("/");
+                            }
+                        });
                     }else{
                         req.session.menus = null;
+                        res.redirect("/");
                     }
-                    res.redirect("/");
                 });
                 //res.render('index',{title:"首页",user:req.session.user});
             }
@@ -124,12 +167,24 @@ router.post('/doLogin', function(req, res) {
         findMenu(user.userId,req,function(menus){
             if(menus.length>0){
                 req.session.menus = menus;
+                //查找当前用户能操作的变更单
+                findTask(user.userId,req,function(tasks){
+                    if(tasks.length>0){
+                        req.session.tasks = tasks;
+                        req.session.taskCount = tasks.length;
+                        res.redirect("/");
+                    }else{
+                        req.session.tasks = null;
+                        req.session.taskCount = null;
+                        return res.redirect("/");
+                    }
+                });
             }else{
                 req.session.menus = null;
+                res.redirect("/");
             }
-            res.redirect("/");
         });
-    })
+    });
 });
 
 /**
