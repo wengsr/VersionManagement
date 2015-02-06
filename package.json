@@ -17,6 +17,7 @@
         "ejs": "~0.8.5",
         "less-middleware": "1.0.x",
         "mysql": "2.5.3",
-        "svn-spawn": "latest"
+        "svn-spawn": "latest",
+        "adm-zip": "latest"
     }
 }
