@@ -3,93 +3,68 @@
  */
 var fs = require('fs');
 var Client = require('svn-spawn');
-var repo = 'http://192.168.1.22:8000/svn/hxbss/NEW_BIZHALL/Source/trunk/Local/XJ_TRUNK/LocalCustWeb';
-var __dirname = 'c:/test/repo'
-var workingpath = 'file://' + __dirname + '/repo';
 
-var client = new Client({
-    cwd: __dirname,
-    username: 'wengsr', // optional if authentication not required or is already saved
-    password: 'wengsr62952' // optional if authentication not required or is already saved
-});
+/**
+ *
+ * @param options
+ * {cwd:'',username:'',password:''}
+ * @constructor
+ */
+var Svn = function (options) {
+    this.client = new Client(options);
+}
+/**
+ * @author wengsr
+ * @desc 从版本库获取文件
+ * @param localDir 本地文件夹（一般为变更单目录）
+ * @param versionDir 版本库目录
+ * @param fileList 文件清单
+ * @param callback 回调函数 err data
+ */
+Svn.prototype.checkout = function (localDir, versionDir, fileList, callback) {
+    var i = 0;
+    num = fileList.length;
+    var curContext = this;
+    var checkoutProcess = function (fileList, err, data) {
+        if (i == num) {
+            callback(err, data);
+            return;
+        }
+        var tmpPath = fileList[i].substr(0, fileList[i].lastIndexOf('/') + 1);
+        fs.exists(localDir + tmpPath, function (exists) {
+            if (exists) {
+                curContext.client.update(localDir + fileList[i], function (err, data) {
+                    i++;
+                    checkoutProcess(fileList, err, data);
+                });
+            } else {
+                var tmpDoList = [];
+                tmpDoList.push('--depth=empty');
+                tmpDoList.push(versionDir + tmpPath);
+                tmpDoList.push(localDir + tmpPath);
+                curContext.client.checkout(tmpDoList, function () {
+                    curContext.client.update(localDir + fileList[i], function (err, data) {
+                        i++;
+                        checkoutProcess(fileList, err, data);
+                    });
+                });
+            }
+        })
+    };
+    checkoutProcess(fileList);
+}
+module.exports = Svn;
 
-client.update(function (err, data) {
+/********测试案例*********/
+var test = new Svn({username: 'wengsr', password: 'wengsr62952'});
+var localDir = "c:/test/变更单1/";
+var versionDir = 'http://192.168.1.22:8000/svn/hxbss/NEW_BIZHALL/Source/trunk/Local/YN_TRUNK/';
+var fileList = [
+    'SaleWeb/src/main/java/com/al/crm/sale/main/view/main.html',
+    'SaleWeb/src/main/java/com/al/crm/sale/main/view/main.js',
+    'SoWeb/src/main/java/com/al/crm/so/main/view/index.js'
+];
+test.checkout(localDir, versionDir, fileList, function (err, data) {
     console.log(err);
     console.log(data);
-//    test.equals(err, null);
-//    test.done();
 });
-
-
-module.exports = {
-    'test checkout': function (test) {
-        // var checkoutPath = __dirname + '/tmp/checkout';
-        // var client = new Client({
-        //     cwd: checkoutPath
-        // });
-
-        client.checkout(repo, function (err, data) {
-            test.equals(err, null);
-            test.done();
-        });
-    },
-    'test info': function (test) {
-        client.getInfo(function (err, data) {
-            test.equals(err, null);
-            test.ok('url' in data);
-            test.done();
-        });
-    },
-    'test update': function (test) {
-        client.update(function (err, data) {
-            test.equals(err, null);
-            test.ok(data.indexOf('At revision') !== -1);
-            test.done();
-        });
-    },
-    'test status': function (test) {
-        client.getStatus(function (err, data) {
-            test.equals(err, null);
-            // test.equals(data.length, 0);
-            test.done();
-        });
-    },
-    'test log': function (test) {
-        client.getLog(function (err, data) {
-            test.equals(err, null);
-            test.ok('author' in data[0]);
-            test.done();
-        });
-    },
-    'test add': function (test) {
-        fs.writeFileSync(workingPath + '/a.txt', new Date().toString());
-
-        client.addLocal(function (err, data) {
-            test.equals(err, null);
-            test.done();
-        });
-    },
-    'test delete': function (test) {
-        client.del('b.txt', function (err, data) {
-            test.equals(err, null);
-            test.done();
-        });
-    },
-    'test commit': function (test) {
-        fs.writeFileSync(workingPath + '/a.txt', new Date().toString());
-
-        client.addLocal(function (err, data) {
-            test.equals(err, null);
-            client.commit('test commit', function (err, data) {
-                test.equals(err, null);
-                test.done();
-            });
-        });
-    },
-    'test update': function (test) {
-        client.update(function (err, data) {
-            test.equals(err, null);
-            test.done();
-        });
-    }
-};
