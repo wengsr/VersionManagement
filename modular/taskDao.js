@@ -15,7 +15,6 @@ exports.addTask = function (taskInfo, callback) {
                 return;
             }
             callback('success');
-
             console.log('--------------------------INSERT----------------------------');
             //console.log('INSERT ID:',result.insertId);
             console.log('INSERT ID:', result);
