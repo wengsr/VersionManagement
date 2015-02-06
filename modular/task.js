@@ -32,7 +32,7 @@ Task.findTaskByUserId = function(userId,callback){
             console.log('[CONN TASKS ERROR] - ', err.message);
             return callback(err);
         }
-        var sql = 'SELECT taskTable2.*, oU2.realName as createrName from' +
+        var sql = 'SELECT taskTable2.*, oU2.realName as createrName from ' +
             '        (' +
             '            SELECT taskTable.*, oU.realName as dealerName from' +
             '        (' +
@@ -51,14 +51,17 @@ Task.findTaskByUserId = function(userId,callback){
             '        AND tps1.processStepId = t1.processStepId' +
             '        AND (tps1.dealer is NULL AND tps1.processStepId in (2,6)' +
             '        OR' +
-            '        tps1.dealer is NOT NULL AND tps1.processStepId not in (2,6))' +
+            '        tps1.dealer is NOT NULL AND tps1.processStepId not in (2,6)' +
+            '        OR' +
+            '        tps1.dealer is NOT NULL AND tps1.processStepId in (2,6) AND tps1.dealer=?' +
+            '        )' +
             '        ) taskTable' +
             '        JOIN taskprocessstep oTps ON oTps.id = taskTable.taskid' +
             '        AND oTps.processStepId = taskTable.processStepId' +
             '        LEFT JOIN user oU ON oTps.dealer = oU.userId' +
             '        ) taskTable2' +
-            '        LEFT JOIN user oU2 ON taskTable2.creater = oU2.userId';
-        var params = [userId,userId];
+            '        LEFT JOIN user oU2 ON taskTable2.creater = oU2.userId ';
+        var params = [userId,userId,userId];
         connection.query(sql, params, function (err, result) {
             if (err) {
                 console.log('[QUERY TASKS ERROR] - ', err.message);
@@ -78,7 +81,7 @@ Task.findTaskByUserIdCount = function(userId,callback){
             return callback(err);
         }
         var sql = 'SELECT COUNT(1) as recordCount FROM(' +
-            '        SELECT taskTable2.*, oU2.realName as createrName from' +
+            '   SELECT taskTable2.*, oU2.realName as createrName from ' +
             '        (' +
             '            SELECT taskTable.*, oU.realName as dealerName from' +
             '        (' +
@@ -97,14 +100,17 @@ Task.findTaskByUserIdCount = function(userId,callback){
             '        AND tps1.processStepId = t1.processStepId' +
             '        AND (tps1.dealer is NULL AND tps1.processStepId in (2,6)' +
             '        OR' +
-            '        tps1.dealer is NOT NULL AND tps1.processStepId not in (2,6))' +
+            '        tps1.dealer is NOT NULL AND tps1.processStepId not in (2,6)' +
+            '        OR' +
+            '        tps1.dealer is NOT NULL AND tps1.processStepId in (2,6) AND tps1.dealer=?' +
+            '        )' +
             '        ) taskTable' +
             '        JOIN taskprocessstep oTps ON oTps.id = taskTable.taskid' +
             '        AND oTps.processStepId = taskTable.processStepId' +
             '        LEFT JOIN user oU ON oTps.dealer = oU.userId' +
             '        ) taskTable2' +
             '        LEFT JOIN user oU2 ON taskTable2.creater = oU2.userId ) countTable';
-        var params = [userId,userId];
+        var params = [userId,userId,userId];
         connection.query(sql, params, function (err, result) {
             if (err) {
                 console.log('[QUERY TASKS ERROR] - ', err.message);

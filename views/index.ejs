@@ -111,7 +111,7 @@
                           <td><%=task.createrName%></td>
                           <td><%=task.state%></td>
                           <td><%=task.stepName%></td>
-                          <td><%=task.dealerName%></td>
+                          <td><%=task.dealerName==null?'':task.dealerName%></td>
                       </tr>
                   <% }); %>
                  </tbody>
