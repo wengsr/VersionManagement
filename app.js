@@ -43,7 +43,7 @@ app.use(function(req, res, next) {
 
 // 返回成功和失败的信息
 app.use(function(err,req, res, next){
-    console.log("进入成功失败信息处理中间件");
+    //console.log("进入成功失败信息处理中间件");
     //声明变量
     var err = req.session.error;
     var msg = req.session.success;
@@ -61,9 +61,11 @@ app.use(function(err,req, res, next){
 });
 // 把user设置成动态视图助手
 app.use(function(req, res, next){
-    console.log("进入设置动态视图助手中间件");
+    //console.log("进入设置动态视图助手中间件");
     res.locals.user = req.session.user;
     res.locals.menus = req.session.menus;
+    res.locals.tasks = req.session.tasks;
+    res.locals.taskCount = req.session.taskCount;
     next();
 });
 
