@@ -34,7 +34,8 @@ var openTask = function(stepName, req, res, callback){
             if(task){//如果查到，按默认方式打开窗口（当前用户有权限修改这条变更单）
                 //查询这条变更单的详细信息给页面显示
                 findTaskById(taskId,function(task){
-                    res.render(stepName,{task:task});
+                    var t = new Task(task);
+                    res.render(stepName,{task:t});
                 });
             }else{//如果没有查到，就打开“变更单的查询只读”窗口(当前用户没有权限修改这条变更单)
                 res.render('taskInfo',{taskId:taskId});
@@ -43,7 +44,6 @@ var openTask = function(stepName, req, res, callback){
     }else{
         findTaskById(taskId,function(task){
             var t = new Task(task);
-            console.log(task);
             res.render(stepName,{task:t});
         });
     }
