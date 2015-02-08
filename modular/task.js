@@ -37,13 +37,15 @@ Task.findTaskByUserId = function(userId,callback){
             '            SELECT taskTable.*, oU.realName as dealerName from' +
             '        (' +
             '            SELECT DISTINCT t.*,ps.processStepName as stepName from tasks t' +
-            '        JOIN processstepdealer psd ON t.creater = psd.userId' +
+            '        JOIN processstepdealer psd ON t.creater = psd.userId ' +
+            '        AND psd.projectId = t.projectId' +
             '        JOIN user u ON psd.userId = u.userId AND u.userId = ?' +
             '        JOIN processstep ps ON ps.processStepId = t.processStepId' +
             '        UNION' +
             '        SELECT DISTINCT t1.*,ps1.processStepName as stepName' +
             '        from tasks t1' +
-            '        JOIN processstepdealer psd1 ON t1.processStepId = psd1.processStepId' +
+            '        JOIN processstepdealer psd1 ON t1.processStepId = psd1.processStepId ' +
+            '        AND psd1.projectId = t1.projectId' +
             '        AND t1.projectId = psd1.projectId' +
             '        JOIN user u1 ON psd1.userId = u1.userId AND u1.userId = ?' +
             '        JOIN processstep ps1 ON ps1.processStepId = t1.processStepId' +
@@ -73,7 +75,11 @@ Task.findTaskByUserId = function(userId,callback){
     });
 }
 
-
+/**
+ * 查找当期用户能操作的变更单_查询到的记录数量(包括当前用户发起和需要当前用户处理的变更单)
+ * @param userId
+ * @param callback
+ */
 Task.findTaskByUserIdCount = function(userId,callback){
     pool.getConnection(function(err, connection){
         if(err){
@@ -86,13 +92,15 @@ Task.findTaskByUserIdCount = function(userId,callback){
             '            SELECT taskTable.*, oU.realName as dealerName from' +
             '        (' +
             '            SELECT DISTINCT t.*,ps.processStepName as stepName from tasks t' +
-            '        JOIN processstepdealer psd ON t.creater = psd.userId' +
+            '        JOIN processstepdealer psd ON t.creater = psd.userId ' +
+            '        AND psd.projectId = t.projectId' +
             '        JOIN user u ON psd.userId = u.userId AND u.userId = ?' +
             '        JOIN processstep ps ON ps.processStepId = t.processStepId' +
             '        UNION' +
             '        SELECT DISTINCT t1.*,ps1.processStepName as stepName' +
             '        from tasks t1' +
-            '        JOIN processstepdealer psd1 ON t1.processStepId = psd1.processStepId' +
+            '        JOIN processstepdealer psd1 ON t1.processStepId = psd1.processStepId ' +
+            '        AND psd1.projectId = t1.projectId' +
             '        AND t1.projectId = psd1.projectId' +
             '        JOIN user u1 ON psd1.userId = u1.userId AND u1.userId = ?' +
             '        JOIN processstep ps1 ON ps1.processStepId = t1.processStepId' +
@@ -121,6 +129,64 @@ Task.findTaskByUserIdCount = function(userId,callback){
         });
     });
 }
+
+
+/**
+ * 对tasks表中creater是当前用户的处理：
+ *   1.查询当前“用户”对该 “变更单”  有哪些 “环节权限”
+ *   2.该变更单当前所在环节是否在这些“环节权限”中
+ * @param userId
+ * @param callback
+ */
+Task.findTaskForCreater = function(userId,taskId,callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN TASKS ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'SELECT t1.* FROM tasks t1' +
+            '        WHERE t1.processStepId IN' +
+            '        (SELECT psd.processStepId FROM processstepdealer psd' +
+            '        JOIN tasks t ON t.projectId = psd.projectId' +
+            '        AND psd.userId = ?' +
+            '        AND t.taskid = ?) AND t1.taskid = ?';
+        var params = [userId,taskId,taskId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY TASKS ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',result[0]);
+        });
+    });
+}
+
+
+/**
+ * 根据id查询变更单信息
+ * @param taskId
+ * @param callback
+ */
+Task.findTaskById = function(taskId,callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN TASKS ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'SELECT * FROM tasks where taskid = ?';
+        var params = [taskId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY TASKS ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',result[0]);
+        });
+    });
+}
+
 
 module.exports = Task;
 

@@ -8,6 +8,7 @@ var bodyParser = require('body-parser');
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var task = require('./routes/task');
+var taskDialog = require('./routes/taskDialog');
 
 var app = express();
 var session = require('express-session');
@@ -94,5 +95,6 @@ app.use(function(err, req, res, next) {
 app.use('/', routes);
 app.use('/users', users);
 app.use('/task', task);
+app.use('/taskDialog', taskDialog);
 
 module.exports = app;

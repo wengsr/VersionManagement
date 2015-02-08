@@ -103,11 +103,11 @@
                       <td>上库</td>
                       <td>郭丽丽</td>
                   </tr>
-                  <% tasks.forEach(function(task,i){ %>
+                  <% tasks.forEach(function(task,i){ var psId=task.processStepId%>
                       <tr>
                           <td><%=i+1%></td>
                           <td><a><%=task.taskcode%></a></td>
-                          <td><a><%=task.taskname%></a></td>
+                          <td><a id="task_<%=task.taskid%>" step="taskProcessStepId_<%=task.processStepId%>" taskid="<%=task.taskid%>" taskcreater="<%=task.creater%>"><%=task.taskname%></a></td>
                           <td><%=task.createrName%></td>
                           <td><%=task.state%></td>
                           <td><%=task.stepName%></td>

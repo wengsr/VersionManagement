@@ -47,6 +47,48 @@ var findTaskCount = function(userId,req,callback){
     });
 }
 
+/**
+ * 根据获取到的user信息去登录
+ * @param user
+ * @param req
+ * @param res
+ */
+var findInfoForLogin = function(user,req,res){
+    //查找当前登录用户有哪些工程的权限
+    User.findUserProjectId(user.userId,function(msg,projectIds){
+        if('success'!=msg){
+            req.session.error = "查找用户所拥有的工程权限时发生错误,请记录并联系管理员";
+            return null;
+        }
+        user.projectId = projectIds;
+        //记录到session，登录
+        req.session.user = user;
+        req.session.success = "登录成功";
+        //查找菜单
+        findMenu(user.userId,req,function(menus){
+            if(menus.length>0){
+                req.session.menus = menus;
+                //查找当前用户能操作的变更单
+                findTask(user.userId,req,function(tasks){
+                    if(tasks.length>0){
+                        req.session.tasks = tasks;
+                        req.session.taskCount = tasks.length;
+                        res.redirect("/");
+                    }else{
+                        req.session.tasks = null;
+                        req.session.taskCount = null;
+                        return res.redirect("/");
+                    }
+                });
+            }else{
+                req.session.menus = null;
+                res.redirect("/");
+            }
+        });
+
+    });
+}
+
 
 /**
  * 跳转至注册页面
@@ -96,29 +138,7 @@ router.post('/doReg', function(req, res) {
                 //return res.render('reg',{title:"注册页面",errMsg:"注册失败"});
             }else if('success'==msg){
                 newUser.userId = insertId;
-                req.session.user = newUser;
-                req.session.success = "注册成功";
-                //查找菜单
-                findMenu(newUser.userId,req,function(menus){
-                    if(menus.length>0){
-                        req.session.menus = menus;
-                        //查找当前用户能操作的变更单
-                        findTask(newUser.userId,req,function(tasks){
-                            if(tasks.length>0){
-                                req.session.tasks = tasks;
-                                req.session.taskCount = tasks.length;
-                                res.redirect("/");
-                            }else{
-                                req.session.tasks = null;
-                                req.session.taskCount = null;
-                                return res.redirect("/");
-                            }
-                        });
-                    }else{
-                        req.session.menus = null;
-                        res.redirect("/");
-                    }
-                });
+                findInfoForLogin(newUser,req,res)
                 //res.render('index',{title:"首页",user:req.session.user});
             }
         })
@@ -159,31 +179,7 @@ router.post('/doLogin', function(req, res) {
             return res.redirect("/users/login");
             //return res.render('login',{title:"登录页面",errMsg:"用户名或密码错误"});
         }
-        //记录到session，登录
-        req.session.user = user;
-        req.session.success = "登录成功";
-
-        //查找菜单
-        findMenu(user.userId,req,function(menus){
-            if(menus.length>0){
-                req.session.menus = menus;
-                //查找当前用户能操作的变更单
-                findTask(user.userId,req,function(tasks){
-                    if(tasks.length>0){
-                        req.session.tasks = tasks;
-                        req.session.taskCount = tasks.length;
-                        res.redirect("/");
-                    }else{
-                        req.session.tasks = null;
-                        req.session.taskCount = null;
-                        return res.redirect("/");
-                    }
-                });
-            }else{
-                req.session.menus = null;
-                res.redirect("/");
-            }
-        });
+        findInfoForLogin(user,req,res);
     });
 });
 
