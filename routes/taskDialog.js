@@ -31,21 +31,22 @@ var openTask = function(stepName, req, res, callback){
                 var errMsg = "查找变更单创建者信息时发生错误,请记录并联系管理员";
                 return res.render('errAlert',{message:errMsg});
             }
-            //如果查到，按默认方式打开窗口（当前用户有权限修改这条变更单）
-            //如果没有查到，就打开“变更单的查询只读”窗口(当前用户没有权限修改这条变更单)
-            if(!task){
+            if(task){//如果查到，按默认方式打开窗口（当前用户有权限修改这条变更单）
                 //查询这条变更单的详细信息给页面显示
                 findTaskById(taskId,function(task){
                     var t = new Task(task);
-                    return res.render('taskInfo',{task:t});//打开“变更单的查询只读”窗口
+                    res.render(stepName,{task:t});
                 });
+            }else{//如果没有查到，就打开“变更单的查询只读”窗口(当前用户没有权限修改这条变更单)
+                res.render('taskInfo',{taskId:taskId});
             }
         });
+    }else{
+        findTaskById(taskId,function(task){
+            var t = new Task(task);
+            res.render(stepName,{task:t});
+        });
     }
-    findTaskById(taskId,function(task){
-        var t = new Task(task);
-        res.render(stepName,{task:t});
-    });
 }
 
 /**
