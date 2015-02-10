@@ -14,7 +14,7 @@ exports.zipFiles = function (localBaseDir, fileList, zipFileName) {
 }
 
 /******测试案例*********/
-var localDir = "c:/test/变更单1/";
+var localDir = "c:/test/变更单1/old/";
 var fileList = [
     'SaleWeb/src/main/java/com/al/crm/sale/main/view/main.html',
     'SaleWeb/src/main/java/com/al/crm/sale/main/view/main.js',

@@ -57,7 +57,7 @@ module.exports = Svn;
 
 /********测试案例*********/
 var test = new Svn({username: 'wengsr', password: 'wengsr62952'});
-var localDir = "c:/test/变更单1/";
+var localDir = "c:/test/变更单1/old/";
 var versionDir = 'http://192.168.1.22:8000/svn/hxbss/NEW_BIZHALL/Source/trunk/Local/YN_TRUNK/';
 var fileList = [
     'SaleWeb/src/main/java/com/al/crm/sale/main/view/main.html',

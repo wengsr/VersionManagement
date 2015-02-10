@@ -14,6 +14,7 @@ var app = express();
 var session = require('express-session');
 var partials = require('express-partials');
 
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -96,5 +97,8 @@ app.use('/', routes);
 app.use('/users', users);
 app.use('/task', task);
 app.use('/taskDialog', taskDialog);
+
+var testD = require('./routes/test');
+app.use('/test', testD);
 
 module.exports = app;

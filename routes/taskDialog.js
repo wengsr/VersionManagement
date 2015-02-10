@@ -24,6 +24,7 @@ var openTask = function(stepName, req, res, callback){
     var userId = req.session.user.userId;    //当前登录用户的ID
     var taskId = req.params.taskId;          //变更单记录ID
     var taskCreater = req.params.taskCreater;//这条变更单记录创建者的ID
+    var dealerName = req.params.dealerName;
     if(userId==taskCreater){
         //对当前登录用户是这条变更单的creater的处理
         Task.findTaskForCreater(userId,taskId,function(msg,task){
@@ -35,6 +36,7 @@ var openTask = function(stepName, req, res, callback){
                 //查询这条变更单的详细信息给页面显示
                 findTaskById(taskId,function(task){
                     var t = new Task(task);
+                    t.dealerName = dealerName;
                     res.render(stepName,{task:t});
                 });
             }else{//如果没有查到，就打开“变更单的查询只读”窗口(当前用户没有权限修改这条变更单)
@@ -44,6 +46,7 @@ var openTask = function(stepName, req, res, callback){
     }else{
         findTaskById(taskId,function(task){
             var t = new Task(task);
+            t.dealerName = dealerName;
             res.render(stepName,{task:t});
         });
     }
@@ -52,42 +55,42 @@ var openTask = function(stepName, req, res, callback){
 /**
  * 打开"提交申请"的页面（步骤1）
  */
-router.get('/submitApply/:taskId/:taskCreater', function(req, res) {
+router.get('/submitApply/:taskId/:taskCreater/:dealerName', function(req, res) {
     openTask('submitApply',req,res);
 });
 
 /**
  * 打开"提取文件"的页面（步骤2）
  */
-router.get('/extractFile/:taskId/:taskCreater', function(req, res) {
+router.get('/extractFile/:taskId/:taskCreater/:dealerName', function(req, res) {
     openTask('extractFile',req,res);
 });
 
 /**
  * 打开"提交新旧文件"的页面（步骤3）
  */
-router.get('/submitFile/:taskId/:taskCreater', function(req, res) {
+router.get('/submitFile/:taskId/:taskCreater/:dealerName', function(req, res) {
     openTask('submitFile',req,res);
 });
 
 /**
  * 打开"安排走查"的页面（步骤4）
  */
-router.get('/planCheck/:taskId/:taskCreater', function(req, res) {
+router.get('/planCheck/:taskId/:taskCreater/:dealerName', function(req, res) {
     openTask('planCheck',req,res);
 });
 
 /**
  * 打开"走查"的页面（步骤5）
  */
-router.get('/check/:taskId/:taskCreater', function(req, res) {
+router.get('/check/:taskId/:taskCreater/:dealerName', function(req, res) {
     openTask('check',req,res);
 });
 
 /**
  * 打开"上库"的页面（步骤6）
  */
-router.get('/submit/:taskId/:taskCreater', function(req, res) {
+router.get('/submit/:taskId/:taskCreater/:dealerName', function(req, res) {
     openTask('submit',req,res);
 });
 

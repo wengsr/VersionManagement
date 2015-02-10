@@ -2,6 +2,8 @@
  * Created by wangfeng on 2015/2/5.
  */
 var pool = require('../util/connPool.js').getPool();
+var async = require('async');// 加载async 支持顺序执行
+//var queues = require('mysql-queues');// 加载mysql-queues 支持事务
 
 function Task(task){
     this.taskid = task.taskid
@@ -187,18 +189,40 @@ Task.findTaskById = function(taskId,callback){
     });
 }
 
+Task.acceptMission = function(taskId, processStepId, taskState, userId, callback){
+    pool.getConnection(function (err, connection) {
+        //var que = connection.createQueue();
+        var sql= {
+            updateTask: "update tasks t set t.state=?, t.processStepId = ? where t.taskId = ?",
+            updateDealer: 'update taskProcessStep set dealer=? where taskId=? and processStepId=?'
+        }
+        var updateTask_Params = [taskState, processStepId, taskId];
+        var updateDealer_params = [userId, taskId, processStepId];
+        var sqlMember = ['updateTask', 'updateDealer'];
+        var sqlMember_params = [updateTask_Params, updateDealer_params];
+        var i = 0;
+        // 获取事务
+//        queues(connection);
+//        var trans = connection.startTransaction();
+        async.eachSeries(sqlMember, function (item, callback) {
+            connection.query(sql[item], sqlMember_params[i++],function (err, result) {
+//                 if (err) {
+//                     console.log("rollback");
+//                     // 出错的场合 回滚
+//                     trans.rollback();
+//                 } else {
+//                     // 没有错误的场合 提交事务
+//                     trans.commit();
+//                 }
+                 callback(err, result);
+             });
+        });
+//        // 执行这个事务
+//        trans.execute();
+//        connection.release();
+        callback('success');
+    });
+}
+
 
 module.exports = Task;
-
-
-
-
-
-
-
-
-
-
-
-
-
