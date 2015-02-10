@@ -98,7 +98,7 @@ app.use('/users', users);
 app.use('/task', task);
 app.use('/taskDialog', taskDialog);
 
-var testD = require('./routes/test');
-app.use('/test', testD);
+//var testD = require('./routes/test');
+//app.use('/test', testD);
 
 module.exports = app;
