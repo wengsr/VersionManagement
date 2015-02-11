@@ -32,7 +32,7 @@
                             <% menus.forEach(function(menu){ %>
                                 <%var menuId = menu.menuId; var menuName = menu.menuName; var menuBtnName=menu.menuBtnName; var menuUrl=menu.url;%>
                                 <% if(menuId<=3){ %>
-                                    <li><a class="menuBtn" btnName="<%=menuBtnName%>" btnUrl="<%=menuUrl%>" href="#"> <%= menuName %> </a></li>
+                                    <li><a class="menuBtn" btnName="<%=menuBtnName%>" btnUrl="<%=menuUrl%>" href="#" id="<%= menuName %>"> <%= menuName %> </a></li>
                                 <% }else if(menuId>3 && menuId<=5){  %>
                                     <% if(!secFlag){ %><!--分隔条-->
                                         <li class="divider"></li>
@@ -107,7 +107,7 @@
                       <tr>
                           <td><%=i+1%></td>
                           <td><a><%=task.taskcode%></a></td>
-                          <td><a id="task_<%=task.taskid%>" dealerName="<%=task.dealerName%>" step="taskProcessStepId_<%=task.processStepId%>" taskid="<%=task.taskid%>" taskcreater="<%=task.creater%>"><%=task.taskname%></a></td>
+                          <td><a id="task_<%=task.taskid%>" createName="<%=task.createrName%>" dealerName="<%=task.dealerName%>" step="taskProcessStepId_<%=task.processStepId%>" taskid="<%=task.taskid%>" taskcreater="<%=task.creater%>"><%=task.taskname%></a></td>
                           <td><%=task.createrName%></td>
                           <td><%=task.state%></td>
                           <td><%=task.stepName%></td>

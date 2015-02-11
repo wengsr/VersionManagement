@@ -12,13 +12,18 @@ router.get('/addTaskPage', function(req, res) {
 
 router.post('/addTask', function (req, res) {
     var taskName = req.body.inputTaskName;
-    var tasker = req.body.inputTasker;
+    //var tasker = req.body.inputTasker;
+    var tasker = res.locals.user.userId;
+    var taskState = '申请完成';//申请时，状态默认为；1,提交申请
+    var taskProject = req.body.project;
+    var taskDetails = req.body.taskDetails;
+    var taskNewFiles = req.body.taskNewFiles;;
+    var taskModFiles = req.body.taskModFiles;
     var dao = require('../modular/taskDao');
-    dao.addTask({name: taskName, tasker: tasker}, function (flag) {
+    dao.addTask({name: taskName, tasker: tasker ,state: taskState,projectId:taskProject,desc:taskDetails,newFiles:taskNewFiles, modFiles:taskModFiles}, function (flag) {
         if (flag == 'success') {
-            res.render('index', { title: 'Express' });
-        } else {
-
+            console.log(" apply success!");
+            res.redirect('../../../');
         }
     });
 });
@@ -29,6 +34,7 @@ router.post('/acceptMission', function(req, res) {
     var processStepId = req.body['processStepId'];
     var userId = req.session.user.userId;
     var taskState = '申请通过';
+    debugger;
     Task.acceptMission(taskId,processStepId,taskState,userId,function(msg,result){
         if('success' == msg){
             var queryObj = url.parse(req.url,true).query;
@@ -37,6 +43,21 @@ router.post('/acceptMission', function(req, res) {
     });
 });
 
+
+router.post('/planCheck', function(req, res) {
+    var nextDelear = req.body['nextDealer'];
+    var taskId = req.body['taskId'];
+    var jsonStr;
+    Task.setCheckPerson(taskId, nextDelear, function(msg,result){
+        if('success' == msg){
+            jsonStr = '{"sucFlag":"success","message":"走查任务成功安排给【' + nextDelear + '】"}';
+        }else{
+            jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
+        }
+        var queryObj = url.parse(req.url,true).query;
+        res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+    });
+});
 
 
 
