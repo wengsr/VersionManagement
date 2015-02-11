@@ -32,7 +32,6 @@ function ajaxSubmit(params, url, subType, fun){
         cache: false,
         timeout: 5000,
         type: subType,
-        async: false,
         success: function(data){
             var dataJson = $.parseJSON(data);
             if('showUser'==fun){
