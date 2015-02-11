@@ -1,7 +1,6 @@
 /**
  * Created by wengs_000 on 2015/1/30 0030.
  */
-var fs = require('fs');
 var Client = require('svn-spawn');
 
 /**
@@ -12,7 +11,7 @@ var Client = require('svn-spawn');
  */
 var Svn = function (options) {
     this.client = new Client(options);
-}
+};
 /**
  * @author wengsr
  * @desc 从版本库获取文件
@@ -28,24 +27,29 @@ Svn.prototype.checkout = function (localDir, versionDir, fileList, callback) {
     tmpDoList.push(localDir);
     var curContext = this;
     curContext.client.checkout(tmpDoList, function (err, data) {
-        var i = 0;
-        num = fileList.length;
-        var checkoutProcess = function (fileList, err, data) {
-            if (i == num) {
-                callback(err, data);
-                return;
-            }
-            curContext.client.update([localDir + fileList[i], '--parents'], function (err, data) {
-                if (err == null) {
-                    i++;
-                    checkoutProcess(fileList, err, data);
-                } else {
+        if (!!err) {
+            console.log("检出失败" + err);
+        } else {
+            console.log("检出成功" + data);
+            var i = 0;
+            var num = fileList.length;
+            var checkoutProcess;
+            checkoutProcess = function (fileList, err, data) {
+                if (num == i) {
                     callback(err, data);
                     return;
                 }
-            });
+                curContext.client.update([localDir + fileList[i], '--parents'], function (err, data) {
+                    if (err == null) {
+                        i++;
+                        checkoutProcess(fileList, err, data);
+                    } else {
+                        callback(err, data);
+                    }
+                });
+            };
+            checkoutProcess(fileList);
         }
-        checkoutProcess(fileList);
     });
 };
 /**
@@ -58,9 +62,14 @@ Svn.prototype.commit = function (localDir, callback) {
     this.client.option('cwd', localDir);
     var curContext = this;
     this.client.addLocal(function (err, data) {
-        curContext.client.commit(localDir, callback);
+        if (!!err) {
+            console.log("添加本地变更失败" + err);
+        } else {
+            console.log("添加本地变更成功" + data);
+            curContext.client.commit(localDir, callback);
+        }
     });
-}
+};
 module.exports = Svn;
 /********测试案例*********/
 var test = new Svn({username: 'wengsr', password: 'wengsr62952'});
@@ -73,16 +82,15 @@ var fileList = [
 ];
 test.checkout(localDir, versionDir, fileList, function (err, data) {
     if (!!err) {
-        console.log("取文件失败", err);
+        console.log("取文件失败" + err);
     } else {
-        console.log("取文件成功");
+        console.log("取文件成功" + data);
     }
 });
-
 test.commit("c:/test/变更单1/old/", function (err, data) {
     if (!!err) {
-        console.log("提交失败", err);
+        console.log("提交失败" + err);
     } else {
-        console.log("提交件成功");
+        console.log("提交件成功" + data);
     }
-})
+});
