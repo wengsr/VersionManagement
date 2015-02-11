@@ -18,6 +18,8 @@
         "less-middleware": "1.0.x",
         "mysql": "2.5.3",
         "svn-spawn": "latest",
-        "adm-zip": "latest"
+        "adm-zip": "latest",
+        "mysql-queues":"1.0.0",
+        "async":"0.9.0"
     }
 }
