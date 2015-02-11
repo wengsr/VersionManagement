@@ -56,34 +56,6 @@ function ajaxSubmit(params, url, subType, fun){
 }
 
 /**
- * 隐藏提示条
- */
-function hideTip(){
-    $('#diaErrTip').hide();
-    $('#diaSuccessTip').hide();
-}
-
-/**
- * 成功错误提示条
- * @param tipType       提示条类型
- * @param tipContent    提示条内容
- */
-function showTipInfo(tipType, tipContent){
-    var tip;
-    var unTip;
-    if('success'==tipType){
-        tip = $('#diaSuccessTip');
-        unTip = $('#diaErrTip');
-    }else if('err'==tipType){
-        tip = $('#diaErrTip');
-        unTip = $('#diaSuccessTip');
-    }
-    tip.find('span').find('strong').html(tipContent);
-    unTip.hide();
-    tip.show();
-}
-
-/**
  * 向后台请求所有的用户名信息
  */
 function getAllUerName(){
@@ -120,7 +92,7 @@ function checkInput(){
 
 
 jQuery(document).ready(function() {
-    hideTip();
+
     getAllUerName();
     //注册提交按钮的点击事件
     $('#btnToSubmit').click(function(){
@@ -131,7 +103,7 @@ jQuery(document).ready(function() {
     //点击关闭按钮时刷新页面
     $('#btnCloseModel').click(function(){
         location.reload();
-    })
+    });
 
 });
 
