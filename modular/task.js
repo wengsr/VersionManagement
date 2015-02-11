@@ -60,7 +60,7 @@ Task.findTaskByUserId = function(userId,callback){
             '        tps1.dealer is NOT NULL AND tps1.processStepId in (2,6) AND tps1.dealer=?' +
             '        )' +
             '        ) taskTable' +
-            '        JOIN taskprocessstep oTps ON oTps.id = taskTable.taskid' +
+            '        JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid' +
             '        AND oTps.processStepId = taskTable.processStepId' +
             '        LEFT JOIN user oU ON oTps.dealer = oU.userId' +
             '        ) taskTable2' +
@@ -115,7 +115,7 @@ Task.findTaskByUserIdCount = function(userId,callback){
             '        tps1.dealer is NOT NULL AND tps1.processStepId in (2,6) AND tps1.dealer=?' +
             '        )' +
             '        ) taskTable' +
-            '        JOIN taskprocessstep oTps ON oTps.id = taskTable.taskid' +
+            '        JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid' +
             '        AND oTps.processStepId = taskTable.processStepId' +
             '        LEFT JOIN user oU ON oTps.dealer = oU.userId' +
             '        ) taskTable2' +
