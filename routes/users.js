@@ -4,6 +4,7 @@ var crypto = require('crypto');
 var User = require('../modular/user');
 var Menu = require('../modular/menu');
 var Task = require('../modular/task');
+var url = require('url');
 
 /**
  * 查找当前用户所能显示的菜单
@@ -193,4 +194,27 @@ router.get('/logout', function(req, res) {
     return res.redirect("/");
     //res.render('index',{title:"首页",user:req.session.user});
 });
+
+/**
+ * 获取所有的用户登录名和实名
+ */
+router.post('/getAllName', function(req, res) {
+    User.getAllName(function(msg,results){
+        if('success' == msg){
+            var queryObj = url.parse(req.url,true).query;
+            var jsonStr = "[";
+            results.forEach(function(result){
+                var uName = result.userName;
+                var uRealName = result.realName;
+                if(null==uRealName)uRealName='';
+                var userObj = '{ "userName": "' + uName + '", "realName": "' + uRealName + '" },';
+                jsonStr = jsonStr + userObj;
+            });
+            jsonStr = jsonStr + "]";
+            jsonStr = jsonStr.replace(",]","]");
+            res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+        }
+    });
+});
+
 module.exports = router;

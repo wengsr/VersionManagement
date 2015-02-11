@@ -38,6 +38,21 @@ router.post('/acceptMission', function(req, res) {
 });
 
 
+router.post('/planCheck', function(req, res) {
+    var nextDelear = req.body['nextDealer'];
+    var taskId = req.body['taskId'];
+    var jsonStr;
+    Task.setCheckPerson(taskId, nextDelear, function(msg,result){
+        if('success' == msg){
+            jsonStr = '{"sucFlag":"success","message":"走查任务成功安排给【' + nextDelear + '】"}';
+        }else{
+            jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
+        }
+        var queryObj = url.parse(req.url,true).query;
+        res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+    });
+});
+
 
 
 module.exports = router;

@@ -59,7 +59,8 @@ function regTaskLink(){
             var taskId = $(this).attr('taskid');
             var taskCreater = $(this).attr('taskcreater');
             var dealerName = $(this).attr('dealerName');
-            var realUrl = url + "/" + taskId + "/" + taskCreater + "/" + dealerName;
+            var createName = $(this).attr('createName');
+            var realUrl = url + "/" + taskId + "/" + taskCreater + "/" + dealerName + "/" + createName;
             btnForm = stepName.replace('btn','form');
             showModelDialog(taskTagId, realUrl, btnForm);
         });

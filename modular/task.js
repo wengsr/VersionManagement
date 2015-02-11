@@ -224,5 +224,110 @@ Task.acceptMission = function(taskId, processStepId, taskState, userId, callback
     });
 }
 
+/**
+ * 根据变更单ID查找对应的变更文件清单信息
+ * @param taskId
+ * @param callback
+ */
+Task.findFileListByTaskId = function(taskId, callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN FILELIST ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'SELECT * FROM fileList where taskid = ?';
+        var params = [taskId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY FILELIST ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            var addFileList;
+            var modifyFileList;
+            result.forEach(function(file,i){
+                if(file.state=='0'){
+                    if(undefined==addFileList){
+                        addFileList = file.fileUri;
+                    }else{
+                        addFileList = addFileList + "\r\n" + file.fileUri;
+                    }
+                }else if(file.state=='1'){
+                    if(undefined==modifyFileList){
+                        modifyFileList = file.fileUri;
+                    }else{
+                        modifyFileList = modifyFileList + "\r\n" + file.fileUri;
+                    }
+                }
+            });
+            connection.release();
+            callback('success',addFileList,modifyFileList);
+        });
+    });
+}
+
+
+/**
+ * 查询某个变更单某个环节上传的附件信息
+ * @param taskId
+ * @param processStepId
+ * @param callback
+ */
+Task.findAttaByTaskIdAndStepId = function(taskId, processStepId, callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN ATTACHMENT ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'SELECT * FROM taskattachment where taskid = ? and processStepId=?';
+        var params = [taskId,processStepId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY ATTACHMENT ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',result[0]);
+        });
+    });
+}
+
+/**
+ * 设置走查人员
+ * @param taskId
+ * @param dealer
+ * @param callback
+ */
+Task.setCheckPerson = function(taskId,dealer,callback){
+    pool.getConnection(function (err, connection) {
+        //var que = connection.createQueue();
+        var sql= {
+            selectDealer:"select * from taskprocessstep where taskid=? and processStepId=5",
+            updateTask: "update tasks set processStepId=5, state='已安排走查' where taskid=?",
+            updateDealer: 'insert into taskprocessstep(taskId,processStepId,dealer) values (?,5,(select userId from user where userName=?))'
+        }
+        var selectDealer_params = [taskId];
+        var updateTask_params = [taskId];
+        var updateDealer_params = [taskId, dealer];
+        var sqlMember = ['selectDealer', 'updateTask', 'updateDealer'];
+        var sqlMember_params = [selectDealer_params, updateTask_params, updateDealer_params];
+        var i = 0;
+        async.eachSeries(sqlMember, function (item, callback_async) {
+            connection.query(sql[item], sqlMember_params[i++],function (err, result) {
+                if(item == 'selectDealer' && undefined!=result && ''!=result && null!=result){
+                    //判断走查环节是否已经被指定走查人员
+                    return callback('err','走查环节已指定走查人员,无需再次指定');
+                }
+                if(err){
+                    return callback('err',err);
+                }
+                if(item == 'updateDealer' && !err){//最后一条sql语句执行没有错就返回成功
+                    callback('success');
+                }
+                callback_async(err, result);
+            });
+        });
+    });
+}
+
 
 module.exports = Task;

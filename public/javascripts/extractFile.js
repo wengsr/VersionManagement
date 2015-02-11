@@ -3,8 +3,7 @@
  */
 
 function ajaxSubmit(params, url, subType){
-    var curWwwPath=window.document.location.href;
-    url = curWwwPath + url;
+    url = './' + url;
     $.ajax({
         data: params,
         url: url,

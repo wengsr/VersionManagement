@@ -148,6 +148,29 @@ User.findUserProjectId = function(userId,callback){
     });
 }
 
+/**
+ * 获取所有用户登录名和实名
+ * @param callback
+ */
+User.getAllName = function(callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN USER ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'select userName,realName from user';
+
+        connection.query(sql, function (err, result) {
+            if (err) {
+                console.log('[QUERY USER ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',result);
+        });
+    });
+}
+
 
 
 module.exports = User;
