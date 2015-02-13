@@ -1,7 +1,6 @@
 /**
  * Created by wengs_000 on 2015/1/30 0030.
  */
-var fs = require('fs');
 var Client = require('svn-spawn');
 
 /**
@@ -12,7 +11,7 @@ var Client = require('svn-spawn');
  */
 var Svn = function (options) {
     this.client = new Client(options);
-}
+};
 /**
  * @author wengsr
  * @desc 从版本库获取文件
@@ -22,49 +21,76 @@ var Svn = function (options) {
  * @param callback 回调函数 err data
  */
 Svn.prototype.checkout = function (localDir, versionDir, fileList, callback) {
-    var i = 0;
-    num = fileList.length;
+    var tmpDoList = [];
+    tmpDoList.push('--depth=empty');
+    tmpDoList.push(versionDir);
+    tmpDoList.push(localDir);
     var curContext = this;
-    var checkoutProcess = function (fileList, err, data) {
-        if (i == num) {
-            callback(err, data);
-            return;
-        }
-        var tmpPath = fileList[i].substr(0, fileList[i].lastIndexOf('/') + 1);
-        fs.exists(localDir + tmpPath, function (exists) {
-            if (exists) {
-                curContext.client.update(localDir + fileList[i], function (err, data) {
-                    i++;
-                    checkoutProcess(fileList, err, data);
-                });
-            } else {
-                var tmpDoList = [];
-                tmpDoList.push('--depth=empty');
-                tmpDoList.push(versionDir + tmpPath);
-                tmpDoList.push(localDir + tmpPath);
-                curContext.client.checkout(tmpDoList, function () {
-                    curContext.client.update(localDir + fileList[i], function (err, data) {
+    curContext.client.checkout(tmpDoList, function (err, data) {
+        if (!!err) {
+            console.log("检出失败" + err);
+        } else {
+            console.log("检出成功" + data);
+            var i = 0;
+            var num = fileList.length;
+            var checkoutProcess;
+            checkoutProcess = function (fileList, err, data) {
+                if (num == i) {
+                    callback(err, data);
+                    return;
+                }
+                curContext.client.update([localDir + fileList[i], '--parents'], function (err, data) {
+                    if (err == null) {
                         i++;
                         checkoutProcess(fileList, err, data);
-                    });
+                    } else {
+                        callback(err, data);
+                    }
                 });
-            }
-        })
-    };
-    checkoutProcess(fileList);
-}
+            };
+            checkoutProcess(fileList);
+        }
+    });
+};
+/**
+ * @author wengsr
+ * @desc 提交变更上库
+ * @param localDir 本地文件夹（一般为变更单目录）
+ * @param callback 回调函数 err data
+ */
+Svn.prototype.commit = function (localDir, callback) {
+    this.client.option('cwd', localDir);
+    var curContext = this;
+    this.client.addLocal(function (err, data) {
+        if (!!err) {
+            console.log("添加本地变更失败" + err);
+        } else {
+            console.log("添加本地变更成功" + data);
+            curContext.client.commit(localDir, callback);
+        }
+    });
+};
 module.exports = Svn;
-
 /********测试案例*********/
 var test = new Svn({username: 'wengsr', password: 'wengsr62952'});
 var localDir = "c:/test/变更单1/old/";
-var versionDir = 'http://192.168.1.22:8000/svn/hxbss/NEW_BIZHALL/Source/trunk/Local/YN_TRUNK/';
+var versionDir = 'http://192.168.1.22:8000/svn/hxbss/testVersion/';
 var fileList = [
-    'SaleWeb/src/main/java/com/al/crm/sale/main/view/main.html',
-    'SaleWeb/src/main/java/com/al/crm/sale/main/view/main.js',
-    'SoWeb/src/main/java/com/al/crm/so/main/view/index.js'
+    'a/b/b1.txt',
+    'a/a2.txt',
+    'a/a1.txt'
 ];
 test.checkout(localDir, versionDir, fileList, function (err, data) {
-    console.log(err);
-    console.log(data);
+    if (!!err) {
+        console.log("取文件失败" + err);
+    } else {
+        console.log("取文件成功" + data);
+    }
+});
+test.commit("c:/test/变更单1/old/", function (err, data) {
+    if (!!err) {
+        console.log("提交失败" + err);
+    } else {
+        console.log("提交件成功" + data);
+    }
 });
