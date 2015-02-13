@@ -9,7 +9,7 @@ var transporter = nodemailer.createTransport({
     host: "mail.asiainfo.com",
     auth: {
         user: 'wangfeng13@asiainfo.com',
-        pass: 'Asiawf@'
+        pass: ''
     }
 });
 
