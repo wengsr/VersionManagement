@@ -13,7 +13,10 @@ var taskDialog = require('./routes/taskDialog');
 var app = express();
 var session = require('express-session');
 var partials = require('express-partials');
-
+var multiparty=require('connect-multiparty');
+var file = require('./routes/file');
+//配置 uploadDir如果不配置的话蒋传到默认的temp文件夹,一般情况下是建议配置的
+app.use(multiparty({uploadDir:'f:/TEST', keepExtensions:true}));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -97,6 +100,7 @@ app.use('/', routes);
 app.use('/users', users);
 app.use('/task', task);
 app.use('/taskDialog', taskDialog);
+app.use('/file', file);
 
 //var testD = require('./routes/test');
 //app.use('/test', testD);

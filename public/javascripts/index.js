@@ -3,6 +3,14 @@
  */
 
 /**
+ * 隐藏提示条
+ */
+function hideTip(){
+    $('#diaErrTip').hide();
+    $('#diaSuccessTip').hide();
+}
+
+/**
  * 注册按钮的打开模态窗口方法
  * @param btnName
  * @param url
@@ -13,6 +21,7 @@ function showModelDialog(btnName, url, formName){
     var findFormName = '#' + formName;
     $(findBtn).click(function(){
         $('#divModel').load(url,function(){
+            hideTip();
             $('#btnSubmit').click(function () {
                 $(findFormName).submit();
             });

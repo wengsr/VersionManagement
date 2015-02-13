@@ -3,7 +3,8 @@
  */
 var pool = require('../util/connPool.js').getPool();
 var async = require('async');// 加载async 支持顺序执行
-//var queues = require('mysql-queues');// 加载mysql-queues 支持事务
+var queues = require('mysql-queues');// 加载mysql-queues 支持事务
+
 
 function Task(task){
     this.taskid = task.taskid
@@ -39,33 +40,35 @@ Task.findTaskByUserId = function(userId,callback){
             '            SELECT taskTable.*, oU.realName as dealerName from' +
             '        (' +
             '            SELECT DISTINCT t.*,ps.processStepName as stepName from tasks t' +
-            '        JOIN processstepdealer psd ON t.creater = psd.userId ' +
+            '        JOIN processstepdealer psd ON t.creater = psd.userId' +
             '        AND psd.projectId = t.projectId' +
             '        JOIN user u ON psd.userId = u.userId AND u.userId = ?' +
             '        JOIN processstep ps ON ps.processStepId = t.processStepId' +
             '        UNION' +
             '        SELECT DISTINCT t1.*,ps1.processStepName as stepName' +
             '        from tasks t1' +
-            '        JOIN processstepdealer psd1 ON t1.processStepId = psd1.processStepId ' +
+            '        JOIN processstepdealer psd1 ON t1.processStepId = psd1.processStepId' +
             '        AND psd1.projectId = t1.projectId' +
             '        AND t1.projectId = psd1.projectId' +
             '        JOIN user u1 ON psd1.userId = u1.userId AND u1.userId = ?' +
             '        JOIN processstep ps1 ON ps1.processStepId = t1.processStepId' +
             '        JOIN taskprocessstep tps1 ON tps1.taskId = t1.taskid' +
+            '        AND tps1.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps1 where maxtps1.taskId = t1.taskid)' +
             '        AND tps1.processStepId = t1.processStepId' +
             '        AND (tps1.dealer is NULL AND tps1.processStepId in (2,6)' +
             '        OR' +
-            '        tps1.dealer is NOT NULL AND tps1.processStepId not in (2,6)' +
+            '        tps1.dealer is NOT NULL AND tps1.processStepId not in (2,6) AND tps1.dealer=?' +
             '        OR' +
             '        tps1.dealer is NOT NULL AND tps1.processStepId in (2,6) AND tps1.dealer=?' +
             '        )' +
             '        ) taskTable' +
             '        JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid' +
+            '        AND oTps.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps2 where maxtps2.taskId = taskTable.taskid)' +
             '        AND oTps.processStepId = taskTable.processStepId' +
             '        LEFT JOIN user oU ON oTps.dealer = oU.userId' +
             '        ) taskTable2' +
             '        LEFT JOIN user oU2 ON taskTable2.creater = oU2.userId ';
-        var params = [userId,userId,userId];
+        var params = [userId,userId,userId,userId];
         connection.query(sql, params, function (err, result) {
             if (err) {
                 console.log('[QUERY TASKS ERROR] - ', err.message);
@@ -89,38 +92,41 @@ Task.findTaskByUserIdCount = function(userId,callback){
             return callback(err);
         }
         var sql = 'SELECT COUNT(1) as recordCount FROM(' +
-            '   SELECT taskTable2.*, oU2.realName as createrName from ' +
+            'SELECT taskTable2.*, oU2.realName as createrName from ' +
             '        (' +
             '            SELECT taskTable.*, oU.realName as dealerName from' +
             '        (' +
             '            SELECT DISTINCT t.*,ps.processStepName as stepName from tasks t' +
-            '        JOIN processstepdealer psd ON t.creater = psd.userId ' +
+            '        JOIN processstepdealer psd ON t.creater = psd.userId' +
             '        AND psd.projectId = t.projectId' +
             '        JOIN user u ON psd.userId = u.userId AND u.userId = ?' +
             '        JOIN processstep ps ON ps.processStepId = t.processStepId' +
             '        UNION' +
             '        SELECT DISTINCT t1.*,ps1.processStepName as stepName' +
             '        from tasks t1' +
-            '        JOIN processstepdealer psd1 ON t1.processStepId = psd1.processStepId ' +
+            '        JOIN processstepdealer psd1 ON t1.processStepId = psd1.processStepId' +
             '        AND psd1.projectId = t1.projectId' +
             '        AND t1.projectId = psd1.projectId' +
             '        JOIN user u1 ON psd1.userId = u1.userId AND u1.userId = ?' +
             '        JOIN processstep ps1 ON ps1.processStepId = t1.processStepId' +
             '        JOIN taskprocessstep tps1 ON tps1.taskId = t1.taskid' +
+            '        AND tps1.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps1 where maxtps1.taskId = t1.taskid)' +
             '        AND tps1.processStepId = t1.processStepId' +
             '        AND (tps1.dealer is NULL AND tps1.processStepId in (2,6)' +
             '        OR' +
-            '        tps1.dealer is NOT NULL AND tps1.processStepId not in (2,6)' +
+            '        tps1.dealer is NOT NULL AND tps1.processStepId not in (2,6) AND tps1.dealer=?' +
             '        OR' +
             '        tps1.dealer is NOT NULL AND tps1.processStepId in (2,6) AND tps1.dealer=?' +
             '        )' +
             '        ) taskTable' +
             '        JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid' +
+            '        AND oTps.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps2 where maxtps2.taskId = taskTable.taskid)' +
             '        AND oTps.processStepId = taskTable.processStepId' +
             '        LEFT JOIN user oU ON oTps.dealer = oU.userId' +
             '        ) taskTable2' +
-            '        LEFT JOIN user oU2 ON taskTable2.creater = oU2.userId ) countTable';
-        var params = [userId,userId,userId];
+            '        LEFT JOIN user oU2 ON taskTable2.creater = oU2.userId ' +
+            ') countTable';
+        var params = [userId,userId,userId,userId];
         connection.query(sql, params, function (err, result) {
             if (err) {
                 console.log('[QUERY TASKS ERROR] - ', err.message);
@@ -189,38 +195,55 @@ Task.findTaskById = function(taskId,callback){
     });
 }
 
+/**
+ * 接受任务_上库环节使用(如果“提取文件”环节需要也可用)
+ * @param taskId
+ * @param processStepId
+ * @param taskState
+ * @param userId
+ * @param callback
+ */
 Task.acceptMission = function(taskId, processStepId, taskState, userId, callback){
     pool.getConnection(function (err, connection) {
-        //var que = connection.createQueue();
+        //开启事务
+        queues(connection);
+        var trans = connection.startTransaction();
         var sql= {
+            selectDealer:"select * from taskprocessstep where taskid=? and processStepId=6 and dealer is not null " +
+                " and turnNum IN (SELECT MAX(turnNum) FROM taskprocessstep where taskId=?)",
             updateTask: "update tasks t set t.state=?, t.processStepId = ? where t.taskId = ?",
-            updateDealer: 'update taskProcessStep set dealer=? where taskId=? and processStepId=?'
+            updateDealer: 'update taskProcessStep set dealer=? where taskId=? and processStepId=? ' +
+                ' AND turnNum = (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)'
         }
+        var selectDealer_params = [taskId,taskId];
         var updateTask_Params = [taskState, processStepId, taskId];
-        var updateDealer_params = [userId, taskId, processStepId];
-        var sqlMember = ['updateTask', 'updateDealer'];
-        var sqlMember_params = [updateTask_Params, updateDealer_params];
+        var updateDealer_params = [userId, taskId, processStepId, taskId];
+        var sqlMember = ['selectDealer', 'updateTask', 'updateDealer'];
+        var sqlMember_params = [selectDealer_params, updateTask_Params, updateDealer_params];
         var i = 0;
-        // 获取事务
-//        queues(connection);
-//        var trans = connection.startTransaction();
-        async.eachSeries(sqlMember, function (item, callback) {
-            connection.query(sql[item], sqlMember_params[i++],function (err, result) {
-//                 if (err) {
-//                     console.log("rollback");
-//                     // 出错的场合 回滚
-//                     trans.rollback();
-//                 } else {
-//                     // 没有错误的场合 提交事务
-//                     trans.commit();
-//                 }
-                 callback(err, result);
-             });
+        async.eachSeries(sqlMember, function (item, callback_async) {
+            trans.query(sql[item], sqlMember_params[i++],function (err, result) {
+                if(item == 'selectDealer' && undefined!=result && ''!=result && null!=result){
+                    //判断该变更单的上库任务是否已经被其他管理员接受
+                    return callback('err','任务已经被管理员接受,无需再次指定');
+                }
+                if(err){
+                    return callback('err',err);
+                }
+                if(item == 'updateDealer' && !err){//最后一条sql语句执行没有错就返回成功
+                    return callback('success');
+                }
+                callback_async(err, result);
+            });
         });
-//        // 执行这个事务
-//        trans.execute();
-//        connection.release();
-        callback('success');
+        if (err) {
+            console.log("rollback");
+            trans.rollback();
+        } else {
+            trans.commit();
+        }
+        trans.execute();//提交事务
+        connection.release();
     });
 }
 
@@ -299,20 +322,27 @@ Task.findAttaByTaskIdAndStepId = function(taskId, processStepId, callback){
  */
 Task.setCheckPerson = function(taskId,dealer,callback){
     pool.getConnection(function (err, connection) {
-        //var que = connection.createQueue();
+        //开启事务
+        queues(connection);
+        var trans = connection.startTransaction();
+
         var sql= {
-            selectDealer:"select * from taskprocessstep where taskid=? and processStepId=5",
+            selectDealer:"select * from taskprocessstep where taskid=? and processStepId=5 " +
+                " and turnNum IN (SELECT MAX(turnNum) FROM taskprocessstep where taskId=?)",
             updateTask: "update tasks set processStepId=5, state='已安排走查' where taskid=?",
-            updateDealer: 'insert into taskprocessstep(taskId,processStepId,dealer) values (?,5,(select userId from user where userName=?))'
+            updateDealer: 'insert into taskprocessstep(taskId,processStepId,dealer,turnNum) values ' +
+                ' (?,5,' +
+                ' (select userId from user where userName=?),' +
+                ' (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable))'
         }
-        var selectDealer_params = [taskId];
+        var selectDealer_params = [taskId,taskId];
         var updateTask_params = [taskId];
-        var updateDealer_params = [taskId, dealer];
+        var updateDealer_params = [taskId, dealer, taskId];
         var sqlMember = ['selectDealer', 'updateTask', 'updateDealer'];
         var sqlMember_params = [selectDealer_params, updateTask_params, updateDealer_params];
         var i = 0;
         async.eachSeries(sqlMember, function (item, callback_async) {
-            connection.query(sql[item], sqlMember_params[i++],function (err, result) {
+            trans.query(sql[item], sqlMember_params[i++],function (err, result) {
                 if(item == 'selectDealer' && undefined!=result && ''!=result && null!=result){
                     //判断走查环节是否已经被指定走查人员
                     return callback('err','走查环节已指定走查人员,无需再次指定');
@@ -321,13 +351,185 @@ Task.setCheckPerson = function(taskId,dealer,callback){
                     return callback('err',err);
                 }
                 if(item == 'updateDealer' && !err){//最后一条sql语句执行没有错就返回成功
-                    callback('success');
+                    return callback('success');
                 }
                 callback_async(err, result);
             });
         });
+        if (err) {
+            console.log("rollback");
+            trans.rollback();
+        } else {
+            trans.commit();
+        }
+        trans.execute();//提交事务
+        connection.release();
     });
 }
 
+
+/**
+ * 走查通过
+ * @param taskId
+ * @param callback
+ */
+Task.doCheckPass = function(taskId,callback){
+    pool.getConnection(function (err, connection) {
+        //开启事务
+        queues(connection);
+        var trans = connection.startTransaction();
+
+        var sql= {
+            selectDealer:"select * from taskprocessstep where taskid=? and processStepId=6 " +
+                " and turnNum IN (SELECT MAX(turnNum) FROM taskprocessstep where taskId=?)",
+            selectDealer_Unpass:"select * from tasks where taskid=? and state='走查不通过'",
+            updateTask: "update tasks set processStepId=6, state='走查通过' where taskid=?",
+            updateDealer: 'insert into taskprocessstep(taskId,processStepId,turnNum) values ' +
+                ' (?,6,' +
+                ' (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable))'
+        }
+        var selectDealer_params = [taskId, taskId];
+        var selectDealer_Unpass_params = [taskId];
+        var updateTask_params = [taskId];
+        var updateDealer_params = [taskId,taskId];
+        var sqlMember = ['selectDealer','selectDealer_Unpass', 'updateTask', 'updateDealer'];
+        var sqlMember_params = [selectDealer_params, selectDealer_Unpass_params, updateTask_params, updateDealer_params];
+        var i = 0;
+        async.eachSeries(sqlMember, function (item, callback_async) {
+            trans.query(sql[item], sqlMember_params[i++],function (err_async, result) {
+                if(item == 'selectDealer' && undefined!=result && ''!=result && null!=result){
+                    //判断是否已经走查通过
+                    return callback('err','该变更单走查已通过,无需再次操作');
+                }
+                if(item == 'selectDealer_Unpass' && undefined!=result && ''!=result && null!=result){
+                    //判断是否已经走查通过
+                    return callback('err','该变更单走查不通过,不可改变');
+                }
+                if(err_async){
+                    return callback('err',err_async);
+                }
+                if(item == 'updateDealer' && !err_async){//最后一条sql语句执行没有错就返回成功
+                    return callback('success');
+                }
+                callback_async(err_async, result);
+            });
+        });
+        if (err) {
+            console.log("rollback");
+            trans.rollback();
+        } else {
+            trans.commit();
+        }
+        trans.execute();//提交事务
+        connection.release();
+    });
+}
+
+
+/**
+ * 走查不通过
+ * @param taskId
+ * @param callback
+ */
+Task.doCheckUnPass = function(taskId,callback){
+    pool.getConnection(function (err, connection) {
+        //开启事务
+        queues(connection);
+        var trans = connection.startTransaction();
+
+        var sql= {
+            selectDealer_pass:"select * from taskprocessstep where taskid=? and processStepId=6 " +
+                " and turnNum IN (SELECT MAX(turnNum) FROM taskprocessstep where taskId=?)",
+            selectDealer_Unpass:"select * from tasks where taskid=? and state='走查不通过'",
+            updateTask: "update tasks set state='走查不通过', processStepId=3 where taskid=?",
+            insertReturnInfo: 'INSERT INTO taskProcessStep (taskId, processStepId, dealer, turnNum) VALUES ' +
+                '        ( ?,3,' +
+                '          (SELECT CREATER FROM tasks WHERE taskId=?),' +
+                '          (SELECT maxNum+1 from (SELECT MAX(turnNum) as maxNum FROM taskProcessStep WHERE taskId=?) as maxNumTable)' +
+                '        )'
+        }
+        var selectDealer_params = [taskId, taskId];
+        var selectDealer_Unpass_params = [taskId];
+        var updateTask_params = [taskId];
+        var insertReturnInfo_params = [taskId,taskId,taskId];
+        var sqlMember = ['selectDealer_pass', 'selectDealer_Unpass', 'updateTask', 'insertReturnInfo'];
+        var sqlMember_params = [selectDealer_params, selectDealer_Unpass_params, updateTask_params, insertReturnInfo_params];
+        var i = 0;
+        async.eachSeries(sqlMember, function (item, callback_async) {
+            trans.query(sql[item], sqlMember_params[i++],function (err_async, result) {
+                if(item == 'selectDealer_pass' && undefined!=result && ''!=result && null!=result){
+                    //判断是否已经走查通过
+                    return callback('err','该变更单走查已通过,不可改变');
+                }
+                if(item == 'selectDealer_Unpass' && undefined!=result && ''!=result && null!=result){
+                    //判断是否已经走查通过
+                    return callback('err','该变更单走查不通过,无需重复操作');
+                }
+                if(err_async){
+                    return callback('err',err_async);
+                }
+                if(item == 'insertReturnInfo' && !err_async){//最后一条sql语句执行没有错就返回成功
+                    return callback('success');
+                }
+                callback_async(err_async, result);
+            });
+        });
+        if (err) {
+            console.log("rollback");
+            trans.rollback();
+        } else {
+            trans.commit();
+        }
+        trans.execute();//提交事务
+        connection.release();
+    });
+}
+
+
+/**
+ * 上库完成
+ * @param taskId
+ * @param callback
+ */
+Task.submitComplete = function(taskId,callback){
+    pool.getConnection(function (err, connection) {
+        //开启事务
+        queues(connection);
+        var trans = connection.startTransaction();
+
+        var sql= {
+            selectDealer:"select * from tasks where taskid=? and processStepId=7",
+            updateTask: "update tasks set state='上库完成',processStepId=7 where taskid=?"
+        }
+        var selectDealer_params = [taskId];
+        var updateTask_params = [taskId];
+        var sqlMember = ['selectDealer', 'updateTask'];
+        var sqlMember_params = [selectDealer_params, updateTask_params];
+        var i = 0;
+        async.eachSeries(sqlMember, function (item, callback_async) {
+            trans.query(sql[item], sqlMember_params[i++],function (err_async, result) {
+                if(item == 'selectDealer' && undefined!=result && ''!=result && null!=result){
+                    //判断是否已经走查通过
+                    return callback('err','该变更单已经上库完成,无需重复操作');
+                }
+                if(err_async){
+                    return callback('err',err_async);
+                }
+                if(item == 'updateTask' && !err_async){//最后一条sql语句执行没有错就返回成功
+                    return callback('success');
+                }
+                callback_async(err_async, result);
+            });
+        });
+        if (err) {
+            console.log("rollback");
+            trans.rollback();
+        } else {
+            trans.commit();
+        }
+        trans.execute();//提交事务
+        connection.release();
+    });
+}
 
 module.exports = Task;
