@@ -1,4 +1,5 @@
-<link rel="stylesheet" href="/javascripts/fileUpload/css/jquery.fileupload.css"/>
+<!--变更单处理--“上库”模态窗口-->
+<link rel="stylesheet" href="/stylesheets/jquery.fileupload.css"/>
 <form action="" id="formExtractFile" class=" bs-component form-horizontal" method='post'>
     <input type="hidden" id="taskId" name="taskId" value="<%= task.taskid%>"/>
     <input type="hidden" id="processStepId" name="processStepId" value="<%= task.processStepId%>"/>
@@ -47,14 +48,14 @@
                     <div class="form-group">
                         <label for="inputTaskList" class="col-sm-2 control-label">已上传的新旧附件</label>
                         <div class="col-sm-10" style="margin-top:6px">
-                            <span><a href="<%=attaFile.fileUri%>"><%=attaFile.fileName%></a></span>
+                            <span><a id="a_attaFile" href="<%=attaFile.fileUri%>"><%=attaFile.fileName%></a></span>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="inputTaskList" class="col-sm-2 control-label">走查报告</label>
                         <div class="col-sm-10" style="margin-top:6px">
-                            <span><a href="<%=reportAtta.fileUri%>"><%=reportAtta.fileName%></a></span>
+                            <span><a id="a_reportAtta" href="<%=reportAtta.fileUri%>"><%=reportAtta.fileName%></a></span>
                         </div>
                     </div>
 
@@ -67,7 +68,7 @@
         <div style="width:69%;float:left;margin-bottom:-20px;margin-top:-9px;height:50px;" id="diaSuccessTip" class="alert alert-success alert-dismissible" role="alert"><span style="text-align:center;margin-left:auto;margin-right:auto;display:block;"><strong>操作成功</strong></span></div>
         <div style="width:30%;float:right;">
             <button id="btnCloseModel" type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-
+            <input type="hidden" id="taskState" value="<%=task.state%>"/>
             <button id="btnSubmitAccept" type="button" class="btn btn-primary">接受任务</button>
             <button id="btnSubmitComplete" type="button" class="btn btn-primary">上库完成</button>
         </div>

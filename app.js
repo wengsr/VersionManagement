@@ -13,10 +13,8 @@ var taskDialog = require('./routes/taskDialog');
 var app = express();
 var session = require('express-session');
 var partials = require('express-partials');
-var multiparty=require('connect-multiparty');
+//var multiparty=require('connect-multiparty');
 var file = require('./routes/file');
-//配置 uploadDir如果不配置的话蒋传到默认的temp文件夹,一般情况下是建议配置的
-app.use(multiparty({uploadDir:'f:/TEST', keepExtensions:true}));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -28,6 +26,7 @@ app.use(partials());
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
 app.use(cookieParser());
 app.use(require('less-middleware')(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -45,7 +44,6 @@ app.use(function(req, res, next) {
 });
 
 // error handlers
-
 // 返回成功和失败的信息
 app.use(function(err,req, res, next){
     //console.log("进入成功失败信息处理中间件");
@@ -57,11 +55,11 @@ app.use(function(err,req, res, next){
     delete req.session.success;
     //将错误和正确信息存放到动态视图助手变量中。
     res.locals.message = '';
-    if(err) res.locals.message = '<div id="errTip" class="alert alert-danger alert-dismissible" role="alert"><button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button><strong>' + err + '</strong></div>';
-    if(msg) res.locals.message = '<div id="successTip" class="alert alert-success alert-dismissible" role="alert"><button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button><strong>' + msg + '</strong></div>';
-//    console.log('err='+err);
-//    console.log('msg='+msg);
-//    console.log('outMsg=' + res.locals.message);
+    if(err) res.locals.message = '<div id="errTip" class="alert alert-danger alert-dismissible" style="text-align: center" role="alert"><button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button><strong>' + err + '</strong></div>';
+    if(msg) res.locals.message = '<div id="successTip" class="alert alert-success alert-dismissible" style="text-align: center" role="alert"><button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button><strong>' + msg + '</strong></div>';
+    //console.log('err='+err);
+    //console.log('msg='+msg);
+    //console.log('outMsg=' + res.locals.message);
     next();
 });
 // 把user设置成动态视图助手
@@ -102,7 +100,5 @@ app.use('/task', task);
 app.use('/taskDialog', taskDialog);
 app.use('/file', file);
 
-//var testD = require('./routes/test');
-//app.use('/test', testD);
 
 module.exports = app;

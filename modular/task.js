@@ -195,6 +195,33 @@ Task.findTaskById = function(taskId,callback){
     });
 }
 
+
+/**
+ * 根据id查询变更单信息(带申请者姓名)
+ * @param taskId
+ * @param callback
+ */
+Task.findTaskByIdWithCreater = function(taskId,callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN TASKS ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'SELECT * FROM tasks t ' +
+            '        JOIN user u ON t.creater = u.userId' +
+            '        AND t.taskid = ?';
+        var params = [taskId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY TASKS ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',result[0]);
+        });
+    });
+}
+
 /**
  * 接受任务_上库环节使用(如果“提取文件”环节需要也可用)
  * @param taskId
@@ -222,26 +249,23 @@ Task.acceptMission = function(taskId, processStepId, taskState, userId, callback
         var sqlMember_params = [selectDealer_params, updateTask_Params, updateDealer_params];
         var i = 0;
         async.eachSeries(sqlMember, function (item, callback_async) {
-            trans.query(sql[item], sqlMember_params[i++],function (err, result) {
+            trans.query(sql[item], sqlMember_params[i++],function (err_async, result) {
                 if(item == 'selectDealer' && undefined!=result && ''!=result && null!=result){
                     //判断该变更单的上库任务是否已经被其他管理员接受
+                    trans.rollback();
                     return callback('err','任务已经被管理员接受,无需再次指定');
                 }
-                if(err){
-                    return callback('err',err);
+                if(err_async){
+                    trans.rollback();
+                    return callback('err',err_async);
                 }
-                if(item == 'updateDealer' && !err){//最后一条sql语句执行没有错就返回成功
+                if(item == 'updateDealer' && !err_async){//最后一条sql语句执行没有错就返回成功
+                    trans.commit();
                     return callback('success');
                 }
-                callback_async(err, result);
+                callback_async(err_async, result);
             });
         });
-        if (err) {
-            console.log("rollback");
-            trans.rollback();
-        } else {
-            trans.commit();
-        }
         trans.execute();//提交事务
         connection.release();
     });
@@ -289,30 +313,31 @@ Task.findFileListByTaskId = function(taskId, callback){
 }
 
 
-/**
- * 查询某个变更单某个环节上传的附件信息
- * @param taskId
- * @param processStepId
- * @param callback
- */
-Task.findAttaByTaskIdAndStepId = function(taskId, processStepId, callback){
-    pool.getConnection(function(err, connection){
-        if(err){
-            console.log('[CONN ATTACHMENT ERROR] - ', err.message);
-            return callback(err);
-        }
-        var sql = 'SELECT * FROM taskattachment where taskid = ? and processStepId=?';
-        var params = [taskId,processStepId];
-        connection.query(sql, params, function (err, result) {
-            if (err) {
-                console.log('[QUERY ATTACHMENT ERROR] - ', err.message);
-                return callback(err,null);
-            }
-            connection.release();
-            callback('success',result[0]);
-        });
-    });
-}
+///**
+// * 查询某个变更单某个环节上传的附件信息
+// * @param taskId
+// * @param processStepId
+// * @param callback
+// */
+//Task.findAttaByTaskIdAndStepId = function(taskId, processStepId, callback){
+//    pool.getConnection(function(err, connection){
+//        if(err){
+//            console.log('[CONN ATTACHMENT ERROR] - ', err.message);
+//            return callback(err);
+//        }
+//        var sql = 'SELECT * FROM taskattachment where taskid = ? and processStepId=? ' +
+//            'AND turnNum = (SELECT MAX(turnNum) FROM taskprocessstep where taskId=?)';
+//        var params = [taskId,processStepId,taskId];
+//        connection.query(sql, params, function (err, result) {
+//            if (err) {
+//                console.log('[QUERY ATTACHMENT ERROR] - ', err.message);
+//                return callback(err,null);
+//            }
+//            connection.release();
+//            callback('success',result[0]);
+//        });
+//    });
+//}
 
 /**
  * 设置走查人员
@@ -327,6 +352,7 @@ Task.setCheckPerson = function(taskId,dealer,callback){
         var trans = connection.startTransaction();
 
         var sql= {
+            selectUser:"select userId from user where userName=?",
             selectDealer:"select * from taskprocessstep where taskid=? and processStepId=5 " +
                 " and turnNum IN (SELECT MAX(turnNum) FROM taskprocessstep where taskId=?)",
             updateTask: "update tasks set processStepId=5, state='已安排走查' where taskid=?",
@@ -335,33 +361,36 @@ Task.setCheckPerson = function(taskId,dealer,callback){
                 ' (select userId from user where userName=?),' +
                 ' (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable))'
         }
+        var selectUser_params = [dealer];
         var selectDealer_params = [taskId,taskId];
         var updateTask_params = [taskId];
         var updateDealer_params = [taskId, dealer, taskId];
-        var sqlMember = ['selectDealer', 'updateTask', 'updateDealer'];
-        var sqlMember_params = [selectDealer_params, updateTask_params, updateDealer_params];
+        var sqlMember = ['selectUser','selectDealer', 'updateTask', 'updateDealer'];
+        var sqlMember_params = [selectUser_params, selectDealer_params, updateTask_params, updateDealer_params];
         var i = 0;
         async.eachSeries(sqlMember, function (item, callback_async) {
-            trans.query(sql[item], sqlMember_params[i++],function (err, result) {
+            trans.query(sql[item], sqlMember_params[i++],function (err_async, result) {
+                if(item == 'selectUser' && (undefined==result || ''==result || null==result)){
+                    //判断用户是否存在
+                    trans.rollback();
+                    return callback('err','该用户不存在');
+                }
                 if(item == 'selectDealer' && undefined!=result && ''!=result && null!=result){
                     //判断走查环节是否已经被指定走查人员
+                    trans.rollback();
                     return callback('err','走查环节已指定走查人员,无需再次指定');
                 }
-                if(err){
-                    return callback('err',err);
+                if(err_async){
+                    trans.rollback();
+                    return callback('err',err_async);
                 }
-                if(item == 'updateDealer' && !err){//最后一条sql语句执行没有错就返回成功
+                if(item == 'updateDealer' && !err_async){//最后一条sql语句执行没有错就返回成功
+                    trans.commit();
                     return callback('success');
                 }
-                callback_async(err, result);
+                callback_async(err_async, result);
             });
         });
-        if (err) {
-            console.log("rollback");
-            trans.rollback();
-        } else {
-            trans.commit();
-        }
         trans.execute();//提交事务
         connection.release();
     });
@@ -399,27 +428,25 @@ Task.doCheckPass = function(taskId,callback){
             trans.query(sql[item], sqlMember_params[i++],function (err_async, result) {
                 if(item == 'selectDealer' && undefined!=result && ''!=result && null!=result){
                     //判断是否已经走查通过
+                    trans.rollback();
                     return callback('err','该变更单走查已通过,无需再次操作');
                 }
                 if(item == 'selectDealer_Unpass' && undefined!=result && ''!=result && null!=result){
                     //判断是否已经走查通过
+                    trans.rollback();
                     return callback('err','该变更单走查不通过,不可改变');
                 }
                 if(err_async){
+                    trans.rollback();
                     return callback('err',err_async);
                 }
                 if(item == 'updateDealer' && !err_async){//最后一条sql语句执行没有错就返回成功
+                    trans.commit();
                     return callback('success');
                 }
                 callback_async(err_async, result);
             });
         });
-        if (err) {
-            console.log("rollback");
-            trans.rollback();
-        } else {
-            trans.commit();
-        }
         trans.execute();//提交事务
         connection.release();
     });
@@ -459,27 +486,25 @@ Task.doCheckUnPass = function(taskId,callback){
             trans.query(sql[item], sqlMember_params[i++],function (err_async, result) {
                 if(item == 'selectDealer_pass' && undefined!=result && ''!=result && null!=result){
                     //判断是否已经走查通过
+                    trans.rollback();
                     return callback('err','该变更单走查已通过,不可改变');
                 }
                 if(item == 'selectDealer_Unpass' && undefined!=result && ''!=result && null!=result){
                     //判断是否已经走查通过
+                    trans.rollback();
                     return callback('err','该变更单走查不通过,无需重复操作');
                 }
                 if(err_async){
+                    trans.rollback();
                     return callback('err',err_async);
                 }
                 if(item == 'insertReturnInfo' && !err_async){//最后一条sql语句执行没有错就返回成功
+                    trans.commit();
                     return callback('success');
                 }
                 callback_async(err_async, result);
             });
         });
-        if (err) {
-            console.log("rollback");
-            trans.rollback();
-        } else {
-            trans.commit();
-        }
         trans.execute();//提交事务
         connection.release();
     });
@@ -499,34 +524,33 @@ Task.submitComplete = function(taskId,callback){
 
         var sql= {
             selectDealer:"select * from tasks where taskid=? and processStepId=7",
-            updateTask: "update tasks set state='上库完成',processStepId=7 where taskid=?"
+            updateTask: "update tasks set state='上库完成',processStepId=7 where taskid=?",
+            updateFileList: "update filelist set commit=1 where taskId=?"
         }
         var selectDealer_params = [taskId];
         var updateTask_params = [taskId];
-        var sqlMember = ['selectDealer', 'updateTask'];
-        var sqlMember_params = [selectDealer_params, updateTask_params];
+        var updateFileList_params = [taskId];
+        var sqlMember = ['selectDealer', 'updateTask', 'updateFileList'];
+        var sqlMember_params = [selectDealer_params, updateTask_params, updateFileList_params];
         var i = 0;
         async.eachSeries(sqlMember, function (item, callback_async) {
             trans.query(sql[item], sqlMember_params[i++],function (err_async, result) {
                 if(item == 'selectDealer' && undefined!=result && ''!=result && null!=result){
                     //判断是否已经走查通过
+                    trans.rollback();
                     return callback('err','该变更单已经上库完成,无需重复操作');
                 }
                 if(err_async){
+                    trans.rollback();
                     return callback('err',err_async);
                 }
-                if(item == 'updateTask' && !err_async){//最后一条sql语句执行没有错就返回成功
+                if(item == 'updateFileList' && !err_async){//最后一条sql语句执行没有错就返回成功
+                    trans.commit();
                     return callback('success');
                 }
                 callback_async(err_async, result);
             });
         });
-        if (err) {
-            console.log("rollback");
-            trans.rollback();
-        } else {
-            trans.commit();
-        }
         trans.execute();//提交事务
         connection.release();
     });

@@ -1,8 +1,10 @@
-<form action="/extractFile/acceptTask" id="formExtractFile" class=" bs-component form-horizontal" method='post'>
-    <input type="hidden" id="selectedTaskId" name="selectedTaskId1" value="000"/>
+<!--变更单处理--“当前用户发起的变更单”模态窗口-->
+<form action="" id="formExtractFile" class=" bs-component form-horizontal" method='post'>
+    <input type="hidden" id="taskId" name="taskId" value="<%= task.taskid%>"/>
+    <input type="hidden" id="processStepId" name="processStepId" value="<%= task.processStepId%>"/>
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
-        <h4 class="modal-title" id="myLargeModalLabel">提取文件(我是变更单只读信息窗口)</h4>
+        <h4 class="modal-title" id="myLargeModalLabel">我发起的变更单</h4>
     </div>
     <div  class="modal-body">
         <div class="container-fluid">
@@ -10,35 +12,53 @@
                 <div class="col-lg-12">
 
                     <div class="form-group">
-                        <label for="inputTaskName" class="col-sm-2 control-label">变更单号1</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control"  name="inputTaskName" id="inputTaskName" placeholder="变更单名称">
+                        <label for="taskName" class="col-sm-2 control-label">变更单号</label>
+                        <div class="col-sm-10" style="margin-top:6px">
+                            <span id="taskCode"><%=task.taskcode%></span>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="inputTaskName" class="col-sm-2 control-label">变更单名</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control"  name="inputTaskName" id="inputTaskName" placeholder="变更单名称">
+                        <div class="col-sm-10" style="margin-top:6px">
+                            <span id="taskName"><%=task.taskname%></span>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="inputTaskDesc" class="col-sm-2 control-label">申请人</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control"  name="inputTaskName" id="inputTaskName" placeholder="变更单名称">
+                        <div class="col-sm-4" style="margin-top:6px">
+                            <span id="createrName"><%=task.createName%></span>
                         </div>
+
+                        <!--<label for="inputTaskList" class="col-sm-2 control-label">已上传的新旧附件</label>-->
+                        <!--<div class="col-sm-4" style="margin-top:6px">-->
+                            <!--<span><a id="a_attaFile" href="<%=attaFile.fileUri%>"><%=attaFile.fileName%></a></span>-->
+                        <!--</div>-->
                     </div>
                     <div class="form-group">
-                        <label for="inputTaskList" class="col-sm-2 control-label">变更文件清单</label>
-                        <div class="col-sm-10">
-                            <textarea class="form-control" id="inputTaskList" rows="3" disabled="disabled">fdafdsa</textarea>
+                        <label for="addTaskList" class="col-sm-2 control-label">新增文件清单</label>
+                        <div class="col-sm-10" style="margin-top:6px">
+                            <textarea class="form-control" id="addTaskList" rows="3" disabled="disabled"><%=addFileList%></textarea>
                         </div>
                     </div>
+
+                    <div class="form-group">
+                        <label for="modifyTaskList" class="col-sm-2 control-label">修改文件清单</label>
+                        <div class="col-sm-10" style="margin-top:6px">
+                            <textarea class="form-control" id="modifyTaskList" rows="3" disabled="disabled"><%=modifyFileList==undefined?'':modifyFileList%></textarea>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-        <button id="btnSubmit" type="button" class="btn btn-primary" data-dismiss="modal">提交</button>
+        <div style="width:20%;float:right;">
+            <button id="btnCloseModel" type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        </div>
     </div>
 </form>
+
+<script src="/javascripts/bootstrap-suggest.js"></script>
+<script src="/javascripts/common.js"></script>
+<script src="/javascripts/planCheck.js"></script>

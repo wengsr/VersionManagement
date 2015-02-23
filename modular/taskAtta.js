@@ -25,8 +25,9 @@ TaskAtta.findAttaByTaskIdAndStepId = function(taskId, processStepId, callback){
             console.log('[CONN ATTACHMENT ERROR] - ', err.message);
             return callback(err);
         }
-        var sql = 'SELECT * FROM taskattachment where taskid = ? and processStepId=?';
-        var params = [taskId,processStepId];
+        var sql = 'SELECT * FROM taskattachment where taskid = ? and processStepId=? ' +
+            ' AND turnNum = (SELECT MAX(turnNum) FROM taskprocessstep where taskId=?)';
+        var params = [taskId,processStepId,taskId];
         connection.query(sql, params, function (err, result) {
             if (err) {
                 console.log('[QUERY ATTACHMENT ERROR] - ', err.message);
@@ -34,6 +35,36 @@ TaskAtta.findAttaByTaskIdAndStepId = function(taskId, processStepId, callback){
             }
             connection.release();
             callback('success',result[0]);
+        });
+    });
+}
+
+
+/**
+ * 保存附件信息
+ * @param taskId
+ * @param processStepId
+ * @param fileName
+ * @param fileUri
+ * @param callback
+ */
+TaskAtta.saveTaskAtta = function(taskId, processStepId, fileName, fileUri, callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN ATTACHMENT ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'INSERT INTO taskattachment (taskId, processStepId, fileName, fileUri, turnNum) ' +
+            ' VALUES (?,?,?,?,' +
+            ' (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable))';
+        var params = [taskId, processStepId, fileName, fileUri, taskId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY ATTACHMENT ERROR] - ', err.message);
+                return callback('err',err);
+            }
+            connection.release();
+            callback('success',result.insertId);
         });
     });
 }

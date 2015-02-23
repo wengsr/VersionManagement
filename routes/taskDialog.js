@@ -1,3 +1,6 @@
+/**
+ * Created by wangfeng on 2015/2/23.
+ */
 var express = require('express');
 var router = express.Router();
 var Task = require('../modular/task');
@@ -103,7 +106,40 @@ var openTask = function(stepName, req, res, callback){
                     });
                 });
             }else{//如果没有查到，就打开“变更单的查询只读”窗口(当前用户没有权限修改这条变更单)
-                res.render('taskInfo',{taskId:taskId});
+                Task.findTaskById(taskId,function(msg,result){
+                    var t = new Task(result);
+                    t.dealerName = dealerName;
+                    t.createName = createName;
+                    if('success'!=msg){
+                        req.session.error = "查找变更单信息发生错误,请记录并联系管理员";
+                        return null;
+                    }
+                    findFileListByTaskId(req, taskId, function(addFileList,modifyFileList){
+                        findAttaByTaskIdAndStepId(req, taskId, "3",function(atta){//找出变更单发起者上传的附件
+                            if(undefined==atta){
+                                atta = new TaskAtta({
+                                    "attachmentId":'',
+                                    "taskId":'',
+                                    "processStepId":'',
+                                    "fileName":'未找到附件',
+                                    "fileUri":'#'
+                                });
+                            }
+                            findAttaByTaskIdAndStepId(req, taskId, '5',function(reportAtta) {//找到走查环节上传的走查报告
+                                if (undefined == reportAtta) {
+                                    reportAtta = new TaskAtta({
+                                        "attachmentId": '',
+                                        "taskId": '',
+                                        "processStepId": '',
+                                        "fileName": '未找到附件',
+                                        "fileUri": '#'
+                                    });
+                                }
+                                res.render('taskInfo',{task:t, addFileList:addFileList, modifyFileList:modifyFileList, attaFile:atta, reportAtta:reportAtta});
+                            });
+                        });
+                    });
+                });
             }
         });
     }else{

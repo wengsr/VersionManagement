@@ -1,7 +1,47 @@
+/**
+ * Created by wangfeng on 2015/2/23.
+ */
 var express = require('express');
 var router = express.Router();
 var Task = require('../modular/task');
+var FileList = require('../modular/fileList');
+var sendMailToCreater = require('../util/email');
 var url = require('url');
+
+/**
+ * 查找其他用户文件清单占用情况
+ * @param taskId
+ * @param req
+ * @param callback
+ */
+var findUnUsedTaskAndFileUri = function(taskId,req,callback){
+    FileList.findUnUsedTaskAndFileUri(taskId,function(msg,fileLists){
+        if('success'!=msg){
+            req.session.error = "查找其他用户文件清单占用情况时发生错误,请记录并联系管理员";
+            return null;
+        }
+        callback(fileLists);
+    });
+}
+
+/**
+ * 给文件清单处于未占用的用户发送邮件
+ * @param content
+ */
+var sendEmail = function(taskId, content){
+    Task.findTaskByIdWithCreater(taskId,function(msg,result){
+        if('success'!=msg){
+            req.session.error = "发送邮件时查找变更单信息发生错误,请记录并联系管理员";
+            return null;
+        }
+        var taskcode = result.taskcode;
+        var taskname = result.taskname;
+        var creater = result.realName;
+        var userEmail = result.email;
+        sendMailToCreater(taskcode, taskname, creater, content, userEmail);
+    });
+}
+
 
 
 router.get('/addTaskPage', function(req, res) {
@@ -120,7 +160,7 @@ router.post('/submitAccept', function(req, res) {
 
 
 /**
- * “上库步骤_上库完成”业务实现(未实现功能：判断第二步中的文件占用情况并发邮件)
+ * “上库步骤_上库完成”业务实现
  */
 router.post('/submitComplete', function(req, res) {
     var taskId = req.body['taskId'];
@@ -128,6 +168,34 @@ router.post('/submitComplete', function(req, res) {
     Task.submitComplete(taskId, function(msg,result){
         if('success' == msg){
             jsonStr = '{"sucFlag":"success","message":"【上库完成】执行成功"}';
+            //判断其他变更单的文件占用情况并发邮件
+            findUnUsedTaskAndFileUri(taskId,req,function(fileLists){
+                var tempTaskId = '';
+                var tempFileUriStr = '';
+                if(fileLists.length>0){
+                    tempTaskId = fileLists[0].taskId;
+                    fileLists.forEach(function(fileList,j){
+                        if(tempTaskId == fileList.taskId){
+                            if(''==tempFileUriStr){
+                                tempFileUriStr = fileList.fileUri;
+                            }else{
+                                tempFileUriStr = tempFileUriStr + '<br/>' + fileList.fileUri;
+                            }
+                        }else{
+                            sendEmail(tempTaskId, tempFileUriStr);
+                            tempTaskId = fileList.taskId;
+                            tempFileUriStr = fileList.fileUri;
+                        }
+
+                        if(fileLists.length == j+1){
+                            //处理最后一条记录
+                            sendEmail(tempTaskId, tempFileUriStr);
+                            tempTaskId = '';
+                            tempFileUriStr = '';
+                        }
+                    });
+                }
+            });
         }else{
             jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
         }

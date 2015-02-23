@@ -11,7 +11,7 @@ function hideTip(){
 }
 
 /**
- * 注册按钮的打开模态窗口方法
+ * 按钮的打开模态窗口方法
  * @param btnName
  * @param url
  * @param formName
@@ -31,8 +31,8 @@ function showModelDialog(btnName, url, formName){
 }
 
 ///**
-// * 给菜单按钮注册对应的点击方法
-// */
+//* 给菜单按钮注册对应的点击方法
+//*/
 //function regBtn(){
 //    $(".menuBtn").each(function () {
 //        var btnName = $(this).attr('btnName');
@@ -51,7 +51,6 @@ function regTaskLink(){
     var url;
     var btnForm;
     for(var i=1;i<7;i++){
-
         switch (i){
             case 1 : url = '/taskDialog/submitApply'; stepName = 'btnSubmitApply'; break;
             case 2 : url = '/taskDialog/extractFile'; stepName = 'btnExtractFile'; break;
@@ -60,7 +59,6 @@ function regTaskLink(){
             case 5 : url = '/taskDialog/check'; stepName = 'btnCheck'; break;
             case 6 : url = '/taskDialog/submit'; stepName = 'btnSubmit'; break;
         }
-
         var stepId = "[step=taskProcessStepId_" + i + "]";
         $(stepId).each(function(){
             $(this).attr('step',stepName);
@@ -73,7 +71,6 @@ function regTaskLink(){
             btnForm = stepName.replace('btn','form');
             showModelDialog(taskTagId, realUrl, btnForm);
         });
-
     }
 }
 
@@ -85,14 +82,32 @@ function setTaskId(taskId){
     $('#selectedTaskId').val(taskId);
 }
 
+/**
+ * 变更单记录数为0时候的处理
+ */
+function dealZeroTask(){
+    $('#noTaskNotice').hide();
+    if($('#recCount').attr('recCount')==0){
+        $('#taskDiv').hide();
+        $('#noTaskNotice').show();
+    }
+}
+
 jQuery(document).ready(function() {
     //点击申请变更单打开模态窗口
-    //showModelDialog('btnAddTask','/task/addTaskPage','formAddTask');
-
-    showModelDialog("提交申请","/task/addTaskPage",'formAddTask');
+    showModelDialog("btnSubmitApply","/task/addTaskPage",'formAddTask');
     regTaskLink();
     //隐藏页面上方提示条
     setTimeout(function(){$('#errTip').slideUp(1000);setTimeout(function(){$('#errTip').remove()},2000)},2000);
     setTimeout(function(){$('#successTip').slideUp(1000);setTimeout(function(){$('#successTip').remove()},2000)},1000);
+    //首页流程效果
+    $("#SubmitApply").popover({placement:'left'});
+    $("#SubmitFile").popover({placement:'right'});
+    $("#PlanCheck").popover({placement:'right'});
+    $("#Check").popover({placement:'bottom'});
+    $("#Submit").popover({placement:'left'});
+
+    //变更单记录为0时候的处理
+    dealZeroTask();
 });
 

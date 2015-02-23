@@ -14,16 +14,26 @@ var transporter = nodemailer.createTransport({
 });
 
 var mailOptions = {
-    from: '版本管理系统<wangfeng13@asiainfo.com>', // sender address
-    to: 'wangfeng13@asiainfo.com', // list of receivers
-    subject: '这是一个标题', // Subject line
-    html: '<b>这是一个正在开发中的版本管理系统：<br/>以下文件已解除锁定，可以提取，请及时提取并上传变更单。<br/></b><div>SaleWeb/src/main/java/com/al/crm/sale/main/view/main.html<br/>SaleWeb/src/main/java/com/al/crm/sale/main/view/main.js<br/></div>' // html body
+    from: '版本管理系统<wangfeng13@asiainfo.com>',
+    to: '', // wangfeng13@asiainfo.com
+    subject: '【版本管理系统】文件占用解除',
+    html: ''
 };
 
-transporter.sendMail(mailOptions, function(error, info){
-    if(error){
-        console.log(error);
-    }else{
-        console.log('Message sent: ' + info.response);
-    }
-});
+var sendMailToCreate = function(taskcode, taskname, creater, content, userEmail){
+    var sendContent = '<b>开发人员_'+creater+'：<br/>' +
+        '&emsp;&emsp;您好！您申请的变更单“'+taskname+'”(变更单号：'+taskcode+')有以下文件被占用。' +
+        '现在占用已解除，可以提取。请及时提取并上传变更单。<br/><br/></b>' +
+        '<div>'+content+'<br/></div>'
+    mailOptions.html = sendContent;
+    mailOptions.to = userEmail;
+    transporter.sendMail(mailOptions, function(error, info){
+        if(error){
+            console.log(error);
+        }else{
+            console.log('Message sent: ' + info.response);
+        }
+    });
+}
+
+module.exports = sendMailToCreate;

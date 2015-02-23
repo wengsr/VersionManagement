@@ -9,7 +9,7 @@
  * @param url
  * @param subType
  */
-function ajaxSubmit(params, url, subType){
+function ajaxSubmit(params, url, subType, fun){
     url = './' + url;
     $.ajax({
         data: params,
@@ -25,7 +25,10 @@ function ajaxSubmit(params, url, subType){
                 showTipInfo('err',dataJson.message);
             }else if('success'==flag){
                 showTipInfo('success',dataJson.message);
-                $('#btnToSubmit').hide();
+                if('accept'==fun){
+                    $('#btnSubmitAccept').hide();
+                    $('#btnSubmitComplete').show();
+                }
             }
         },
         error: function(jqXHR, textStatus, errorThrown){
@@ -43,7 +46,7 @@ function submitForm_submitAccept(){
         taskId: $('#taskId').val()
     };
     var planCheck_url='task/submitAccept';
-    ajaxSubmit(planCheck_params, planCheck_url, 'post');
+    ajaxSubmit(planCheck_params, planCheck_url, 'post', 'accept');
 }
 
 /**
@@ -55,12 +58,27 @@ function submitForm_submitComplete(){
         taskId: $('#taskId').val()
     };
     var planCheck_url='task/submitComplete';
-    ajaxSubmit(planCheck_params, planCheck_url, 'post');
+    ajaxSubmit(planCheck_params, planCheck_url, 'post', 'complete');
+}
+
+/**
+ * “接受任务”和“上库完成”按钮的显示隐藏
+ */
+function acceptAndCompBtn(){
+    var taskState = $('#taskState').val();
+    if('走查通过'==taskState){
+        $('#btnSubmitAccept').show();
+        $('#btnSubmitComplete').hide();
+    }else{
+        $('#btnSubmitAccept').hide();
+        $('#btnSubmitComplete').show();
+    }
 }
 
 
 
 jQuery(document).ready(function() {
+    acceptAndCompBtn();
     //接受任务
     $('#btnSubmitAccept').click(function(){
         submitForm_submitAccept();

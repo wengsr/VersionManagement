@@ -89,6 +89,18 @@ function checkInput(){
     return true;
 }
 
+/**
+ * 处理走查人员下拉列表
+ */
+function dealSelectUl(){
+//    $("#selectUl").find("tbody").each(function(){
+//        console.info($(this).val());
+//    });
+    $("#selectUl").find("table").find("tbody").load(function(){
+        console.info($(this));
+    });
+
+}
 
 jQuery(document).ready(function() {
 
@@ -103,6 +115,6 @@ jQuery(document).ready(function() {
     $('#btnCloseModel').click(function(){
         location.reload();
     });
-
+    dealSelectUl();
 });
 
