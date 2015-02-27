@@ -9,6 +9,8 @@ function User(user){
     this.password = user.password;
     this.roleId = user.roleId;
     this.permissionId = user.permissionId;
+    this.realName = user.realName;
+    this.email = user.email;
 
     this.projectId = user.projectId;    //有哪些工程的权限
     this.userStepIds = user.userStepIds;//有哪几个环节的权限，以逗号分隔
@@ -163,6 +165,53 @@ User.getAllName = function(callback){
         connection.query(sql, function (err, result) {
             if (err) {
                 console.log('[QUERY USER ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',result);
+        });
+    });
+}
+
+
+/**
+ * 修改用户的登录密码
+ * @param callback
+ */
+User.modifyPwd = function(pwd, userId, callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN USER ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'update user set password=? where userId=?';
+        var params = [pwd,userId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[UPDATE USER ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',result);
+        });
+    });
+}
+
+/**
+ * 修改用户信息
+ * @param callback
+ */
+User.modifyUserInfo = function(realName, email, userId, callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN USER ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'update user set realname=?, email=? where userId=?';
+        var params = [realName, email, userId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[UPDATE USER ERROR] - ', err.message);
                 return callback(err,null);
             }
             connection.release();

@@ -1,0 +1,43 @@
+<!--用户信息修改界面-->
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/stylesheets/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+<%- message %>
+<div class="span8 text-center">
+    <div class="modal-header">
+        <h4 class="modal-title" id="myLargeModalLabel">用户资料修改</h4>
+    </div>
+    <div class="modal-body">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-1"></div>
+                <div class="col-lg-2">
+                    <ul class="nav nav-pills nav-stacked">
+                        <li class='active'><a href='#tab1' data-toggle='tab'>修改密码</a></li>
+                        <li><a href='#tab2' data-toggle='tab'>修改资料</a></li>
+                        <li><a href='#tab3' data-toggle='tab'>其他信息</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-6">
+                    <div class='tab-content'>
+                        <div class='tab-pane active' id='tab1'><%include modifyUserPwd.ejs%></div>
+                        <div class='tab-pane' id='tab2'><%include modifyUserInfo.ejs%></div>
+                        <div class='tab-pane' id='tab3'>其他信息内容待增加</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+<script src="/javascripts/jquery.min.js"></script>
+<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+<script src="/javascripts/bootstrap.min.js"></script>
+</body>
+</html>

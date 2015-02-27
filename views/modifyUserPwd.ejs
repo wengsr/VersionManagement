@@ -1,0 +1,24 @@
+<!--修改用户密码-->
+<form action="/users/modifyPwd" class=" bs-component form-horizontal" method='post'>
+
+    <div class="form-group">
+        <label for="password" class="col-sm-3 control-label">新密码</label>
+        <div class="col-sm-6 input-group">
+            <span class="input-group-addon"><span class="glyphicon glyphicon-lock"></span></span>
+            <input type="text" class="form-control"  name="password" id="password" placeholder="请输入新密码">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="password-repeat" class="col-sm-3 control-label">确认密码</label>
+        <div class="col-sm-6 input-group">
+            <span class="input-group-addon"><span class="glyphicon glyphicon-lock"></span></span>
+            <input type="text" class="form-control"  name="password-repeat" id="password-repeat" placeholder="请再次输入新密码">
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <a href="/"><button type="button" class="btn btn-default">返回</button></a>
+        <button type="submit" class="btn btn-default"><span style="color:#337ab7;font-weight:bold;">确认修改</span></button>
+    </div>
+</form>

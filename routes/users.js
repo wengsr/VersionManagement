@@ -93,6 +93,18 @@ var findInfoForLogin = function(user,req,res){
     });
 }
 
+/**
+ * 验证邮箱地址
+ * @param email
+ * @returns {boolean}
+ */
+var verifyEmail = function(email) {
+    var pattern = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+/;
+    flag = pattern.test(email);
+    if(flag)return true;
+    else return false;
+}
+
 
 /**
  * 跳转至注册页面
@@ -110,6 +122,22 @@ router.post('/doReg', function(req, res) {
     var name = req.body["username"];
     var password = req.body["password"];
     var password_re = req.body['password-repeat'];
+    if(''==name){
+        req.session.error = "用户名不能为空";
+        return res.redirect("/users/reg");
+    }
+    if(password.length>30){
+        req.session.error = "用户名要求小于30个字符";
+        return res.redirect("/users/reg");
+    }
+    if(''==password){
+        req.session.error = "密码不能为空";
+        return res.redirect("/users/reg");
+    }
+    if(password.length<6 || password.length>8){
+        req.session.error = "密码位数要求6-8位";
+        return res.redirect("/users/reg");
+    }
     if (password != password_re) {
         req.session.error = "两次输入的密码不一致";
         return res.redirect("/users/reg");//重定向，页面地址改变
@@ -219,6 +247,89 @@ router.post('/getAllName', function(req, res) {
             jsonStr = jsonStr.replace(",]","]");
             res.send(queryObj.callback+'(\'' + jsonStr + '\')');
         }
+    });
+});
+
+
+/**
+ * 跳转到修改用户资料页面
+ */
+router.get('/modifyUser', function(req, res) {
+    res.render('modifyUser',{title:"用户资料修改页面"});
+});
+
+/**
+ * 修改用户密码
+ */
+router.post('/modifyPwd', function(req, res) {
+    //校验两次输入的密码是否一致
+    var password = req.body["password"];
+    var password_re = req.body['password-repeat'];
+    if(null==req.session.user){
+        req.session.error = "当前用户未登录，请先登录";
+        return res.redirect("/users/modifyUser");
+    }
+    if(''==password){
+        req.session.error = "密码不能为空";
+        return res.redirect("/users/modifyUser");
+    }
+    if(password.length<6 || password.length>8){
+        req.session.error = "密码位数要求6-8位";
+        return res.redirect("/users/modifyUser");
+    }
+    if (password != password_re) {
+        req.session.error = "两次输入的密码不一致";
+        return res.redirect("/users/modifyUser");
+    }
+    //生成密码的md5值
+    var md5 = crypto.createHash('md5');
+    var password = md5.update(req.body.password).digest("base64");
+    var userId = req.session.user.userId;
+    User.modifyPwd(password, userId, function(msg,results){
+        if(msg!='success'){
+            req.session.error = "修改用户密码时发生错误,请记录并联系管理员";
+            return res.redirect("/users/modifyUser");
+        }
+        req.session.success = "用户密码修改成功";
+        res.redirect("/");
+    });
+});
+
+/**
+ * 修改用户资料
+ */
+router.post('/modifyUserInfo', function(req, res) {
+    //校验两次输入的密码是否一致
+    var realName = req.body["realName"];
+    var email = req.body['email'];
+    if(null==req.session.user){
+        req.session.error = "当前用户未登录，请先登录";
+        return res.redirect("/users/modifyUser");
+    }
+    if(''==realName || ''==email){
+        req.session.error = "邮箱和真实姓名都不能为空";
+        return res.redirect("/users/modifyUser");
+    }
+    if(realName.length>10){
+        req.session.error = "真实姓名要求小于10个字符";
+        return res.redirect("/users/modifyUser");
+    }
+    if(email.length>50){
+        req.session.error = "邮箱要求小于50个字符";
+        return res.redirect("/users/modifyUser");
+    }
+    if(!verifyEmail(email)){
+        req.session.error = "邮箱格式不符合要求";
+        return res.redirect("/users/modifyUser");
+    }
+    var userId = req.session.user.userId;
+    User.modifyUserInfo(realName, email, userId, function(msg,results){
+        if(msg!='success'){
+            req.session.error = "修改用户信息时发生错误,请记录并联系管理员";
+            return res.redirect("/users/modifyUser");
+        }
+        req.session.success = "用户信息修改成功";
+        res.redirect("/");
     });
 });
 
