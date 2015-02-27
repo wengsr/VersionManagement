@@ -1,3 +1,6 @@
+/**
+ * Created by wangfeng on 2015/2/23.
+ */
 var express = require('express');
 var router = express.Router();
 var Task = require('../modular/task');
@@ -57,8 +60,8 @@ var openTask = function(stepName, req, res, callback){
     var userId = req.session.user.userId;    //当前登录用户的ID
     var taskId = req.params.taskId;          //变更单记录ID
     var taskCreater = req.params.taskCreater;//这条变更单记录创建者的ID
-    var dealerName = req.params.dealerName;
-    var createName = req.params.createName;
+    var dealerName = req.params.dealerName;  //该步骤的处理者
+    var createName = req.params.createName;  //这条变更单的发起者
     if(userId==taskCreater){
         //对当前登录用户是这条变更单的creater的处理
         Task.findTaskForCreater(userId,taskId,function(msg,task){
@@ -73,7 +76,7 @@ var openTask = function(stepName, req, res, callback){
                     t.dealerName = dealerName;
                     t.createName = createName;
                     findFileListByTaskId(req, taskId, function(addFileList,modifyFileList){
-                        findAttaByTaskIdAndStepId(req, taskId, "3",function(atta){
+                        findAttaByTaskIdAndStepId(req, taskId, "3",function(atta){//找出变更单发起者上传的附件
                             if(undefined==atta){
                                 atta = new TaskAtta({
                                     "attachmentId":'',
@@ -83,12 +86,60 @@ var openTask = function(stepName, req, res, callback){
                                     "fileUri":'#'
                                 });
                             }
-                            res.render(stepName,{task:t, addFileList:addFileList, modifyFileList:modifyFileList, attaFile:atta});
+                            if(stepName=='submit' || stepName=='check'){
+                                findAttaByTaskIdAndStepId(req, taskId, '5',function(reportAtta) {//找到走查环节上传的走查报告
+                                    if (undefined == reportAtta) {
+                                        reportAtta = new TaskAtta({
+                                            "attachmentId": '',
+                                            "taskId": '',
+                                            "processStepId": '',
+                                            "fileName": '未找到附件',
+                                            "fileUri": '#'
+                                        });
+                                    }
+                                    res.render(stepName,{task:t, addFileList:addFileList, modifyFileList:modifyFileList, attaFile:atta, reportAtta:reportAtta});
+                                });
+                            }else{
+                                res.render(stepName,{task:t, addFileList:addFileList, modifyFileList:modifyFileList, attaFile:atta});
+                            }
                         });
                     });
                 });
             }else{//如果没有查到，就打开“变更单的查询只读”窗口(当前用户没有权限修改这条变更单)
-                res.render('taskInfo',{taskId:taskId});
+                Task.findTaskById(taskId,function(msg,result){
+                    var t = new Task(result);
+                    t.dealerName = dealerName;
+                    t.createName = createName;
+                    if('success'!=msg){
+                        req.session.error = "查找变更单信息发生错误,请记录并联系管理员";
+                        return null;
+                    }
+                    findFileListByTaskId(req, taskId, function(addFileList,modifyFileList){
+                        findAttaByTaskIdAndStepId(req, taskId, "3",function(atta){//找出变更单发起者上传的附件
+                            if(undefined==atta){
+                                atta = new TaskAtta({
+                                    "attachmentId":'',
+                                    "taskId":'',
+                                    "processStepId":'',
+                                    "fileName":'未找到附件',
+                                    "fileUri":'#'
+                                });
+                            }
+                            findAttaByTaskIdAndStepId(req, taskId, '5',function(reportAtta) {//找到走查环节上传的走查报告
+                                if (undefined == reportAtta) {
+                                    reportAtta = new TaskAtta({
+                                        "attachmentId": '',
+                                        "taskId": '',
+                                        "processStepId": '',
+                                        "fileName": '未找到附件',
+                                        "fileUri": '#'
+                                    });
+                                }
+                                res.render('taskInfo',{task:t, addFileList:addFileList, modifyFileList:modifyFileList, attaFile:atta, reportAtta:reportAtta});
+                            });
+                        });
+                    });
+                });
             }
         });
     }else{
@@ -97,7 +148,7 @@ var openTask = function(stepName, req, res, callback){
             t.dealerName = dealerName;
             t.createName = createName;
             findFileListByTaskId(req, taskId, function(addFileList,modifyFileList){
-                findAttaByTaskIdAndStepId(req, taskId, "4",function(atta){
+                findAttaByTaskIdAndStepId(req, taskId, "3",function(atta){//找出变更单发起者上传的附件
                     if(undefined==atta){
                         atta = new TaskAtta({
                             "attachmentId":'',
@@ -107,7 +158,22 @@ var openTask = function(stepName, req, res, callback){
                             "fileUri":'#'
                         });
                     }
-                    res.render(stepName,{task:t, addFileList:addFileList, modifyFileList:modifyFileList, attaFile:atta});
+                    if(stepName=='submit' || stepName=='check'){
+                        findAttaByTaskIdAndStepId(req, taskId, '5',function(reportAtta) {//找到走查环节上传的走查报告
+                            if (undefined == reportAtta) {
+                                reportAtta = new TaskAtta({
+                                    "attachmentId": '',
+                                    "taskId": '',
+                                    "processStepId": '',
+                                    "fileName": '未找到附件',
+                                    "fileUri": '#'
+                                });
+                            }
+                            res.render(stepName,{task:t, addFileList:addFileList, modifyFileList:modifyFileList, attaFile:atta, reportAtta:reportAtta});
+                        });
+                    }else{
+                        res.render(stepName,{task:t, addFileList:addFileList, modifyFileList:modifyFileList, attaFile:atta});
+                    }
                 });
             });
         });

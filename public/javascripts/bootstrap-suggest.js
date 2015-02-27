@@ -63,7 +63,7 @@
 				indexKey: 0, //每组数据的第几个数据，作为input输入框的内容
 				idField: "", //每组数据的哪个字段作为 data-id，优先级高于 indexId 设置（推荐）
 				keyField: "", //每组数据的哪个字段作为输入框内容，优先级高于 indexKey 设置（推荐）
-				effectiveFields: [], //data 中有效的字段数组，非有效字段都会过滤，默认全部，对自定义getData方法无效  TODO
+				effectiveFields: [], //data 中有效的字段数组，非有效字段都会过滤，默认全部，对自定义getData方法无效
 				effectiveFieldsAlias: {userName: "姓名"}, //有效字段的别名对象，用于 header 的显示
 				showHeader: false, //是否显示选择列表的 header，默认有效字段大于一列时显示，否则不显示
 				allowNoKeyword: true, //是否允许无关键字时请求数据
@@ -73,7 +73,7 @@
 				getData: getData, //获取数据的方法
 				autoMinWidth: false, //是否自动最小宽度，设为 false 则最小宽度与下拉式菜单等齐
 				inputWarnColor: "rgba(255,0,0,.1)", //输入框内容不是下拉列表选择时的警告色
-				listStyle: {"padding-top":0, "max-height": "375px", "max-width": "800px", "overflow": "auto", "width": "auto"}, //列表的样式控制
+				listStyle: {"padding-top":0, "max-height": "159px", "max-width": "800px", "overflow": "auto", "width": "auto"}, //列表的样式控制
 				listHoverStyle: 'background: #07d; color:#fff', //提示框列表鼠标悬浮的样式
 				listHoverCSS: "jhover", //提示框列表鼠标悬浮的样式名称
 				keyLeft: 37,	//向左方向键

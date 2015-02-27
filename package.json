@@ -20,6 +20,9 @@
         "svn-spawn": "latest",
         "adm-zip": "latest",
         "mysql-queues":"1.0.0",
-        "async":"0.9.0"
+        "async":"0.9.0",
+        "connect-multiparty":"~1.0.5",
+        "formidable" : "latest",
+        "nodemailer": "^1.2.1"
     }
 }

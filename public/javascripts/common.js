@@ -30,7 +30,28 @@ function showTipInfo(tipType, tipContent){
     tip.show();
 }
 
+/**
+ * 处理文件下载中的特殊字符
+ * @param aInputId        下载文件超链接标签的ID
+ */
+function resetAttaDownloadUri(aInputId){
+    var aInput = "#" + aInputId;
+    var attaUri = $(aInput).attr('href');
+    var attaName = $(aInput).html();
+    if(!attaUri || '#'==attaUri){
+        return;
+    }
+    attaUri = attaUri.replace(/\./g,'%2E');
+    attaUri = attaUri.replace(/\//g,'%2F');
+    attaName = attaName.replace(/\./g,'%2E');
+    attaName = attaName.replace(/\//g,'%2F');
+    var currentUri = '/file/fileDownLoad/' + attaName + '/' + attaUri;
+    $(aInput).attr('href',currentUri);
+}
+
 jQuery(document).ready(function() {
     hideTip();
+    resetAttaDownloadUri('a_attaFile');
+    resetAttaDownloadUri('a_reportAtta');
 });
 

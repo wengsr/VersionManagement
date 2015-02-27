@@ -1,0 +1,63 @@
+<!--首页--首页展示-->
+<div class="container" style="height:250px; width:680px; margin:0 auto; margin-top:30px">
+    <span style=" width:680px; height:30px; line-height:30px; text-align:center; display:block;"><h2>欢迎使用AILK-CRM版本管理系统</h2></span>
+    <br/><br/><br/><br/>
+    <div style="float:left">
+        <a href="#" id="SubmitApply" class="btn btn-primary" rel="popover" data-content="填写要变更的文件清单，发起变更流程" data-original-title="提交申请">
+            <span style="font-size:30px; width:100px; height:50px">提交申请</span>
+        </a>
+    </div>
+
+    <div style="float:left">
+        <img style="margin-top:8px; margin-left: 70px;margin-right: 70px" src="/icon/jt_right.jpg" height="43" width="73" />
+    </div>
+
+    <div>
+        <a href="#" id="SubmitFile" class="btn btn-primary" rel="popover" data-content="系统自动提取出SVN上的文件供开发人员下载，开发人员下载后比对本地代码，对比后上传对比的old和new文件以及变更单" data-original-title="提取&上传变更文件">
+            <span style="font-size:30px; width:100px; height:50px">提取&上传变更文件</span>
+        </a>
+    </div>
+
+    <div style="float:left">
+        <img style="margin-top:23px; margin-bottom:24px; margin-left:300px" src="/icon/jt_rightUp.jpg" height="82" width="82" />
+    </div>
+    <div>
+        <img style="margin-top:28px; margin-bottom:28px; margin-left:130px" src="/icon/jt_down.jpg" height="73" width="43" />
+    </div>
+
+    <div style="float:left; margin-left:30px">
+        <a href="#" id="Submit" class="btn btn-primary" rel="popover" data-content="走查通过后来到上库环节，上库环节可由多个管理员中的一个接受上库任务，上库任务一旦被某一位管理员接受后其他管理员就不能处理该变更单。接受任务的管理员将代码上库后点击“上库完成”按钮。此时，系统会判断当前变更单中所占用的文件是否有其他变更单用到。如果有，通过邮件方式提示开发人员文件占用已被解除。" data-original-title="上库">
+            <span style="font-size:30px; width:100px; height:50px">上库</span>
+        </a>
+    </div>
+
+    <div style="float:left">
+        <img style="margin-top:8px;margin-left:30px;margin-right:30px" src="/icon/jt_left.jpg" height="43" width="73" />
+    </div>
+
+    <div style="float:left">
+        <a href="#" id="Check" class="btn btn-primary" rel="popover" data-content="走查人员接到组长的走查任务后对开发人员上传的代码进行走查，走查后上传走查报告，而后选择走查是否通过。如果走查不通过，将回到“提取&上传变更文件”环节，开发人员修改后继续提交" data-original-title="走查">
+            <span style="font-size:30px; width:100px; height:50px">走查</span>
+        </a>
+    </div>
+
+    <div style="float:left">
+        <img style="margin-top:8px;margin-left:30px;margin-right:30px" src="/icon/jt_left.jpg" height="43" width="73" />
+    </div>
+
+    <div style="float:left">
+        <a href="#" id="PlanCheck" class="btn btn-primary" rel="popover" data-content="组长根据开发人员上传的变更单指定具体的走查人员" data-original-title="安排走查">
+            <span style="font-size:30px; width:100px; height:50px">安排走查</span>
+        </a>
+    </div>
+</div>
+<!--页脚-->
+<div id="footer" class="container">
+    <nav class="navbar navbar-default navbar-fixed-bottom">
+        <div class="navbar-inner navbar-content-center">
+            <p class="text-muted credit" style="padding: 10px;">
+            <div style="float:right;margin-bottom:10px;margin-top:-15px;margin-right:20px;">Copyright © 2015 asiainfo.com 版权所有</div>
+            </p>
+        </div>
+    </nav>
+</div>

@@ -1,10 +1,11 @@
-<!--变更单处理--“当前用户发起的变更单”模态窗口-->
+<!--变更单处理--“上库”模态窗口-->
+<link rel="stylesheet" href="/stylesheets/jquery.fileupload.css"/>
 <form action="" id="formExtractFile" class=" bs-component form-horizontal" method='post'>
     <input type="hidden" id="taskId" name="taskId" value="<%= task.taskid%>"/>
     <input type="hidden" id="processStepId" name="processStepId" value="<%= task.processStepId%>"/>
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
-        <h4 class="modal-title" id="myLargeModalLabel">我发起的变更单</h4>
+        <h4 class="modal-title" id="myLargeModalLabel">上库</h4>
     </div>
     <div  class="modal-body">
         <div class="container-fluid">
@@ -25,14 +26,9 @@
                     </div>
                     <div class="form-group">
                         <label for="inputTaskDesc" class="col-sm-2 control-label">申请人</label>
-                        <div class="col-sm-4" style="margin-top:6px">
+                        <div class="col-sm-10" style="margin-top:6px">
                             <span id="createrName"><%=task.createName%></span>
                         </div>
-
-                        <!--<label for="inputTaskList" class="col-sm-2 control-label">已上传的新旧附件</label>-->
-                        <!--<div class="col-sm-4" style="margin-top:6px">-->
-                            <!--<span><a id="a_attaFile" href="<%=attaFile.fileUri%>"><%=attaFile.fileName%></a></span>-->
-                        <!--</div>-->
                     </div>
                     <div class="form-group">
                         <label for="addTaskList" class="col-sm-2 control-label">新增文件清单</label>
@@ -48,17 +44,37 @@
                         </div>
                     </div>
 
+
+                    <div class="form-group">
+                        <label for="inputTaskList" class="col-sm-2 control-label">已上传的新旧附件</label>
+                        <div class="col-sm-10" style="margin-top:6px">
+                            <span><a id="a_attaFile" href="<%=attaFile.fileUri%>"><%=attaFile.fileName%></a></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="inputTaskList" class="col-sm-2 control-label">走查报告</label>
+                        <div class="col-sm-10" style="margin-top:6px">
+                            <span><a id="a_reportAtta" href="<%=reportAtta.fileUri%>"><%=reportAtta.fileName%></a></span>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
     </div>
     <div class="modal-footer">
-        <div style="width:20%;float:right;">
+        <div style="width:69%;float:left;margin-bottom:-20px;margin-top:-9px;height:50px;" id="diaErrTip" class="alert alert-danger alert-dismissible" role="alert"><span style="text-align:center;margin-left:auto;margin-right:auto;display:block;"><strong>错误提示</strong></span></div>
+        <div style="width:69%;float:left;margin-bottom:-20px;margin-top:-9px;height:50px;" id="diaSuccessTip" class="alert alert-success alert-dismissible" role="alert"><span style="text-align:center;margin-left:auto;margin-right:auto;display:block;"><strong>操作成功</strong></span></div>
+        <div style="width:30%;float:right;">
             <button id="btnCloseModel" type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            <input type="hidden" id="taskState" value="<%=task.state%>"/>
+            <button id="btnSubmitAccept" type="button" class="btn btn-primary">接受任务</button>
+            <button id="btnSubmitComplete" type="button" class="btn btn-primary">上库完成</button>
         </div>
     </div>
 </form>
 
 <script src="/javascripts/bootstrap-suggest.js"></script>
 <script src="/javascripts/common.js"></script>
-<script src="/javascripts/planCheck.js"></script>
+<script src="/javascripts/submit.js"></script>

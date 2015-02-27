@@ -1,3 +1,6 @@
+/**
+ * Created by wangfeng on 2015/2/23.
+ */
 var express = require('express');
 var router = express.Router();
 var crypto = require('crypto');
@@ -190,6 +193,8 @@ router.post('/doLogin', function(req, res) {
 router.get('/logout', function(req, res) {
     req.session.user = null;
     req.session.menus = null;
+    req.session.tasks = null;
+    req.session.taskCount = null;
     req.session.success = "退出成功";
     return res.redirect("/");
     //res.render('index',{title:"首页",user:req.session.user});

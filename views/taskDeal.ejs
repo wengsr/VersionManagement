@@ -1,0 +1,115 @@
+<!--登录后的任务处理界面-->
+<% if(tasks){%><!--登录后的任务处理界面(有待处理的任务或自己有发起任务且未来走完流程)-->
+    <% if(topBtnCheckTask=='btnTaskCreater'){%><!--我发起的变更单-->
+        <div id="taskDiv" class="container-fluid">
+            <div class="panel panel-primary">
+                <div class="panel-heading">我发起的任务</div>
+                <div class="panel-body table-responsive">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>变更单号</th>
+                            <th>变更单名称</th>
+                            <th>申请人</th>
+                            <th>状态</th>
+                            <th>环节</th>
+                            <th>处理人</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <% var recCount=0%>
+                        <% tasks.forEach(function(task,i){ var psId=task.processStepId%>
+                            <% if(task.creater==user.userId){ recCount++;%>
+                                <tr id="myCreateTask">
+                                    <td><%=recCount%></td>
+                                    <td><a><%=task.taskcode%></a></td>
+                                    <td><a id="task_<%=task.taskid%>" createName="<%=task.createrName%>" dealerName="<%=task.dealerName%>" step="taskProcessStepId_<%=task.processStepId%>" taskid="<%=task.taskid%>" taskcreater="<%=task.creater%>"><%=task.taskname%></a></td>
+                                    <td><%=task.createrName%></td>
+                                    <td><%=task.state%></td>
+                                    <td><%=task.stepName%></td>
+                                    <td><%=task.dealerName==null?'':task.dealerName%></td>
+                                </tr>
+                            <% } %>
+                        <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+                <!--<% if(taskCount){%>-->
+                <!--<div class="panel-footer">共<%=taskCount%>条</div>-->
+                <!--<% } %>-->
+                <div id="recCount" class="panel-footer" recCount="<%=recCount%>">共<%=recCount%>条</div>
+            </div>
+        </div>
+        <div id="noTaskNotice" style="margin-top: 100px">
+            <div class="col-sm-3"></div>
+            <div class="col-sm-6">
+                            <span style="font-size:20pt; color: #cccccc;height:20px; line-height:20px; text-align:center; display:block;">
+                                当前无变更单，通过"申请变更单"发起申请
+                            </span>
+            </div>
+            <div class="col-sm-3"></div>
+        </div>
+    <% } %>
+    <% if(topBtnCheckTask=='btnToBeDeal' || topBtnCheckTask==''){%><!--我的待处理变更单-->
+        <div id="taskDiv" class="container-fluid">
+            <div class="panel panel-primary">
+                <div class="panel-heading">我的待处理任务</div>
+                <div class="panel-body table-responsive">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>变更单号</th>
+                            <th>变更单名称</th>
+                            <th>申请人</th>
+                            <th>状态</th>
+                            <th>环节</th>
+                            <th>处理人</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <% var recCount=0%>
+                        <% tasks.forEach(function(task,i){ var psId=task.processStepId%>
+                            <% if(task.creater!=user.userId){ recCount++;%>
+                                <tr id="myToBeDealTask">
+                                    <td><%=recCount%></td>
+                                    <td><a><%=task.taskcode%></a></td>
+                                    <td><a id="task_<%=task.taskid%>" createName="<%=task.createrName%>" dealerName="<%=task.dealerName%>" step="taskProcessStepId_<%=task.processStepId%>" taskid="<%=task.taskid%>" taskcreater="<%=task.creater%>"><%=task.taskname%></a></td>
+                                    <td><%=task.createrName%></td>
+                                    <td><%=task.state%></td>
+                                    <td><%=task.stepName%></td>
+                                    <td><%=task.dealerName==null?'':task.dealerName%></td>
+                                </tr>
+                            <% } %>
+                        <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+                <!--<% if(taskCount){%>-->
+                    <!--<div class="panel-footer">共<%=taskCount%>条</div>-->
+                <!--<% } %>-->
+                <div id="recCount" class="panel-footer" recCount="<%=recCount%>">共<%=recCount%>条</div>
+            </div>
+        </div>
+        <div id="noTaskNotice" style="margin-top: 100px">
+            <div class="col-sm-3"></div>
+            <div class="col-sm-6">
+                    <span style="font-size:20pt; color: #cccccc;height:20px; line-height:20px; text-align:center; display:block;">
+                        任务全部处理完成
+                    </span>
+            </div>
+            <div class="col-sm-3"></div>
+        </div>
+    <% } %>
+<% }else{ %><!--登录后的任务处理界面(处理任务为空)-->
+    <div style="margin-top: 100px">
+        <div class="col-sm-3"></div>
+        <div class="col-sm-6">
+            <span style="font-size:20pt; color: #cccccc;height:20px; line-height:20px; text-align:center; display:block;">
+                当前无变更单，通过"申请变更单"发起申请
+            </span>
+        </div>
+        <div class="col-sm-3"></div>
+    </div>
+<% }%>
