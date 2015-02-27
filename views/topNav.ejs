@@ -19,31 +19,41 @@
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">操作<span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
-                            <li><a class="menuBtn" btnname="btnSubmitApply" btnurl="" href="#" id="btnSubmitApply">申请变更单</a></li>
-                            <li><a class="menuBtn" btnname="btnFindTasks" btnurl="" href="#" id="btnFindTasks">查找变更单</a></li>
+                            <li><a class="menuBtn" btnname="btnSubmitApply" btnurl="" href="#" id="btnSubmitApply"> 申请变更单 </a></li>
+                            <li><a class="menuBtn" btnname="btnFindTasks" btnurl="" href="#" id="btnFindTasks"> 查找变更单 </a></li>
                         </ul>
                     </li>
-                    <%if(menus&&menus!=null){ var secFlag=false; var thirdFlag=false;%>
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">视图<span class="caret"></span></a>
-                            <ul class="dropdown-menu" role="menu">
-                                <% menus.forEach(function(menu){ %>
-                                    <%var menuId = menu.menuId; var menuName = menu.menuName; var menuBtnName=menu.menuBtnName; var menuUrl=menu.url;%>
-                                    <li><a class="menuBtn" btnName="<%=menuBtnName%>" btnUrl="<%=menuUrl%>" href="<%=menuUrl%>" id="<%=menuBtnName%>"> <%= menuName %> </a></li>
-                                <% }); %>
-                            </ul>
-                        </li>
-                    <% } %>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">视图<span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a class="menuBtn" btnname="btnTaskCreater" btnurl="/btnTaskCreater" href="/btnTaskCreater" id="btnTaskCreater"> 我发起的变更单 </a></li>
+                            <li><a class="menuBtn" btnname="btnToBeDeal" btnurl="/btnToBeDeal" href="/btnToBeDeal" id="btnToBeDeal"> 待处理的变更单 </a></li>
+                        </ul>
+                    </li>
+
+                    <!--&lt;!&ndash;用户特有的菜单按钮&ndash;&gt;-->
+                    <!--<%if(menus&&menus!=null){ var secFlag=false; var thirdFlag=false;%>-->
+                        <!--<li class="dropdown">-->
+                            <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">视图<span class="caret"></span></a>-->
+                            <!--<ul class="dropdown-menu" role="menu">-->
+                                <!--<% menus.forEach(function(menu){ %>-->
+                                    <!--<%var menuId = menu.menuId; var menuName = menu.menuName; var menuBtnName=menu.menuBtnName; var menuUrl=menu.url;%>-->
+                                    <!--<li><a class="menuBtn" btnName="<%=menuBtnName%>" btnUrl="<%=menuUrl%>" href="<%=menuUrl%>" id="<%=menuBtnName%>"> <%= menuName %> </a></li>-->
+                                <!--<% }); %>-->
+                            <!--</ul>-->
+                        <!--</li>-->
+                    <!--<% } %>-->
                 </ul>
             <% } %>
-            <form class="navbar-form navbar-left" role="search">
-                <div class="input-group">
-                    <input type="text" class="form-control" placeholder="输入变更单号搜索">
-                    <span class="input-group-btn">
-                        <button class="btn btn-default" type="button">搜索</button>
-                    </span>
-                </div>
-            </form>
+            <!--根据变更单好查询变更单信息-->
+            <!--<form class="navbar-form navbar-left" role="search">-->
+                <!--<div class="input-group">-->
+                    <!--<input type="text" class="form-control" placeholder="输入变更单号搜索">-->
+                    <!--<span class="input-group-btn">-->
+                        <!--<button class="btn btn-default" type="button">搜索</button>-->
+                    <!--</span>-->
+                <!--</div>-->
+            <!--</form>-->
             <ul class="nav navbar-nav navbar-right">
                 <%if(!user){ %>
                 <li class="dropdown"><a href="/users/login">登录</a></li>
