@@ -73,7 +73,7 @@ Svn.prototype.commit = function (localDir, callback) {
 module.exports = Svn;
 /********测试案例*********/
 var test = new Svn({username: 'wengsr', password: 'wengsr62952'});
-var localDir = "c:/test/变更单1/old/";
+var localDir = "c:/test/变更单1/repo/";
 var versionDir = 'http://192.168.1.22:8000/svn/hxbss/testVersion/';
 var fileList = [
     'a/b/b1.txt',
@@ -87,7 +87,7 @@ test.checkout(localDir, versionDir, fileList, function (err, data) {
         console.log("取文件成功" + data);
     }
 });
-test.commit("c:/test/变更单1/old/", function (err, data) {
+test.commit("c:/test/变更单1/repo/", function (err, data) {
     if (!!err) {
         console.log("提交失败" + err);
     } else {
