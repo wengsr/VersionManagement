@@ -96,6 +96,8 @@ function dealZeroTask(){
 jQuery(document).ready(function() {
     //点击申请变更单打开模态窗口
     showModelDialog("btnSubmitApply","/task/addTaskPage",'formAddTask');
+    //点击查找变更单打开模态窗口
+    showModelDialog("btnFindTasks","/task/findTaskPage",'formFindTasks');
     regTaskLink();
     //隐藏页面上方提示条
     setTimeout(function(){$('#errTip').slideUp(1000);setTimeout(function(){$('#errTip').remove()},2000)},2000);

@@ -45,7 +45,7 @@
                     <!--<% } %>-->
                 </ul>
             <% } %>
-            <!--根据变更单好查询变更单信息-->
+            <!--根据变更单号查询变更单信息-->
             <!--<form class="navbar-form navbar-left" role="search">-->
                 <!--<div class="input-group">-->
                     <!--<input type="text" class="form-control" placeholder="输入变更单号搜索">-->
@@ -54,12 +54,18 @@
                     <!--</span>-->
                 <!--</div>-->
             <!--</form>-->
+
             <ul class="nav navbar-nav navbar-right">
                 <%if(!user){ %>
                 <li class="dropdown"><a href="/users/login">登录</a></li>
                 <li class="dropdown"></li>
                 <li class="dropdown"><a href="/users/reg">注册</a></li>
                 <% } else { %>
+
+                <%if(user.isLeader){ %>
+                    <!--<li class="dropdown"><a href="/leaderModel/leader">立即变身领导模式</a></li>-->
+                    <a style="margin-top:9px;" class="btn btn-danger btn-sm" href="/leaderModel/leader" role="button">立即变身领导模式</a>
+                <%}%>
                 <!--<li class="dropdown"><a href="#">当前用户：(<%=user.userName%>)</a></li>-->
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">当前用户：(<%=user.userName%>)<span class="caret"></span></a>

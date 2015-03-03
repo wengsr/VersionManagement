@@ -14,6 +14,8 @@ function User(user){
 
     this.projectId = user.projectId;    //有哪些工程的权限
     this.userStepIds = user.userStepIds;//有哪几个环节的权限，以逗号分隔
+
+    this.isLeader = user.isLeader;//当前用户对哪些项目有“组长”权限
 }
 
 
@@ -115,7 +117,7 @@ User.findUserStepId = function(userId,projectId,callback){
 
 
 /**
- * 查询当前用户可以操作哪些工程
+ * 查询当前用户可以操作哪些工程（查出的是projectId）
  * @param name
  * @param pwd
  * @param callback
@@ -149,6 +151,38 @@ User.findUserProjectId = function(userId,callback){
         });
     });
 }
+
+/**
+ * 查询当前用户可以操作哪些工程（查出project全部信息）
+ * @param userId
+ * @param callback
+ */
+User.findUserProject = function(userId,callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN USER ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'SELECT * FROM project p' +
+            '        where p.projectId IN' +
+            '        (' +
+            '        SELECT distinct psd.projectId from user u' +
+            '        JOIN processstepdealer psd ON u.userId = psd.userId' +
+            '        AND u.userId=?' +
+            '        )';
+        var params = [userId];
+        connection.query(sql, params, function (err, results) {
+            if (err) {
+                console.log('[QUERY USER ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',results);
+        });
+    });
+}
+
+
 
 /**
  * 获取所有用户登录名和实名
@@ -220,6 +254,30 @@ User.modifyUserInfo = function(realName, email, userId, callback){
     });
 }
 
+
+/**
+ * 找出当前用户对哪些项目有“组长”权限
+ * @param callback
+ */
+User.findProIdForLeader = function(userId, callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN USER ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'select projectId from processstepdealer' +
+            '        where processStepId = 4 and userId=?';
+        var params = [userId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY USER ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',result);
+        });
+    });
+}
 
 
 module.exports = User;

@@ -1,0 +1,89 @@
+<!--变更单处理--“查找变更单”模态窗口-->
+<form action="/task/findTask" id="formAddTask" class=" bs-component form-horizontal" method='post'>
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="myLargeModalLabel">查找变更单</h4>
+    </div>
+    <div  class="modal-body">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+
+                    <div class="form-group">
+                        <label for="projectName" class="col-sm-2 control-label">所属项目</label>
+                        <div class="col-sm-10">
+                            <select class="form-control" name="projectName">
+                                <option value="" selected >--请选择--</option>
+                                <%if(projects && projects.length>0){%>
+                                    <%projects.forEach(function(pro,i){%>
+                                        <option value="<%=pro.projectId%>"><%=pro.projectName%></option>
+                                    <%})%>
+                                <%}%>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="taskState" class="col-sm-2 control-label">状态</label>
+                        <div class="col-sm-10">
+                            <select class="form-control" name="taskState">
+                                <option value="" selected >--请选择--</option>
+                                <option value="申请完成" >申请完成</option>
+                                <option value="变更文件已提交" >变更文件已提交</option>
+                                <option value="已安排走查" >已安排走查</option>
+                                <option value="走查通过" >走查通过</option>
+                                <option value="正在上库" >正在上库</option>
+                                <option value="上库完成" >上库完成</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="taskStep" class="col-sm-2 control-label">环节</label>
+                        <div class="col-sm-10">
+                            <select class="form-control" name="taskStep">
+                                <option value="" selected >--请选择--</option>
+                                <option value="3" >提取&上传变更文件</option>
+                                <option value="4" >安排走查</option>
+                                <option value="5" >走查</option>
+                                <option value="6" >上库</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="taskCode" class="col-sm-2 control-label">变更单号</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name="taskCode" id="taskCode" placeholder="请填写变更单号  (如：ncrm01)">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="taskName" class="col-sm-2 control-label">变更单名称</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name="taskName" id="taskName" placeholder="请填写变更单名称  (如：CRM数据变更单-20150101-001-zhangsan-001)">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="taskCreater" class="col-sm-2 control-label">发起者</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name="taskCreater" id="taskCreater" placeholder="请填写发起者的真实姓名  (如：张三)">
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div style="width:78%;float:left;margin-bottom:-20px;margin-top:-9px;height:50px;" id="diaSuccessTip" class="alert alert-success alert-dismissible" role="alert">
+            <span style="text-align:center;margin-left:auto;margin-right:auto;display:block;"  >
+                <strong id ="#applyMessage" name ="applyMessage" >操作完成</strong>
+            </span>
+        </div>
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        <button type="submit" class="btn btn-primary" >提交</button>
+    </div>
+</form>

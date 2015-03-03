@@ -52,6 +52,23 @@ var findTaskCount = function(userId,req,callback){
 }
 
 /**
+ * 找出当前用户对哪些项目有“组长权限”
+ * @param userId
+ * @param req
+ * @param callback
+ */
+var findProIdForLeader = function(userId, req, callback){
+    User.findProIdForLeader(userId,function(msg,results){
+        if('success'!=msg){
+            req.session.error = "查找当前用户有哪些项目的“组长权限”时发生错误,请记录并联系管理员";
+            return null;
+        }
+        callback(results);
+    });
+}
+
+
+/**
  * 根据获取到的user信息去登录
  * @param user
  * @param req
@@ -68,27 +85,33 @@ var findInfoForLogin = function(user,req,res){
         //记录到session，登录
         req.session.user = user;
         req.session.success = "登录成功";
-        //查找菜单
-        findMenu(user.userId,req,function(menus){
-            if(menus.length>0){
-                req.session.menus = menus;
-                //查找当前用户能操作的变更单
-                findTask(user.userId,req,function(tasks){
-                    if(tasks.length>0){
-                        req.session.tasks = tasks;
-                        req.session.taskCount = tasks.length;
-                        res.redirect("/");
-                    }else{
-                        req.session.tasks = null;
-                        req.session.taskCount = null;
-                        return res.redirect("/");
-                    }
-                });
-            }else{
-                req.session.menus = null;
-                res.redirect("/");
-            }
+        findProIdForLeader(user.userId,req,function(leaderProIds){//当前用户对哪些项目有“组长权限”
+            if(leaderProIds.length>0){user.isLeader = true;}else{user.isLeader = false;}//是否有领导权限，用于显示“领导模式”按钮
+            findMenu(user.userId,req,function(menus){//查找菜单
+                if(menus.length>0){
+                    req.session.menus = menus;
+                    findTask(user.userId,req,function(tasks){//查找当前用户能操作的变更单
+                        if(tasks.length>0){
+                            req.session.tasks = tasks;
+                            req.session.taskCount = tasks.length;
+                            res.redirect("/");
+                        }else{
+                            req.session.tasks = null;
+                            req.session.taskCount = null;
+                            return res.redirect("/");
+                        }
+                    });
+                }else{
+                    req.session.menus = null;
+                    res.redirect("/");
+                }
+            });
         });
+
+
+
+
+
 
     });
 }
@@ -332,5 +355,6 @@ router.post('/modifyUserInfo', function(req, res) {
         res.redirect("/");
     });
 });
+
 
 module.exports = router;

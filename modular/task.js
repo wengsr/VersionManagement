@@ -556,4 +556,87 @@ Task.submitComplete = function(taskId,callback){
     });
 }
 
+
+/**
+ * 模糊查询变更单
+ * @param userId
+ * @param callback
+ */
+Task.findTaskByParam = function(userId,projectId,state,processStepId,taskcode,taskname,createrName,callback){
+    taskcode = "%" + taskcode + "%";
+    taskname = "%" + taskname + "%";
+    createrName = "%" + createrName + "%";
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN TASKS ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = "SELECT * FROM" +
+            "        (" +
+            "            SELECT taskTable2.*, oU2.realName as createrName from" +
+            "        (" +
+            "            SELECT taskTable.*, oU.realName as dealerName from" +
+            "        (" +
+            "            SELECT DISTINCT t.*,ps.processStepName as stepName from tasks t" +
+            "        JOIN processstepdealer psd ON t.creater = psd.userId" +
+            "        AND psd.projectId = t.projectId" +
+            "        JOIN user u ON psd.userId = u.userId AND u.userId = ?" +
+            "        JOIN processstep ps ON ps.processStepId = t.processStepId" +
+            "        UNION" +
+            "        SELECT DISTINCT t1.*,ps1.processStepName as stepName" +
+            "        from tasks t1" +
+            "        JOIN processstepdealer psd1 ON t1.processStepId = psd1.processStepId" +
+            "        AND psd1.projectId = t1.projectId" +
+            "        AND t1.projectId = psd1.projectId" +
+            "        JOIN user u1 ON psd1.userId = u1.userId AND u1.userId = ?" +
+            "        JOIN processstep ps1 ON ps1.processStepId = t1.processStepId" +
+            "        JOIN taskprocessstep tps1 ON tps1.taskId = t1.taskid" +
+            "        AND tps1.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps1 where maxtps1.taskId = t1.taskid)" +
+            "        AND tps1.processStepId = t1.processStepId" +
+            "        AND (tps1.dealer is NULL AND tps1.processStepId in (2,6)" +
+            "        OR" +
+            "        tps1.dealer is NOT NULL AND tps1.processStepId not in (2,6) AND tps1.dealer=?" +
+            "        OR" +
+            "        tps1.dealer is NOT NULL AND tps1.processStepId in (2,6) AND tps1.dealer=?" +
+            "        )" +
+            "        ) taskTable" +
+            "        JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid" +
+            "        AND oTps.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps2 where maxtps2.taskId = taskTable.taskid)" +
+            "        AND oTps.processStepId = taskTable.processStepId" +
+            "        LEFT JOIN user oU ON oTps.dealer = oU.userId" +
+            "        ) taskTable2" +
+            "        LEFT JOIN user oU2 ON taskTable2.creater = oU2.userId" +
+            "        ) selectTable" +
+            "        WHERE " +
+            "        selectTable.taskcode LIKE ?" +
+            "        AND selectTable.taskname LIKE ?" +
+            "        AND selectTable.createrName LIKE ?";
+        var params = [userId,userId,userId,userId,taskcode,taskname,createrName];
+
+        if(projectId!=''){
+            sql = sql + "AND selectTable.projectId = ?";
+            params.push(projectId);
+        }
+        if(state!=''){
+            sql = sql + "AND selectTable.state = ?";
+            params.push(state);
+        }
+        if(processStepId!=''){
+            sql = sql + "AND selectTable.processStepId = ?";
+            params.push(processStepId);
+        }
+
+
+
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY TASKS ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',result);
+        });
+    });
+}
+
 module.exports = Task;

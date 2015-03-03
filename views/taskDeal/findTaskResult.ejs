@@ -1,0 +1,49 @@
+<!--查询变更单结果-->
+<div id="taskDiv" class="container-fluid">
+    <div class="panel panel-warning">
+        <div class="panel-heading">查询到的变更单</div>
+        <div class="panel-body table-responsive">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>变更单号</th>
+                    <th>变更单名称</th>
+                    <th>申请人</th>
+                    <th>状态</th>
+                    <th>环节</th>
+                    <th>处理人</th>
+                </tr>
+                </thead>
+                <tbody>
+                <% var recCount=0%>
+                <% tasks.forEach(function(task,i){ var psId=task.processStepId%>
+                    <% recCount++;%>
+                    <tr id="myToBeDealTask">
+                        <td><%=recCount%></td>
+                        <td><a><%=task.taskcode%></a></td>
+                        <td><a id="task_<%=task.taskid%>" createName="<%=task.createrName%>" dealerName="<%=task.dealerName%>" step="taskProcessStepId_<%=task.processStepId%>" taskid="<%=task.taskid%>" taskcreater="<%=task.creater%>"><%=task.taskname%></a></td>
+                        <td><%=task.createrName%></td>
+                        <td><%=task.state%></td>
+                        <td><%=task.stepName%></td>
+                        <td><%=task.dealerName==null?'':task.dealerName%></td>
+                    </tr>
+                <% }); %>
+                </tbody>
+            </table>
+        </div>
+        <!--<% if(taskCount){%>-->
+            <!--<div class="panel-footer">共<%=taskCount%>条</div>-->
+        <!--<% } %>-->
+        <div id="recCount" class="panel-footer" recCount="<%=recCount%>">共<%=recCount%>条</div>
+    </div>
+</div>
+<div id="noTaskNotice" style="margin-top: 100px">
+    <div class="col-sm-3"></div>
+    <div class="col-sm-6">
+            <span style="font-size:20pt; color: #cccccc;height:20px; line-height:20px; text-align:center; display:block;">
+                没有找到符合条件的变更单
+            </span>
+    </div>
+    <div class="col-sm-3"></div>
+</div>
