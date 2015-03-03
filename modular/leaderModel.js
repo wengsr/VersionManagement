@@ -5,10 +5,17 @@ var pool = require('../util/connPool.js').getPool();
 
 
 function LeaderModel(leaderModel){
-    this.inChange = leaderModel.inChange;     //变更中
-    this.unChange = leaderModel.unChange;     //待占用
-    this.commitOld = leaderModel.commitOld;   //已上库_修改文件
-    this.commitNew = leaderModel.commitNew;   //已上库_新增文件
+//    this.inChange = leaderModel.inChange;     //变更中
+//    this.unChange = leaderModel.unChange;     //待占用
+//    this.commitOld = leaderModel.commitOld;   //已上库_修改文件
+//    this.commitNew = leaderModel.commitNew;   //已上库_新增文件
+
+    this.conflict = leaderModel.conflict;   //冲突的文件
+    this.unChange = leaderModel.unChange;   //等待变更
+    this.inChange = leaderModel.inChange;   //变更中
+    this.commited = leaderModel.commited;   //已上库
+
+
 
     this.state = leaderModel.state;
     this.stateCount = leaderModel.stateCount;
@@ -26,20 +33,21 @@ LeaderModel.findFileListCount = function(projectId,callback){
             console.log('[CONN LEADERMODEL ERROR] - ', err.message);
             return callback(err);
         }
+
         var sql = 'SELECT ' +
-            '        inChangeTable.inChange,' +
+            '        conflictTable.conflict,' +
             '            unChangeTable.unChange,' +
-            '            commitOldTable.commitOld,' +
-            '            commitNewTable.commitNew' +
+            '            inChangeTable.inChange,' +
+            '            commitedTable.commited' +
             '        FROM' +
-            '        (select count(*) as inChange from fileList fl where fl.commit = 0 and' +
-            '        fl.taskId in (select t.taskId from tasks t where projectId=?)) inChangeTable,' +
-            '            (select count(*) as unChange from fileList fl where fl.commit = 2 and' +
+            '        (select count(*) as conflict from fileList fl where fl.commit = 2 and' +
+            '        fl.taskId in (select t.taskId from tasks t where projectId=?)) conflictTable,' +
+            '            (select count(*) as unChange from fileList fl where fl.commit = 3 and' +
             '        fl.taskId in (select t.taskId from tasks t where projectId=?))unChangeTable,' +
-            '            (select count(*) as commitOld from fileList fl where fl.commit = 1 and fl.state=0 and' +
-            '        fl.taskId in (select t.taskId from tasks t where projectId=?))commitOldTable,' +
-            '            (select count(*) as commitNew from fileList fl where fl.commit = 1 and fl.state=1 and' +
-            '        fl.taskId in (select t.taskId from tasks t where projectId=?))commitNewTable';
+            '            (select count(*) as inChange from fileList fl where fl.commit = 0 and' +
+            '        fl.taskId in (select t.taskId from tasks t where projectId=?))inChangeTable,' +
+            '            (select count(*) as commited from fileList fl where fl.commit = 1 and' +
+            '        fl.taskId in (select t.taskId from tasks t where projectId=?))commitedTable';
         var params = [projectId, projectId, projectId, projectId];
         connection.query(sql, params, function (err, result) {
             if (err) {
