@@ -5,13 +5,14 @@
 /**
  * 绘制变更单数量线图的参数
  * @param param1  申请完成
- * @param param2  变更文件已提交
- * @param param3  已安排走查
- * @param param4  走查通过
- * @param param5  正在上库
+ * @param param2  旧文件已提取
+ * @param param3  变更文件已提交
+ * @param param4  已安排走查
+ * @param param5  走查通过
+ * @param param6  正在上库
  * @returns {{tooltip: {trigger: string}, calculable: boolean, xAxis: {type: string, boundaryGap: boolean, data: string[]}[], yAxis: {type: string}[], series: {name: string, type: string, smooth: boolean, itemStyle: {normal: {areaStyle: {type: string}}}, data: number[]}[]}}
  */
-var drawStepLine = function(param1,param2,param3,param4,param5){
+var drawStepLine = function(param1,param2,param3,param4,param5,param6){
     var option = {
         tooltip : {
             trigger: 'axis'
@@ -21,7 +22,7 @@ var drawStepLine = function(param1,param2,param3,param4,param5){
             {
                 type : 'category',
                 boundaryGap : false,
-                data : ['申请完成','变更文件已提交','已安排走查','走查通过','正在上库']
+                data : ['申请完成','旧文件已提取','变更文件已提交','已安排走查','走查通过','正在上库']
             }
         ],
         yAxis : [
@@ -35,7 +36,7 @@ var drawStepLine = function(param1,param2,param3,param4,param5){
                 type:'line',
                 smooth:true,
                 itemStyle: {normal: {areaStyle: {type: 'default'}}},
-                data:[param1,param2,param3,param4,param5]
+                data:[param1,param2,param3,param4,param5,param6]
             }
         ]
     };
@@ -83,26 +84,29 @@ var drawCreatePie = function(nameStr,createrData){
  * 解析变更单统计数
  */
 var parseTaskCount = function(){
-    //'申请完成','变更文件已提交','已安排走查','走查通过','正在上库'
+    //'申请完成','旧文件已提取','变更文件已提交','已安排走查','走查通过','正在上库'
     var param1 = 0;
     var param2 = 0;
     var param3 = 0;
     var param4 = 0;
     var param5 = 0;
+    var param6 = 0;
     ejsData.taskCount.forEach(function(taskC,i){
         if('申请完成'==taskC.state){
             param1 = taskC.stateCount;
-        }else if('变更文件已提交'==taskC.state){
+        }else if('旧文件已提取'==taskC.state){
             param2 = taskC.stateCount;
-        }else if('已安排走查'==taskC.state){
+        }else if('变更文件已提交'==taskC.state){
             param3 = taskC.stateCount;
-        }else if('走查通过'==taskC.state){
+        }else if('已安排走查'==taskC.state){
             param4 = taskC.stateCount;
-        }else if('正在上库'==taskC.state){
+        }else if('走查通过'==taskC.state){
             param5 = taskC.stateCount;
+        }else if('正在上库'==taskC.state){
+            param6 = taskC.stateCount;
         }
     });
-    return drawStepLine(param1,param2,param3,param4,param5);
+    return drawStepLine(param1,param2,param3,param4,param5,param6);
 }
 
 /**
