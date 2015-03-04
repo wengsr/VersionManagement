@@ -30,10 +30,10 @@ var findFileListCount = function(firstProjectId, req, res, callback){
             callback(lm);
         }else{
             lm = new LeaderModel({
-                inChange:0,
+                conflict:0,
                 unChange:0,
-                commitOld:0,
-                commitNew:0
+                inChange:0,
+                commited:0
             });
             callback(lm);
         }

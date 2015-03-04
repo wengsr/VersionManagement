@@ -14,6 +14,21 @@ var Svn = require("../util/svnTool.js");
 var fs = require('fs');
 var testFileUsed = require('../modular/testFileUsed');
 /**
+ * 判断一个值是否在数组中
+ * @param search
+ * @param array
+ * @returns {boolean}
+ */
+var in_array = function(search,array){
+    for(var i in array){
+        if(array[i]==search){
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
  * 查找其他用户文件清单占用情况
  * @param taskId
  * @param req
@@ -28,6 +43,41 @@ var findUnUsedTaskAndFileUri = function(taskId,req,callback){
         callback(fileLists);
     });
 }
+
+
+/**
+ * 更新和上库的文件清单中的文件存在冲突的文件状态位为3(从2变为3)，即解除冲突状态
+ * @param taskId
+ * @param req
+ * @param callback
+ */
+var updateConflictFile = function(taskId,req,callback){
+    FileList.updateConflictFile(taskId,function(msg,result){
+        if('success'!=msg){
+            req.session.error = "更新冲突文件状态时发生错误,请记录并联系管理员";
+            return null;
+        }
+        callback(result);
+    });
+}
+
+/**
+ * 查询某个变更单的文件清单是否全部就绪(即状态都为3)
+ * @param taskId
+ * @param req
+ * @param callback
+ */
+var isAllFileListReady = function(taskId,req,callback){
+    FileList.isAllFileListReady(taskId,function(msg,result){
+        if('success'!=msg){
+            req.session.error = "查找是否文件全部就绪时发生错误,请记录并联系管理员";
+            return null;
+        }
+        callback(result);
+    });
+}
+
+
 
 /**
  * 给文件清单处于未占用的用户发送邮件
@@ -192,31 +242,65 @@ router.post('/submitComplete', function(req, res) {
             jsonStr = '{"sucFlag":"success","message":"【上库完成】执行成功"}';
             //判断其他变更单的文件占用情况并发邮件
             findUnUsedTaskAndFileUri(taskId,req,function(fileLists){
-                var tempTaskId = '';
-                var tempFileUriStr = '';
+//                var tempTaskId = '';
+//                var tempFileUriStr = '';
+                var conflictTaskId=[];//存放受到影响的taskId
+                var conflictTaskFileUri='';//受到影响的文件路径
                 if(fileLists.length>0){
-                    tempTaskId = fileLists[0].taskId;
                     fileLists.forEach(function(fileList,j){
-                        if(tempTaskId == fileList.taskId){
-                            if(''==tempFileUriStr){
-                                tempFileUriStr = fileList.fileUri;
-                            }else{
-                                tempFileUriStr = tempFileUriStr + '<br/>' + fileList.fileUri;
-                            }
-                        }else{
-                            sendEmail(tempTaskId, tempFileUriStr);
-                            tempTaskId = fileList.taskId;
-                            tempFileUriStr = fileList.fileUri;
-                        }
-
-                        if(fileLists.length == j+1){
-                            //处理最后一条记录
-                            sendEmail(tempTaskId, tempFileUriStr);
-                            tempTaskId = '';
-                            tempFileUriStr = '';
+                        var tTaskId = fileList.taskId;
+                        if(!in_array(tTaskId,conflictTaskId)){//判断taskId是否已经在数组中
+                            conflictTaskId.push(tTaskId);
                         }
                     });
                 }
+                updateConflictFile(taskId,req,function(updateResult){
+                    conflictTaskId.forEach(function(effectTaskId,it){
+                        isAllFileListReady(effectTaskId,req,function(fileCount){
+                            if(fileCount){//文件列表全部准备就绪
+                                fileLists.forEach(function(fileList2,jj){//再次遍历fileLists,找到对应的文件Uri
+                                    if(effectTaskId==fileList2.taskId){//找到冲突的文件Uri用于发送邮件
+                                        if(''==conflictTaskFileUri){
+                                            conflictTaskFileUri = fileList2.fileUri;
+                                        }else{
+                                            conflictTaskFileUri = conflictTaskFileUri + '<br/>' + fileList2.fileUri;
+                                        }
+                                    }
+                                });
+                                sendEmail(effectTaskId, conflictTaskFileUri);//发送邮件
+                                //console.log('effectTaskId==' + effectTaskId + '|||' + conflictTaskFileUri);
+                                conflictTaskFileUri=''
+                            }
+                        });
+                    });
+
+                });
+
+
+//                if(fileLists.length>0){
+//                    tempTaskId = fileLists[0].taskId;
+//                    fileLists.forEach(function(fileList,j){
+//                        if(tempTaskId == fileList.taskId){
+//                            if(''==tempFileUriStr){
+//                                tempFileUriStr = fileList.fileUri;
+//                            }else{
+//                                tempFileUriStr = tempFileUriStr + '<br/>' + fileList.fileUri;
+//                            }
+//                        }else{
+//                            sendEmail(tempTaskId, tempFileUriStr);
+//                            tempTaskId = fileList.taskId;
+//                            tempFileUriStr = fileList.fileUri;
+//                        }
+//
+//                        if(fileLists.length == j+1){
+//                            //处理最后一条记录
+//                            sendEmail(tempTaskId, tempFileUriStr);
+//                            tempTaskId = '';
+//                            tempFileUriStr = '';
+//                        }
+//                    });
+//                }
+
             });
         }else{
             jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
