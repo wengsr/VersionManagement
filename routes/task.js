@@ -7,8 +7,12 @@ var Task = require('../modular/task');
 var User = require('../modular/user');
 var FileList = require('../modular/fileList');
 var sendMailToCreater = require('../util/email');
+var File = require('../routes/file');
+var dao =require('../modular/taskDao');
 var url = require('url');
-
+var Svn = require("../util/svnTool.js");
+var fs = require('fs');
+var testFileUsed = require('../modular/testFileUsed');
 /**
  * 查找其他用户文件清单占用情况
  * @param taskId
@@ -48,27 +52,44 @@ var sendEmail = function(taskId, content){
 router.get('/addTaskPage', function(req, res) {
   // res.send('respond with a resource');
 //    res.render('taskInfo', { title: 'Express' });
-    res.render('addTask');
+    res.render('submitApply');
 });
+
 
 router.post('/addTask', function (req, res) {
-    var taskName = req.body.inputTaskName;
+    //var taskName = req.body.inputTaskName;
+    ////var tasker = req.body.inputTasker;
+    //var tasker = res.locals.user.userId;
+    //var taskState = '申请完成';//申请时，状态默认为；1,提交申请
+    //var taskProject = req.body.project;
+    //var taskDetails = req.body.taskDetails;
+    //var taskNewFiles = req.body.taskNewFiles;;
+    //var taskModFiles = req.body.taskModFiles;
+    var message ="";//返回的结果提示信息；
+    var taskName = req.body.taskName;
     //var tasker = req.body.inputTasker;
-    var tasker = res.locals.user.userId;
+    var tasker = req.session.user.userId;
     var taskState = '申请完成';//申请时，状态默认为；1,提交申请
-    var taskProject = req.body.project;
+    var taskProject = req.body.taskProject;
     var taskDetails = req.body.taskDetails;
-    var taskNewFiles = req.body.taskNewFiles;;
+    var taskNewFiles = req.body.taskNewFiles;
     var taskModFiles = req.body.taskModFiles;
     var dao = require('../modular/taskDao');
-    dao.addTask({name: taskName, tasker: tasker ,state: taskState,projectId:taskProject,desc:taskDetails,newFiles:taskNewFiles, modFiles:taskModFiles}, function (flag) {
-        if (flag == 'success') {
-            console.log(" apply success!");
-            res.redirect('../../../');
-        }
-    });
-});
 
+    var projectUri ;
+    var flag = false;
+
+    dao.addTask({name: taskName, tasker: tasker ,state: taskState,projectId:taskProject,desc:taskDetails,newFiles:taskNewFiles, modFiles:taskModFiles}, function (msg,result) {
+                if('success' == msg){
+                    var queryObj = url.parse(req.url,true).query;
+                    console.log("申请成功");
+                    var jsonStr = '{"sucFlag":"success","message":"【提交申请】申请成功！"}';
+                 res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+
+                }
+            });
+
+    });
 
 router.post('/acceptMission', function(req, res) {
     var taskId = req.body['taskId'];
@@ -273,6 +294,125 @@ router.post('/findTask', function (req, res) {
             });
         }
 //        res.render('findTaskResult',{projects:projects});
+    });
+});
+
+/**
+ * 上传新旧文件
+ */
+router.post('/submitFile', function(req, res) {
+    var taskId = req.body['taskId'];
+    var jsonStr;
+    dao.submitFile(taskId, function(msg,result){
+        if('success' == msg){
+            jsonStr = '{"sucFlag":"success","message":"【上传文件成功】执行成功"}';
+        }else{
+            jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
+        }
+        var queryObj = url.parse(req.url,true).query;
+        res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+    });
+});
+/**
+ *t提取旧文件
+ */
+router.post('/extractFile', function(req, res) {
+    var taskId = req.body['taskId'];
+    var taskProject = req.body['taskProject'];
+    var  modFiles = req.body['modFilesList'].replace('\r' ,'').split('\n');
+    var userId = req.session.user.userId;
+    var jsonStr;
+    var userFlag = false;
+    dao.searchProject({projectId: taskProject}, function (msg, result) {
+        var queryObj = url.parse(req.url, true).query;
+        if (msg == "success") {
+            if(result ==''){
+                message = " 该项目还未定义 projectUri ";
+                console.log(message);
+                return ;
+            }
+            projectUri = result.projectUri;
+            console.log("projectUri:", projectUri);
+            if (modFiles == "" || typeof(modFiles) == "undefined") {
+               message = "【提取旧文件】没有文件需要提取";
+                jsonStr = '{"sucFlag":"success","message":"【提取旧文件】没有文件需要提取"}';
+                console.log(message);
+                res.send(queryObj.callback +  '(\'' + jsonStr + '\')');
+            }
+            else {
+                testFileUsed(modFiles, taskProject,taskId, function (msg, users) {//判断需要提取的文件是否被占用
+                    var flag = false;
+                    if(msg == "err"){
+                        jsonStr = '{"sucFlag":"err","message":"【testFileUsed Failed】，联系管理员"}';
+                        res.send(queryObj.callback + '(\'' + jsonStr + '\')');
+                        return ;
+                    }
+                    if (msg == "success") {
+                        for (var name in users) {
+                            flag = true;
+                            break;
+                        }
+                        if (flag) {//有文件被占用
+
+                            console.log("有文件被占用，无法申请");
+                            var userStr = "文件占用的情况：";
+                            for (var i in users) {
+                                userFlag = true
+                                userStr += users[i].fileUri + ': user = (' + users[i].userId + ' ,'+  users[i].realName+');';
+                            }
+
+                            jsonStr = '{"sucFlag":"success","message":"有文件被占用，无法申请","user":"' + userStr + '" ,"userFlag":"' + userFlag + '"}';
+                            res.send(queryObj.callback + '(\'' + jsonStr + '\')');
+                        }
+                        else {
+                            //没有文件被占用 ，提取旧文件
+                            //Task
+                            var testTask = new Svn({username: 'wengsr', password: 'wengsr62952'});
+                            if (!fs.existsSync("C:/test/old")) {
+                                var localDir = fs.mkdir("C:/test/old");
+                            }
+                            //var localDir = "c:/test/变更单1/old/";
+                            var versionDir = 'http://192.168.1.22:8000/svn/hxbss/testVersion/';
+                            var versionDir = projectUri;
+                            //var fileList = [
+                            //    'a/b/b1.txt',
+                            //    'a/a2.txt',
+                            //    'a/a1.txt'
+                            //    //'SaleWeb/src/main/java/com/al/crm/sale/main/view/main.html',
+                            //    //'SaleWeb/src/main/java/com/al/crm/sale/main/view/main.js',
+                            //    //'SoWeb/src/main/java/com/al/crm/so/main/view/index._newjs'
+                            //];
+                            var fileList = modFiles;
+
+                            /*提取文件*/
+                            testTask.checkout(localDir, versionDir, fileList, function (err, data) {
+                                if (err) {
+                                    jsonStr = '{"sucFlag":"success","message":"【提取文件】执行失败"}'
+                                    console.log("ExtractFile Faild：" + err);
+                                    var queryObj = url.parse(req.url, true).query;
+                                    res.send(queryObj.callback + '(\'' + jsonStr + '\')');
+                                } else {
+                                    console.log("ExtractFile success" + data);
+
+                                    //更新数据库
+                                    dao.extractFile(taskId,userId, function (msg, result) {
+                                        if ('success' == msg) {
+                                            jsonStr = '{"sucFlag":"success","message":"【提取文件】执行成功"}';
+                                        } else {
+                                            jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
+                                        }
+                                        var queryObj = url.parse(req.url, true).query;
+                                        res.send(queryObj.callback + '(\'' + jsonStr + '\')');
+                                    });
+                                }
+                            });
+
+                        }
+                    }
+                });
+            }
+
+        }
     });
 });
 
