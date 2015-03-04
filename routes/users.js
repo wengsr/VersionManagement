@@ -67,6 +67,16 @@ var findProIdForLeader = function(userId, req, callback){
     });
 }
 
+/**
+ * 保存信息到cookie和session中
+ */
+var saveCookieAndSession = function(req,res,user){
+    req.session.user = user;
+    req.session.success = "登录成功";
+    var minute = 1000*60*60;   //maxAge的单位为毫秒,这里设置为60分钟
+    res.cookie('user', user, {maxAge: minute}, {httpOnly: true});//设置到cookie中
+}
+
 
 /**
  * 根据获取到的user信息去登录
@@ -82,11 +92,10 @@ var findInfoForLogin = function(user,req,res){
             return null;
         }
         user.projectId = projectIds;
-        //记录到session，登录
-        req.session.user = user;
-        req.session.success = "登录成功";
+
         findProIdForLeader(user.userId,req,function(leaderProIds){//当前用户对哪些项目有“组长权限”
             if(leaderProIds.length>0){user.isLeader = true;}else{user.isLeader = false;}//是否有领导权限，用于显示“领导模式”按钮
+            saveCookieAndSession(req,res,user);//记录到session，登录
             findMenu(user.userId,req,function(menus){//查找菜单
                 if(menus.length>0){
                     req.session.menus = menus;
@@ -107,12 +116,6 @@ var findInfoForLogin = function(user,req,res){
                 }
             });
         });
-
-
-
-
-
-
     });
 }
 
@@ -242,6 +245,7 @@ router.post('/doLogin', function(req, res) {
  * 退出操作
  */
 router.get('/logout', function(req, res) {
+    res.clearCookie('user');
     req.session.user = null;
     req.session.menus = null;
     req.session.tasks = null;

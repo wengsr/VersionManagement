@@ -26,6 +26,13 @@ var findTask = function(userId,req,callback){
  * @returns {*|String}
  */
 var topBtnClick = function(res, req, btnName){
+
+    var cookieUser = req.cookies.user;
+    if(cookieUser){
+        req.session.user = cookieUser;
+    }
+
+
     if(undefined == req.session.user){
         return res.render('index', {
             title: 'AILK-CRM版本管理系统',
