@@ -1,9 +1,13 @@
-<!--变更单处理--“提交文件”模态窗口-->
-<form action="/extractFile/acceptTask" id="formExtractFile" class=" bs-component form-horizontal" method='post'>
-    <input type="hidden" id="selectedTaskId" name="selectedTaskId1" value="000"/>
+<!--变更单处理--“走查”模态窗口-->
+<link rel="stylesheet" href="/stylesheets/jquery.fileupload.css"/>
+<!--<form action="" id="formExtractFile" class=" bs-component form-horizontal" method='post'>-->
+<form target="ifm_fileUpRe" id="submitFileForm" action="/file/submitFile" class="bs-component form-horizontal" role="form" method="post" enctype='multipart/form-data'>
+    <input type="hidden" id="taskId" name="taskId" value="<%= task.taskid%>"/>
+    <input type="hidden" id="taskProject" name="taskProject" value="<%= task.projectId%>"/>
+    <input type="hidden" id="processStepId" name="processStepId" value="<%= task.processStepId%>"/>
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
-        <h4 class="modal-title" id="myLargeModalLabel">提交新旧文件页面</h4>
+        <h4 class="modal-title" id="myLargeModalLabel">提交新旧文件</h4>
     </div>
     <div  class="modal-body">
         <div class="container-fluid">
@@ -11,35 +15,99 @@
                 <div class="col-lg-12">
 
                     <div class="form-group">
-                        <label for="inputTaskName" class="col-sm-2 control-label">变更单号1</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control"  name="inputTaskName" id="inputTaskName" placeholder="变更单名称">
+                        <label for="taskCode" class="col-sm-2 control-label">变更单号</label>
+                        <div class="col-sm-10" style="margin-top:6px">
+                            <span id="taskCode"><%=task.taskcode%></span>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="inputTaskName" class="col-sm-2 control-label">变更单名</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control"  name="inputTaskName" id="inputTaskName" placeholder="变更单名称">
+                        <div class="col-sm-10" style="margin-top:6px">
+                            <span id="taskName"><%=task.taskname%></span>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="inputTaskDesc" class="col-sm-2 control-label">申请人</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control"  name="inputTaskName" id="inputTaskName" placeholder="变更单名称">
+                        <div class="col-sm-4" style="margin-top:6px">
+                            <span id="createrName"><%=task.createName%></span>
                         </div>
+
                     </div>
                     <div class="form-group">
-                        <label for="inputTaskList" class="col-sm-2 control-label">变更文件清单</label>
-                        <div class="col-sm-10">
-                            <textarea class="form-control" id="inputTaskList" rows="3" disabled="disabled">fdafdsa</textarea>
+                        <label for="addTaskList" class="col-sm-2 control-label">新增文件清单</label>
+                        <div class="col-sm-10" style="margin-top:6px">
+                            <textarea class="form-control" id="addTaskList" rows="3" disabled="disabled"><%=addFileList%></textarea>
                         </div>
                     </div>
+
+                    <div class="form-group">
+                        <label for="modifyTaskList" class="col-sm-2 control-label">修改文件清单</label>
+                        <div class="col-sm-10" style="margin-top:6px">
+                            <textarea class="form-control" id="modifyTaskList" name = "modifyTaskList" rows="3" disabled="disabled"><%=modifyFileList==undefined?'':modifyFileList%></textarea>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <!--<label for="inputTaskList" class="col-sm-2 control-label">已上传的新旧附件<%if(locals.title){%> <%=locals.title%> <%}%></label>-->
+                        <!--<div class="col-sm-4" style="margin-top:6px">-->
+                        <!--<span><a id="a_attaFile" href="<%=attaFile.fileUri%>"><%=attaFile.fileName%></a></span>-->
+                        <!--</div>-->
+                        <%if(task.processStepId > 2){%>
+                        <label for="inputTaskList" class="col-sm-2 control-label">上传旧文件</label>
+                        <div class="col-sm-3" style="margin-top:8px">
+                            <span><a id="a_atta" href=""></a></span>
+                        </div>
+
+                        <div id="btnSelectReport"  class="col-sm-1" style="width: 90px;margin-left: -56px;">
+                            <span class="btn btn-success fileinput-button">
+                                <i class="glyphicon glyphicon-plus"></i>
+                                <span>选择文件</span>
+                                <input id="fulAvatar" name="fulAvatar" type="file"   class="form-control" />
+                            </span>
+                        </div>
+
+                        <!--<label for="inputTaskList" class="col-sm-offset-1 col-sm-2 control-label">上传新文件</label>
+                        <div class="col-sm-2" style="margin-top:8px">
+                            <span><a id="a_newAtta" href=""></a></span>
+                        </div>
+
+                        <div id="btnSelectReport"  class="col-sm-1" style="width: 90px;margin-left: -56px;">
+                            <span class="btn btn-success fileinput-button">
+                                <i class="glyphicon glyphicon-plus"></i>
+                                <span>选择文件</span>
+                                <input id="fulAvatar2" name="fulAvatar2" type="file" class="form-control" />
+                            </span>
+                        </div>-->
+                        <%}%>
+                    </div>
+
                 </div>
             </div>
         </div>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-        <button id="btnSubmit" type="button" class="btn btn-primary" data-dismiss="modal">提交</button>
+        <div style="width:68%;float:left;margin-bottom:-20px;margin-top:-9px;height:50px;" id="diaInfoTip" class="alert alert-info alert-dismissible" role="alert"><span style="text-align:center;margin-left:auto;margin-right:auto;display:block;"><strong>信息提示</strong></span></div>
+        <div style="width:68%;float:left;margin-bottom:-20px;margin-top:-9px;height:50px;" id="diaErrTip" class="alert alert-danger alert-dismissible" role="alert"><span style="text-align:center;margin-left:auto;margin-right:auto;display:block;"><strong>错误提示</strong></span></div>
+        <div style="width:68%;float:left;margin-bottom:-20px;margin-top:-9px;height:50px;" id="diaSuccessTip" class="alert alert-success alert-dismissible" role="alert"><span style="text-align:center;margin-left:auto;margin-right:auto;display:block;"><strong>操作成功</strong></span></div>
+        <div style="width:30%;float:right;margin-right: 12px">
+            <button id="btnCloseModel" type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            <%if(task.processStepId<3){%>
+            <button id="btnExtractFile" type="button" class="btn btn-primary">提取旧文件</button>
+            <button id="btnModify" type="button" class="btn btn-primary">修改变更单</button>
+            <button id="btnConfirm" type="button" class="btn btn-primary">确定修改</button>
+            <button id="btnExtractSuccess" type="button" class="btn btn-primary" data-dismiss="modal">文件提取成功</button>
+            <%}else{%>
+            <button id="btnSubmitFile" type="button" class="btn btn-primary">上传新旧文件</button>
+            <button id="btnSubmitSuccess" type="button" class="btn btn-primary" data-dismiss="modal">文件上传成功</button>
+            <%}%>
+        </div>
     </div>
 </form>
+
+<iframe id='ifm_fileUpRe' name='ifm_fileUpRe' style="display:none"/>
+<!--</form>-->
+
+<!--<script src="/javascripts/bootstrap-suggest.js"></script>-->
+<script src="/javascripts/common.js"></script>
+<script src="/javascripts/submitFile.js"></script>
