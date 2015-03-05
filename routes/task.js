@@ -429,9 +429,17 @@ router.post('/extractFile', function(req, res) {
             console.log("projectUri:", projectUri);
             if (modFiles == "" || typeof(modFiles) == "undefined") {
                message = "【提取旧文件】没有文件需要提取";
-                jsonStr = '{"sucFlag":"success","message":"【提取旧文件成功】没有文件需要提取"}';
-                console.log(message);
-                res.send(queryObj.callback +  '(\'' + jsonStr + '\')');
+                dao.extractFile(taskId,userId, function (msg, result) {
+                    if ('success' == msg) {
+                        var userFlag = false;
+                        jsonStr = '{"sucFlag":"success","message":"【提取文件】执行成功，没有文件需要提取"}';
+                    } else {
+                        jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
+                    }
+                    var queryObj = url.parse(req.url, true).query;
+                    res.send(queryObj.callback + '(\'' + jsonStr + '\')');
+                });
+
             }
             else {
                 testFileUsed(modFiles, taskProject,taskId, function (msg, users) {//判断需要提取的文件是否被占用
@@ -462,13 +470,16 @@ router.post('/extractFile', function(req, res) {
                             //没有文件被占用 ，提取旧文件
                             //Task
                             var testTask = new Svn({username: 'wengsr', password: 'wengsr62952'});
-                            if (!fs.existsSync("C:/test/old")) {
-                                var localDir = fs.mkdir("C:/test/old");
+                            var localDir ="c:/test/old/";
+                            if (!fs.existsSync("c:/test/old")) {
+                                fs.mkdir("c:/test/old");
                             }
                             //var localDir = "c:/test/变更单1/old/";
                             var versionDir = 'http://192.168.1.22:8000/svn/hxbss/testVersion/';
                             var versionDir = projectUri;
-                            //var fileList = [
+
+                            var fileList = modFiles;
+                            //var  fileList = [
                             //    'a/b/b1.txt',
                             //    'a/a2.txt',
                             //    'a/a1.txt'
@@ -476,7 +487,6 @@ router.post('/extractFile', function(req, res) {
                             //    //'SaleWeb/src/main/java/com/al/crm/sale/main/view/main.js',
                             //    //'SoWeb/src/main/java/com/al/crm/so/main/view/index._newjs'
                             //];
-                            var fileList = modFiles;
 
                             /*提取文件*/
                             testTask.checkout(localDir, versionDir, fileList, function (err, data) {
@@ -492,7 +502,7 @@ router.post('/extractFile', function(req, res) {
                                     dao.extractFile(taskId,userId, function (msg, result) {
                                         if ('success' == msg) {
                                             var userFlag = false;
-                                            jsonStr = '{"sucFlag":"success","message":"【提取文件】执行成功"}';
+                                            jsonStr = '{"sucFlag":"success","message":"【提取文件】执行成功，保存至：C:/test/old/"}';
                                         } else {
                                             jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
                                         }
