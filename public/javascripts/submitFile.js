@@ -1,8 +1,19 @@
-/**
- * Created by wangfeng on 2015/02/09 0000.
- */
-
-
+var fields =[ '#taskName', '#inputTaskDesc','#addTaskList','#modifyTaskList'];
+function checkSubmit(fields) {
+    var flag = true;
+    $.each(fields, function (i, n) {
+        if (i < 2) {
+            if ($(fields[i]).val() == '') {
+                flag = false;
+                return flag;
+            }
+        }
+        if (($(fields[3]).val() == '') && ($(fields[4]).val() == '')) {//修改清单和新增清单不能同时为空
+            flag = false;
+            return flag;
+        }
+    });
+}
 /**
  * ajax提交
  * @param params
@@ -19,20 +30,26 @@ function ajaxSubmit(params, url, subType){
         timeout: 5000,
         type: subType,
         success: function(data){
-            debugger
+
             var dataJson = $.parseJSON(data);
             var flag =  dataJson.sucFlag;
             if('err'==flag){
                 showTipInfo('err',dataJson.message);
-            }else if('success'==flag){
+
+            }else if('success'==flag) {
                 debugger
-                if(url =='./task/extractFile')
-                debugger
-                    if(dataJson.userFlag){
-                       alert(dataJson.user);
+                if (url == './task/extractFile') {
+                    if (dataJson.userFlag) {
+                        alert(dataJson.user);
+                    }
+                    else {
+                        $('#btnModify').hide();
+                        $('#btnExtractFile').hide();
+                        $('#btnSelectReport').show();
+                    }
+                    showTipInfo('success', dataJson.message);
+
                 }
-                showTipInfo('success',dataJson.message);
-                $('#btnToSubmit').hide();
             }
         },
         error: function(jqXHR, textStatus, errorThrown){
@@ -52,7 +69,6 @@ function submitForm_extract(){
         modFilesList: modFiles,
         taskId: $('#taskId').val()
     };
-    debugger
     var extractFile_url='task/extractFile';
     ajaxSubmit(extractFile_params, extractFile_url, 'post');
 }
@@ -65,10 +81,30 @@ function submitForm_submitFile(){
         nextDealer: $('#checkPerson').val(),
         taskId: $('#taskId').val()
     };
-    var submitFile_url='uploadFile/submitFile';
+    var submitFile_url='task/submitFile';
     ajaxSubmit(submitFile_params, submitFile_url, 'post');
 }
 
+/**
+ * 修改提交表单信息
+ */
+function submitForm_modify(){
+    var check = checkSubmit(fields);
+    if (check) {
+        var params = {
+            taskName: $("#inputTaskName").val(),
+            // tasker : $(#inputTasker).val();
+            taskState: "申请通过",//提交申请
+            taskProject: $("#project").val(),
+            taskDetails: $("#inputTaskDesc").val(),
+            taskNewFiles: $("#inputTaskNewList").val(),
+            taskModFiles: $("#inputTaskModList").val()
+
+        };
+        var submitFile_url = 'task/modifyTask';
+        ajaxSubmit(params, submitFile_url, 'post');
+    }
+}
 
 
 function fileUp(url){
@@ -121,19 +157,28 @@ function bindClick_btnUploadFile(){
             showTipInfo('err','请选择要上传的文件');
             return false;
         }
+        submitForm_submitFile();
         //if(fulAvatarVal2.length == 0){
         //    showTipInfo('err','请选择要上传的文件');
         //    return false;
         //}
 
         var extName = fulAvatarVal.substring(fulAvatarVal.lastIndexOf('.'),fulAvatarVal.length).toLowerCase();
-        if(extName != '.rar'){
-            showTipInfo('err','只支持rar文件');
+        if(extName != '.rar'&& extName != '.zip'){
+            showTipInfo('err','只支持rar,zip文件');
             return false;
         }
+
         $('#submitFileForm').submit();
         return true;
     });
+
+    $("#btnModify").on("click",function(){
+        $("#btnComfirm").show();
+        $("#btnModify").hide();
+        submitForm_modify();
+});
+
 }
 
 /**
@@ -172,6 +217,9 @@ function fileUpReturn(){
 jQuery(document).ready(function() {
     //隐藏文件上传时用于替代走查通过or不通过的按钮
     $('#btnSubmitSuccess').hide();
+    $('#btnExtractSuccess').hide();
+    $('#btnConfirm').hide();
+    //$('#btnModify').hide();//修改变更单，待完善
     //隐藏文件路径信息提示条
     $('#diaInfoTip').hide();
     //文件上传后回传值的处理
@@ -196,6 +244,12 @@ jQuery(document).ready(function() {
     bindClick_btnUploadFile();
 
     $('#btnCloseModel').click(function(){
+        location.reload();
+    });
+    $('#btnExtractSuccess').click(function(){
+        location.reload();
+    });
+    $('#btnSubmitSuccess').click(function(){
         location.reload();
     });
 

@@ -1,4 +1,4 @@
-var fields =['#inputTaskName', '#inputTaskDesc', '#inputTaskNewList','#inputTaskModList'];
+var fields =['#inputTaskName', '#inputTaskDesc', '#project','#inputTaskNewList','#inputTaskModList'];
 //function showTipInfo(tipType, tipContent){
 //    var tip = $('#applySuccessTip');
 //    var unTip = $('#applyErrTip');
@@ -18,19 +18,19 @@ function disableInput(){
     $("#inputTaskDesc").attr("disabled","disabled");
     $("#inputTaskNewList").attr("disabled","disabled");
     $("#inputTaskModList").attr("disabled","disabled");
-    $("inputTaskDesc").attr("disabled","disabled");
+    $("#inputTaskName").attr("disabled","disabled");
 }
 
 function checkSubmit(fields){
     var flag = true;
     $.each(fields,function(i,n){
-        if(i<2) {
+        if(i<3) {
             if ($(fields[i]).val() == '') {
                 flag = false;
                 return flag;
             }
         }
-        if (($(fields[2]).val() == '')&& ($(fields[3]).val() == '')){//修改清单和新增清单不能同时为空
+        if (($(fields[4]).val() == '')&& ($(fields[5]).val() == '')){//修改清单和新增清单不能同时为空
             flag = false;
             return flag;
         }
@@ -83,7 +83,7 @@ jQuery(document).ready(function() {
             // tasker : $(#inputTasker).val();
             taskState  : "申请通过",//提交申请
             taskProject : $("#project").val(),
-            taskDetails: $("inputTaskDesc").val(),
+            taskDetails: $("#inputTaskDesc").val(),
             taskNewFiles : $("#inputTaskNewList").val(),
             taskModFiles : $("#inputTaskModList").val()
 

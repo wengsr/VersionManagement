@@ -102,7 +102,17 @@ var sendEmail = function(taskId, content){
 router.get('/addTaskPage', function(req, res) {
   // res.send('respond with a resource');
 //    res.render('taskInfo', { title: 'Express' });
-    res.render('submitApply');
+    var allProject ;
+        dao.searchAllProject(req.session.user.userId,function(msg,result){
+           if(msg == "success"){
+               allProject = result;
+               res.render('submitApply',{project : allProject});
+           }
+            else{
+               alert("查找项目失败，请联系管理员");
+           }
+    });
+
 });
 
 
@@ -419,7 +429,7 @@ router.post('/extractFile', function(req, res) {
             console.log("projectUri:", projectUri);
             if (modFiles == "" || typeof(modFiles) == "undefined") {
                message = "【提取旧文件】没有文件需要提取";
-                jsonStr = '{"sucFlag":"success","message":"【提取旧文件】没有文件需要提取"}';
+                jsonStr = '{"sucFlag":"success","message":"【提取旧文件成功】没有文件需要提取"}';
                 console.log(message);
                 res.send(queryObj.callback +  '(\'' + jsonStr + '\')');
             }
@@ -441,7 +451,7 @@ router.post('/extractFile', function(req, res) {
                             console.log("有文件被占用，无法申请");
                             var userStr = "文件占用的情况：";
                             for (var i in users) {
-                                userFlag = true
+                                userFlag = true;
                                 userStr += users[i].fileUri + ': user = (' + users[i].userId + ' ,'+  users[i].realName+');';
                             }
 
@@ -471,7 +481,7 @@ router.post('/extractFile', function(req, res) {
                             /*提取文件*/
                             testTask.checkout(localDir, versionDir, fileList, function (err, data) {
                                 if (err) {
-                                    jsonStr = '{"sucFlag":"success","message":"【提取文件】执行失败"}'
+                                    jsonStr = '{"sucFlag":"err","message":"【提取文件】执行失败"}'
                                     console.log("ExtractFile Faild：" + err);
                                     var queryObj = url.parse(req.url, true).query;
                                     res.send(queryObj.callback + '(\'' + jsonStr + '\')');
@@ -481,6 +491,7 @@ router.post('/extractFile', function(req, res) {
                                     //更新数据库
                                     dao.extractFile(taskId,userId, function (msg, result) {
                                         if ('success' == msg) {
+                                            var userFlag = false;
                                             jsonStr = '{"sucFlag":"success","message":"【提取文件】执行成功"}';
                                         } else {
                                             jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
@@ -499,5 +510,20 @@ router.post('/extractFile', function(req, res) {
         }
     });
 });
-
+/**
+ * 修改变更单
+ */
+router.post('/modifyTask', function(req, res) {
+    var taskId = req.body['taskId'];
+    var jsonStr;
+    dao.modifyTask(taskId, function(msg,result){
+        if('success' == msg){
+            jsonStr = '{"sucFlag":"success","message":"【修改变更单成功】执行成功"}';
+        }else{
+            jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
+        }
+        var queryObj = url.parse(req.url,true).query;
+        res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+    });
+});
 module.exports = router;

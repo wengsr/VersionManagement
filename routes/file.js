@@ -8,6 +8,7 @@ var fs = require('fs'); //移动文件需要的包
 var TaskAtta = require('../modular/taskAtta');
 var UPLOAD_FOLDER = './attachment';
 var CHECK_REPORT_UPLOAD_FOLDER = '/check_report/';
+var CHECK_REPORT_UPLOAD_FOLDER2 = '/newAndOld/';
 
 /**
  * 文件上传成功失败信息返回
@@ -15,14 +16,26 @@ var CHECK_REPORT_UPLOAD_FOLDER = '/check_report/';
  * @param isSuccess
  * @param msg
  */
-function fileUpReturnInfo(res, isSuccess, msg, reportAttaName, reportAttaUri){
+//function fileUpReturnInfo(res, isSuccess, msg, reporAttaName, reportAttaUri){
+//    res.writeHead(200,{"Content-Type":"text/html"});
+//    res.write('<div><input type="hidden" id="fileUpIsSuccess" value="'+isSuccess+'"></div>');
+//    res.write('<div><input type="hidden" id="fileUpReturnInfo" value="'+msg+'"></div>');
+//    res.write('<div><input type="hidden" id="reportAttaName" value="'+reportAttaName+'"></div>');
+//    res.write('<div><input type="hidden" id="reportAttaUri" value="'+reportAttaUri+'"></div>');
+//    res.end("<p>这是个文件上传的回传信息</p>");
+//}
+
+function fileUpReturnInfo(res, isSuccess, msg, attaName, attaUri){
     res.writeHead(200,{"Content-Type":"text/html"});
     res.write('<div><input type="hidden" id="fileUpIsSuccess" value="'+isSuccess+'"></div>');
     res.write('<div><input type="hidden" id="fileUpReturnInfo" value="'+msg+'"></div>');
-    res.write('<div><input type="hidden" id="reportAttaName" value="'+reportAttaName+'"></div>');
-    res.write('<div><input type="hidden" id="reportAttaUri" value="'+reportAttaUri+'"></div>');
+    res.write('<div><input type="hidden" id="attaName" value="'+attaName+'"></div>');
+    res.write('<div><input type="hidden" id="attaUri" value="'+attaUri+'"></div>');
     res.end("<p>这是个文件上传的回传信息</p>");
 }
+
+
+
 
 /**
  * 保存附件信息到数据库
@@ -70,6 +83,10 @@ function fileUp(req, res, secFolder){
 
         var extName = '';  //后缀名
         switch (files.fulAvatar.type) {
+
+            case 'application/x-zip-compressed':
+                extName = 'zip';
+                break;
             case 'application/octet-stream':
                 extName = 'rar';
                 break;
@@ -133,13 +150,19 @@ router.post('/checkReportUp', function(req, res) {
 });
 
 
+
 /**
  * 文件下载
+ *
  */
 router.get('/fileDownLoad/:filename/:realpath',function(req,res,next){
     var filename = req.params.filename;
     var realpath = req.params.realpath;
     res.download(realpath,filename);
+});
+
+router.post('/submitFile', function(req, res) {
+    fileUp(req, res, CHECK_REPORT_UPLOAD_FOLDER2);
 });
 
 

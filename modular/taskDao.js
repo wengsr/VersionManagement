@@ -21,20 +21,19 @@ exports.searchProject = function( taskInfo , callback){
         });
     });
 }
-exports.searchProject = function(projectId, callback){
+exports.searchAllProject = function(userId, callback){
     pool.getConnection(function (err, connection){
-        var sql = "select * from project where projectId = ?";
-        var param = [projectId.projectId];
-        connection.query(sql, param, function (err, result){
+        var sql = "select projectId ,projectName from project ";
+        var param = [userId];
+        connection.query(sql, function (err, result){
             if (err) {
-                console.log("searchProject ERR;", err.message);
+                console.log("searchAllProject ERR;", err.message);
             }
             else{
-                console.log("searcProject Result111:", result);
+                console.log("searcAllProject success:", result);
             }
             connection.release();
-            callback("success", result[0]);
-
+            callback("success", result);
         });
     });
 };
@@ -54,8 +53,8 @@ exports.addTask = function (taskInfo, callback) {
         };
         var addTaskProcess_params = [1, 2];
         var project, taskCount, projectName, taskCode;
-        var projectId = taskInfo.projectId;
-        var countTask_params = [ taskInfo.projectId];
+        var projectId = [taskInfo.projectId];
+        var countTask_params = [taskInfo.projectId];
         var userAddSql_params=[1,1];
         var addTaskPro_params = [];
         var addFiles_params =[];
@@ -69,7 +68,7 @@ exports.addTask = function (taskInfo, callback) {
         var modUri=[];
 
         var i= 0;
-        async.eachSeries(task, function (item, callback) {
+        async.eachSeries(task, function (item, callback_async) {
             console.log(item + " ==> ",  sql[item]);
             if( i == 4) {//插入多条的file数据
                 //获取文件完整的uri；
@@ -79,7 +78,8 @@ exports.addTask = function (taskInfo, callback) {
                     }
                     newFiles = taskInfo.newFiles.trim().split('\n');
                     for(var j = 0; j < newFiles.length; j++){
-                        newUri[j] = projectUri + newFiles[j].substr(0,newFiles[j].lastIndexOf('/')+1);
+                        //newUri[j] = projectUri + newFiles[j].substr(0,newFiles[j].lastIndexOf('/')+1);
+                        newUri[j] = newFiles[j];
                         newFiles[j] = newFiles[j].substr(newFiles[j].lastIndexOf('/')+1);
                     }
                 }
@@ -89,13 +89,14 @@ exports.addTask = function (taskInfo, callback) {
                     }
                     modFiles = taskInfo.modFiles.trim().split('\n');
 
-                    for(var j = 0; j < newFiles.length; j++){
-                        modUri[j]= projectUri + modFiles[j].substr(0,modFiles[j].lastIndexOf('/')+1);
+                    for(var j = 0; j < modFiles.length; j++){
+                        //modUri[j]= projectUri + modFiles[j].substr(0,modFiles[j].lastIndexOf('/')+1);
+                        modUri[j]= modFiles[j];
                         modFiles[j] = modFiles[j].substr(modFiles[j].lastIndexOf('/')+1);
                     }
 
                 }
-                if(newFiles!== "") {
+                if(newFiles!== "" && typeof(newFiles)!='undefined') {
                     for (var j = 0; j < newFiles.length; j++) {
                         addFiles_para = [ taskId,newFiles[j], 1,,newUri[j],projectId];//1表示新增文件；，1：未上传至svn
                         trans.query(sql[item], addFiles_para, function (err, result) {
@@ -108,7 +109,7 @@ exports.addTask = function (taskInfo, callback) {
                         });
                     }
                 }
-                if(modFiles!=="") {
+                if(modFiles!=="" && typeof(modFiles)!='undefined') {
                     for (var j = 0; j < modFiles.length; j++){
                         addFiles_para = [taskId,modFiles[j],0,1,modUri[j], projectId];//0表示修改文件；commit:默认为3 表示未占用
                         trans.query(sql[item],addFiles_para,function(err,result){
@@ -139,8 +140,8 @@ exports.addTask = function (taskInfo, callback) {
                         taskCode = project[0].projectName + project[0].taskCount;
                         projectUri = project[0].projectUri;
                         task_params[2] = [taskCode, taskInfo.name, taskInfo.tasker, taskInfo.state, "2",
-                            taskInfo.projectId, taskInfo.desc,taskInfo.newFiles];
-                    }
+                            taskInfo.projectId, taskInfo.desc];
+                }
 
                 }
                 else if (item == 'userAddSql') {
@@ -149,7 +150,7 @@ exports.addTask = function (taskInfo, callback) {
                     task_params[3]= [taskId, '2',userId];//taskPrecessStep
                 }
                 console.log(result);
-                callback(err, result);
+                callback_async(err, result);
             });
         });
         trans.execute();
@@ -264,3 +265,19 @@ exports.extractFile= function(taskId, userId,callback){
     });
 };
 
+exports.modifyTask= function(taskInfo,callback){
+    //pool.getConnection(function (err, connection) {
+    //    //开启事务
+    //    queues(connection);
+    //    var trans = connection.startTransaction();
+    //
+    //    var sql= {
+    //        updateTask: "update tasks set  taskName =?, taskDesc =? where taskid= ?",
+    //        updateFileList:"update fileList set  fileName =?, fileUri =? where taskid= ?"
+    //    }
+    //    var updateTask_params = [taskId, taskId];
+    //    var updateFileList_params = [taskId];
+    //    var sqlMember = ['updateTask','updateFileList'];
+    //    var sqlMember_params = [selectDealer_params, updateTask_params];
+    //});
+};

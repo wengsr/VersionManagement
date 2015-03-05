@@ -7,15 +7,20 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-lg-12">
-                    <input type="hidden" id="inputTasker" name="inputTasker" value="翁舒嵘"/>
 
                     <div class="form-group">
                         <label for="inputTaskName" class="col-sm-2 control-label">产品</label>
                         <div class="col-sm-10">
                             <select class="form-control" name="project" id="project">
-                                <option value="000001" selected >NCRM</option>
+                               <!-- <option value="000001" selected >NCRM</option>
                                 <option value="000002" >FCRM</option>
-                                <option value="000003"  >BCRM</option>
+                                <option value="000003"  >BCRM</option>-->
+                                <option value="" selected >--请选择--</option>
+                                <%if(project && project.length>0){%>
+                                <%project.forEach(function(pro,i){%>
+                                <option value="<%=pro.projectId%>"><%=pro.projectName%></option>
+                                <%})%>
+                                <%}%>
                             </select>
                         </div>
                     </div>
