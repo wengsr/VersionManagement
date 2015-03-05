@@ -80,11 +80,11 @@ exports.syncFolder = function (src, dst) {
 }
 
 
-/******测试案例*********/
-var localDir = "c:/test/变更单1/old/";
-var fileList = [
-    'a/b/b1.txt'
-];
-var zipName = "c:/test/变更单1.zip";
-exports.zipFiles(localDir, fileList, zipName);
-exports.extractZip(zipName, 'c:/test/变更单1/new/');
+///******测试案例*********/
+//var localDir = "c:/test/变更单1/old/";
+//var fileList = [
+//    'a/b/b1.txt'
+//];
+//var zipName = "c:/test/变更单1.zip";
+//exports.zipFiles(localDir, fileList, zipName);
+//exports.extractZip(zipName, 'c:/test/变更单1/new/');

@@ -4,6 +4,7 @@
 var express = require('express');
 var router = express.Router();
 var Task = require('../modular/task');
+var Project = require('../modular/project');
 
 /**
  * 查找当前用户所能操作的变更单
@@ -12,6 +13,22 @@ var findTask = function(userId,req,callback){
     Task.findTaskByUserId(userId,function(msg,tasks){
         if('success'!=msg){
             req.session.error = "查找变更单信息时发生错误,请记录并联系管理员";
+            return null;
+        }
+        callback(tasks);
+    });
+}
+
+/**
+ * 查找用户所属项目，用于显示“申请变更单”和“查找变更单”按钮
+ * @param userId
+ * @param req
+ * @param callback
+ */
+var findProsByUserIdForApplyTaskBtn = function(userId,req,callback){
+    Project.findProsByUserIdForApplyTaskBtn(userId,function(msg,tasks){
+        if('success'!=msg){
+            req.session.error = "查找用户所属项目时发生错误,请记录并联系管理员";
             return null;
         }
         callback(tasks);
@@ -32,7 +49,6 @@ var topBtnClick = function(res, req, btnName){
         req.session.user = cookieUser;
     }
 
-
     if(undefined == req.session.user){
         return res.render('index', {
             title: 'AILK-CRM版本管理系统',
@@ -40,35 +56,40 @@ var topBtnClick = function(res, req, btnName){
             menus:req.session.menus,
             tasks:req.session.tasks,
             taskCount:req.session.taskCount,
-            topBtnCheckTask:btnName
+            topBtnCheckTask:btnName,
+            userPros:null
         });
     }
     var userId = req.session.user.userId;
     //查找当前用户能操作的变更单
     findTask(userId,req,function(tasks){
-        if(tasks.length>0){
-            req.session.tasks = tasks;
-            req.session.taskCount = tasks.length;
-            return res.render('index', {
-                title: 'AILK-CRM版本管理系统',
-                user:req.session.user,
-                menus:req.session.menus,
-                tasks:req.session.tasks,
-                taskCount:req.session.taskCount,
-                topBtnCheckTask:btnName
-            });
-        }else{
-            req.session.tasks = null;
-            req.session.taskCount = null;
-            return res.render('index', {
-                title: 'AILK-CRM版本管理系统',
-                user:req.session.user,
-                menus:req.session.menus,
-                tasks:req.session.tasks,
-                taskCount:req.session.taskCount,
-                topBtnCheckTask:btnName
-            });
-        }
+        findProsByUserIdForApplyTaskBtn(userId,req,function(userPros){
+            if(tasks.length>0){
+                req.session.tasks = tasks;
+                req.session.taskCount = tasks.length;
+                return res.render('index', {
+                    title: 'AILK-CRM版本管理系统',
+                    user:req.session.user,
+                    menus:req.session.menus,
+                    tasks:req.session.tasks,
+                    taskCount:req.session.taskCount,
+                    topBtnCheckTask:btnName,
+                    userPros:userPros
+                });
+            }else{
+                req.session.tasks = null;
+                req.session.taskCount = null;
+                return res.render('index', {
+                    title: 'AILK-CRM版本管理系统',
+                    user:req.session.user,
+                    menus:req.session.menus,
+                    tasks:req.session.tasks,
+                    taskCount:req.session.taskCount,
+                    topBtnCheckTask:btnName,
+                    userPros:userPros
+                });
+            }
+        });
     });
 }
 

@@ -15,6 +15,7 @@
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <%if(user){%>
+            <%if(userPros && userPros.length>0){%>
                 <ul id="navMenu" class="nav navbar-nav">
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">操作<span class="caret"></span></a>
@@ -44,6 +45,7 @@
                         <!--</li>-->
                     <!--<% } %>-->
                 </ul>
+            <%}%>
             <% } %>
             <!--根据变更单号查询变更单信息-->
             <!--<form class="navbar-form navbar-left" role="search">-->
