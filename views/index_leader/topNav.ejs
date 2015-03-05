@@ -1,4 +1,4 @@
-<!--index--页面顶部导航栏_备份-->
+<!--index--页面顶部导航栏-->
 <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
     <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
@@ -33,11 +33,22 @@
                 <!--</ul>-->
             <!--<% } %>-->
 
+
+            <ul id="navMenu" class="nav navbar-nav">
+                <%if('chartsPage'==whichPage){%><!--显示统计图表-->
+                    <li><a class="menuBtn" btnname="btnUserCtrl" href="/leaderModel/userCtrl/<%=projects[0].projectId%>" id="btnUserCtrl">指定人员</a></li>
+                <%}%>
+                <%if('userCtrlPage'==whichPage){%><!--给每个步骤授权不同用户-->
+                    <li><a class="menuBtn" btnname="btnUserCtrl" href="/leaderModel/selectProject/<%=projects[0].projectId%>" id="btnUserCtrl">主页</a></li>
+                <%}%>
+
+            </ul>
+
             <!--选择项目-->
             <ul class="nav navbar-nav">
                 <li class="dropdown">
                     <div class="dropdown" style="margin-top: 8px">
-                        <button class="btn btn-danger dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">
+                        <button class="btn btn-info dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">
                             <%=projects[0].projectName%>
                             <input type="hidden" id="currProjectId" name="currProjectId" value="<%=projects[0].projectId%>"/>
                             <span class="caret"></span>

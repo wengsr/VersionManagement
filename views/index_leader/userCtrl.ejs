@@ -1,0 +1,164 @@
+<!--指定每个步骤处理人员-->
+<div style="margin-top: 100px;"></div>
+<!--管理员列表-->
+<div id="proAdmin" class="container-fluid">
+    <div class="panel panel-default">
+        <div class="panel-heading">管理员&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<a id="newProAdmin" href="#"><span class="glyphicon glyphicon-plus"/>添加人员</a></div>
+        <div class="panel-body table-responsive">
+                <%if(eachStepDealers){%>
+                <form action="/leaderModel/delAdmin/<%=projects[0].projectId%>" id="formDelAdmin" class=" bs-component form-Vertical" method='post'>
+                    <input type="hidden" id="delAdminId" name="delAdminId"/>
+                    <%eachStepDealers.forEach(function(esd,i){%>
+                    <%if(esd.processStepId==6){%>
+                    &emsp;
+                    <!-- 管理人员名按钮 -->
+                    <div typeId="proAdminBtn" style="float: left;margin-left: 20px;">
+                    <%if(esd.userId==user.userId){%><!--判断是否为组长-->
+                        <button type="button" class="btn btn-danger" typeId="proAdminBtn1"><%=esd.realName%>(组长)&nbsp;</button>
+                    <%}else{%>
+                        <button type="button" class="btn btn-primary" typeId="proAdminBtn1"><%=esd.realName%>&nbsp;</button>
+                    <%}%>
+                    <button typeId="xxAdmin" type="button" class="am-close am-close-spin am-icon-times" data-toggle="modal" data-target="#proAdmin<%=esd.userId%>"></button>
+                    </div>
+
+                    <!--管理人员名按钮对应的弹出删除对话框-->
+                    <div id="proAdmin<%=esd.userId%>" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-sm">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    <h4 class="modal-title" id="myModalLabel" style="color: #ffffff">删除确定</h4>
+                                </div>
+                                <div class="modal-body">
+                                    确定删除管理员：【<%=esd.realName%>】
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                    <button id="btnDelProAdmin" type="button" userId="<%=esd.userId%>" class="btn btn-primary">确定</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <%}%>
+                    <%});%>
+                </form>
+                <%}%>
+        </div>
+        <div id="" class="panel-footer" recCount=""></div>
+    </div>
+</div>
+
+<!--项目参与者列表-->
+<div id="proAllUser" class="container-fluid">
+    <div class="panel panel-default">
+        <div class="panel-heading">项目参与人员&emsp;&emsp;&emsp;<a id="newProUser" href="#"><span class="glyphicon glyphicon-plus"/>添加人员</a></div>
+        <div class="panel-body table-responsive">
+            <%if(proAllUser){%>
+            <form action="/leaderModel/delProUser/<%=projects[0].projectId%>" id="formDelProUser" class=" bs-component form-Vertical" method='post'>
+                <input type="hidden" id="delProUserId" name="delProUserId"/>
+                <%proAllUser.forEach(function(pau,i){%>
+                    &emsp;
+                    <!-- 项目参与人名按钮 -->
+                    <div typeId="proUserBtn" style="float: left;margin-left: 20px;">
+                        <%if(pau.userId==user.userId){%><!--判断是否为组长-->
+                        <button type="button" class="btn btn-danger"><%=pau.realName%>(组长)&nbsp;</button>
+                        <button typeId="xxUser" type="button" class="am-close am-close-spin am-icon-times"></button>
+                        <%}else{%>
+                        <button type="button" class="btn btn-primary"><%=pau.realName%>&nbsp;</button>
+                        <button typeId="xxUser" type="button" class="am-close am-close-spin am-icon-times" data-toggle="modal" data-target="#proUser<%=pau.userId%>"></button>
+                        <%}%>
+                    </div>
+
+                    <div id="proUser<%=pau.userId%>" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-sm">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    <h4 class="modal-title" id="myModalLabel" style="color: #ffffff">删除确定</h4>
+                                </div>
+                                <div class="modal-body">
+                                    确定删除参与人员：【<%=pau.realName%>】
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                    <button id="btnDelProUser" type="button" userId="<%=pau.userId%>" class="btn btn-primary">确定</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <%});%>
+            </form>
+            <%}%>
+        </div>
+        <div id="" class="panel-footer" recCount=""></div>
+    </div>
+</div>
+
+
+<!--添加管理员对话框-->
+<div id="divAddProAdminDialog" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" id="divModel">
+            <%include addProAdmin.ejs%>
+        </div>
+    </div>
+</div>
+
+<!--添加项目参与者对话框-->
+<div id="divAddProUserDialog" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" id="divModel">
+            <%include addProUser.ejs%>
+        </div>
+    </div>
+</div>
+
+
+<script src="/javascripts/index_leader_userCtrl.js"></script>
+<script>
+
+    $ ("[id=btnDelProAdmin]").each (function ()
+    {
+        //console.info($(this).attr('userid'));
+        $(this).click(function(){
+            $('#delAdminId').val($(this).attr('userid'));
+            $('#formDelAdmin').submit();
+        })
+    });
+
+    $ ("[id=btnDelProUser]").each (function ()
+    {
+        //console.info($(this).attr('userid'));
+        $(this).click(function(){
+            $('#delProUserId').val($(this).attr('userid'));
+            $('#formDelProUser').submit();
+        })
+    });
+
+
+    $('div[typeId=proAdminBtn]').each (function(){
+        var thisBtn = $(this);
+        thisBtn.mouseover(function(){
+            thisBtn.find('[typeId=xxAdmin]').show();
+        });
+        thisBtn.mouseleave(function(){
+            thisBtn.find('[typeId=xxAdmin]').hide();
+        });
+        thisBtn.find('[typeId=xxAdmin]').hide();
+    });
+
+    $('div[typeId=proUserBtn]').each (function(){
+        var thisBtn = $(this);
+        thisBtn.mouseover(function(){
+            thisBtn.find('[typeId=xxUser]').show();
+        });
+        thisBtn.mouseleave(function(){
+            thisBtn.find('[typeId=xxUser]').hide();
+        });
+        thisBtn.find('[typeId=xxUser]').hide();
+    });
+
+</script>
+
+
+
