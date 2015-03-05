@@ -73,7 +73,7 @@
 				getData: getData, //获取数据的方法
 				autoMinWidth: false, //是否自动最小宽度，设为 false 则最小宽度与下拉式菜单等齐
 				inputWarnColor: "rgba(255,0,0,.1)", //输入框内容不是下拉列表选择时的警告色
-				listStyle: {"padding-top":0, "max-height": "159px", "max-width": "800px", "overflow": "auto", "width": "auto"}, //列表的样式控制
+				listStyle: {"padding-top":0, "max-height": "159px", "max-width": "800px", "overflow": "auto", "width": "187"}, //列表的样式控制
 				listHoverStyle: 'background: #07d; color:#fff', //提示框列表鼠标悬浮的样式
 				listHoverCSS: "jhover", //提示框列表鼠标悬浮的样式名称
 				keyLeft: 37,	//向左方向键

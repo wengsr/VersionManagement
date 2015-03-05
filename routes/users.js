@@ -256,9 +256,31 @@ router.get('/logout', function(req, res) {
 });
 
 /**
- * 获取所有的用户登录名和实名
+ * 获取所有的用户登录名和实名post方式
  */
 router.post('/getAllName', function(req, res) {
+    User.getAllName(function(msg,results){
+        if('success' == msg){
+            var queryObj = url.parse(req.url,true).query;
+            var jsonStr = "[";
+            results.forEach(function(result){
+                var uName = result.userName;
+                var uRealName = result.realName;
+                if(null==uRealName)uRealName='';
+                var userObj = '{ "userName": "' + uName + '", "realName": "' + uRealName + '" },';
+                jsonStr = jsonStr + userObj;
+            });
+            jsonStr = jsonStr + "]";
+            jsonStr = jsonStr.replace(",]","]");
+            res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+        }
+    });
+});
+
+/**
+ * 获取所有的用户登录名和实名get方式
+ */
+router.get('/getAllName', function(req, res) {
     User.getAllName(function(msg,results){
         if('success' == msg){
             var queryObj = url.parse(req.url,true).query;
