@@ -219,7 +219,7 @@ jQuery(document).ready(function() {
     $('#btnSubmitSuccess').hide();
     $('#btnExtractSuccess').hide();
     $('#btnConfirm').hide();
-    //$('#btnModify').hide();//修改变更单，待完善
+    $('#btnModify').hide();//修改变更单，待完善
     //隐藏文件路径信息提示条
     $('#diaInfoTip').hide();
     //文件上传后回传值的处理
