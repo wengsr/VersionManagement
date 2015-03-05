@@ -1,0 +1,95 @@
+<!--指定每个步骤处理人员-->
+<div style="margin-top: 100px;"></div>
+<div id="userCtrl" class="container-fluid">
+    <div class="panel panel-default">
+        <div class="panel-heading">指定每个步骤处理人员</div>
+        <div class="panel-body table-responsive">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>步骤名称</th>
+                    <th>处理人</th>
+                </tr>
+                </thead>
+                <%if(eachStepDealers){%>
+                <tbody>
+                <tr id="">
+                    <td>提交申请</td>
+                    <td>
+                        <%eachStepDealers.forEach(function(esd,i){%>
+                            <%if(esd.processStepId==1){%>
+                                <a href="<%=esd.userId%>"><%=esd.realName%></a>&emsp;
+                            <%}%>
+                        <%});%>
+                    </td>
+                </tr>
+
+                <tr id="">
+                    <td>提取&上传文件</td>
+                    <td>
+                        <%eachStepDealers.forEach(function(esd,i){%>
+                            <%if(esd.processStepId==3){%>
+                                <a href="<%=esd.userId%>"><%=esd.realName%></a>&emsp;
+                            <%}%>
+                        <%});%>
+                    </td>
+                </tr>
+                <tr id="">
+                    <td>安排走查</td>
+                    <td>
+                        <%eachStepDealers.forEach(function(esd,i){%>
+                            <%if(esd.processStepId==4){%>
+                                <a href="<%=esd.userId%>"><%=esd.realName%></a>&emsp;
+                            <%}%>
+                        <%});%>
+                    </td>
+                </tr>
+                <tr id="">
+                    <td>走查</td>
+                    <td>
+                        <%eachStepDealers.forEach(function(esd,i){%>
+                            <%if(esd.processStepId==5){%>
+                                <a href="<%=esd.userId%>"><%=esd.realName%></a>&emsp;
+                            <%}%>
+                        <%});%>
+                    </td>
+                </tr>
+                <tr id="">
+                    <td>上库</td>
+                    <td>
+                        <%eachStepDealers.forEach(function(esd,i){%>
+                            <%if(esd.processStepId==6){%>
+                                <a href="<%=esd.userId%>"></a>&emsp;
+                                <!-- Small modal -->
+                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#<%=esd.userId%>"><%=esd.realName%></button>
+
+                                <div id="<%=esd.userId%>" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-sm">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                                <h4 class="modal-title" id="myModalLabel" style="color: #ffffff">删除确定</h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <%=esd.realName%>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                <button type="button" class="btn btn-primary">Save changes</button>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            <%}%>
+                        <%});%>
+                    </td>
+                </tr>
+                </tbody>
+                <%}%>
+            </table>
+        </div>
+
+        <div id="" class="panel-footer" recCount=""></div>
+    </div>
+</div>

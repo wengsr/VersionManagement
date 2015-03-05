@@ -1,0 +1,78 @@
+<div class="container">
+    <div class="row" style="height: 50px"></div><!--我是分行DIV-->
+    <!--文件数统计-->
+    <div class="row">
+        <ul class="am-avg-sm-1 am-avg-md-4 am-margin am-padding am-text-center admin-content-list ">
+            <li><a href="#" class="am-text-danger" data-toggle="tooltip" data-placement="top" title="变更申请已提交，但是文件被其他变更单占用中，需等待其他变更单流程完成后才可提取"><span style="font-size:13px;"><span class="am-icon-btn am-icon-user-md"></span><br>冲突的文件<br><%=fileListCount.conflict%></span></a></li>
+            <li><a href="#" class="am-text-secondary" data-toggle="tooltip" data-placement="top" title="文件不与其他变更单要修改的文件冲突，等待开发人员提取"><span style="font-size:13px;"><span class="am-icon-btn am-icon-file-text"></span><br>等待变更文件<br><%=fileListCount.unChange%></span></a></li>
+            <li><a href="#" class="am-text-warning" data-toggle="tooltip" data-placement="top" title="文件被开发人员提取，正在变更流程中，未上库"><span style="font-size:13px;"><span class="am-icon-btn am-icon-recycle"></span><br>变更中文件<br><%=fileListCount.inChange%></span></a></li>
+            <li><a href="#" class="am-text-success" data-toggle="tooltip" data-placement="top" title="文件变更流程走完，文件上库，解除占用。已上库文件统计包括新增文件数和修改文件数"><span style="font-size:13px;"><span class="am-icon-btn am-icon-briefcase"></span><br>已上库文件<br><%=fileListCount.commited%></span></a></li>
+        </ul>
+    </div>
+
+    <div class="row" style="height:10px"></div><!--我是分行DIV-->
+
+    <!--处于不同阶段变更单的个数-->
+    <!--变更单的7种状态：1.申请完成 2.变更文件已提交 3.已安排走查 4.走查通过 5.正在上库 6.上库完成.-->
+    <div class="row">
+        <div class="col-sm-4">
+            <h3>不同状态的变更单</h3>
+            <p><span style="color: blue">该指标宏观反映：<br/>1.当前变更单在哪些环节阻滞。<br/>2.图中面积大小表示当前需要处理的变更单数量多少。</span></p>
+            <%if(taskCount.length>0){%>
+            <table class="table stat-table">
+                <tbody>
+                <%taskCount.forEach(function(taskC,i){%>
+                <%if(i<3){%>
+                <tr>
+                    <td class="value"><%=taskC.stateCount%></td>
+                    <td class="full" style="padding-top:20px;"><span style="margin-top:20px"><%=taskC.state%></span></td>
+                </tr>
+                <%}%>
+                <%});%>
+                </tbody>
+            </table>
+            <%}%>
+        </div>
+        <div class="col-sm-8">
+            <div id="stepChart" style="height:400px; margin-top:-50px; margin-right: -70px;"></div>
+        </div>
+    </div>
+
+    <div class="row" style="height:40px"></div><!--我是分行DIV-->
+
+    <!--开发人员发起的变更单数-->
+    <div class="row">
+        <div class="col-sm-5">
+            <h3 class="title">开发人员发起的变更单</h3>
+            <div id="createrChart" style="height:500px;"></div>
+        </div>
+
+        <div class="col-sm-7">
+            <h3 class="title">发起变更单前10位&nbsp;&nbsp;<span style="font-size:12px;color:blue;font-weight:normal;">该指标反映发起变更单数量最多的开发人员</span></h3>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>发起的变更单数</th>
+                    <th>发起者真实姓名</th>
+                    <th>邮箱</th>
+                </tr>
+                </thead>
+                <%if(createrTaskCount.length>0){%>
+                <tbody class="createrTopTen">
+                <%createrTaskCount.forEach(function(ctc,i){%>
+                <%if(i<10){%>
+                <tr>
+                    <input type="hidden" value="<%=ctc.userId%>"/>
+                    <td><span class="label label-secondary"><%=ctc.createTaskCount%></span></td>
+                    <td class="full"><span><%=ctc.userName%></span></td>
+                    <td class="who"><a href=mailto:<%=ctc.email%>><%=ctc.email%></a></td>
+                </tr>
+                <%}%>
+                <%});%>
+                </tbody>
+                <%}%>
+            </table>
+        </div>
+    </div>
+
+</div>
