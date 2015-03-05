@@ -292,13 +292,13 @@ Task.findFileListByTaskId = function(taskId, callback){
             var addFileList;
             var modifyFileList;
             result.forEach(function(file,i){
-                if(file.state=='0'){
+                if(file.state=='1'){
                     if(undefined==addFileList){
                         addFileList = file.fileUri;
                     }else{
                         addFileList = addFileList + "\r\n" + file.fileUri;
                     }
-                }else if(file.state=='1'){
+                }else if(file.state=='0'){
                     if(undefined==modifyFileList){
                         modifyFileList = file.fileUri;
                     }else{
