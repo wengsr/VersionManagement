@@ -32,17 +32,26 @@
                     <!--</li>-->
                 <!--</ul>-->
             <!--<% } %>-->
-
-
             <ul id="navMenu" class="nav navbar-nav">
-                <%if('chartsPage'==whichPage){%><!--显示统计图表-->
-                    <li><a class="menuBtn" btnname="btnUserCtrl" href="/leaderModel/userCtrl/<%=projects[0].projectId%>" id="btnUserCtrl">指定人员</a></li>
-                <%}%>
-                <%if('userCtrlPage'==whichPage){%><!--给每个步骤授权不同用户-->
-                    <li><a class="menuBtn" btnname="btnUserCtrl" href="/leaderModel/selectProject/<%=projects[0].projectId%>" id="btnUserCtrl">主页</a></li>
-                <%}%>
-
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">操作<span class="caret"></span></a>
+                    <ul id="navMenu" class="dropdown-menu" role="menu">
+                        <li><a class="menuBtn" btnname="btnUserCtrl" href="/leaderModel/selectProject/<%=projects[0].projectId%>" id="btnUserCtrl">主页</a></li>
+                        <li><a class="menuBtn" btnname="btnUserCtrl" href="/leaderModel/userCtrl/<%=projects[0].projectId%>" id="btnUserCtrl">指定人员</a></li>
+                    </ul>
+                </li>
             </ul>
+
+
+
+            <!--<ul id="navMenu" class="nav navbar-nav">-->
+                <!--<%if('chartsPage'==whichPage){%>&lt;!&ndash;显示统计图表&ndash;&gt;-->
+                    <!--<li><a class="menuBtn" btnname="btnUserCtrl" href="/leaderModel/userCtrl/<%=projects[0].projectId%>" id="btnUserCtrl">指定人员</a></li>-->
+                <!--<%}%>-->
+                <!--<%if('userCtrlPage'==whichPage){%>&lt;!&ndash;给每个步骤授权不同用户&ndash;&gt;-->
+                    <!--<li><a class="menuBtn" btnname="btnUserCtrl" href="/leaderModel/selectProject/<%=projects[0].projectId%>" id="btnUserCtrl">主页</a></li>-->
+                <!--<%}%>-->
+            <!--</ul>-->
 
             <!--选择项目-->
             <ul class="nav navbar-nav">
