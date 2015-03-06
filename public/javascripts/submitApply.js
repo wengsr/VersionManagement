@@ -61,15 +61,12 @@ function ajaxSubmit(params, url, subType){
             }
         },
         error: function(jqXHR, textStatus, errorThrown){
-            debugger
             alert('error ' + textStatus + " " + errorThrown);
         }
     });
 }
 
 jQuery(document).ready(function() {
-    debugger
-
     //隐藏文件路径信息提示条
     $('#diaInfoTip').hide();
     $('#btnSubmitSuccess').hide();
@@ -89,7 +86,6 @@ jQuery(document).ready(function() {
 
             };
             url = 'task/addTask';
-            debugger
            ajaxSubmit(params, url, 'post');
             //showTipInfo('success', '任务已申请，且文件提取成功！');
         }
