@@ -4,7 +4,7 @@
 var pool = require('../util/connPool.js').getPool();
 var async = require('async');// 加载async 支持顺序执行
 var queues = require('mysql-queues');// 加载mysql-queues 支持事务
-
+var file = require("../modular/task");
 
 function Task(task){
     this.taskid = task.taskid
@@ -292,13 +292,13 @@ Task.findFileListByTaskId = function(taskId, callback){
             var addFileList;
             var modifyFileList;
             result.forEach(function(file,i){
-                if(file.state=='0'){
+                if(file.state=='1'){
                     if(undefined==addFileList){
                         addFileList = file.fileUri;
                     }else{
                         addFileList = addFileList + "\r\n" + file.fileUri;
                     }
-                }else if(file.state=='1'){
+                }else if(file.state=='0'){
                     if(undefined==modifyFileList){
                         modifyFileList = file.fileUri;
                     }else{

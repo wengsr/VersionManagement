@@ -16,23 +16,23 @@ var CHECK_REPORT_UPLOAD_FOLDER2 = '/newAndOld/';
  * @param isSuccess
  * @param msg
  */
-//function fileUpReturnInfo(res, isSuccess, msg, reporAttaName, reportAttaUri){
-//    res.writeHead(200,{"Content-Type":"text/html"});
-//    res.write('<div><input type="hidden" id="fileUpIsSuccess" value="'+isSuccess+'"></div>');
-//    res.write('<div><input type="hidden" id="fileUpReturnInfo" value="'+msg+'"></div>');
-//    res.write('<div><input type="hidden" id="reportAttaName" value="'+reportAttaName+'"></div>');
-//    res.write('<div><input type="hidden" id="reportAttaUri" value="'+reportAttaUri+'"></div>');
-//    res.end("<p>这是个文件上传的回传信息</p>");
-//}
-
-function fileUpReturnInfo(res, isSuccess, msg, attaName, attaUri){
+function fileUpReturnInfo(res, isSuccess, msg, reportAttaName, reportAttaUri){
     res.writeHead(200,{"Content-Type":"text/html"});
     res.write('<div><input type="hidden" id="fileUpIsSuccess" value="'+isSuccess+'"></div>');
     res.write('<div><input type="hidden" id="fileUpReturnInfo" value="'+msg+'"></div>');
-    res.write('<div><input type="hidden" id="attaName" value="'+attaName+'"></div>');
-    res.write('<div><input type="hidden" id="attaUri" value="'+attaUri+'"></div>');
+    res.write('<div><input type="hidden" id="reportAttaName" value="'+reportAttaName+'"></div>');
+    res.write('<div><input type="hidden" id="reportAttaUri" value="'+reportAttaUri+'"></div>');
     res.end("<p>这是个文件上传的回传信息</p>");
 }
+
+//function fileUpReturnInfo(res, isSuccess, msg, attaName, attaUri){
+//    res.writeHead(200,{"Content-Type":"text/html"});
+//    res.write('<div><input type="hidden" id="fileUpIsSuccess" value="'+isSuccess+'"></div>');
+//    res.write('<div><input type="hidden" id="fileUpReturnInfo" value="'+msg+'"></div>');
+//    res.write('<div><input type="hidden" id="attaName" value="'+attaName+'"></div>');
+//    res.write('<div><input type="hidden" id="attaUri" value="'+attaUri+'"></div>');
+//    res.end("<p>这是个文件上传的回传信息</p>");
+//}
 
 
 
