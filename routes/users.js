@@ -140,6 +140,7 @@ router.get('/reg', function(req, res) {
     //res.render('reg',{title:"注册页面",errMsg: ''});
 });
 
+
 /**
  * 注册处理方法
  */
@@ -148,6 +149,8 @@ router.post('/doReg', function(req, res) {
     var name = req.body["username"];
     var password = req.body["password"];
     var password_re = req.body['password-repeat'];
+    var realName = req.body["realName"];
+    var email = req.body['email'];
     if(''==name){
         req.session.error = "用户名不能为空";
         return res.redirect("/users/reg");
@@ -169,13 +172,31 @@ router.post('/doReg', function(req, res) {
         return res.redirect("/users/reg");//重定向，页面地址改变
         //return res.render('reg',{title:"注册页面",errMsg: "两次输入的密码不一致"});//重新渲染页面，地址栏不改变
     }
+    if(''==realName || ''==email){
+        req.session.error = "邮箱和真实姓名都不能为空";
+        return res.redirect("/users/reg");
+    }
+    if(realName.length>10){
+        req.session.error = "真实姓名要求小于10个字符";
+        return res.redirect("/users/reg");
+    }
+    if(email.length>50){
+        req.session.error = "邮箱要求小于50个字符";
+        return res.redirect("/users/reg");
+    }
+    if(!verifyEmail(email)){
+        req.session.error = "邮箱格式不符合要求";
+        return res.redirect("/users/reg");
+    }
     //生成密码的md5值
     var md5 = crypto.createHash('md5');
     var password = md5.update(req.body.password).digest("base64");
     //声明需要添加的用户
     var newUser = new User({
         userName:req.body.username,
-        password:password
+        password:password,
+        realName:realName,
+        email:email
     });
     User.find(newUser.userName,function(msg,user){
         //如果用户已经存在
@@ -256,7 +277,7 @@ router.get('/logout', function(req, res) {
 });
 
 /**
- * 获取所有的用户登录名和实名
+ * 获取所有的用户登录名和实名post方式
  */
 router.post('/getAllName', function(req, res) {
     User.getAllName(function(msg,results){

@@ -61,7 +61,29 @@ Project.findProjectByUserId = function(currProjectId, userId, callback){
 }
 
 
-
+/**
+ * 根据用户ID找用户属于哪些项目
+ * @param userId
+ * @param callback
+ */
+Project.findProsByUserIdForApplyTaskBtn = function(userId,callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN USERTOPROJECT ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'select * from usertoproject where userId=?';
+        var params = [userId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY USERTOPROJECT ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',result);
+        });
+    });
+}
 
 
 module.exports = Project;

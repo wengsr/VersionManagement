@@ -93,6 +93,15 @@ function showFilePath(tipContent){
     infoTip.show();
 }
 
+/**
+ * 文件上传按钮加载遮罩(避免文件上传过程中重复上传文件)
+ */
+function fileUploadBtnLoading(btnId,tipString){
+    btnId = "#" + btnId;
+    $(btnId).attr('data-loading-text',tipString);
+    $(btnId).button('loading').delay(1000).queue(function() {});
+}
+
 
 /**
  * 绑定文件上传按钮的点击事件
@@ -111,6 +120,9 @@ function bindClick_btnUploadFile(){
             showTipInfo('err','只支持rar文件');
             return false;
         }
+
+        $('#btnSelectReport').hide();//隐藏选择文件按钮
+        fileUploadBtnLoading('submit_UpReport','文件上传中...');//文件上传按钮遮罩
         $('#fileUpForm_check').submit();
         return true;
     })
@@ -144,7 +156,6 @@ function fileUpReturn(){
         }
     });
 }
-
 
 jQuery(document).ready(function() {
     //隐藏文件上传时用于替代走查通过or不通过的按钮

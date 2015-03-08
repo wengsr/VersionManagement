@@ -39,7 +39,7 @@
                     <div class="form-group">
                         <label for="addTaskList" class="col-sm-2 control-label">新增文件清单</label>
                         <div class="col-sm-10" style="margin-top:6px">
-                            <textarea class="form-control" id="addTaskList" rows="3" disabled="disabled"><%=addFileList%></textarea>
+                            <textarea class="form-control" id="addTaskList" rows="3" disabled="disabled"><%=addFileList==undefined?'':addFileList%></textarea>
                         </div>
                     </div>
 
@@ -71,9 +71,6 @@
                         </div>
                         <%}%>
                     </div>
-
-
-
 
                 </div>
             </div>

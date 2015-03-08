@@ -288,8 +288,8 @@ User.prototype.save = function save(user,callback){
             console.log('[CONN USER ERROR] - ', err.message);
             return callback(err);
         }
-        var sql = 'insert into user(username,password) values (?,?)';
-        var params = [user.userName,user.password];
+        var sql = 'insert into user(username,password,realName,email) values (?,?,?,?)';
+        var params = [user.userName,user.password,user.realName,user.email];
         connection.query(sql, params, function (err, result) {
             if (err) {
                 console.log('[QUERY USER ERROR] - ', err.message);
