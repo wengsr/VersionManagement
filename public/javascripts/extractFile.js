@@ -45,18 +45,15 @@ function ajaxSubmit(params, url, subType){
             if('err'==flag){
                 debugger
                 showTipInfo('err',dataJson.message);
-                if (url == './task/submitFile') {
-                    $('#uploadIcon').show();
-                    $('#uploadInfo').text("选择文件");
-                    $('#btnSubmitFile').attr("disabled","false");
-                }
             }else if('success'==flag) {
                 debugger
                 if (url == './task/extractFile') {
                     if (dataJson.userFlag) {
                         alert(dataJson.user);
                        // $('#divModelDialogErr').model();
+                        $('#btnExtractFile').val("提取旧文件");
                         $('#a_reportAtta').html("没有旧文件");
+                        $('#btnExtractFile').button('reset');
                         showTipInfo('success', dataJson.message);
                     }
                     else {

@@ -240,13 +240,13 @@ exports.extractFile= function(taskId, userId, processStepId, fileName, fileUri,c
             }
             console.log("updateTask :", result);
         });
-        trans.query(sql['saveAtta'],saveAtta_params,function(err,result){
+        trans.query(sql['updateDealer'],updateDealer_params,function(err,result){
             if(err){
                 trans.rollback();
-                console.log("saveAtta :",err.message);
+                console.log("updateDealer :",err.message);
                 return callback('err',err_async);
             }
-            console.log("saveAtta :", result);
+            console.log("updateDealer :", result);
         });
         trans.query(sql['saveAtta'],saveAtta_params,function(err,result){
             if(err){
