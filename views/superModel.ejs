@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/stylesheets/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+  <%- message %>                    <!--错误&成功提示信息条-->
+    <%include /superModel/topNav.ejs%>          <!--页面顶部导航栏-->
+  <% if(user.userName=='sAdmin'){%>
+    <%include /superModel/superDeal.ejs%>        <!--登录后的任务处理界面-->
+  <% }else{ %>
+    <div>不是超级管理员，无权限访问该页面</div>     <!--首页展示-->
+  <% }%>
+         <!--模态窗口-->
+  </body>
+  <%include /superModel/includeJs.ejs%>     <!--引入的JS文件-->
+</html>
+<script src="/javascripts/superModel.js"></script>

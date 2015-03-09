@@ -10,6 +10,7 @@ var users = require('./routes/users');
 var task = require('./routes/task');
 var taskDialog = require('./routes/taskDialog');
 var leaderModel = require('./routes/leaderModel');
+var superModel = require('./routes/superModel');
 
 var app = express();
 var session = require('express-session');
@@ -106,6 +107,7 @@ app.use('/task', task);
 app.use('/taskDialog', taskDialog);
 app.use('/file', file);
 app.use('/leaderModel', leaderModel);
+app.use('/superModel', superModel);
 
 
 module.exports = app;

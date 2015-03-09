@@ -1,0 +1,195 @@
+<!--创建新项目-->
+<form action="" id="formAddPro" class=" bs-component form-horizontal" method='post'>
+
+    <div>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h4><span>创建新项目</span></h4>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label for="projectName" class="col-sm-2 control-label">项目名称</label>
+                        <div class="col-sm-10">
+                            <div class="input-group">
+                                <input type="text" class="form-control" size="110" id="projectName" name="projectName" placeholder="输入项目名称">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label for="projectUri" class="col-sm-2 control-label">项目SVN路径</label>
+                        <div class="col-sm-10">
+                            <div class="input-group">
+                                <input type="text" class="form-control" size="110" id="projectUri" name="projectUri" placeholder="输入项目SVN路径">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-10"></div>
+                <div class="col-lg-2">
+                    <button id="btnAddPro" type="button" class="btn btn-primary" style="float:left">确定添加</button>
+                </div>
+            </div>
+            <div class="row" style="margin-bottom: 10px;"></div>
+        </div>
+    </div>
+</form>
+<div class="modal-footer" style="background: #EEEEEE"></div>    <!--创建新项目部分结束-->
+
+
+
+
+
+<!--指定项目组长-新增-->
+<form action="" id="formAddProAdmin" class=" bs-component form-horizontal" method='post' style="background: #EEEEEE">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <h4><span>新增项目组长</span></h4>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-11">
+                <div class="form-group">
+                    <label for="inputTaskList" class="col-sm-2 control-label">选择项目</label>
+                    <div class="col-sm-8">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="projectId_add" name="projectId_add" placeholder="输入项目相关信息">
+                            <div class="input-group-btn">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                    <span class="caret"></span>
+                                </button>
+                                <ul id="selectUl" class="dropdown-menu dropdown-menu-right" role="menu">
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-lg-11">
+                <div class="form-group">
+                    <label for="inputTaskList" class="col-sm-2 control-label">指定项目组长</label>
+                    <div class="col-sm-8">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="userId_add" name="userId_add" placeholder="输入人员相关信息">
+                            <div class="input-group-btn">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                    <span class="caret"></span>
+                                </button>
+                                <ul id="selectUl" class="dropdown-menu dropdown-menu-right" role="menu">
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-10"></div>
+            <div class="col-lg-2">
+                <button id="btnAddProAdmin" type="button" class="btn btn-primary" style="float:left">确定添加</button>
+            </div>
+        </div>
+        <div class="row" style="margin-bottom: 10px;"></div>
+    </div>
+</form>
+<div class="modal-footer"></div>    <!--创建新项目部分结束-->
+
+
+
+
+
+
+
+<!--指定项目组长-修改-->
+<form action="" id="formUpdateProAdmin" class=" bs-component form-horizontal" method='post'>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <h4><span>修改项目组长</span></h4>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-11">
+                <div class="form-group">
+                    <label for="inputTaskList" class="col-sm-2 control-label">选择项目ID</label>
+                    <div class="col-sm-8">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="projectId_update" name="projectId_update" placeholder="输入项目相关信息">
+                            <div class="input-group-btn">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                    <span class="caret"></span>
+                                </button>
+                                <ul id="selectUl" class="dropdown-menu dropdown-menu-right" role="menu">
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-lg-11">
+                <div class="form-group">
+                    <label for="inputTaskList" class="col-sm-2 control-label">指定项目组长</label>
+                    <div class="col-sm-8">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="userId_update" name="userId_update" placeholder="输入人员相关信息">
+                            <div class="input-group-btn">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                    <span class="caret"></span>
+                                </button>
+                                <ul id="selectUl" class="dropdown-menu dropdown-menu-right" role="menu">
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-10"></div>
+            <div class="col-lg-2">
+                <button id="btnUpdateProAdmin" type="button" class="btn btn-primary" style="float:left">确定修改</button>
+            </div>
+        </div>
+        <div class="row" style="margin-bottom: 10px;"></div>
+    </div>
+</form>
+<div class="modal-footer"></div>    <!--指定项目组长部分结束-->
+
+
+
+<script src="/javascripts/jquery.min.js"></script>
+<script src="/javascripts/bootstrap.min.js"></script>
+<script src="/javascripts/bootstrap-suggest.js"></script>
+
+<script>
+    var superEjsData;<!--获取后台参数-->
+    $(function () {
+        superEjsData = {
+            proNoManager: <%- JSON.stringify(proNoManager) %>,
+            allPro: <%- JSON.stringify(allPro) %>,
+            allUser: <%- JSON.stringify(allUser) %>
+        };
+    });
+</script>
