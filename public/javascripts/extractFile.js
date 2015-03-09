@@ -140,7 +140,7 @@ function fileUp(url){
 }
 
 /**
- * 绑定文件上传按钮的点击事件
+ * 绑定提取旧文件按钮的点击事件
  */
 function bindClick_btnUploadFile(){
     $("#btnExtractFile").on("click",function(){
