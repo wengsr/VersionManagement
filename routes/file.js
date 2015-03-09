@@ -16,32 +16,23 @@ var CHECK_REPORT_UPLOAD_FOLDER2 = '/newAndOld/';
  * @param isSuccess
  * @param msg
  */
-//function fileUpReturnInfo(res, isSuccess, msg, reporAttaName, reportAttaUri){
-//    res.writeHead(200,{"Content-Type":"text/html"});
-//    res.write('<div><input type="hidden" id="fileUpIsSuccess" value="'+isSuccess+'"></div>');
-//    res.write('<div><input type="hidden" id="fileUpReturnInfo" value="'+msg+'"></div>');
-//    res.write('<div><input type="hidden" id="reportAttaName" value="'+reportAttaName+'"></div>');
-//    res.write('<div><input type="hidden" id="reportAttaUri" value="'+reportAttaUri+'"></div>');
-//    res.end("<p>这是个文件上传的回传信息</p>");
-//}
-
-function fileUpReturnInfo(res, isSuccess, msg, attaName, attaUri, secFolder){
-    var stepUri;
-    var stepName;
-    if(secFolder==CHECK_REPORT_UPLOAD_FOLDER){
-        stepUri = 'reportAttaUri';
-        stepName = 'reportAttaName';
-    }else if(secFolder==CHECK_REPORT_UPLOAD_FOLDER2){
-        stepUri = 'attaUri';
-        stepName = 'attaName';
-    }
+function fileUpReturnInfo(res, isSuccess, msg, reportAttaName, reportAttaUri){
     res.writeHead(200,{"Content-Type":"text/html"});
     res.write('<div><input type="hidden" id="fileUpIsSuccess" value="'+isSuccess+'"></div>');
     res.write('<div><input type="hidden" id="fileUpReturnInfo" value="'+msg+'"></div>');
-    res.write('<div><input type="hidden" id='+stepName+' value="'+attaName+'"></div>');
-    res.write('<div><input type="hidden" id='+stepUri+' value="'+attaUri+'"></div>');
+    res.write('<div><input type="hidden" id="reportAttaName" value="'+reportAttaName+'"></div>');
+    res.write('<div><input type="hidden" id="reportAttaUri" value="'+reportAttaUri+'"></div>');
     res.end("<p>这是个文件上传的回传信息</p>");
 }
+
+//function fileUpReturnInfo(res, isSuccess, msg, attaName, attaUri){
+//    res.writeHead(200,{"Content-Type":"text/html"});
+//    res.write('<div><input type="hidden" id="fileUpIsSuccess" value="'+isSuccess+'"></div>');
+//    res.write('<div><input type="hidden" id="fileUpReturnInfo" value="'+msg+'"></div>');
+//    res.write('<div><input type="hidden" id="attaName" value="'+attaName+'"></div>');
+//    res.write('<div><input type="hidden" id="attaUri" value="'+attaUri+'"></div>');
+//    res.end("<p>这是个文件上传的回传信息</p>");
+//}
 
 
 
@@ -86,7 +77,7 @@ function fileUp(req, res, secFolder){
         var reportUri = files.fulAvatar.path;
 
         if (err) {
-            fileUpReturnInfo(res, "false", err, '', '',secFolder);
+            fileUpReturnInfo(res, "false", err, '', '');
             return;
         }
 
@@ -108,7 +99,7 @@ function fileUp(req, res, secFolder){
         }
 
         if(extName==''){
-            fileUpReturnInfo(res, "false", "不支持上传该格式文件", '', '',secFolder);
+            fileUpReturnInfo(res, "false", "不支持上传该格式文件", '', '');
             return;
         }
         //拼凑文件名
@@ -143,16 +134,16 @@ function fileUp(req, res, secFolder){
 
         saveTaskAtta(req, taskId, processStepId, reportName, reportUri, function(insertId){
             if(insertId){
-                fileUpReturnInfo(res, "true", "文件上传成功", reportName, reportUri, secFolder);
+                fileUpReturnInfo(res, "true", "文件上传成功", reportName, reportUri);
             }else{
-                fileUpReturnInfo(res, "false", "文件记录数据库时出错", '', '', secFolder);
+                fileUpReturnInfo(res, "false", "文件记录数据库时出错", '', '');
             }
         });
     });
 }
 
 /**
- * 走查报告文件上传(走查步骤使用)
+ * 走查报告文件上传
  */
 router.post('/checkReportUp', function(req, res) {
     fileUp(req, res, CHECK_REPORT_UPLOAD_FOLDER);
@@ -170,9 +161,6 @@ router.get('/fileDownLoad/:filename/:realpath',function(req,res,next){
     res.download(realpath,filename);
 });
 
-/**
- * 上传新旧附件(步骤2用)
- */
 router.post('/submitFile', function(req, res) {
     fileUp(req, res, CHECK_REPORT_UPLOAD_FOLDER2);
 });

@@ -7,12 +7,61 @@ var Task = require('../modular/task');
 var User = require('../modular/user');
 var FileList = require('../modular/fileList');
 var sendMailToCreater = require('../util/email');
-var File = require('../routes/file');
+var file = require('../routes/file');
 var dao =require('../modular/taskDao');
 var url = require('url');
 var Svn = require("../util/svnTool.js");
+var fileZip = require("../util/fileTool.js");
 var fs = require('fs');
+var TaskAtta = require('../modular/taskAtta');
 var testFileUsed = require('../modular/testFileUsed');
+
+/**
+ * 保存附件信息到数据库
+ * @param req
+ * @param taskId
+ * @param processStepId
+ * @param fileName
+ * @param fileUri
+ * @param callback
+ */
+function saveTaskAtta(req, taskId, processStepId, fileName, fileUri, callback){
+    TaskAtta.saveTaskAtta(taskId, processStepId, fileName, fileUri, function(msg,insertId){
+        if('success'!=msg){
+            req.session.error = "保存附件信息时发生错误,请记录并联系管理员";
+            return callback(null);
+        }
+        callback(insertId);
+    });
+}
+
+function fileRename( fileName){
+    var newDate = new Date();
+    var year = newDate.getFullYear().toString() ;
+    var month = (newDate.getMonth() + 1).toString();
+    var hour = (newDate.getHours().toString());
+    var minute = (newDate.getMinutes());
+    var second  = (newDate.getSeconds());
+    if(month<10){
+        month = '0' + month;
+    }
+    if(hour<10){
+        hour = '0' + hour;
+    }
+    if(minute<10){
+        minute = '0' + minute;
+    }
+    if(second<10){
+        second = '0' + second;
+    }
+    var day = newDate.getDate().toString();
+    if(day<10){
+        day = '0' + day;
+    }
+    var nowDate = year + month + day + hour + minute +second;
+    return fileName + nowDate +'.zip';
+}
+
 /**
  * 判断一个值是否在数组中
  * @param search
@@ -426,7 +475,7 @@ router.post('/extractFile', function(req, res) {
                 return ;
             }
             projectUri = result.projectUri;
-            console.log("projectUri:", projectUri);
+
             if (modFiles == "" || typeof(modFiles) == "undefined") {
                message = "【提取旧文件】没有文件需要提取";
                 dao.extractFile(taskId,userId, function (msg, result) {
@@ -455,7 +504,6 @@ router.post('/extractFile', function(req, res) {
                             break;
                         }
                         if (flag) {//有文件被占用
-
                             console.log("有文件被占用，无法申请");
                             var userStr = "文件占用的情况：";
                             for (var i in users) {
@@ -470,28 +518,26 @@ router.post('/extractFile', function(req, res) {
                             //没有文件被占用 ，提取旧文件
                             //Task
                             var testTask = new Svn({username: 'wengsr', password: 'wengsr62952'});
-                            var localDir ="c:/test/old/";
-                            if (!fs.existsSync("c:/test/old")) {
-                                fs.mkdir("c:/test/old");
+                            var  proceess = require('child_process');
+                            var localDir = process.cwd() + '/old/';
+                            while(localDir.indexOf('\\')!=-1) {
+                                localDir = localDir.replace('\\', '/');
+                            }
+
+                            if (!fs.existsSync(localDir)) {
+                                fs.mkdir(localDir);
                             }
                             //var localDir = "c:/test/变更单1/old/";
                             var versionDir = 'http://192.168.1.22:8000/svn/hxbss/testVersion/';
                             var versionDir = projectUri;
 
                             var fileList = modFiles;
-                            //var  fileList = [
-                            //    'a/b/b1.txt',
-                            //    'a/a2.txt',
-                            //    'a/a1.txt'
-                            //    //'SaleWeb/src/main/java/com/al/crm/sale/main/view/main.html',
-                            //    //'SaleWeb/src/main/java/com/al/crm/sale/main/view/main.js',
-                            //    //'SoWeb/src/main/java/com/al/crm/so/main/view/index._newjs'
-                            //];
+
 
                             /*提取文件*/
                             testTask.checkout(localDir, versionDir, fileList, function (err, data) {
-                                if (err) {
-                                    jsonStr = '{"sucFlag":"err","message":"【提取文件】执行失败"}'
+                                if (err) {//checkout 失败
+                                    jsonStr = '{"sucFlag":"err","message":"【提取文件】执行失败，检查文件路径是否正确？"}'
                                     console.log("ExtractFile Faild：" + err);
                                     var queryObj = url.parse(req.url, true).query;
                                     res.send(queryObj.callback + '(\'' + jsonStr + '\')');
@@ -499,16 +545,37 @@ router.post('/extractFile', function(req, res) {
                                     console.log("ExtractFile success" + data);
 
                                     //更新数据库
-                                    dao.extractFile(taskId,userId, function (msg, result) {
-                                        if ('success' == msg) {
-                                            var userFlag = false;
-                                            jsonStr = '{"sucFlag":"success","message":"【提取文件】执行成功，保存至：C:/test/old/"}';
-                                        } else {
-                                            jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
-                                        }
-                                        var queryObj = url.parse(req.url, true).query;
+                                    var zipName = fileRename(userId +taskId+"extra");
+                                    var zipUri = localDir + zipName;
+                                    var zipFilesFlag =false ;
+                                    zipFilesFlag = fileZip.zipFiles(localDir,fileList,zipUri);
+                                    var zipUriSaved = "./old/" +zipName;
+                                    var queryObj = url.parse(req.url, true).query;
+                                    if(!zipFilesFlag){
+                                        //fileUpReturnInfo(res, "false", "【提取文件】执行失败,请检查文件路径是否正确！！！", '', '');
+                                        jsonStr = '{"sucFlag":"success","message":"【提取文件】执行失败,请检查文件路径是否正确！！！"}';
                                         res.send(queryObj.callback + '(\'' + jsonStr + '\')');
-                                    });
+                                    }
+                                    else {//压缩文件成功
+                                        console.log("zipFile success!");
+                                        dao.extractFile(taskId,userId, 2, zipName, zipUriSaved, function (msg, result) {
+                                            if ('success' == msg) {
+                                                var attaFlag = true;
+                                                jsonStr = '{"sucFlag":"success","message":"【提取文件】执行成功","attaFlag":"'+attaFlag+'","attaName":"'+zipName+'","attaUri":"'+zipUriSaved+'"}';
+                                                var queryObj = url.parse(req.url, true).query;
+                                                res.send(queryObj.callback + '(\'' + jsonStr + '\')');
+                                            }
+                                            else {//提取文件更新数据库失败
+                                            jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
+                                            //fileUpReturnInfo(res, "false", "旧文件提取成功", '', '');
+                                            var queryObj = url.parse(req.url, true).query;
+                                            res.send(queryObj.callback + '(\'' + jsonStr + '\')');
+                                            }
+                                        //fileUpReturnInfo(res, "true", "旧文件提取成功", zipName, zipUri);
+                                        //var queryObj = url.parse(req.url, true).query;
+                                        //res.send(queryObj.callback + '(\'' + jsonStr + '\')');
+                                        });
+                                }
                                 }
                             });
 
@@ -536,4 +603,10 @@ router.post('/modifyTask', function(req, res) {
         res.send(queryObj.callback+'(\'' + jsonStr + '\')');
     });
 });
+
+//router.get('/modalWindowErr', function(req, res) {
+//
+//    res.render('modalWindowErr',{title:'文件冲突'});
+//});
+
 module.exports = router;

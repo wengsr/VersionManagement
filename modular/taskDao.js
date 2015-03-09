@@ -23,14 +23,11 @@ exports.searchProject = function( taskInfo , callback){
 }
 exports.searchAllProject = function(userId, callback){
     pool.getConnection(function (err, connection){
-        var sql = "select projectId ,projectName from project ";
+        var sql = "select projectId ,projectName from project  where projectId in ( select projectId from userToProject where userId = ?)";
         var param = [userId];
-        connection.query(sql, function (err, result){
+        connection.query(sql, param,function (err, result){
             if (err) {
                 console.log("searchAllProject ERR;", err.message);
-            }
-            else{
-                console.log("searcAllProject success:", result);
             }
             connection.release();
             callback("success", result);
@@ -46,9 +43,8 @@ exports.addTask = function (taskInfo, callback) {
             countTask: 'UPDATE  project set taskCount = taskCount + 1 where projectId= ?',
             selectProject :' SELECT * FROM project where projectId = ?',
             userAddSql : 'INSERT INTO tasks(taskCode, taskName, creater, state, processStepId, projectId, taskDesc) VALUES(?,?,?,?,?,?,?)',
-            addTaskProcess : ' INSERT INTO taskProcessStep(taskId, processStepId, dealer) VALUES(?,?,?)',
+            addTaskProcess : ' INSERT INTO taskProcessStep(taskId, processStepId, dealer,turnNum) VALUES(?,?,?,?)',
             addFiles: 'INSERT INTO fileList(taskId,fileName,state,commit,fileUri,projectId) VALUES(?,?,?,?,?,?)'
-
 
         };
         var addTaskProcess_params = [1, 2];
@@ -98,7 +94,7 @@ exports.addTask = function (taskInfo, callback) {
                 }
                 if(newFiles!== "" && typeof(newFiles)!='undefined') {
                     for (var j = 0; j < newFiles.length; j++) {
-                        addFiles_para = [ taskId,newFiles[j], 1,,newUri[j],projectId];//1表示新增文件；，1：未上传至svn
+                        addFiles_para = [ taskId,newFiles[j], 1,,newUri[j],projectId];//1表示新增文件；，
                         trans.query(sql[item], addFiles_para, function (err, result) {
                             if (err) {
                                 console.log("addNewFiles ERR" + j + ";", err.message);
@@ -111,7 +107,7 @@ exports.addTask = function (taskInfo, callback) {
                 }
                 if(modFiles!=="" && typeof(modFiles)!='undefined') {
                     for (var j = 0; j < modFiles.length; j++){
-                        addFiles_para = [taskId,modFiles[j],0,1,modUri[j], projectId];//0表示修改文件；commit:默认为3 表示未占用
+                        addFiles_para = [taskId,modFiles[j],0,3,modUri[j], projectId];//0表示修改文件；commit:默认为3 表示未占用
                         trans.query(sql[item],addFiles_para,function(err,result){
                             if(err){
                                 console.log("addModFiles ERR" + j+";",err.message);
@@ -147,7 +143,7 @@ exports.addTask = function (taskInfo, callback) {
                 else if (item == 'userAddSql') {
                     console.log("userAddSql:", result);
                     taskId = result.insertId;
-                    task_params[3]= [taskId, '2',userId];//taskPrecessStep
+                    task_params[3]= [taskId, '2',userId,0];//taskPrecessStep turnNum 默认为0：
                 }
                 console.log(result);
                 callback_async(err, result);
@@ -188,6 +184,9 @@ exports.submitFile= function(taskId,callback){
         var i = 0;
         async.eachSeries(sqlMember, function (item, callback_async) {
             trans.query(sql[item], sqlMember_params[i++],function (err_async, result) {
+                if(err_async){
+                    callback("err");
+                }
                 if(item == 'selectDealer' && undefined!=result && ''!=result ){
                     console.log("selectDealer:",result);
                             updateDealer_params.push(result[0].manager);
@@ -197,17 +196,19 @@ exports.submitFile= function(taskId,callback){
                     return callback('err',err_async);
                 }
                 if(item == 'updateDealer' && !err_async){//最后一条sql语句执行没有错就返回成功
-                    trans.commit();
-                    return callback('success');
+                  //  return callback('success');
                 }
+
                 callback_async(err_async, result);
             });
         });
+
         trans.execute();//提交事务
+        callback('success');
         connection.release();
     });
 };
-exports.extractFile= function(taskId, userId,callback){
+exports.extractFile= function(taskId, userId, processStepId, fileName, fileUri,callback){
     pool.getConnection(function (err, connection) {
         //开启事务
         queues(connection);
@@ -216,33 +217,21 @@ exports.extractFile= function(taskId, userId,callback){
             updateTask: "update tasks set processStepId= 3, state='旧文件已提取' where taskid=?",
             updateDealer: 'insert into taskprocessstep(taskId,processStepId,turnNum,dealer) values ' +
             ' (?,3,' +
-            ' (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable),?)'
+            ' (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable),?)',
+            saveAtta: 'INSERT INTO taskattachment (taskId, processStepId, fileName, fileUri, turnNum) ' +
+            ' VALUES (?,?,?,?,' +
+            ' (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable))',
+            updateFiles:"update fileList set commit = 0 where taskId = ? and state = 0"
         };
        // var selectDealer_params = [taskId, taskId];
         var updateTask_params = [taskId];
         var updateDealer_params = [taskId,taskId, userId];
-        var sqlMember = ['updateTask', 'updateDealer'];
-        var sqlMember_params = [ updateTask_params, updateDealer_params];
+        var saveAtta_params = [taskId, processStepId, fileName, fileUri, taskId]
+        var sqlMember = ['updateTask', 'updateDealer', 'saveAtta','updateFiles'];
+        var updateFiles_params =[taskId];
+        var sqlMember_params = [ updateTask_params, updateDealer_params, saveAtta_params, updateFiles_params];
         var i = 0;
-        //async.eachSeries(sqlMember, function (item, callback_async) {
-        //    trans.query(sql[item], sqlMember_params[i],function (err_async, result) {
-        //        i++;
-        //
-        //        if(err_async){
-        //            trans.rollback();
-        //            return callback('err',err_async);
-        //        }
-        //        console.log(item+" result :",result);
-        //        //if(item == 'updateDealer' && !err_async){//最后一条sql语句执行没有错就返回成功
-        //        //    trans.commit();
-        //        //    return callback('success');
-        //        //}
-        //        //else if(item == 'updateDealer'){
-        //        //    callback("success","提取文件成功");
-        //        //}
-        //        //callback_async(err_async, result);
-        //    });
-        //});
+
         trans.query(sql['updateTask'],updateTask_params,function(err,result){
             if(err){
                 trans.rollback();
@@ -258,6 +247,22 @@ exports.extractFile= function(taskId, userId,callback){
                 return callback('err',err_async);
             }
             console.log("updateDealer :", result);
+        });
+        trans.query(sql['saveAtta'],saveAtta_params,function(err,result){
+            if(err){
+                trans.rollback();
+                console.log("saveAtta :",err.message);
+                return callback('err',err_async);
+            }
+            console.log("saveAtta :", result);
+        });
+        trans.query(sql['updateFiles'],updateFiles_params,function(err,result){
+            if(err){
+                trans.rollback();
+                console.log("updateFiles :",err.message);
+                return callback('err',err_async);
+            }
+            console.log("updateFiles :", result);
         });
         callback("success","提取文件成功");
         trans.execute();//提交事务

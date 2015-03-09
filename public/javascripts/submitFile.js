@@ -1,18 +1,11 @@
-var fields =[ '#taskName', '#inputTaskDesc','#addTaskList','#modifyTaskList'];
-function checkSubmit(fields) {
-    var flag = true;
-    $.each(fields, function (i, n) {
-        if (i < 2) {
-            if ($(fields[i]).val() == '') {
-                flag = false;
-                return flag;
-            }
-        }
-        if (($(fields[3]).val() == '') && ($(fields[4]).val() == '')) {//修改清单和新增清单不能同时为空
-            flag = false;
-            return flag;
-        }
-    });
+
+/**
+ * 文件上传按钮加载遮罩(避免文件上传过程中重复上传文件)
+ */
+function fileUploadBtnLoading(btnId,tipString){
+    btnId = "#" + btnId;
+    $(btnId).attr('data-loading-text',tipString);
+    $(btnId).button('loading').delay(1000).queue(function() {});
 }
 /**
  * ajax提交
@@ -35,21 +28,30 @@ function ajaxSubmit(params, url, subType){
             var flag =  dataJson.sucFlag;
             if('err'==flag){
                 showTipInfo('err',dataJson.message);
-
-            }else if('success'==flag) {
-                debugger
-                if (url == './task/extractFile') {
-                    if (dataJson.userFlag) {
-                        alert(dataJson.user);
-                    }
-                    else {
-                        $('#btnModify').hide();
-                        $('#btnExtractFile').hide();
-                        $('#btnSelectReport').show();
-                    }
-                    showTipInfo('success', dataJson.message);
-
+                if (url == './task/submitFile') {
+                    $('#uploadIcon').show();
+                    $('#uploadInfo').text("选择文件");
+                    //$('#btnSubmitFile').attr("disabled","false");
                 }
+            }else if('success'==flag) {
+            //    debugger
+            //    if (url == './task/extractFile') {
+            //        if (dataJson.userFlag) {
+            //            alert(dataJson.user);
+            //            $("#divModelErr").load("/task/modalWindowErr",function(){
+            //
+            //            });
+            //            $('#divModelDialogErr').model();
+            //            showTipInfo('success', dataJson.message);
+            //        }
+            //        else {
+            //            $('#btnModify').hide();
+            //            $('#btnExtractFile').hide();
+            //            $('#btnSelectReport').show();
+            //        }
+            //        showTipInfo('success', dataJson.message);
+            //    }
+            //
             }
         },
         error: function(jqXHR, textStatus, errorThrown){
@@ -60,21 +62,7 @@ function ajaxSubmit(params, url, subType){
 
 
 /**
- * 提交表单信息_走查通过
- */
-function submitForm_extract(){
-    var modFiles = $('#modifyTaskList').val();
-    var extractFile_params={
-        taskProject: $('#taskProject').val(),
-        modFilesList: modFiles,
-        taskId: $('#taskId').val()
-    };
-    var extractFile_url='task/extractFile';
-    ajaxSubmit(extractFile_params, extractFile_url, 'post');
-}
-
-/**
- * 提交表单信息_走查不通过
+ * 提交表单信息_上传新旧文件
  */
 function submitForm_submitFile(){
     var submitFile_params={
@@ -82,6 +70,10 @@ function submitForm_submitFile(){
         taskId: $('#taskId').val()
     };
     var submitFile_url='task/submitFile';
+    $('#uploadInfo').text("正在上传文件中...");
+    //$('#btnSelectReport').hide();
+    $('#uploadIcon').hide();
+    fileUploadBtnLoading("btnSubmitFile","文件上传中...");
     ajaxSubmit(submitFile_params, submitFile_url, 'post');
 }
 
@@ -145,9 +137,10 @@ function showFilePath(tipContent){
  * 绑定文件上传按钮的点击事件
  */
 function bindClick_btnUploadFile(){
-    $("#btnExtractFile").on("click",function(){
-        submitForm_extract();
-    });
+    //$("#btnExtractFile").on("click",function(){
+    //    submitForm_extract();
+    //    $('#submitFileForm').submit();
+    //});
 
     $('#btnSubmitFile').on('click',function(){
         $('#diaInfoTip,#diaErrTip,#diaSuccessTip').hide();
@@ -157,27 +150,17 @@ function bindClick_btnUploadFile(){
             showTipInfo('err','请选择要上传的文件');
             return false;
         }
-        submitForm_submitFile();
-        //if(fulAvatarVal2.length == 0){
-        //    showTipInfo('err','请选择要上传的文件');
-        //    return false;
-        //}
 
         var extName = fulAvatarVal.substring(fulAvatarVal.lastIndexOf('.'),fulAvatarVal.length).toLowerCase();
         if(extName != '.rar'&& extName != '.zip'){
             showTipInfo('err','只支持rar,zip文件');
             return false;
         }
-
+        submitForm_submitFile();
         $('#submitFileForm').submit();
         return true;
     });
 
-    $("#btnModify").on("click",function(){
-        $("#btnComfirm").show();
-        $("#btnModify").hide();
-        submitForm_modify();
-});
 
 }
 
@@ -189,22 +172,20 @@ function fileUpReturn(){
     $("#ifm_fileUpRe").load(function(){
         var isUpSuccess = $(window.frames["ifm_fileUpRe"].document).find("#fileUpIsSuccess").val();
         var returnInfo = $(window.frames["ifm_fileUpRe"].document).find("#fileUpReturnInfo").val();
-        var attaName = $(window.frames["ifm_fileUpRe"].document).find("#attaName").val();
-        var attaUri = $(window.frames["ifm_fileUpRe"].document).find("#attaUri").val();
+        var attaName = $(window.frames["ifm_fileUpRe"].document).find("#reportAttaName").val();
+        var attaUri = $(window.frames["ifm_fileUpRe"].document).find("#reportAttaUri").val();
         if("true"==isUpSuccess){
             //1.隐藏“上传新旧文件”按钮
             $('#btnSubmitFile').hide();
             //2.显示“上传文件成功文件”按钮
             $('#btnSubmitSuccess').show();
             $('#btnSelectReport').hide();
+            $('#btnExtractFile').hide();
+            $('#btnExtractSuccess').show();
             //3.把已上传文件的名称和下载链接显示在页面上
-            $('#a_atta').attr('href',attaUri);//设置附件a标签的链接
-            $('#a_atta').html(attaName);//设置附件a标签的内容
+            $('#a_reportAtta').attr('href',attaUri);//设置附件a标签的链接
+            $('#a_reportAtta').html(attaName);//设置附件a标签的内容
             resetAttaDownloadUri('a_atta');//处理文件下载uri上的特殊字符
-
-            //$('#a_newAtta').attr('href',oldAttaUri);//设置附件a标签的链接
-            //$('#a_newAtta').html(newAttaName);//设置附件a标签的内容
-            //resetAttaDownloadUri('a_newAtta');//处理文件下载uri上的特殊字符
             //4.页面给出“文件上传成功与否的提示”
             showTipInfo("success", returnInfo);
         }else if("false"==isUpSuccess){
@@ -217,30 +198,15 @@ function fileUpReturn(){
 jQuery(document).ready(function() {
     //隐藏文件上传时用于替代走查通过or不通过的按钮
     $('#btnSubmitSuccess').hide();
-    $('#btnExtractSuccess').hide();
-    $('#btnConfirm').hide();
-    $('#btnModify').hide();//修改变更单，待完善
-    //隐藏文件路径信息提示条
     $('#diaInfoTip').hide();
     //文件上传后回传值的处理
     fileUpReturn();
     //选择文件后的信息提示
     $('#fulAvatar').change(function(){
         var showMsg = '已选新旧文件：' + $('#fulAvatar').val();
-        //if($("#fulAvatar2").val()!=""){
-        //    showMsg += "已选新文件：" + $("#fulAvatar2").val();
-        //}
+
         showFilePath(showMsg);
     });
-    //$('#fulAvatar2').change(function(){
-    //    var showMsg = "";
-    //    if($("#fulAvatar1").val()!=""){
-    //        showMsg = "已选旧文件：" + $("#fulAvatar1").val();
-    //    }
-    //    var showMsg = '已选新文件：' + $('#fulAvatar2').val();
-    //
-    //    showFilePath(showMsg);
-    //});
     bindClick_btnUploadFile();
 
     $('#btnCloseModel').click(function(){

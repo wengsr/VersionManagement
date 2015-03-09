@@ -4,7 +4,7 @@
 var pool = require('../util/connPool.js').getPool();
 var async = require('async');// 加载async 支持顺序执行
 var queues = require('mysql-queues');// 加载mysql-queues 支持事务
-
+var file = require("../modular/task");
 
 function Task(task){
     this.taskid = task.taskid

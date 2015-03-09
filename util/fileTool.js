@@ -5,12 +5,18 @@ var AdmZip = require('adm-zip');
 
 exports.zipFiles = function (localBaseDir, fileList, zipFileName) {
     var zip = new AdmZip();
+    var fs = require('fs');
     for (var i = 0; i < fileList.length; i++) {
+        if(!fs.existsSync(localBaseDir + fileList[i])){
+            return false;
+        }
         var tmpPath = fileList[i].substr(0, fileList[i].lastIndexOf('/') + 1);
+
         zip.addLocalFile(localBaseDir + fileList[i], tmpPath);
     }
     var willSendthis = zip.toBuffer();
     zip.writeZip(zipFileName);
+    return true;
 };
 
 exports.extractZip = function (zipFileName, targetDir) {
@@ -80,11 +86,13 @@ exports.syncFolder = function (src, dst) {
 }
 
 
-///******测试案例*********/
-//var localDir = "c:/test/变更单1/old/";
+/******测试案例*********/
+
+//var localDir = "c:test/变更单1/repo/";
+//var localDir = "c:test/old/";
 //var fileList = [
 //    'a/b/b1.txt'
 //];
-//var zipName = "c:/test/变更单1.zip";
+//var zipName = "c:/test/变更单.zip";
 //exports.zipFiles(localDir, fileList, zipName);
 //exports.extractZip(zipName, 'c:/test/变更单1/new/');
