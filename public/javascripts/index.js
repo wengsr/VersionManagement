@@ -52,7 +52,8 @@ function regTaskLink(){
     var btnForm;
     for(var i=1;i<7;i++){
         switch (i){
-            case 1 : url = '/taskDialog/submitApply'; stepName = 'btnSubmitApply'; break;
+            //case 1 : url = '/taskDialog/submitApply'; stepName = 'btnSubmitApply'; break;
+            case 1 : url = '/taskDialog/modifyTask'; stepName = 'btnModifyTask'; break;
             case 2 : url = '/taskDialog/extractFile'; stepName = 'btnExtractFile'; break;
             case 3 : url = '/taskDialog/submitFile'; stepName = 'btnSubmitFile'; break;
             case 4 : url = '/taskDialog/planCheck'; stepName = 'btnPlanCheck'; break;

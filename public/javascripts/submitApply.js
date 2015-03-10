@@ -13,6 +13,7 @@ var fields =['#inputTaskName', '#inputTaskDesc', '#project','#inputTaskNewList',
 //    unTip.hide();
 //    tip.show();
 //}
+
 function disableInput(){
     $("#project").attr("disabled","disabled");
     $("#inputTaskDesc").attr("disabled","disabled");
@@ -72,8 +73,16 @@ jQuery(document).ready(function() {
     $('#btnSubmitSuccess').hide();
 
     $('#submitApply').click(function () {
-
         var check = checkSubmit(fields);
+        var newFiles = $("#inputTaskNewList").val();
+        var modFiles = $("#inputTaskModList").val()
+        var checkFile ;
+        checkFile = isFile(newFiles)&&isFile(modFiles);
+
+        if(!checkFile){
+            showTipInfo('err', '文件名是否正确！');
+            return true;
+        }
         if (check) {
             var params ={
                 taskName : $("#inputTaskName").val(),

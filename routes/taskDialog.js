@@ -221,6 +221,11 @@ router.get('/check/:taskId/:taskCreater/:dealerName/:createName', function(req, 
 router.get('/submit/:taskId/:taskCreater/:dealerName/:createName', function(req, res) {
     openTask('submit',req,res);
 });
-
+/**
+ * 打开"修改变更单"的页面（步骤6）
+ */
+router.get('/modifyTask/:taskId/:taskCreater/:dealerName/:createName', function(req, res) {
+    openTask('modifyTask',req,res);
+});
 
 module.exports = router;

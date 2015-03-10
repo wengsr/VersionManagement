@@ -7,7 +7,7 @@ var DB_NAME = 'versionmanage';
 var pool = mysql.createPool({
     host: 'localhost',
     user: 'root',
-    password: 'root',
+    password: '',
     charset: 'UTF8_GENERAL_CI',
     database: DB_NAME
 });

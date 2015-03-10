@@ -48,10 +48,35 @@ function resetAttaDownloadUri(aInputId){
     var currentUri = '/file/fileDownLoad/' + attaName + '/' + attaUri;
     $(aInput).attr('href',currentUri);
 }
-
+/**
+ * 判断字符串是否为路径
+ */
+function isFile(files) {
+    var fileArray;
+    var flag = true ;
+    if (typeof(files) != 'undefined') {
+        //var fileUris = [];
+        if (files != '') {
+            while (files.indexOf('\r') != -1) {
+                files.replace("\r", '');
+            }
+            files = files.trim().split('\n');
+            for (var j = 0; j < files.length; j++) {
+                //fileUris[j] = files[j];
+                files[j] = files[j].substr(files[j].lastIndexOf('/') + 1);
+                if(files[j].indexOf('.')==-1){
+                    flag = false;
+                    break;
+                }
+            }
+        }
+    }
+    return flag;
+}
 jQuery(document).ready(function() {
     hideTip();
     resetAttaDownloadUri('a_attaFile');
     resetAttaDownloadUri('a_reportAtta');
 });
+
 

@@ -2,6 +2,9 @@
  * Created by wengs_000 on 2015/2/6 0006.
  */
 var AdmZip = require('adm-zip');
+/**
+ * 判断文件是否存在,放在fileList 为文件夹引起压缩出错
+ */
 
 exports.zipFiles = function (localBaseDir, fileList, zipFileName) {
     var zip = new AdmZip();
@@ -90,9 +93,18 @@ exports.syncFolder = function (src, dst) {
 
 //var localDir = "c:test/变更单1/repo/";
 //var localDir = "c:test/old/";
-//var fileList = [
-//    'a/b/b1.txt'
-//];
-//var zipName = "c:/test/变更单.zip";
-//exports.zipFiles(localDir, fileList, zipName);
+
+var localDir = "E:/VersionManagement0308/bin/old/";
+var fileList = [
+   // 'a/b/b1.txt',
+   // 'a/b/a.txt'
+   // 'a/b1.txt',
+   // 'b1.txt',
+    'a.'
+];
+var zipName = "E:/VersionManagement0308/bin/old/a.zip";
+var fs = require('fs');
+//var flag = fs.exists("E:/VersionManagement0308/bin/old/a.zip");
+// var flag =exports.zipFiles(localDir, fileList, zipName);
+//console.log(flag);
 //exports.extractZip(zipName, 'c:/test/变更单1/new/');

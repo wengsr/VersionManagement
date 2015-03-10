@@ -462,6 +462,7 @@ router.post('/submitFile', function(req, res) {
 router.post('/extractFile', function(req, res) {
     var taskId = req.body['taskId'];
     var taskProject = req.body['taskProject'];
+    var taskCode = req.body['taskCode'];
     var  modFiles = req.body['modFilesList'].replace('\r' ,'').split('\n');
     var userId = req.session.user.userId;
     var jsonStr;
@@ -517,9 +518,9 @@ router.post('/extractFile', function(req, res) {
                         else {
                             //没有文件被占用 ，提取旧文件
                             //Task
-                            var testTask = new Svn({username: 'wengsr', password: 'wengsr62952'});
+                            var testTask = new Svn({username: 'cmsys', password: '717705'});
                             var  proceess = require('child_process');
-                            var localDir = process.cwd() + '/old/';
+                            var localDir = process.cwd() + '/'+taskCode+'/';
                             while(localDir.indexOf('\\')!=-1) {
                                 localDir = localDir.replace('\\', '/');
                             }
@@ -535,7 +536,7 @@ router.post('/extractFile', function(req, res) {
 
 
                             /*提取文件*/
-                            testTask.checkout(localDir, versionDir, fileList, function (err, data) {
+                           var checkFlag = testTask.checkout(localDir, versionDir, fileList, function (err, data) {
                                 if (err) {//checkout 失败
                                     jsonStr = '{"sucFlag":"err","message":"【提取文件】执行失败，检查文件路径是否正确？"}'
                                     console.log("ExtractFile Faild：" + err);
@@ -553,7 +554,7 @@ router.post('/extractFile', function(req, res) {
                                     var queryObj = url.parse(req.url, true).query;
                                     if(!zipFilesFlag){
                                         //fileUpReturnInfo(res, "false", "【提取文件】执行失败,请检查文件路径是否正确！！！", '', '');
-                                        jsonStr = '{"sucFlag":"success","message":"【提取文件】执行失败,请检查文件路径是否正确！！！"}';
+                                        jsonStr = '{"sucFlag":"err","message":"【提取文件】执行失败,请检查文件路径是否正确！！！"}';
                                         res.send(queryObj.callback + '(\'' + jsonStr + '\')');
                                     }
                                     else {//压缩文件成功
@@ -579,6 +580,7 @@ router.post('/extractFile', function(req, res) {
                                 }
                             });
 
+
                         }
                     }
                 });
@@ -590,22 +592,22 @@ router.post('/extractFile', function(req, res) {
 /**
  * 修改变更单
  */
-//router.post('/modifyTask', function(req, res) {
-//    var taskId = req.body['taskId'];
-//    var taskDetails =  req.body['taskDetails'];
-//    var taskNewFiles = req.body['taskNewFiles'];
-//    var taskModFiles= req.body['taskModFiles'];
-//    var jsonStr;
-//    dao.modifyTask({taskId:taskId, details:taskDetails, newFiles: taskNewFiles, modFiles: taskModFiles}, function(msg,result){
-//        if('success' == msg){
-//            jsonStr = '{"sucFlag":"success","message":"【修改变更单成功】执行成功"}';
-//        }else{
-//            jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
-//        }
-//        var queryObj = url.parse(req.url,true).query;
-//        res.send(queryObj.callback+'(\'' + jsonStr + '\')');
-//    });
-//});
+router.post('/modifyTask', function(req, res) {
+    var taskId = req.body['taskId'];
+    var taskDetails =  req.body['taskDetails'];
+    var taskNewFiles = req.body['taskNewFiles'];
+    var taskModFiles= req.body['taskModFiles'];
+    var jsonStr;
+    dao.modifyTask({taskId:taskId, details:taskDetails, newFiles: taskNewFiles, modFiles: taskModFiles}, function(msg,result){
+        if('success' == msg){
+            jsonStr = '{"sucFlag":"success","message":"【修改变更单成功】执行成功"}';
+        }else{
+            jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
+        }
+        var queryObj = url.parse(req.url,true).query;
+        res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+    });
+});
 
 //router.get('/modalWindowErr', function(req, res) {
 //
