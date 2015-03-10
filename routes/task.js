@@ -478,7 +478,7 @@ router.post('/extractFile', function(req, res) {
 
             if (modFiles == "" || typeof(modFiles) == "undefined") {
                message = "【提取旧文件】没有文件需要提取";
-                dao.extractFile(taskId,userId, function (msg, result) {
+                dao.extractFile(taskId,userId,3,undefined,undefined,function (msg, result) {
                     if ('success' == msg) {
                         var userFlag = false;
                         jsonStr = '{"sucFlag":"success","message":"【提取文件】执行成功，没有文件需要提取"}';
@@ -590,19 +590,22 @@ router.post('/extractFile', function(req, res) {
 /**
  * 修改变更单
  */
-router.post('/modifyTask', function(req, res) {
-    var taskId = req.body['taskId'];
-    var jsonStr;
-    dao.modifyTask(taskId, function(msg,result){
-        if('success' == msg){
-            jsonStr = '{"sucFlag":"success","message":"【修改变更单成功】执行成功"}';
-        }else{
-            jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
-        }
-        var queryObj = url.parse(req.url,true).query;
-        res.send(queryObj.callback+'(\'' + jsonStr + '\')');
-    });
-});
+//router.post('/modifyTask', function(req, res) {
+//    var taskId = req.body['taskId'];
+//    var taskDetails =  req.body['taskDetails'];
+//    var taskNewFiles = req.body['taskNewFiles'];
+//    var taskModFiles= req.body['taskModFiles'];
+//    var jsonStr;
+//    dao.modifyTask({taskId:taskId, details:taskDetails, newFiles: taskNewFiles, modFiles: taskModFiles}, function(msg,result){
+//        if('success' == msg){
+//            jsonStr = '{"sucFlag":"success","message":"【修改变更单成功】执行成功"}';
+//        }else{
+//            jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
+//        }
+//        var queryObj = url.parse(req.url,true).query;
+//        res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+//    });
+//});
 
 //router.get('/modalWindowErr', function(req, res) {
 //

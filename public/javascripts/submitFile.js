@@ -29,9 +29,8 @@ function ajaxSubmit(params, url, subType){
             if('err'==flag){
                 showTipInfo('err',dataJson.message);
                 if (url == './task/submitFile') {
-                    $('#uploadIcon').show();
-                    $('#uploadInfo').text("选择文件");
-                    //$('#btnSubmitFile').attr("disabled","false");
+                    $('#btnSelectReport').show();
+                    $('#uploadInfo').hide();
                 }
             }else if('success'==flag) {
             //    debugger
@@ -53,6 +52,7 @@ function ajaxSubmit(params, url, subType){
             //    }
             //
             }
+            $('#uploadInfo').hide();
         },
         error: function(jqXHR, textStatus, errorThrown){
             alert('error ' + textStatus + " " + errorThrown);
@@ -70,32 +70,11 @@ function submitForm_submitFile(){
         taskId: $('#taskId').val()
     };
     var submitFile_url='task/submitFile';
-    $('#uploadInfo').text("正在上传文件中...");
-    //$('#btnSelectReport').hide();
-    $('#uploadIcon').hide();
+
     fileUploadBtnLoading("btnSubmitFile","文件上传中...");
     ajaxSubmit(submitFile_params, submitFile_url, 'post');
-}
-
-/**
- * 修改提交表单信息
- */
-function submitForm_modify(){
-    var check = checkSubmit(fields);
-    if (check) {
-        var params = {
-            taskName: $("#inputTaskName").val(),
-            // tasker : $(#inputTasker).val();
-            taskState: "申请通过",//提交申请
-            taskProject: $("#project").val(),
-            taskDetails: $("#inputTaskDesc").val(),
-            taskNewFiles: $("#inputTaskNewList").val(),
-            taskModFiles: $("#inputTaskModList").val()
-
-        };
-        var submitFile_url = 'task/modifyTask';
-        ajaxSubmit(params, submitFile_url, 'post');
-    }
+    $('#btnSelectReport').hide();
+    $('#uploadInfo').show();
 }
 
 
@@ -199,6 +178,7 @@ jQuery(document).ready(function() {
     //隐藏文件上传时用于替代走查通过or不通过的按钮
     $('#btnSubmitSuccess').hide();
     $('#diaInfoTip').hide();
+    $('#uploadInfo').hide();
     //文件上传后回传值的处理
     fileUpReturn();
     //选择文件后的信息提示

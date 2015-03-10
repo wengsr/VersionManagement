@@ -1,6 +1,4 @@
-/**
- * Created by wengs_000 on 2015/1/26 0026.
- */
+
 var pool = require('../util/connPool.js').getPool();
 var queues = require('mysql-queues');
 //const DEBUG = true;
@@ -44,7 +42,7 @@ exports.addTask = function (taskInfo, callback) {
             selectProject :' SELECT * FROM project where projectId = ?',
             userAddSql : 'INSERT INTO tasks(taskCode, taskName, creater, state, processStepId, projectId, taskDesc) VALUES(?,?,?,?,?,?,?)',
             addTaskProcess : ' INSERT INTO taskProcessStep(taskId, processStepId, dealer,turnNum) VALUES(?,?,?,?)',
-            addFiles: 'INSERT INTO fileList(taskId,fileName,state,commit,fileUri,projectId) VALUES(?,?,?,?,?,?)'
+            addFiles: 'INSERT INTO fileList(taskId,fileName,state,commit,fileUri) VALUES(?,?,?,?,?)'
 
         };
         var addTaskProcess_params = [1, 2];
@@ -94,7 +92,7 @@ exports.addTask = function (taskInfo, callback) {
                 }
                 if(newFiles!== "" && typeof(newFiles)!='undefined') {
                     for (var j = 0; j < newFiles.length; j++) {
-                        addFiles_para = [ taskId,newFiles[j], 1,,newUri[j],projectId];//1表示新增文件；，
+                        addFiles_para = [ taskId,newFiles[j], 1,,newUri[j]];//1表示新增文件；，
                         trans.query(sql[item], addFiles_para, function (err, result) {
                             if (err) {
                                 console.log("addNewFiles ERR" + j + ";", err.message);
@@ -107,7 +105,7 @@ exports.addTask = function (taskInfo, callback) {
                 }
                 if(modFiles!=="" && typeof(modFiles)!='undefined') {
                     for (var j = 0; j < modFiles.length; j++){
-                        addFiles_para = [taskId,modFiles[j],0,3,modUri[j], projectId];//0表示修改文件；commit:默认为3 表示未占用
+                        addFiles_para = [taskId,modFiles[j],0,3,modUri[j]];//0表示修改文件；commit:默认为3 表示未占用
                         trans.query(sql[item],addFiles_para,function(err,result){
                             if(err){
                                 console.log("addModFiles ERR" + j+";",err.message);
@@ -248,22 +246,24 @@ exports.extractFile= function(taskId, userId, processStepId, fileName, fileUri,c
             }
             console.log("updateDealer :", result);
         });
-        trans.query(sql['saveAtta'],saveAtta_params,function(err,result){
-            if(err){
-                trans.rollback();
-                console.log("saveAtta :",err.message);
-                return callback('err',err_async);
-            }
-            console.log("saveAtta :", result);
-        });
-        trans.query(sql['updateFiles'],updateFiles_params,function(err,result){
-            if(err){
-                trans.rollback();
-                console.log("updateFiles :",err.message);
-                return callback('err',err_async);
-            }
-            console.log("updateFiles :", result);
-        });
+        if(typeof(fileName) !='undefined') {
+            trans.query(sql['saveAtta'], saveAtta_params, function (err, result) {
+                if (err) {
+                    trans.rollback();
+                    console.log("saveAtta :", err.message);
+                    return callback('err', err_async);
+                }
+                console.log("saveAtta :", result);
+            });
+            trans.query(sql['updateFiles'], updateFiles_params, function (err, result) {
+                if (err) {
+                    trans.rollback();
+                    console.log("updateFiles :", err.message);
+                    return callback('err', err_async);
+                }
+                console.log("updateFiles :", result);
+            });
+        }
         callback("success","提取文件成功");
         trans.execute();//提交事务
         connection.release();
@@ -271,18 +271,59 @@ exports.extractFile= function(taskId, userId, processStepId, fileName, fileUri,c
 };
 
 exports.modifyTask= function(taskInfo,callback){
-    //pool.getConnection(function (err, connection) {
-    //    //开启事务
-    //    queues(connection);
-    //    var trans = connection.startTransaction();
-    //
-    //    var sql= {
-    //        updateTask: "update tasks set  taskName =?, taskDesc =? where taskid= ?",
-    //        updateFileList:"update fileList set  fileName =?, fileUri =? where taskid= ?"
-    //    }
-    //    var updateTask_params = [taskId, taskId];
-    //    var updateFileList_params = [taskId];
-    //    var sqlMember = ['updateTask','updateFileList'];
-    //    var sqlMember_params = [selectDealer_params, updateTask_params];
-    //});
+    pool.getConnection(function (err, connection) {
+        //开启事务
+        queues(connection);
+        var trans = connection.startTransaction();
+
+        var sql= {
+            updateTask: "update tasks set  taskDesc =? where taskid= ?",
+            updateFileList:"INSERT INTO fileList(taskId,fileName,state,commit,fileUri,projectId) VALUES(?,?,?,?,?,?)"
+        }
+        if(typeof(taskInfo.details)!='undefined'){
+            var updateTask_params = [taskInfo.taskId, taskInfo.details];
+            trans.query(sql.updateTask, updateTask_params, function(err, result){
+                 if(err){
+                     console.log("[modifyTask] updateTask ERR:",err.message);
+                 }
+            });
+        }
+        if(typeof(taskInfo.modFiles)!='undefined'){
+                //if(taskInfo.newFiles!=""){
+                //    while(taskInfo.newFiles.indexOf('\r')!=-1){
+                //        taskInfo.newFiles.replace('\r','');
+                //    }
+                //    newFiles = taskInfo.newFiles.trim().split('\n');
+                //    for(var j = 0; j < newFiles.length; j++){
+                //        //newUri[j] = projectUri + newFiles[j].substr(0,newFiles[j].lastIndexOf('/')+1);
+                //        newUri[j] = newFiles[j];
+                //        newFiles[j] = newFiles[j].substr(newFiles[j].lastIndexOf('/')+1);
+                //    }
+                //}
+            var modUri =[];
+            var modSql_params =[];
+            if(taskInfo.modFiles!='') {
+                while(taskInfo.modFiles.indexOf('\r')!=-1) {
+                    taskInfo.modFiles.replace("\r", '');
+                }
+                modFiles = taskInfo.modFiles.trim().split('\n');
+
+                for(var j = 0; j < modFiles.length; j++){
+                    modUri[j]= modFiles[j];
+                    modFiles[j] = modFiles[j].substr(modFiles[j].lastIndexOf('/')+1);
+                    modSql_params[j] =[modeFiles[j],modUri[j],]
+                }
+            }
+            var updateTask_params = [taskInfo.taskId, taskInfo.details];
+            trans.query(sql.updateTask, updateTask_params, function(err, result){
+                if(err){
+                    console.log("[modifyTask] updateTask ERR:",err.message);
+                }
+            });
+        }
+        var updateTask_params = [, taskId];
+        var updateFileList_params = [taskId];
+        var sqlMember = ['updateTask','updateFileList'];
+        var sqlMember_params = [selectDealer_params, updateTask_params];
+    });
 };
