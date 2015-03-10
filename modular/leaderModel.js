@@ -102,7 +102,7 @@ LeaderModel.findCreateTaskCount = function(projectId,callback){
             console.log('[CONN LEADERMODEL ERROR] - ', err.message);
             return callback(err);
         }
-        var sql = 'select u.userId,u.userName,u.email,count(*) as createTaskCount from user u' +
+        var sql = 'select u.userId,u.realName as userName,u.email,count(*) as createTaskCount from user u' +
             '        join tasks t on u.userId = t.creater and t.projectId=?' +
             '        GROUP BY u.userId' +
             '        ORDER BY createTaskCount desc';
@@ -186,7 +186,7 @@ LeaderModel.findProAllUser_disp = function(projectId,callback){
         }
         var sql = 'select u.userName,u.realName from usertoproject utp ' +
             '        JOIN user u ON utp.userId = u.userId' +
-            '        AND utp.projectId=1';
+            '        AND utp.projectId=?';
         var params = [projectId];
         connection.query(sql, params, function (err, result) {
             if (err) {
