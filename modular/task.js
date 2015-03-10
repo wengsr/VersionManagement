@@ -21,6 +21,7 @@ function Task(task){
     this.createrName = task.createrName
     this.stepName = task.stepName
     this.dealerName = task.dealerName
+    this.projectUri = task.projectUri
 }
 
 
@@ -182,7 +183,9 @@ Task.findTaskById = function(taskId,callback){
             console.log('[CONN TASKS ERROR] - ', err.message);
             return callback(err);
         }
-        var sql = 'SELECT * FROM tasks where taskid = ?';
+        var sql = 'SELECT p.projectUri, t.* FROM tasks t' +
+            '        JOIN project p ON t.projectId=p.projectId' +
+            '        AND taskid = ?';
         var params = [taskId];
         connection.query(sql, params, function (err, result) {
             if (err) {
