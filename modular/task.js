@@ -40,13 +40,13 @@ Task.findTaskByUserId = function(userId,callback){
             '        (' +
             '            SELECT taskTable.*, oU.realName as dealerName from' +
             '        (' +
-            '            SELECT DISTINCT t.*,ps.processStepName as stepName from tasks t' +
+            '            SELECT DISTINCT t.*,ps.processStepName as stepName, 1 as taskType from tasks t' +
             '        JOIN processstepdealer psd ON t.creater = psd.userId' +
             '        AND psd.projectId = t.projectId' +
             '        JOIN user u ON psd.userId = u.userId AND u.userId = ?' +
             '        JOIN processstep ps ON ps.processStepId = t.processStepId' +
             '        UNION' +
-            '        SELECT DISTINCT t1.*,ps1.processStepName as stepName' +
+            '        SELECT DISTINCT t1.*,ps1.processStepName as stepName, 2 as taskType' +
             '        from tasks t1' +
             '        JOIN processstepdealer psd1 ON t1.processStepId = psd1.processStepId' +
             '        AND psd1.projectId = t1.projectId' +
@@ -158,7 +158,7 @@ Task.findTaskForCreater = function(userId,taskId,callback){
             '        (SELECT psd.processStepId FROM processstepdealer psd' +
             '        JOIN tasks t ON t.projectId = psd.projectId' +
             '        AND psd.userId = ?' +
-            '        AND t.taskid = ?) AND t1.taskid = ?';
+            '        AND t.taskid = ? AND psd.processStepId not in (5,6) ) AND t1.taskid = ?';
         var params = [userId,taskId,taskId];
         connection.query(sql, params, function (err, result) {
             if (err) {
