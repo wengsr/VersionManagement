@@ -34,12 +34,7 @@
                             <span><a id="a_attaFile" href="<%=attaFile.fileUri%>"><%=attaFile.fileName%></a></span>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="addTaskList" class="col-sm-2 control-label">新增文件清单</label>
-                        <div class="col-sm-10" style="margin-top:6px">
-                            <textarea class="form-control" id="addTaskList" rows="3" disabled="disabled"><%=addFileList==undefined?'':addFileList%></textarea>
-                        </div>
-                    </div>
+
 
                     <div class="form-group">
                         <label for="modifyTaskList" class="col-sm-2 control-label">修改文件清单</label>
@@ -47,7 +42,12 @@
                             <textarea class="form-control" id="modifyTaskList" rows="3" disabled="disabled"><%=modifyFileList==undefined?'':modifyFileList%></textarea>
                         </div>
                     </div>
-
+                    <div class="form-group">
+                        <label for="addTaskList" class="col-sm-2 control-label">新增文件清单</label>
+                        <div class="col-sm-10" style="margin-top:6px">
+                            <textarea class="form-control" id="addTaskList" rows="3" disabled="disabled"><%=addFileList==undefined?'':addFileList%></textarea>
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label for="delTaskList" class="col-sm-2 control-label">删除文件清单</label>
                         <div class="col-sm-10" style="margin-top:6px">

@@ -21,7 +21,7 @@ exports.searchProject = function( taskInfo , callback){
 }
 exports.searchAllProject = function(userId, callback){
     pool.getConnection(function (err, connection){
-        var sql = "select projectId ,projectName from project  where projectId in ( select projectId from userToProject where userId = ?)";
+        var sql = "select projectId , projectName, projectUri from project  where projectId in ( select projectId from userToProject where userId = ?)";
         var param = [userId];
         connection.query(sql, param,function (err, result){
             if (err) {
@@ -70,9 +70,10 @@ exports.addTask = function (taskInfo, callback) {
         var task_params = [projectId, projectId, userAddSql_params,addTaskPro_params, addFiles_params];
 
         var taskId,projectUri;
-        var newFiles, modFiles;
+        var newFiles, modFiles,delFiles;
         var newUri=[];
         var modUri=[];
+        var  delUri=[];
 
         var i= 0;
         async.eachSeries(task, function (item, callback_async) {
@@ -103,9 +104,21 @@ exports.addTask = function (taskInfo, callback) {
                     }
 
                 }
+                if(taskInfo.delFiles!='') {
+                    while(taskInfo.delFiles.indexOf('\r')!=-1) {
+                        taskInfo.delFiles.replace("\r", '');
+                    }
+                    delFiles = taskInfo.delFiles.trim().split('\n');
+
+                    for(var j = 0; j < delFiles.length; j++){
+                        delUri[j]= delFiles[j];
+                        delFiles[j] = delFiles[j].substr(delFiles[j].lastIndexOf('/')+1);
+                    }
+
+                }
                 if(newFiles!== "" && typeof(newFiles)!='undefined') {
                     for (var j = 0; j < newFiles.length; j++) {
-                        addFiles_para = [ taskId,newFiles[j], 1,,newUri[j]];//1表示新增文件；，
+                        addFiles_para = [ taskId,newFiles[j], 1,,newUri[j]];//1表示新增文件；
                         trans.query(sql[item], addFiles_para, function (err, result) {
                             if (err) {
                                 console.log("addNewFiles ERR" + j + ";", err.message);
@@ -125,6 +138,19 @@ exports.addTask = function (taskInfo, callback) {
                             }
                             else{
                                 console.log("addModFiles" + j+";",result);
+                            }
+                        });
+                    }
+                }
+                if(delFiles!=="" && typeof(delFiles)!='undefined') {
+                    for (var j = 0; j < delFiles.length; j++){
+                        addFiles_para = [taskId,delFiles[j],2,,delUri[j]];//0表示修改文件；commit:默认为3 表示未占用
+                        trans.query(sql[item],addFiles_para,function(err,result){
+                            if(err){
+                                console.log("addDelFiles ERR" + j+";",err.message);
+                            }
+                            else{
+                                console.log("addDelFiles" + j+";",result);
                             }
                         });
                     }

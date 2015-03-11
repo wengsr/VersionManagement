@@ -184,14 +184,7 @@ router.get('/addTaskPage', function(req, res) {
 
 
 router.post('/addTask', function (req, res) {
-    //var taskName = req.body.inputTaskName;
-    ////var tasker = req.body.inputTasker;
-    //var tasker = res.locals.user.userId;
-    //var taskState = '申请完成';//申请时，状态默认为；1,提交申请
-    //var taskProject = req.body.project;
-    //var taskDetails = req.body.taskDetails;
-    //var taskNewFiles = req.body.taskNewFiles;;
-    //var taskModFiles = req.body.taskModFiles;
+
     var message ="";//返回的结果提示信息；
     var taskName = req.body.taskName;
     //var tasker = req.body.inputTasker;
@@ -201,12 +194,13 @@ router.post('/addTask', function (req, res) {
     var taskDetails = req.body.taskDetails;
     var taskNewFiles = req.body.taskNewFiles;
     var taskModFiles = req.body.taskModFiles;
+    var taskDelFiles = req.body.taskDelFiles;
     var dao = require('../modular/taskDao');
 
     var projectUri ;
     var flag = false;
 
-    dao.addTask({name: taskName, tasker: tasker ,state: taskState,projectId:taskProject,desc:taskDetails,newFiles:taskNewFiles, modFiles:taskModFiles}, function (msg,result) {
+    dao.addTask({name: taskName, tasker: tasker ,state: taskState,projectId:taskProject,desc:taskDetails,newFiles:taskNewFiles, modFiles:taskModFiles,delFiles:taskDelFiles}, function (msg,result) {
                 if('success' == msg){
                     var queryObj = url.parse(req.url,true).query;
                     console.log("申请成功");

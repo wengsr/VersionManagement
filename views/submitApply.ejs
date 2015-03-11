@@ -12,22 +12,26 @@
                         <label for="inputTaskName" class="col-sm-2 control-label">产品</label>
                         <div class="col-sm-10">
                             <select class="form-control" name="project" id="project">
-                               <!-- <option value="000001" selected >NCRM</option>
-                                <option value="000002" >FCRM</option>
-                                <option value="000003"  >BCRM</option>-->
-                                <option value="" selected >--请选择--</option>
+                                <option value="" selected  projectUri="">--请选择--</option>
                                 <%if(project && project.length>0){%>
                                 <%project.forEach(function(pro,i){%>
-                                <option value="<%=pro.projectId%>"><%=pro.projectName%></option>
+                                <option value="<%=pro.projectId%>"  projectUri="<%=pro.projectUri%>"><%=pro.projectName%></option>
                                 <%})%>
                                 <%}%>
                             </select>
                         </div>
                     </div>
                     <div class="form-group">
+                        <label for="taskProjectUri" class="col-sm-2 control-label">项目SVN路径</label>
+                        <div class="col-sm-10" style="margin-top:6px">
+                            <span id="taskProjectUri"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label for="inputTaskName" class="col-sm-2 control-label">变更单名称</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control"  name="inputTaskName" id="inputTaskName" placeholder="变更单名称">
+                            <input type="text" class="form-control"  name="inputTaskName" id="inputTaskName" placeholder="变更单名称" >
+                            <input type="text"  style="display: none;"   hidden="hidden"/>
                         </div>
                     </div>
                     <div class="form-group">
@@ -38,18 +42,22 @@
                         </div>
                     </div>
 
-
                     <div class="form-group">
-                        <label for="inputTaskList" class="col-sm-2 control-label">新增文件清单</label>
-
+                        <label for="inputTaskModList" class="col-sm-2 control-label">修改文件清单</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control" id="inputTaskModList" rows="3" name="taskModFiles" placeholder="输入文件项目路径，多个文件间请换行，文件路径不包含项目路径，如:local/YN_TRUNK/SaleWeb/src/main/java/com/al/crm/sale/choosechannel/view/chooseChannel.html"></textarea>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputTaskList" class="col-sm-2 control-label">新增文件清单</label>
                         <div class="col-sm-10">
                             <textarea class="form-control" id="inputTaskNewList" rows="3" name="taskNewFiles"></textarea>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="inputTaskModList" class="col-sm-2 control-label">修改文件清单</label>
-                        <div class="col-sm-10">
-                            <textarea class="form-control" id="inputTaskModList" rows="3" name="taskModFiles" placeholder="输入文件项目路径，多个文件间请换行：如:local/YN_TRUNK/SaleWeb/src/main/java/com/al/crm/sale/choosechannel/view/chooseChannel.html"></textarea>
+                        <label for="delTaskList" class="col-sm-2 control-label">删除文件清单</label>
+                        <div class="col-sm-10" style="margin-top:6px">
+                            <textarea class="form-control" id="delTaskList" rows="3" ></textarea>
                         </div>
                     </div>
                 </div>
@@ -62,7 +70,7 @@
         <div style="width:68%;float:left;margin-bottom:-20px;margin-top:-9px;height:50px;" id="diaSuccessTip" class="alert alert-success alert-dismissible" role="alert"><span style="text-align:center;margin-left:auto;margin-right:auto;display:block;"><strong>操作成功</strong></span></div>
         <button type="button"  id ="closeModel" class="btn btn-default" data-dismiss="modal">关闭</button>
         <button id="submitApply" type="button" class="btn btn-primary" >提交</button>
-        <button id="btnSubmitSuccess" type="button" class="btn btn-primary" >提交成功</button>
+        <button id="btnSubmitSuccess" type="button" class="btn btn-primary" data-dismiss="modal">提交成功</button>
     </div>
 </form>
 <script src="/javascripts/submitApply.js"></script>

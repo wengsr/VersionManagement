@@ -107,6 +107,7 @@ function ajaxSubmit(params, url, subType){
                     $('#modifyTaskList').attr('disabled', true);
                     $('#addTaskList').attr('disabled', true);
                     $('#inputTaskDesc').attr('disabled', true);
+                    $('#delTaskList').attr('disabled', true);
                     showTipInfo('success', dataJson.message);
                 }
             }
@@ -173,6 +174,7 @@ function submitForm_modify(){
             $('#modifyTaskList').attr('disabled', true);
             $('#addTaskList').attr('disabled', true);
             $('#inputTaskDesc').attr('disabled', true);
+            $('#delTaskList').attr('disabled', true);
 
         }
     }
@@ -223,6 +225,7 @@ function bindClick_btnUploadFile(){
         $('#modifyTaskList').attr('disabled', false);
         $('#addTaskList').attr('disabled', false);
         $('#inputTaskDesc').attr('disabled', false);
+        $('#delTaskList').attr('disabled', false);
     });
     $("#btnModCancel").on("click", function () {
         $("#btnConfirm").hide();
@@ -235,12 +238,14 @@ function bindClick_btnUploadFile(){
         $('#modifyTaskList').attr('disabled', true);
         $('#addTaskList').attr('disabled', true);
         $('#inputTaskDesc').attr('disabled', true);
+        $('#delTaskList').attr('disabled', true);
     });
     $("#btnConfirm").on("click", function () {
         var newFiles = $("#addTaskList").val();
         var modFiles = $("#modifyTaskList").val()
+        var delFiles = $("#delTaskList").val()
         var checkFile ;
-        checkFile = isFile(newFiles)&&isFile(modFiles);
+        checkFile = isFile(newFiles)&&isFile(modFiles)&isFile(delFiles);
         debugger;
         if(!checkFile){
             showTipInfo('err', '文件名是否正确！');

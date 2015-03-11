@@ -22,6 +22,12 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label for="taskProjectUri" class="col-sm-2 control-label">项目SVN路径</label>
+                            <div class="col-sm-10" style="margin-top:6px">
+                                <span id="taskProjectUri"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label for="inputTaskName" class="col-sm-2 control-label">变更单名</label>
                             <div class="col-sm-10" style="margin-top:6px">
                                 <span id="taskName"><%=task.taskname%></span>
@@ -41,21 +47,24 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="addTaskList" class="col-sm-2 control-label">新增文件清单</label>
-                            <div class="col-sm-10" style="margin-top:6px">
-                                <textarea class="form-control" id="addTaskList" rows="3" disabled="disabled"><%=addFileList==undefined?'':addFileList%></textarea>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
                             <label for="modifyTaskList" class="col-sm-2 control-label">修改文件清单</label>
                             <div class="col-sm-10" style="margin-top:6px">
                                 <textarea class="form-control" id="modifyTaskList" name = "modifyTaskList" rows="3" disabled="disabled"><%=modifyFileList==undefined?'':modifyFileList%></textarea>
                             </div>
                         </div>
-
                         <div class="form-group">
-
+                            <label for="addTaskList" class="col-sm-2 control-label">新增文件清单</label>
+                            <div class="col-sm-10" style="margin-top:6px">
+                                <textarea class="form-control" id="addTaskList" rows="3" disabled="disabled"><%=addFileList==undefined?'':addFileList%></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="delTaskList" class="col-sm-2 control-label">删除文件清单</label>
+                            <div class="col-sm-10" style="margin-top:6px">
+                                <textarea class="form-control" id="delTaskList" rows="3" disabled="disabled"><%=delFileList==undefined?'':delFileList%></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label for="inputTaskList" class="col-sm-2 control-label">已提取旧文件</label>
                             <div class="col-sm-3" style="margin-top:8px">
                                 <span><a id="a_reportAtta" href="">没有旧文件</a></span>
