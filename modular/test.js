@@ -1,6 +1,6 @@
 /**
- * Created by wengs_000 on 2015/1/27 0027.
- */
+* Created by wengs_000 on 2015/1/27 0027.
+*/
 var mysql = require('mysql');
 //wengsr
 var connection = mysql.createConnection({
@@ -27,5 +27,4 @@ connection.query(userAddSql, userAddSql_Params, function (err, result) {
     console.log('INSERT ID:', result);
     console.log('-----------------------------------------------------------------\n\n');
 });
-
 connection.end();

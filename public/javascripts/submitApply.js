@@ -1,4 +1,4 @@
-var fields =['#inputTaskName', '#inputTaskDesc', '#project','#inputTaskNewList','#inputTaskModList'];
+var fields =['#inputTaskName', '#inputTaskDesc', '#project','#inputTaskNewList','#inputTaskModList','#delTaskList'];
 //function showTipInfo(tipType, tipContent){
 //    var tip = $('#applySuccessTip');
 //    var unTip = $('#applyErrTip');
@@ -13,15 +13,18 @@ var fields =['#inputTaskName', '#inputTaskDesc', '#project','#inputTaskNewList',
 //    unTip.hide();
 //    tip.show();
 //}
+
 function disableInput(){
     $("#project").attr("disabled","disabled");
     $("#inputTaskDesc").attr("disabled","disabled");
     $("#inputTaskNewList").attr("disabled","disabled");
     $("#inputTaskModList").attr("disabled","disabled");
     $("#inputTaskName").attr("disabled","disabled");
+    $("#delTaskList").attr("disabled","disabled");
 }
 
 function checkSubmit(fields){
+    debugger
     var flag = true;
     $.each(fields,function(i,n){
         if(i<3) {
@@ -30,7 +33,7 @@ function checkSubmit(fields){
                 return flag;
             }
         }
-        if (($(fields[4]).val() == '')&& ($(fields[5]).val() == '')){//修改清单和新增清单不能同时为空
+        if (($(fields[3]).val() == '')&& ($(fields[4]).val() == '')&&$(fields[5]).val() == ''){//修改清单和新增清单不能同时为空
             flag = false;
             return flag;
         }
@@ -70,10 +73,17 @@ jQuery(document).ready(function() {
     //隐藏文件路径信息提示条
     $('#diaInfoTip').hide();
     $('#btnSubmitSuccess').hide();
-
     $('#submitApply').click(function () {
-
         var check = checkSubmit(fields);
+        var newFiles = $("#inputTaskNewList").val();
+        var modFiles = $("#inputTaskModList").val() ;
+        var delFiles = $("#delTaskList").val();
+        var checkFile ;
+        checkFile = isFile(newFiles)&&isFile(delFiles)&&isFile(modFiles);
+        if(!checkFile){
+            showTipInfo('err', '文件名是否正确！');
+            return true;
+        }
         if (check) {
             var params ={
                 taskName : $("#inputTaskName").val(),
@@ -82,8 +92,8 @@ jQuery(document).ready(function() {
             taskProject : $("#project").val(),
             taskDetails: $("#inputTaskDesc").val(),
             taskNewFiles : $("#inputTaskNewList").val(),
-            taskModFiles : $("#inputTaskModList").val()
-
+            taskModFiles : $("#inputTaskModList").val(),
+            taskDelFiles : $("#delTaskList").val()
             };
             url = 'task/addTask';
            ajaxSubmit(params, url, 'post');
@@ -92,6 +102,9 @@ jQuery(document).ready(function() {
         else {
             showTipInfo('err', '请填写必填项！');
         }
+    });
+    $("#project").change(function(){
+        $("#taskProjectUri").text($("#project").find("option:selected").attr("projectUri"));
     });
     $('#closeModel').click(function(){
         location.reload();

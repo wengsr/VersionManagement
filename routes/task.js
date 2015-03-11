@@ -184,14 +184,7 @@ router.get('/addTaskPage', function(req, res) {
 
 
 router.post('/addTask', function (req, res) {
-    //var taskName = req.body.inputTaskName;
-    ////var tasker = req.body.inputTasker;
-    //var tasker = res.locals.user.userId;
-    //var taskState = '申请完成';//申请时，状态默认为；1,提交申请
-    //var taskProject = req.body.project;
-    //var taskDetails = req.body.taskDetails;
-    //var taskNewFiles = req.body.taskNewFiles;;
-    //var taskModFiles = req.body.taskModFiles;
+
     var message ="";//返回的结果提示信息；
     var taskName = req.body.taskName;
     //var tasker = req.body.inputTasker;
@@ -201,12 +194,13 @@ router.post('/addTask', function (req, res) {
     var taskDetails = req.body.taskDetails;
     var taskNewFiles = req.body.taskNewFiles;
     var taskModFiles = req.body.taskModFiles;
+    var taskDelFiles = req.body.taskDelFiles;
     var dao = require('../modular/taskDao');
 
     var projectUri ;
     var flag = false;
 
-    dao.addTask({name: taskName, tasker: tasker ,state: taskState,projectId:taskProject,desc:taskDetails,newFiles:taskNewFiles, modFiles:taskModFiles}, function (msg,result) {
+    dao.addTask({name: taskName, tasker: tasker ,state: taskState,projectId:taskProject,desc:taskDetails,newFiles:taskNewFiles, modFiles:taskModFiles,delFiles:taskDelFiles}, function (msg,result) {
                 if('success' == msg){
                     var queryObj = url.parse(req.url,true).query;
                     console.log("申请成功");
@@ -484,6 +478,7 @@ router.post('/submitFile', function(req, res) {
 router.post('/extractFile', function(req, res) {
     var taskId = req.body['taskId'];
     var taskProject = req.body['taskProject'];
+    var taskCode = req.body['taskCode'];
     var  modFiles = req.body['modFilesList'].replace('\r' ,'').split('\n');
     var userId = req.session.user.userId;
     var jsonStr;
@@ -539,9 +534,9 @@ router.post('/extractFile', function(req, res) {
                         else {
                             //没有文件被占用 ，提取旧文件
                             //Task
-                            var testTask = new Svn({username: 'wengsr', password: 'wengsr62952'});
+                            var testTask = new Svn({username: 'cmsys', password: '717705'});
                             var  proceess = require('child_process');
-                            var localDir = process.cwd() + '/old/';
+                            var localDir = process.cwd() + '/old/'+taskCode+'/';
                             while(localDir.indexOf('\\')!=-1) {
                                 localDir = localDir.replace('\\', '/');
                             }
@@ -550,14 +545,11 @@ router.post('/extractFile', function(req, res) {
                                 fs.mkdir(localDir);
                             }
                             //var localDir = "c:/test/变更单1/old/";
-                            var versionDir = 'http://192.168.1.22:8000/svn/hxbss/testVersion/';
+                            //var versionDir = 'http://192.168.1.22:8000/svn/hxbss/testVersion/';
                             var versionDir = projectUri;
-
                             var fileList = modFiles;
-
-
                             /*提取文件*/
-                            testTask.checkout(localDir, versionDir, fileList, function (err, data) {
+                           var checkFlag = testTask.checkout(localDir, versionDir, fileList, function (err, data) {
                                 if (err) {//checkout 失败
                                     jsonStr = '{"sucFlag":"err","message":"【提取文件】执行失败，检查文件路径是否正确？"}'
                                     console.log("ExtractFile Faild：" + err);
@@ -571,11 +563,11 @@ router.post('/extractFile', function(req, res) {
                                     var zipUri = localDir + zipName;
                                     var zipFilesFlag =false ;
                                     zipFilesFlag = fileZip.zipFiles(localDir,fileList,zipUri);
-                                    var zipUriSaved = "./old/" +zipName;
+                                    var zipUriSaved = "./old/"+taskCode+"/" +zipName;
                                     var queryObj = url.parse(req.url, true).query;
                                     if(!zipFilesFlag){
                                         //fileUpReturnInfo(res, "false", "【提取文件】执行失败,请检查文件路径是否正确！！！", '', '');
-                                        jsonStr = '{"sucFlag":"success","message":"【提取文件】执行失败,请检查文件路径是否正确！！！"}';
+                                        jsonStr = '{"sucFlag":"err","message":"【提取文件】执行失败,请检查文件路径是否正确！！！"}';
                                         res.send(queryObj.callback + '(\'' + jsonStr + '\')');
                                     }
                                     else {//压缩文件成功
@@ -601,6 +593,7 @@ router.post('/extractFile', function(req, res) {
                                 }
                             });
 
+
                         }
                     }
                 });
@@ -612,22 +605,22 @@ router.post('/extractFile', function(req, res) {
 /**
  * 修改变更单
  */
-//router.post('/modifyTask', function(req, res) {
-//    var taskId = req.body['taskId'];
-//    var taskDetails =  req.body['taskDetails'];
-//    var taskNewFiles = req.body['taskNewFiles'];
-//    var taskModFiles= req.body['taskModFiles'];
-//    var jsonStr;
-//    dao.modifyTask({taskId:taskId, details:taskDetails, newFiles: taskNewFiles, modFiles: taskModFiles}, function(msg,result){
-//        if('success' == msg){
-//            jsonStr = '{"sucFlag":"success","message":"【修改变更单成功】执行成功"}';
-//        }else{
-//            jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
-//        }
-//        var queryObj = url.parse(req.url,true).query;
-//        res.send(queryObj.callback+'(\'' + jsonStr + '\')');
-//    });
-//});
+router.post('/modifyTask', function(req, res) {
+    var taskId = req.body['taskId'];
+    var taskDetails =  req.body['taskDetails'];
+    var taskNewFiles = req.body['taskNewFiles'];
+    var taskModFiles= req.body['taskModFiles'];
+    var jsonStr;
+    dao.modifyTask({taskId:taskId, details:taskDetails, newFiles: taskNewFiles, modFiles: taskModFiles}, function(msg,result){
+        if('success' == msg){
+            jsonStr = '{"sucFlag":"success","message":"【修改变更单成功】执行成功"}';
+        }else{
+            jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
+        }
+        var queryObj = url.parse(req.url,true).query;
+        res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+    });
+});
 
 //router.get('/modalWindowErr', function(req, res) {
 //

@@ -320,23 +320,30 @@ Task.findFileListByTaskId = function(taskId, callback){
             }
             var addFileList;
             var modifyFileList;
+            var delFileList;
             result.forEach(function(file,i){
-                if(file.state=='1'){
+                if(file.state=='1'){        //新增的文件
                     if(undefined==addFileList){
                         addFileList = file.fileUri;
                     }else{
                         addFileList = addFileList + "\r\n" + file.fileUri;
                     }
-                }else if(file.state=='0'){
+                }else if(file.state=='0'){  //修改的文件
                     if(undefined==modifyFileList){
                         modifyFileList = file.fileUri;
                     }else{
                         modifyFileList = modifyFileList + "\r\n" + file.fileUri;
                     }
+                }else if(file.state=='2'){  //删除的文件
+                    if(undefined==delFileList){
+                        delFileList = file.fileUri;
+                    }else{
+                        delFileList = delFileList + "\r\n" + file.fileUri;
+                    }
                 }
             });
             connection.release();
-            callback('success',addFileList,modifyFileList);
+            callback('success',addFileList,modifyFileList,delFileList);
         });
     });
 }

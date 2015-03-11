@@ -31,6 +31,7 @@ function ajaxSubmit(params, url, subType){
                 if (url == './task/submitFile') {
                     $('#btnSelectReport').show();
                     $('#uploadInfo').hide();
+                    $('#btnSubmitFile').button('reset');
                 }
             }else if('success'==flag) {
             //    debugger

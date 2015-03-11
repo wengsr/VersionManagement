@@ -49,6 +49,7 @@ Svn.prototype.checkout = function (localDir, versionDir, fileList, callback) {
                 });
             };
             checkoutProcess(fileList);
+
         }
     });
 };
@@ -74,14 +75,17 @@ module.exports = Svn;
 /********测试案例*********/
 var test = new Svn({username: 'wengsr', password: 'wengsr62952'});
 var localDir = "c:/test/变更单1/repo/";
-var versionDir = 'http://192.168.1.22:8000/svn/hxbss/testVersion/';
+var versionDir = 'http://192.168.1.22:8000/svn/hxbss/NCRM/baseLine/Source/trunk';
 var fileList = [
-    'a/b/b1.txt',
-    'a/a2.txt',
-    'a/a1.txt',
-    'a/a/a/a.txt',
-    'a/a/a/a.txt'
+    //'local/YN_TRUNK/SaleWeb/src/main/java/com/al/crm/sale/choosechannel/view/chooseChannel.html'
+    'local/YN_TRUNK/SaleWeb/src/main/java/com/al/crm/sale/choosechannel/view/chooseChannel.html'
 ];
+//var test = new Svn({username: 'wengsr', password: 'wengsr62952'});
+//var localDir = "c:/test/变更单/repo/a/";
+//var versionDir = 'http://192.168.1.22:8000/svn/hxbss/NCRM/baseLine/Source/trunk';
+//var fileList = [
+//    'local/YN_TRUNK/SaleWeb/src/main/java/com/al/crm/sale/choosechannel/view/chooseChannel.html'
+//];
 //test.checkout(localDir, versionDir, fileList, function (err, data) {
 //    if (!!err) {
 //        console.log("取文件失败" + err);
@@ -89,6 +93,8 @@ var fileList = [
 //        console.log("取文件成功" + data);
 //    }
 //});
+
+
 //test.commit("c:/test/变更单1/repo/", function (err, data) {
 //    if (!!err) {
 //        console.log("提交失败" + err);
@@ -96,3 +102,4 @@ var fileList = [
 //        console.log("提交件成功" + data);
 //    }
 //});
+
