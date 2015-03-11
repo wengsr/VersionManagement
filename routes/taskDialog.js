@@ -25,12 +25,12 @@ var findTaskById = function(req,taskId,callback){
  * @param taskId
  */
 var findFileListByTaskId = function(req,taskId,callback){
-    Task.findFileListByTaskId(taskId,function(msg,addFileList,modifyFileList){
+    Task.findFileListByTaskId(taskId,function(msg,addFileList,modifyFileList,delFileList){
         if('success'!=msg){
             req.session.error = "查找变更单信息时发生错误,请记录并联系管理员";
             return null;
         }
-        callback(addFileList,modifyFileList);
+        callback(addFileList,modifyFileList,delFileList);
     });
 }
 
@@ -75,7 +75,7 @@ var openTask = function(stepName, req, res, callback){
                     var t = new Task(task);
                     t.dealerName = dealerName;
                     t.createName = createName;
-                    findFileListByTaskId(req, taskId, function(addFileList,modifyFileList){
+                    findFileListByTaskId(req, taskId, function(addFileList,modifyFileList,delFileList){
                         if(stepName=='submitFile'){
                             findAttaByTaskIdAndStepId(req, taskId, '2',function(oldAtta) {//找到走查环节上传的走查报告
                                 if (undefined == oldAtta) {
@@ -87,7 +87,7 @@ var openTask = function(stepName, req, res, callback){
                                         "fileUri": '#'
                                     });
                                 }
-                                res.render(stepName,{task:t, addFileList:addFileList, modifyFileList:modifyFileList, oldAtta:oldAtta});
+                                res.render(stepName,{task:t, addFileList:addFileList, modifyFileList:modifyFileList, delFileList:delFileList, oldAtta:oldAtta});
                             });
                         }
                         findAttaByTaskIdAndStepId(req, taskId, "3",function(atta){//找出变更单发起者上传的附件
@@ -111,10 +111,10 @@ var openTask = function(stepName, req, res, callback){
                                             "fileUri": '#'
                                         });
                                     }
-                                    res.render(stepName,{task:t, addFileList:addFileList, modifyFileList:modifyFileList, attaFile:atta, reportAtta:reportAtta});
+                                    res.render(stepName,{task:t, addFileList:addFileList, modifyFileList:modifyFileList, delFileList:delFileList, attaFile:atta, reportAtta:reportAtta});
                                 });
                             }else{
-                                res.render(stepName,{task:t, addFileList:addFileList, modifyFileList:modifyFileList, attaFile:atta});
+                                res.render(stepName,{task:t, addFileList:addFileList, modifyFileList:modifyFileList, delFileList:delFileList, attaFile:atta});
                             }
                         });
                     });
@@ -139,11 +139,11 @@ var openTask = function(stepName, req, res, callback){
                                     "fileUri": '#'
                                 });
                             }
-                            res.render(stepName,{task:t, addFileList:addFileList, modifyFileList:modifyFileList, oldAtta:oldAtta});
+                            res.render(stepName,{task:t, addFileList:addFileList, modifyFileList:modifyFileList, delFileList:delFileList, oldAtta:oldAtta});
 
                         });
                     }
-                    findFileListByTaskId(req, taskId, function(addFileList,modifyFileList){
+                    findFileListByTaskId(req, taskId, function(addFileList,modifyFileList,delFileList){
                         findAttaByTaskIdAndStepId(req, taskId, "3",function(atta){//找出变更单发起者上传的附件
                             if(undefined==atta){
                                 atta = new TaskAtta({
@@ -164,7 +164,7 @@ var openTask = function(stepName, req, res, callback){
                                         "fileUri": '#'
                                     });
                                 }
-                                res.render('taskInfo',{task:t, addFileList:addFileList, modifyFileList:modifyFileList, attaFile:atta, reportAtta:reportAtta});
+                                res.render('taskInfo',{task:t, addFileList:addFileList, modifyFileList:modifyFileList, delFileList:delFileList, attaFile:atta, reportAtta:reportAtta});
                             });
                         });
                     });
@@ -176,7 +176,7 @@ var openTask = function(stepName, req, res, callback){
             var t = new Task(task);
             t.dealerName = dealerName;
             t.createName = createName;
-            findFileListByTaskId(req, taskId, function(addFileList,modifyFileList){
+            findFileListByTaskId(req, taskId, function(addFileList,modifyFileList,delFileList){
                 if(stepName=='submitFile'){
                     findAttaByTaskIdAndStepId(req, taskId, '2',function(oldAtta) {//找到提取旧文件环节提取的附件
                         if (undefined == oldAtta) {
@@ -188,7 +188,7 @@ var openTask = function(stepName, req, res, callback){
                                 "fileUri": '#'
                             });
                         }
-                        res.render(stepName,{task:t, addFileList:addFileList, modifyFileList:modifyFileList, oldAtta:oldAtta});
+                        res.render(stepName,{task:t, addFileList:addFileList, modifyFileList:modifyFileList, delFileList:delFileList, oldAtta:oldAtta});
 
                     });
                 }
@@ -213,10 +213,10 @@ var openTask = function(stepName, req, res, callback){
                                     "fileUri": '#'
                                 });
                             }
-                            res.render(stepName,{task:t, addFileList:addFileList, modifyFileList:modifyFileList, attaFile:atta, reportAtta:reportAtta});
+                            res.render(stepName,{task:t, addFileList:addFileList, modifyFileList:modifyFileList, delFileList:delFileList, attaFile:atta, reportAtta:reportAtta});
                         });
                     }else{
-                        res.render(stepName,{task:t, addFileList:addFileList, modifyFileList:modifyFileList, attaFile:atta});
+                        res.render(stepName,{task:t, addFileList:addFileList, modifyFileList:modifyFileList, delFileList:delFileList, attaFile:atta});
                     }
                 });
             });
