@@ -29,6 +29,8 @@ Svn.prototype.checkout = function (localDir, versionDir, fileList, callback) {
     curContext.client.checkout(tmpDoList, function (err, data) {
         if (!!err) {
             console.log("检出失败" + err);
+            var connectionFlag = true;
+            callback(err, connectionFlag, data);
         } else {
             console.log("检出成功" + data);
             var i = 0;
@@ -36,7 +38,8 @@ Svn.prototype.checkout = function (localDir, versionDir, fileList, callback) {
             var checkoutProcess;
             checkoutProcess = function (fileList, err, data) {
                 if (num == i) {
-                    callback(err, data);
+                    var connectionFlag = false;
+                    callback(err, connectionFlag, data);
                     return;
                 }
                 curContext.client.update([localDir + fileList[i], '--parents'], function (err, data) {
@@ -44,7 +47,8 @@ Svn.prototype.checkout = function (localDir, versionDir, fileList, callback) {
                         i++;
                         checkoutProcess(fileList, err, data);
                     } else {
-                        callback(err, data);
+                        var connectionFlag = false;
+                        callback(err, connectionFlag, data);
                     }
                 });
             };
@@ -84,11 +88,17 @@ var fileList = [
 //var localDir = "c:/test/变更单/repo/a/";
 //var versionDir = 'http://192.168.1.22:8000/svn/hxbss/NCRM/baseLine/Source/trunk';
 //var fileList = [
-//    'local/YN_TRUNK/SaleWeb/src/main/java/com/al/crm/sale/choosechannel/view/chooseChannel.html'
+//    //'trunk/local/YN_TRUNK/SaleWeb/src/main/java/com/al/crm/sale/choosechannel/view/chooseChannel.html'
+//    'trunk/local/YN_TRUNK/SaleWeb/src/main/java/com/al/crm/sale/choosechannel/chooseChannel.html'
+//
 //];
-//test.checkout(localDir, versionDir, fileList, function (err, data) {
+//test.checkout(localDir, versionDir, fileList, function (err, flag, data) {
 //    if (!!err) {
-//        console.log("取文件失败" + err);
+//        if(flag)
+//        console.log("取文件失败:svn检出失败" + err);
+//        else{
+//            console.log("取文件失败:路径错误" + err);
+//        }
 //    } else {
 //        console.log("取文件成功" + data);
 //    }

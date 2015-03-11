@@ -13,7 +13,7 @@ exports.searchProject = function( taskInfo , callback){
                 callback("err");
             }
             else {
-                console.log("[taskDao] searchProject;", result);
+                //console.log("[taskDao] searchProject;", result);
                 callback("success", result[0]);
             }
         });
@@ -77,7 +77,7 @@ exports.addTask = function (taskInfo, callback) {
 
         var i= 0;
         async.eachSeries(task, function (item, callback_async) {
-            console.log(item + " ==> ",  sql[item]);
+            //console.log(item + " ==> ",  sql[item]);
             if( i == 4) {//插入多条的file数据
                 //获取文件完整的uri；
                 if(taskInfo.newFiles!=""){
@@ -124,7 +124,7 @@ exports.addTask = function (taskInfo, callback) {
                                 console.log("addNewFiles ERR" + j + ";", err.message);
                             }
                             else {
-                                console.log("addNewFiles" + j + ";", result);
+                                //console.log("addNewFiles" + j + ";", result);
                             }
                         });
                     }
@@ -136,9 +136,9 @@ exports.addTask = function (taskInfo, callback) {
                             if(err){
                                 console.log("addModFiles ERR" + j+";",err.message);
                             }
-                            else{
-                                console.log("addModFiles" + j+";",result);
-                            }
+                            //else{
+                            //    console.log("addModFiles" + j+";",result);
+                            //}
                         });
                     }
                 }
@@ -149,9 +149,9 @@ exports.addTask = function (taskInfo, callback) {
                             if(err){
                                 console.log("addDelFiles ERR" + j+";",err.message);
                             }
-                            else{
-                                console.log("addDelFiles" + j+";",result);
-                            }
+                            //else{
+                            //    console.log("addDelFiles" + j+";",result);
+                            //}
                         });
                     }
                 }
@@ -164,7 +164,7 @@ exports.addTask = function (taskInfo, callback) {
                     return ;
                 }
                 i++;
-                console.log(item+" result):" , result);
+                //console.log(item+" result):" , result);
                 if (item == 'selectProject') {
                     if (result.length > 0) {
                         project = result;
@@ -178,11 +178,11 @@ exports.addTask = function (taskInfo, callback) {
 
                 }
                 else if (item == 'userAddSql') {
-                    console.log("userAddSql:", result);
+                    //console.log("userAddSql:", result);
                     taskId = result.insertId;
                     task_params[3]= [taskId, '2',userId,0];//taskPrecessStep turnNum 默认为0：
                 }
-                console.log(result);
+                //console.log(result);
                 callback_async(err, result);
             });
         });
@@ -225,7 +225,7 @@ exports.submitFile= function(taskId,callback){
                     callback("err");
                 }
                 if(item == 'selectDealer' && undefined!=result && ''!=result ){
-                    console.log("selectDealer:",result);
+                    //console.log("selectDealer:",result);
                             updateDealer_params.push(result[0].manager);
                 }
                 if(err_async){
@@ -275,7 +275,7 @@ exports.extractFile= function(taskId, userId, processStepId, fileName, fileUri,c
                 console.log("updateTask :",err.message);
                 return callback('err',err_async);
             }
-            console.log("updateTask :", result);
+            //console.log("updateTask :", result);
         });
         trans.query(sql['updateDealer'],updateDealer_params,function(err,result){
             if(err){
@@ -283,7 +283,7 @@ exports.extractFile= function(taskId, userId, processStepId, fileName, fileUri,c
                 console.log("updateDealer :",err.message);
                 return callback('err',err_async);
             }
-            console.log("updateDealer :", result);
+            //console.log("updateDealer :", result);
         });
         if(typeof(fileName) !='undefined') {
             trans.query(sql['saveAtta'], saveAtta_params, function (err, result) {
@@ -292,7 +292,7 @@ exports.extractFile= function(taskId, userId, processStepId, fileName, fileUri,c
                     console.log("saveAtta :", err.message);
                     return callback('err', err_async);
                 }
-                console.log("saveAtta :", result);
+                //console.log("saveAtta :", result);
             });
             trans.query(sql['updateFiles'], updateFiles_params, function (err, result) {
                 if (err) {
@@ -300,7 +300,7 @@ exports.extractFile= function(taskId, userId, processStepId, fileName, fileUri,c
                     console.log("updateFiles :", err.message);
                     return callback('err', err_async);
                 }
-                console.log("updateFiles :", result);
+                //console.log("updateFiles :", result);
             });
         }
         callback("success","提取文件成功");

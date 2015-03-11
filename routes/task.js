@@ -549,12 +549,20 @@ router.post('/extractFile', function(req, res) {
                             var versionDir = projectUri;
                             var fileList = modFiles;
                             /*提取文件*/
-                           var checkFlag = testTask.checkout(localDir, versionDir, fileList, function (err, data) {
+                           var checkFlag = testTask.checkout(localDir, versionDir, fileList, function (err,flag, data) {
                                 if (err) {//checkout 失败
-                                    jsonStr = '{"sucFlag":"err","message":"【提取文件】执行失败，检查文件路径是否正确？"}'
-                                    console.log("ExtractFile Faild：" + err);
-                                    var queryObj = url.parse(req.url, true).query;
-                                    res.send(queryObj.callback + '(\'' + jsonStr + '\')');
+                                    if(flag) {//svn 连接错误
+                                        jsonStr = '{"sucFlag":"err","message":"【提取文件】执行失败，svn连接失败！！"}'
+                                        console.log("ExtractFile Faild：" + err);
+                                        var queryObj = url.parse(req.url, true).query;
+                                        res.send(queryObj.callback + '(\'' + jsonStr + '\')');
+                                    }
+                                    else{//文件路径错误
+                                        jsonStr = '{"sucFlag":"err","message":"【提取文件】执行失败，检查文件路径是否正确？"}'
+                                        console.log("ExtractFile Faild：" + err);
+                                        var queryObj = url.parse(req.url, true).query;
+                                        res.send(queryObj.callback + '(\'' + jsonStr + '\')');
+                                    }
                                 } else {
                                     console.log("ExtractFile success" + data);
 
@@ -566,7 +574,6 @@ router.post('/extractFile', function(req, res) {
                                     var zipUriSaved = "./old/"+taskCode+"/" +zipName;
                                     var queryObj = url.parse(req.url, true).query;
                                     if(!zipFilesFlag){
-                                        //fileUpReturnInfo(res, "false", "【提取文件】执行失败,请检查文件路径是否正确！！！", '', '');
                                         jsonStr = '{"sucFlag":"err","message":"【提取文件】执行失败,请检查文件路径是否正确！！！"}';
                                         res.send(queryObj.callback + '(\'' + jsonStr + '\')');
                                     }
