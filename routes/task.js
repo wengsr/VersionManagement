@@ -15,6 +15,7 @@ var fileZip = require("../util/fileTool.js");
 var fs = require('fs');
 var TaskAtta = require('../modular/taskAtta');
 var testFileUsed = require('../modular/testFileUsed');
+var Project = require('../modular/project');
 
 /**
  * 保存附件信息到数据库
@@ -143,6 +144,23 @@ var sendEmail = function(taskId, content){
         var creater = result.realName;
         var userEmail = result.email;
         sendMailToCreater(taskcode, taskname, creater, content, userEmail);
+    });
+}
+
+
+/**
+ * 查找用户所属项目，用于显示“申请变更单”和“查找变更单”按钮
+ * @param userId
+ * @param req
+ * @param callback
+ */
+var findProsByUserIdForApplyTaskBtn = function(userId,req,callback){
+    Project.findProsByUserIdForApplyTaskBtn(userId,function(msg,tasks){
+        if('success'!=msg){
+            req.session.error = "查找用户所属项目时发生错误,请记录并联系管理员";
+            return null;
+        }
+        callback(tasks);
     });
 }
 
@@ -408,35 +426,39 @@ router.post('/findTask', function (req, res) {
 
 
     Task.findTaskByParam(userId,projectId,state,processStepId,taskCode,taskname,createrName,function(msg,tasks){
-        if('success'!=msg){
-            req.session.error = "模糊查询变更单时发生错误,请记录并联系管理员";
-            return null;
-        }
+        findProsByUserIdForApplyTaskBtn(userId,req,function(userPros){
+            if('success'!=msg){
+                req.session.error = "模糊查询变更单时发生错误,请记录并联系管理员";
+                return null;
+            }
 
-        if(tasks.length>0){
-            req.session.tasks = tasks;
-            req.session.taskCount = tasks.length;
-            return res.render('index', {
-                title: 'AILK-CRM版本管理系统',
-                user:req.session.user,
-                menus:req.session.menus,
-                tasks:req.session.tasks,
-                taskCount:req.session.taskCount,
-                topBtnCheckTask:'findTaskResult'
-            });
-        }else{
-            req.session.tasks = null;
-            req.session.taskCount = null;
-            return res.render('index', {
-                title: 'AILK-CRM版本管理系统',
-                user:req.session.user,
-                menus:req.session.menus,
-                tasks:req.session.tasks,
-                taskCount:req.session.taskCount,
-                topBtnCheckTask:'findTaskResult'
-            });
-        }
-//        res.render('findTaskResult',{projects:projects});
+            if(tasks.length>0){
+                req.session.tasks = tasks;
+                req.session.taskCount = tasks.length;
+                return res.render('index', {
+                    title: 'AILK-CRM版本管理系统',
+                    user:req.session.user,
+                    menus:req.session.menus,
+                    tasks:req.session.tasks,
+                    taskCount:req.session.taskCount,
+                    topBtnCheckTask:'findTaskResult',
+                    userPros:userPros
+                });
+            }else{
+                req.session.tasks = null;
+                req.session.taskCount = null;
+                return res.render('index', {
+                    title: 'AILK-CRM版本管理系统',
+                    user:req.session.user,
+                    menus:req.session.menus,
+                    tasks:req.session.tasks,
+                    taskCount:req.session.taskCount,
+                    topBtnCheckTask:'findTaskResult',
+                    userPros:userPros
+                });
+            }
+            //res.render('findTaskResult',{projects:projects});
+        });
     });
 });
 

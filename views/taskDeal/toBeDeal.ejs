@@ -18,7 +18,7 @@
                 <tbody>
                 <% var recCount=0%>
                 <% tasks.forEach(function(task,i){ var psId=task.processStepId%>
-                    <% if(task.creater!=user.userId){ recCount++;%>
+                    <% if(task.taskType==2){ recCount++;%>
                         <tr id="myToBeDealTask">
                             <td><%=recCount%></td>
                             <td><a><%=task.taskcode%></a></td>
