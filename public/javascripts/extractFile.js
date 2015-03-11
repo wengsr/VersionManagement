@@ -65,6 +65,7 @@ function ajaxSubmit(params, url, subType){
                 if (url == './task/extractFile') {
                     $('#btnExtractFile').button('reset');
                     $("#btnModify").show();
+                    $("#btnModCancel").hide();
 
                 }
                 else{
@@ -80,6 +81,7 @@ function ajaxSubmit(params, url, subType){
                         $('#a_reportAtta').html("没有旧文件");
                         $('#btnExtractFile').button('reset');
                         showTipInfo('success', dataJson.message);
+                        $("#btnModify").show();
                     }
                     else {
                         $('#btnExtractFile').hide();
@@ -88,8 +90,8 @@ function ajaxSubmit(params, url, subType){
                             $('#a_reportAtta').html(dataJson.attaName);//设置附件a标签的内容
                             $("#downloadInfo").text("点击下载");
                             resetAttaDownloadUri('a_reportAtta');//处理文件下载uri上的特殊字符
-
                             showTipInfo('success', dataJson.message);
+
                         }
                         else{
                             $('#a_reportAtta').html("没有旧文件");
@@ -99,6 +101,7 @@ function ajaxSubmit(params, url, subType){
                 }
                 else{
                     $('#btnConfirm').hide();
+                    $("#btnModCancel").hide();
                     $('#btnModifySuccess').show();
                     $('#btnExtractFile').show();
                     $('#modifyTaskList').attr('disabled', true);
@@ -159,17 +162,23 @@ function submitForm_modify(){
         if(modifyFlag) {
             var modifyFile_url = 'task/modifyTask';
             ajaxSubmit(params_modify, modifyFile_url, 'post');
+
         }
         else{
             showTipInfo("success",'变更单信息未改变，无需修改');
             $('#btnExtractFile').show();
             $("#btnModify").show();
             $("#btnConfirm").hide();
+            $("#btnModCancel").hide();
+            $('#modifyTaskList').attr('disabled', true);
+            $('#addTaskList').attr('disabled', true);
+            $('#inputTaskDesc').attr('disabled', true);
 
         }
     }
     else{
         showTipInfo("err","变更单描述不能为空，或新增文件和修改文件不能同时为空！");
+
     }
 }
 
@@ -235,13 +244,11 @@ function bindClick_btnUploadFile(){
         debugger;
         if(!checkFile){
             showTipInfo('err', '文件名是否正确！');
-            return true;
+            return false;
         }
+        else
         submitForm_modify();
-        $("#btnModCancel").hide();
-        $('#modifyTaskList').attr('disabled', true);
-        $('#addTaskList').attr('disabled', true);
-        $('#inputTaskDesc').attr('disabled', true);
+
         //$('#formModifyTask').submit();
     });
 }
