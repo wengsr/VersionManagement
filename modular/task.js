@@ -1,6 +1,21 @@
 /**
  * Created by wangfeng on 2015/2/5.
  */
+/**
+ * 将文件路径'\'转成'/'
+ * @param str
+ */
+function fileStrChange(str){
+    str = str.trim();
+    while(str.indexOf('\\')!=-1){
+        str = str.replace('\\', '/');
+    }
+    while(str.indexOf('\r')!=-1) {
+        str.replace("\r", '');
+    }
+    str.split('\n');
+    return str;
+}
 var pool = require('../util/connPool.js').getPool();
 var async = require('async');// 加载async 支持顺序执行
 var queues = require('mysql-queues');// 加载mysql-queues 支持事务

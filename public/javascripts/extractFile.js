@@ -11,7 +11,7 @@ function checkSubmit(field) {
                 return flag;
             }
         }
-        if (($(field[1]).val() == '') && ($(field[2]).val() == '')) {//修改清单和新增清单不能同时为空
+        if (($(field[1]).val() == '') && ($(field[2]).val() == '')&& ($(field[3]).val() == '')) {//修改清单和新增清单不能同时为空
             flag = false;
             return flag;
         }
@@ -19,7 +19,7 @@ function checkSubmit(field) {
     return flag;
 }
 
-var fields=[ '#inputTaskDesc','#addTaskList','#modifyTaskList'];
+var fields=[ '#inputTaskDesc','#addTaskList','#modifyTaskList','#delTaskList'];
 var fieldValues ;
 /**
 * 变更单修改前的信息
@@ -28,7 +28,8 @@ function getFieldValues(){
     fieldValues = {
         taskDetails: $("#inputTaskDesc").val(),
         taskNewFiles: $("#addTaskList").val(),
-        taskModFiles: $("#modifyTaskList").val()
+        taskModFiles: $("#modifyTaskList").val(),
+        taskDelFiles: $("#delTaskList").val()
     };
 }
 /**
@@ -151,6 +152,7 @@ function submitForm_modify(){
             //projectId:$("#projectId").val(),
             taskDetails: $("#inputTaskDesc").val(),
             taskNewFiles: $("#addTaskList").val(),
+            taskDelFiles: $("#delTaskList").val(),
             taskModFiles: $("#modifyTaskList").val()
         };
         var modifyFlag = false;

@@ -90,33 +90,42 @@ var openTask = function(stepName, req, res, callback){
                                 res.render(stepName,{task:t, addFileList:addFileList, modifyFileList:modifyFileList, delFileList:delFileList, oldAtta:oldAtta});
                             });
                         }
-                        findAttaByTaskIdAndStepId(req, taskId, "3",function(atta){//找出变更单发起者上传的附件
-                            if(undefined==atta){
-                                atta = new TaskAtta({
-                                    "attachmentId":'',
-                                    "taskId":'',
-                                    "processStepId":'',
-                                    "fileName":'未找到附件',
-                                    "fileUri":'#'
-                                });
-                            }
-                            if(stepName=='submit' || stepName=='check'){
-                                findAttaByTaskIdAndStepId(req, taskId, '5',function(reportAtta) {//找到走查环节上传的走查报告
-                                    if (undefined == reportAtta) {
-                                        reportAtta = new TaskAtta({
-                                            "attachmentId": '',
-                                            "taskId": '',
-                                            "processStepId": '',
-                                            "fileName": '未找到附件',
-                                            "fileUri": '#'
+                        else {
+                            findAttaByTaskIdAndStepId(req, taskId, "3", function (atta) {//找出变更单发起者上传的附件
+                                if (undefined == atta) {
+                                    atta = new TaskAtta({
+                                        "attachmentId": '',
+                                        "taskId": '',
+                                        "processStepId": '',
+                                        "fileName": '未找到附件',
+                                        "fileUri": '#'
+                                    });
+                                }
+                                if (stepName == 'submit' || stepName == 'check') {
+                                    findAttaByTaskIdAndStepId(req, taskId, '5', function (reportAtta) {//找到走查环节上传的走查报告
+                                        if (undefined == reportAtta) {
+                                            reportAtta = new TaskAtta({
+                                                "attachmentId": '',
+                                                "taskId": '',
+                                                "processStepId": '',
+                                                "fileName": '未找到附件',
+                                                "fileUri": '#'
+                                            });
+                                        }
+                                        res.render(stepName, {task: t, addFileList: addFileList, modifyFileList: modifyFileList, delFileList: delFileList, attaFile: atta, reportAtta: reportAtta
                                         });
-                                    }
-                                    res.render(stepName,{task:t, addFileList:addFileList, modifyFileList:modifyFileList, delFileList:delFileList, attaFile:atta, reportAtta:reportAtta});
-                                });
-                            }else{
-                                res.render(stepName,{task:t, addFileList:addFileList, modifyFileList:modifyFileList, delFileList:delFileList, attaFile:atta});
-                            }
-                        });
+                                    });
+                                } else {
+                                    res.render(stepName, {
+                                        task: t,
+                                        addFileList: addFileList,
+                                        modifyFileList: modifyFileList,
+                                        delFileList: delFileList,
+                                        attaFile: atta
+                                    });
+                                }
+                            });
+                        }
                     });
                 });
             }else{//如果没有查到，就打开“变更单的查询只读”窗口(当前用户没有权限修改这条变更单)

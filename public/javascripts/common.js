@@ -55,6 +55,7 @@ function isFile(files) {
     var fileArray;
     var flag = true ;
     if (typeof(files) != 'undefined') {
+        files.replace('\\','/');
         //var fileUris = [];
         if (files != '') {
             while (files.indexOf('\r') != -1) {
@@ -73,6 +74,7 @@ function isFile(files) {
     }
     return flag;
 }
+
 jQuery(document).ready(function() {
     hideTip();
     resetAttaDownloadUri('a_attaFile');

@@ -1,6 +1,4 @@
-/**
- * Created by wangfeng on 2015/2/23.
- */
+
 var express = require('express');
 var router = express.Router();
 var Task = require('../modular/task');
@@ -195,6 +193,10 @@ router.post('/addTask', function (req, res) {
     var taskNewFiles = req.body.taskNewFiles;
     var taskModFiles = req.body.taskModFiles;
     var taskDelFiles = req.body.taskDelFiles;
+    //taskDelFiles = fileStrChange(taskDelFiles);
+    //taskModFiles = fileStrChange(taskModFiles);
+    //taskNewFiles = fileStrChange(taskNewFiles);
+
     var dao = require('../modular/taskDao');
 
     var projectUri ;
@@ -567,7 +569,8 @@ router.post('/extractFile', function(req, res) {
                                     console.log("ExtractFile success" + data);
 
                                     //更新数据库
-                                    var zipName = fileRename(userId +taskId+"extra");
+                                    //var zipName = fileRename(userId +taskId+"extra");
+                                    var zipName = "old.zip";
                                     var zipUri = localDir + zipName;
                                     var zipFilesFlag =false ;
                                     zipFilesFlag = fileZip.zipFiles(localDir,fileList,zipUri);
@@ -578,7 +581,7 @@ router.post('/extractFile', function(req, res) {
                                         res.send(queryObj.callback + '(\'' + jsonStr + '\')');
                                     }
                                     else {//压缩文件成功
-                                        console.log("zipFile success!");
+                                        //console.log("zipFile success!");
                                         dao.extractFile(taskId,userId, 2, zipName, zipUriSaved, function (msg, result) {
                                             if ('success' == msg) {
                                                 var attaFlag = true;
@@ -617,8 +620,12 @@ router.post('/modifyTask', function(req, res) {
     var taskDetails =  req.body['taskDetails'];
     var taskNewFiles = req.body['taskNewFiles'];
     var taskModFiles= req.body['taskModFiles'];
+    var taskDelFiles= req.body['taskDelFiles'];
+    //taskDelFiles = fileStrChange(taskDelFiles);
+    //taskModFiles = fileStrChange(taskModFiles);
+    //taskNewFiles = fileStrChange(taskNewFiles);
     var jsonStr;
-    dao.modifyTask({taskId:taskId, details:taskDetails, newFiles: taskNewFiles, modFiles: taskModFiles}, function(msg,result){
+    dao.modifyTask({taskId:taskId, details:taskDetails, newFiles: taskNewFiles, modFiles: taskModFiles,delFiles:taskDelFiles}, function(msg,result){
         if('success' == msg){
             jsonStr = '{"sucFlag":"success","message":"【修改变更单成功】执行成功"}';
         }else{
