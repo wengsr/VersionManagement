@@ -104,7 +104,6 @@ var fileList = [
 ];
 var zipName = "E:/VersionManagement0308/bin/old/a.zip";
 var fs = require('fs');
-//var flag = fs.exists("E:/VersionManagement0308/bin/old/a.zip");
-// var flag =exports.zipFiles(localDir, fileList, zipName);
-//console.log(flag);
+//exports.zipFiles(localDir, fileList, zipName);
+
 //exports.extractZip(zipName, 'c:/test/变更单1/new/');

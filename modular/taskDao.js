@@ -33,6 +33,19 @@ exports.searchAllProject = function(userId, callback){
     });
 };
 
+exports.searchModFiles= function(params, callback){
+    pool.getConnection(function (err, connection){
+        var sql = "select fileUri from fileList where taskId =? and state = ?";
+        var param = [params.taskId, params.state];
+        connection.query(sql, param,function (err, result){
+            if (err) {
+                console.log("searchModFiles ERR;", err.message);
+            }
+            connection.release();
+            callback("success", result);
+        });
+    });
+};
 exports.addTask = function (taskInfo, callback) {
     pool.getConnection(function (err, connection) {
         queues(connection);
@@ -362,19 +375,10 @@ exports.modifyTask= function(taskInfo,callback){
                     }
                 }
             }
-            //var updateTask_params = [taskInfo.taskId, taskInfo.details];
-            //trans.query(sql.updateTask, updateTask_params, function(err, result){
-            //    if(err){
-            //        console.log("[modifyTask] updateTask ERR:",err.message);
-            //    }
-            //});
         }
         callback("success","修改变更单成功");
         trans.execute();//提交事务
         connection.release();
-        //var updateTask_params = [, taskId];
-        //var updateFileList_params = [taskId];
-        //var sqlMember = ['updateTask','updateFileList'];
-        //var sqlMember_params = [selectDealer_params, updateTask_params];
+
     });
 };

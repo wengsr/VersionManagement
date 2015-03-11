@@ -73,26 +73,26 @@ Svn.prototype.commit = function (localDir, callback) {
 };
 module.exports = Svn;
 /********测试案例*********/
-//var test = new Svn({username: 'wengsr', password: 'wengsr62952'});
-//var localDir = "c:/test/变更单1/repo/";
-//var versionDir = 'http://192.168.1.22:8000/svn/hxbss/NCRM/baseLine/Source/trunk';
-//var fileList = [
-//    //'local/YN_TRUNK/SaleWeb/src/main/java/com/al/crm/sale/choosechannel/view/chooseChannel.html'
-//    'local/YN_TRUNK/SaleWeb/src/main/java/com/al/crm/sale/choosechannel/view/chooseChannel.html'
-//];
 var test = new Svn({username: 'wengsr', password: 'wengsr62952'});
-var localDir = "c:/test/变更单2/repo/";
+var localDir = "c:/test/变更单1/repo/";
 var versionDir = 'http://192.168.1.22:8000/svn/hxbss/NCRM/baseLine/Source/trunk';
 var fileList = [
+    //'local/YN_TRUNK/SaleWeb/src/main/java/com/al/crm/sale/choosechannel/view/chooseChannel.html'
     'local/YN_TRUNK/SaleWeb/src/main/java/com/al/crm/sale/choosechannel/view/chooseChannel.html'
 ];
-test.checkout(localDir, versionDir, fileList, function (err, data) {
-    if (!!err) {
-        console.log("取文件失败" + err);
-    } else {
-        console.log("取文件成功" + data);
-    }
-});
+//var test = new Svn({username: 'wengsr', password: 'wengsr62952'});
+//var localDir = "c:/test/变更单/repo/a/";
+//var versionDir = 'http://192.168.1.22:8000/svn/hxbss/NCRM/baseLine/Source/trunk';
+//var fileList = [
+//    'local/YN_TRUNK/SaleWeb/src/main/java/com/al/crm/sale/choosechannel/view/chooseChannel.html'
+//];
+//test.checkout(localDir, versionDir, fileList, function (err, data) {
+//    if (!!err) {
+//        console.log("取文件失败" + err);
+//    } else {
+//        console.log("取文件成功" + data);
+//    }
+//});
 
 
 //test.commit("c:/test/变更单1/repo/", function (err, data) {

@@ -520,7 +520,7 @@ router.post('/extractFile', function(req, res) {
                             //Task
                             var testTask = new Svn({username: 'cmsys', password: '717705'});
                             var  proceess = require('child_process');
-                            var localDir = process.cwd() + '/'+taskCode+'/';
+                            var localDir = process.cwd() + '/old/'+taskCode+'/';
                             while(localDir.indexOf('\\')!=-1) {
                                 localDir = localDir.replace('\\', '/');
                             }
@@ -529,12 +529,9 @@ router.post('/extractFile', function(req, res) {
                                 fs.mkdir(localDir);
                             }
                             //var localDir = "c:/test/变更单1/old/";
-                            var versionDir = 'http://192.168.1.22:8000/svn/hxbss/testVersion/';
+                            //var versionDir = 'http://192.168.1.22:8000/svn/hxbss/testVersion/';
                             var versionDir = projectUri;
-
                             var fileList = modFiles;
-
-
                             /*提取文件*/
                            var checkFlag = testTask.checkout(localDir, versionDir, fileList, function (err, data) {
                                 if (err) {//checkout 失败
@@ -550,7 +547,7 @@ router.post('/extractFile', function(req, res) {
                                     var zipUri = localDir + zipName;
                                     var zipFilesFlag =false ;
                                     zipFilesFlag = fileZip.zipFiles(localDir,fileList,zipUri);
-                                    var zipUriSaved = "./old/" +zipName;
+                                    var zipUriSaved = "./old/"+taskCode+"/" +zipName;
                                     var queryObj = url.parse(req.url, true).query;
                                     if(!zipFilesFlag){
                                         //fileUpReturnInfo(res, "false", "【提取文件】执行失败,请检查文件路径是否正确！！！", '', '');

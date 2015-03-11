@@ -1,4 +1,4 @@
-var fields =[ '#taskName', '#inputTaskDesc','#addTaskList','#modifyTaskList'];
+
 /**
  *提交是变更单的描述信息，或新增文件和修改文件不能同时为空
  */
@@ -20,6 +20,7 @@ function checkSubmit(field) {
 }
 
 var fields=[ '#inputTaskDesc','#addTaskList','#modifyTaskList'];
+var fieldValues ;
 /**
 * 变更单修改前的信息
 */
@@ -122,7 +123,7 @@ function submitForm_extract(){
     var extractFile_params={
         taskProject: $('#taskProject').val(),
         modFilesList: modFiles,
-        taskCode:$('#taskCode').val(),
+        taskCode:$('#taskCode').text(),
         taskId: $('#taskId').val()
     };
     var extractFile_url='task/extractFile';
@@ -219,6 +220,9 @@ function bindClick_btnUploadFile(){
         $("#btnModCancel").hide();
         $("#btnExtractFile").show();
         $("#btnModify").show();
+        $("#inputTaskDesc").val(fieldValues.taskDetails);
+        $("#addTaskList").val(fieldValues.taskNewFiles);
+        $("#modifyTaskList").val(fieldValues.taskModFiles);
         $('#modifyTaskList').attr('disabled', true);
         $('#addTaskList').attr('disabled', true);
         $('#inputTaskDesc').attr('disabled', true);
