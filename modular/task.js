@@ -144,22 +144,48 @@ Task.findTaskByUserIdCount = function(userId,callback){
  * 对tasks表中creater是当前用户的处理：
  *   1.查询当前“用户”对该 “变更单”  有哪些 “环节权限”
  *   2.该变更单当前所在环节是否在这些“环节权限”中
+ *   3.该变更单当前最大的turnNum中的5环节(prcesssStepId)的处理人是否为当前userId
  * @param userId
  * @param callback
  */
-Task.findTaskForCreater = function(userId,taskId,callback){
+Task.findTaskForCreater = function(userId,taskId,taskStepName,callback){
+    var stepId;
+    if('check'==taskStepName){
+        stepId = 5;
+    }else if('submit'==taskStepName){
+        stepId = 6;
+    }
     pool.getConnection(function(err, connection){
         if(err){
             console.log('[CONN TASKS ERROR] - ', err.message);
             return callback(err);
         }
+//        var sql = 'SELECT t1.* FROM tasks t1' +
+//            '        WHERE t1.processStepId IN' +
+//            '        (SELECT psd.processStepId FROM processstepdealer psd' +
+//            '        JOIN tasks t ON t.projectId = psd.projectId' +
+//            '        AND psd.userId = ?' +
+//            '        AND t.taskid = ? AND psd.processStepId not in (5,6) ) AND t1.taskid = ?';
         var sql = 'SELECT t1.* FROM tasks t1' +
-            '        WHERE t1.processStepId IN' +
-            '        (SELECT psd.processStepId FROM processstepdealer psd' +
+            '       WHERE t1.processStepId IN' +
+            '        (' +
+            '            SELECT DISTINCT psd.processStepId FROM processstepdealer psd' +
             '        JOIN tasks t ON t.projectId = psd.projectId' +
             '        AND psd.userId = ?' +
-            '        AND t.taskid = ? AND psd.processStepId not in (5,6) ) AND t1.taskid = ?';
-        var params = [userId,taskId,taskId];
+            '        AND t.taskid = ?' +
+            '        AND psd.processStepId not in (5,6)' +
+            '        union' +
+            '        select DISTINCT tps.processStepId from taskprocessstep tps' +
+            '        JOIN processstepdealer psd1 ON psd1.processStepId = tps.processStepId' +
+            '        JOIN tasks t1 ON t1.projectId = psd1.projectId' +
+            '        AND psd1.userId = ?' +
+            '        AND t1.taskid=?' +
+            '        AND tps.taskid=?' +
+            '        AND tps.processStepId=?' +         //这里要区分5和6
+            '        AND tps.dealer=?' +
+            '        AND turnNum IN (SELECT MAX(turnNum) FROM taskprocessstep where taskId=?)' +
+            '        ) AND t1.taskid = ?';
+        var params = [userId,taskId, userId,taskId,taskId,stepId,userId,taskId,taskId];
         connection.query(sql, params, function (err, result) {
             if (err) {
                 console.log('[QUERY TASKS ERROR] - ', err.message);

@@ -64,7 +64,7 @@ var openTask = function(stepName, req, res, callback){
     var createName = req.params.createName;  //这条变更单的发起者
     if(userId==taskCreater){
         //对当前登录用户是这条变更单的creater的处理
-        Task.findTaskForCreater(userId,taskId,function(msg,task){
+        Task.findTaskForCreater(userId,taskId,stepName,function(msg,task){
             if(msg!='success'){
                 var errMsg = "查找变更单创建者信息时发生错误,请记录并联系管理员";
                 return res.render('errAlert',{message:errMsg});
