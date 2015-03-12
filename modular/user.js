@@ -16,6 +16,7 @@ function User(user){
     this.userStepIds = user.userStepIds;//有哪几个环节的权限，以逗号分隔
 
     this.isLeader = user.isLeader;//当前用户对哪些项目有“组长”权限
+    this.isAdmin = user.isAdmin;//当前用户对哪些项目有“版本管理员”权限
 }
 
 
@@ -267,6 +268,32 @@ User.findProIdForLeader = function(userId, callback){
         }
         var sql = 'select projectId from processstepdealer' +
             '        where processStepId = 4 and userId=?';
+        var params = [userId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY USER ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',result);
+        });
+    });
+}
+
+
+
+/**
+ * 找出当前用户对哪些项目有“版本管理员”权限
+ * @param callback
+ */
+User.findProIdForAdmin = function(userId, callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN USER ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'select projectId from processstepdealer' +
+            '        where processStepId = 6 and userId=?';
         var params = [userId];
         connection.query(sql, params, function (err, result) {
             if (err) {

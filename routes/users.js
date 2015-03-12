@@ -67,6 +67,24 @@ var findProIdForLeader = function(userId, req, callback){
     });
 }
 
+
+
+/**
+ * 找出当前用户对哪些项目有“版本管理员权限”
+ * @param userId
+ * @param req
+ * @param callback
+ */
+var findProIdForAdmin = function(userId, req, callback){
+    User.findProIdForAdmin(userId,function(msg,results){
+        if('success'!=msg){
+            req.session.error = "查找当前用户有哪些项目的“版本管理员权限”时发生错误,请记录并联系管理员";
+            return null;
+        }
+        callback(results);
+    });
+}
+
 /**
  * 保存信息到cookie和session中
  */
@@ -94,26 +112,29 @@ var findInfoForLogin = function(user,req,res){
         user.projectId = projectIds;
 
         findProIdForLeader(user.userId,req,function(leaderProIds){//当前用户对哪些项目有“组长权限”
-            if(leaderProIds.length>0){user.isLeader = true;}else{user.isLeader = false;}//是否有领导权限，用于显示“领导模式”按钮
-            saveCookieAndSession(req,res,user);//记录到session，登录
-            findMenu(user.userId,req,function(menus){//查找菜单
-                if(menus.length>0){
-                    req.session.menus = menus;
-                    findTask(user.userId,req,function(tasks){//查找当前用户能操作的变更单
-                        if(tasks.length>0){
-                            req.session.tasks = tasks;
-                            req.session.taskCount = tasks.length;
-                            res.redirect("/");
-                        }else{
-                            req.session.tasks = null;
-                            req.session.taskCount = null;
-                            return res.redirect("/");
-                        }
-                    });
-                }else{
-                    req.session.menus = null;
-                    res.redirect("/");
-                }
+            findProIdForAdmin(user.userId,req,function(adminProIds){//当前用户对哪些项目有“版本管理员权限”
+                if(leaderProIds.length>0){user.isLeader = true;}else{user.isLeader = false;}//是否有领导权限，用于显示“领导模式”按钮
+                if(adminProIds.length>0){user.isAdmin = true;}else{user.isAdmin = false;}//是否有版本管理员权限，用于显示“查询所有变更单”按钮
+                saveCookieAndSession(req,res,user);//记录到session，登录
+                findMenu(user.userId,req,function(menus){//查找菜单
+                    if(menus.length>0){
+                        req.session.menus = menus;
+                        findTask(user.userId,req,function(tasks){//查找当前用户能操作的变更单
+                            if(tasks.length>0){
+                                req.session.tasks = tasks;
+                                req.session.taskCount = tasks.length;
+                                res.redirect("/");
+                            }else{
+                                req.session.tasks = null;
+                                req.session.taskCount = null;
+                                return res.redirect("/");
+                            }
+                        });
+                    }else{
+                        req.session.menus = null;
+                        res.redirect("/");
+                    }
+                });
             });
         });
     });
