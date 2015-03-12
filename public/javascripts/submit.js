@@ -28,6 +28,8 @@ function ajaxSubmit(params, url, subType, fun){
                 if('accept'==fun){
                     $('#btnSubmitAccept').hide();
                     $('#btnSubmitComplete').show();
+                }else if('complete'==fun){
+                    $('#btnSubmitComplete').hide();
                 }
             }
         },
