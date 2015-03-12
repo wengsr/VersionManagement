@@ -83,7 +83,7 @@ Task.findTaskByUserId = function(userId,callback){
             '        AND oTps.processStepId = taskTable.processStepId' +
             '        LEFT JOIN user oU ON oTps.dealer = oU.userId' +
             '        ) taskTable2' +
-            '        LEFT JOIN user oU2 ON taskTable2.creater = oU2.userId ';
+            '        LEFT JOIN user oU2 ON taskTable2.creater = oU2.userId ORDER BY taskTable2.taskcode';
         var params = [userId,userId,userId,userId];
         connection.query(sql, params, function (err, result) {
             if (err) {
@@ -140,7 +140,7 @@ Task.findTaskByUserIdCount = function(userId,callback){
             '        AND oTps.processStepId = taskTable.processStepId' +
             '        LEFT JOIN user oU ON oTps.dealer = oU.userId' +
             '        ) taskTable2' +
-            '        LEFT JOIN user oU2 ON taskTable2.creater = oU2.userId ' +
+            '        LEFT JOIN user oU2 ON taskTable2.creater = oU2.userId ORDER BY taskTable2.taskcode' +
             ') countTable';
         var params = [userId,userId,userId,userId];
         connection.query(sql, params, function (err, result) {
@@ -199,7 +199,7 @@ Task.findTaskForCreater = function(userId,taskId,taskStepName,callback){
             '        AND tps.processStepId=?' +         //这里要区分5和6
             '        AND tps.dealer=? or tps.dealer is null' +
             '        AND turnNum IN (SELECT MAX(turnNum) FROM taskprocessstep where taskId=?)' +
-            '        ) AND t1.taskid = ?';
+            '        ) AND t1.taskid = ?  ORDER BY t1.taskcode';
         var params = [userId,taskId, userId,taskId,taskId,stepId,userId,taskId,taskId];
         connection.query(sql, params, function (err, result) {
             if (err) {
@@ -661,7 +661,7 @@ Task.findTaskByParam = function(userId,projectId,state,processStepId,taskcode,ta
             "        WHERE " +
             "        selectTable.taskcode LIKE ?" +
             "        AND selectTable.taskname LIKE ?" +
-            "        AND selectTable.createrName LIKE ?";
+            "        AND selectTable.createrName LIKE ? ORDER BY selectTable.taskcode";
         var params = [userId,userId,userId,userId,taskcode,taskname,createrName];
 
         if(projectId!=''){

@@ -19,7 +19,8 @@ function hideTip(){
 function showModelDialog(btnName, url, formName){
     var findBtn = '#' + btnName;
     var findFormName = '#' + formName;
-    $(findBtn).click(function(){
+    //$(findBtn).click(function(){
+    $('[id='+ btnName +']').click(function(){
         $('#divModel').load(url,function(){
             hideTip();
             $('#btnSubmit').click(function () {

@@ -79,6 +79,7 @@ jQuery(document).ready(function() {
     hideTip();
     resetAttaDownloadUri('a_attaFile');
     resetAttaDownloadUri('a_reportAtta');
+    resetAttaDownloadUri('a_oldFile');
 });
 
 

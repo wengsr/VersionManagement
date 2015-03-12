@@ -21,7 +21,7 @@
                     <% if(task.taskType==2){ recCount++;%>
                         <tr id="myToBeDealTask">
                             <td><%=recCount%></td>
-                            <td><a><%=task.taskcode%></a></td>
+                            <td><a id="task_<%=task.taskid%>" createName="<%=task.createrName%>" dealerName="<%=task.dealerName%>" step="taskProcessStepId_<%=task.processStepId%>" taskid="<%=task.taskid%>" taskcreater="<%=task.creater%>"><%=task.taskcode%></a></td>
                             <td><a id="task_<%=task.taskid%>" createName="<%=task.createrName%>" dealerName="<%=task.dealerName%>" step="taskProcessStepId_<%=task.processStepId%>" taskid="<%=task.taskid%>" taskcreater="<%=task.creater%>"><%=task.taskname%></a></td>
                             <td><%=task.createrName%></td>
                             <td><%=task.state%></td>

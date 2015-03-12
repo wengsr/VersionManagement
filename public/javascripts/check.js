@@ -26,6 +26,8 @@ function ajaxSubmit(params, url, subType){
             }else if('success'==flag){
                 showTipInfo('success',dataJson.message);
                 $('#btnToSubmit').hide();
+                $('#btnPassCheck, #btnPassCheck2').hide();
+                $('#btnUnPassCheck, #btnUnPassCheck2').hide();
             }
         },
         error: function(jqXHR, textStatus, errorThrown){
