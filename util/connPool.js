@@ -6,10 +6,11 @@ var DB_NAME = 'versionmanage';
 
 var pool = mysql.createPool({
     host: 'localhost',
-    user: 'root',
+    user: '' +
+    'root',
     password: 'root',
     charset: 'UTF8_GENERAL_CI',
-    connectionLimit: 200,
+    connectionLimit: 500,
     database: DB_NAME
 });
 
