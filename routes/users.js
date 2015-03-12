@@ -368,6 +368,12 @@ router.post('/modifyPwd', function(req, res) {
  * 修改用户资料
  */
 router.post('/modifyUserInfo', function(req, res) {
+    var cookieUser = req.cookies.user;
+    if(cookieUser){
+        req.session.user = cookieUser;
+    }else{
+        return res.redirect("/");
+    }
     //校验两次输入的密码是否一致
     var realName = req.body["realName"];
     var email = req.body['email'];

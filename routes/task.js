@@ -167,6 +167,12 @@ var findProsByUserIdForApplyTaskBtn = function(userId,req,callback){
 router.get('/addTaskPage', function(req, res) {
   // res.send('respond with a resource');
 //    res.render('taskInfo', { title: 'Express' });
+    var cookieUser = req.cookies.user;
+    if(cookieUser){
+        req.session.user = cookieUser;
+    }else{
+        return res.redirect("/");
+    }
     var allProject ;
         dao.searchAllProject(req.session.user.userId,function(msg,result){
            if(msg == "success"){
@@ -182,7 +188,12 @@ router.get('/addTaskPage', function(req, res) {
 
 
 router.post('/addTask', function (req, res) {
-
+    var cookieUser = req.cookies.user;
+    if(cookieUser){
+        req.session.user = cookieUser;
+    }else{
+        return res.redirect("/");
+    }
     var message ="";//返回的结果提示信息；
     var taskName = req.body.taskName;
     //var tasker = req.body.inputTasker;
@@ -220,6 +231,12 @@ router.post('/addTask', function (req, res) {
 });
 
 router.post('/acceptMission', function(req, res) {
+    var cookieUser = req.cookies.user;
+    if(cookieUser){
+        req.session.user = cookieUser;
+    }else{
+        return res.redirect("/");
+    }
     var taskId = req.body['taskId'];
     var processStepId = req.body['processStepId'];
     var userId = req.session.user.userId;
@@ -292,6 +309,12 @@ router.post('/checkUnPass', function(req, res) {
  * “上库步骤_接受任务”业务实现
  */
 router.post('/submitAccept', function(req, res) {
+    var cookieUser = req.cookies.user;
+    if(cookieUser){
+        req.session.user = cookieUser;
+    }else{
+        return res.redirect("/");
+    }
     var taskId = req.body['taskId'];
     var processStepId = '6';
     var userId = req.session.user.userId;
@@ -393,6 +416,12 @@ router.post('/submitComplete', function(req, res) {
  * 查找变更单页面展示
  */
 router.get('/findTaskPage', function(req, res) {
+    var cookieUser = req.cookies.user;
+    if(cookieUser){
+        req.session.user = cookieUser;
+    }else{
+        return res.redirect("/");
+    }
     var userId = req.session.user.userId;
     User.findUserProject(userId,function(msg,projects){
         if('success'!=msg){
@@ -409,6 +438,12 @@ router.get('/findTaskPage', function(req, res) {
  * 查找所有变更单页面展示
  */
 router.get('/findAllTaskPage', function(req, res) {
+    var cookieUser = req.cookies.user;
+    if(cookieUser){
+        req.session.user = cookieUser;
+    }else{
+        return res.redirect("/");
+    }
     var userId = req.session.user.userId;
     User.findUserProject(userId,function(msg,projects){
         if('success'!=msg){
@@ -432,6 +467,12 @@ router.post('/findTask', function (req, res) {
 //    var taskDetails = req.body.taskDetails;
 //    var taskNewFiles = req.body.taskNewFiles;;
 //    var taskModFiles = req.body.taskModFiles;
+    var cookieUser = req.cookies.user;
+    if(cookieUser){
+        req.session.user = cookieUser;
+    }else{
+        return res.redirect("/");
+    }
 
     var userId = req.session.user.userId;
     var projectId = req.body.projectName;
@@ -483,6 +524,12 @@ router.post('/findTask', function (req, res) {
  * 查找所有变更单业务逻辑
  */
 router.post('/findAllTask', function (req, res) {
+    var cookieUser = req.cookies.user;
+    if(cookieUser){
+        req.session.user = cookieUser;
+    }else{
+        return res.redirect("/");
+    }
     var userId = req.session.user.userId;
     var projectId = req.body.projectName;
     var state = req.body.taskState;
@@ -548,6 +595,12 @@ router.post('/submitFile', function(req, res) {
  *t提取旧文件
  */
 router.post('/extractFile', function(req, res) {
+    var cookieUser = req.cookies.user;
+    if(cookieUser){
+        req.session.user = cookieUser;
+    }else{
+        return res.redirect("/");
+    }
     var taskId = req.body['taskId'];
     var taskProject = req.body['taskProject'];
     var taskCode = req.body['taskCode'];

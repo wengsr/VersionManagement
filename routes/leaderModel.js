@@ -47,6 +47,12 @@ var findFileListCount = function(firstProjectId, req, res, callback){
  * @param callback
  */
 var findProjectByUserId = function(currProjectId, req, res, callback){
+    var cookieUser = req.cookies.user;
+    if(cookieUser){
+        req.session.user = cookieUser;
+    }else{
+        return res.redirect("/");
+    }
     var userId = req.session.user.userId;
     Project.findProjectByUserId(currProjectId, userId, function(msg,results){
         if(msg!='success'){
@@ -310,6 +316,12 @@ var showLeaderPage_userCtrl = function(currProjectId, req, res, whichPage){
  * 跳转至领导模式页面
  */
 router.get('/leader', function(req, res) {
+    var cookieUser = req.cookies.user;
+    if(cookieUser){
+        req.session.user = cookieUser;
+    }else{
+        return res.redirect("/");
+    }
     if(!req.session.user){
         return res.redirect("/");
     }
@@ -321,6 +333,12 @@ router.get('/leader', function(req, res) {
  * 根据哪个项目统计当前页面的信息
  */
 router.get('/selectProject/:projectId', function(req, res) {
+    var cookieUser = req.cookies.user;
+    if(cookieUser){
+        req.session.user = cookieUser;
+    }else{
+        return res.redirect("/");
+    }
     if(!req.session.user){
         return res.redirect("/");
     }
@@ -333,6 +351,12 @@ router.get('/selectProject/:projectId', function(req, res) {
  * 指定项目每个步骤的参与人员页面
  */
 router.get('/userCtrl/:projectId', function(req, res) {
+    var cookieUser = req.cookies.user;
+    if(cookieUser){
+        req.session.user = cookieUser;
+    }else{
+        return res.redirect("/");
+    }
     if(!req.session.user){
         return res.redirect("/");
     }
