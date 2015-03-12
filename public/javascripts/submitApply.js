@@ -57,10 +57,11 @@ function ajaxSubmit(params, url, subType){
             if('err'==flag){
                 showTipInfo('err',dataJson.message);
             }else if('success'==flag){
+                $('#divModelDialog').modal('hide');
                 showTipInfo('success',dataJson.message);
-                $('#btnSubmitSuccess').show();
-                $('#submitApply').hide();
-                disableInput();
+                location.reload();
+                //$('#submitApply').hide();
+                //disableInput();
             }
         },
         error: function(jqXHR, textStatus, errorThrown){
@@ -72,7 +73,6 @@ function ajaxSubmit(params, url, subType){
 jQuery(document).ready(function() {
     //隐藏文件路径信息提示条
     $('#diaInfoTip').hide();
-    $('#btnSubmitSuccess').hide();
     $('#submitApply').click(function () {
         var check = checkSubmit(fields);
         var newFiles = $("#inputTaskNewList").val();

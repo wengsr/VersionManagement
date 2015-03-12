@@ -89,7 +89,7 @@ function ajaxSubmit(params, url, subType){
                         if(dataJson.attaFlag){
                             $('#a_reportAtta').attr('href',dataJson.attaUri);//设置附件a标签的链接
                             $('#a_reportAtta').html(dataJson.attaName);//设置附件a标签的内容
-                            $("#downloadInfo").text("点击下载");
+                            //$("#downloadInfo").text("点击下载");
                             resetAttaDownloadUri('a_reportAtta');//处理文件下载uri上的特殊字符
                             showTipInfo('success', dataJson.message);
 
@@ -213,7 +213,7 @@ function bindClick_btnUploadFile(){
         $('#btnConfirm').hide();
         $("#btnModify").hide();
         //$("#btnModifyTask").hide();
-        $('#btnModifySuccess').hide();
+
         submitForm_extract();
 
     });
@@ -264,11 +264,11 @@ function bindClick_btnUploadFile(){
 jQuery(document).ready(function() {
     //隐藏文件上传时用于替代走查通过or不通过的按钮
 
-    $('#btnExtractSuccess').hide();
+
     $('#btnModCancel').hide();
     $('#btnConfirm').hide();
     //$("#btnModifyTask").hide();
-    $('#btnModifySuccess').hide();
+
     //隐藏文件路径信息提示条
     $('#diaInfoTip').hide();
 
@@ -277,8 +277,6 @@ jQuery(document).ready(function() {
     $('#btnCloseModel').click(function(){
         location.reload();
     });
-    $('#btnExtractSuccess').click(function(){
-        location.reload();
-    });
+
 });
 

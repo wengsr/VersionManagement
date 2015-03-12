@@ -9,6 +9,7 @@ var pool = mysql.createPool({
     user: 'root',
     password: 'root',
     charset: 'UTF8_GENERAL_CI',
+    connectionLimit: 200,
     database: DB_NAME
 });
 

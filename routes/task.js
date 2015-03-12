@@ -203,16 +203,21 @@ router.post('/addTask', function (req, res) {
     var flag = false;
 
     dao.addTask({name: taskName, tasker: tasker ,state: taskState,projectId:taskProject,desc:taskDetails,newFiles:taskNewFiles, modFiles:taskModFiles,delFiles:taskDelFiles}, function (msg,result) {
-                if('success' == msg){
-                    var queryObj = url.parse(req.url,true).query;
-                    console.log("申请成功");
-                    var jsonStr = '{"sucFlag":"success","message":"【提交申请】申请成功！"}';
-                 res.send(queryObj.callback+'(\'' + jsonStr + '\')');
-
-                }
-            });
-
+        if('success' == msg){
+            var queryObj = url.parse(req.url,true).query;
+            console.log("申请成功");
+            var jsonStr = '{"sucFlag":"success","message":"【提交申请】申请成功！"}';
+            res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+        }
+        else{
+            var queryObj = url.parse(req.url,true).query;
+            console.log("申请失败");
+            var jsonStr = '{"sucFlag":"err","message":"【提交申请】申请失败！"}';
+            res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+        }
     });
+
+});
 
 router.post('/acceptMission', function(req, res) {
     var taskId = req.body['taskId'];
@@ -510,12 +515,12 @@ router.post('/extractFile', function(req, res) {
 
             }
             else {
+                console.log("testFiledUsed!");
                 testFileUsed(modFiles, taskProject,taskId, function (msg, users) {//判断需要提取的文件是否被占用
                     var flag = false;
                     if(msg == "err"){
                         jsonStr = '{"sucFlag":"err","message":"【testFileUsed Failed】，联系管理员"}';
                         res.send(queryObj.callback + '(\'' + jsonStr + '\')');
-                        return ;
                     }
                     if (msg == "success") {
                         for (var name in users) {
@@ -529,7 +534,6 @@ router.post('/extractFile', function(req, res) {
                                 userFlag = true;
                                 userStr += users[i].fileUri + ': user = (' + users[i].userId + ' ,'+  users[i].realName+');';
                             }
-
                             jsonStr = '{"sucFlag":"success","message":"有文件被占用，无法申请","user":"' + userStr + '" ,"userFlag":"' + userFlag + '"}';
                             res.send(queryObj.callback + '(\'' + jsonStr + '\')');
                         }
