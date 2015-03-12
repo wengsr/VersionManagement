@@ -158,14 +158,13 @@ function fileUpReturn(){
             //1.隐藏“上传新旧文件”按钮
             $('#btnSubmitFile').hide();
             //2.显示“上传文件成功文件”按钮
-            $('#btnSubmitSuccess').show();
+
             $('#btnSelectReport').hide();
             $('#btnExtractFile').hide();
-            $('#btnExtractSuccess').show();
             //3.把已上传文件的名称和下载链接显示在页面上
             $('#a_reportAtta').attr('href',attaUri);//设置附件a标签的链接
             $('#a_reportAtta').html(attaName);//设置附件a标签的内容
-            resetAttaDownloadUri('a_atta');//处理文件下载uri上的特殊字符
+            resetAttaDownloadUri('a_reportAtta');//处理文件下载uri上的特殊字符
             //4.页面给出“文件上传成功与否的提示”
             showTipInfo("success", returnInfo);
         }else if("false"==isUpSuccess){
@@ -177,7 +176,7 @@ function fileUpReturn(){
 
 jQuery(document).ready(function() {
     //隐藏文件上传时用于替代走查通过or不通过的按钮
-    $('#btnSubmitSuccess').hide();
+
     $('#diaInfoTip').hide();
     $('#uploadInfo').hide();
     //文件上传后回传值的处理
@@ -193,12 +192,7 @@ jQuery(document).ready(function() {
     $('#btnCloseModel').click(function(){
         location.reload();
     });
-    $('#btnExtractSuccess').click(function(){
-        location.reload();
-    });
-    $('#btnSubmitSuccess').click(function(){
-        location.reload();
-    });
+
 
 
 });
