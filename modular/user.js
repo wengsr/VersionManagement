@@ -210,6 +210,33 @@ User.getAllName = function(callback){
 
 
 /**
+ * 获取当前项目的所有参与人员
+ * @param callback
+ */
+User.getProUser = function(taskId, callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN USER ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'select u.userName,u.realName from usertoproject utp' +
+            '        JOIN user u ON utp.userId = u.userId' +
+            '        JOIN tasks t ON t.projectId = utp.projectId' +
+            '        AND t.taskId = ?';
+        var params = [taskId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY USER ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',result);
+        });
+    });
+}
+
+
+/**
  * 修改用户的登录密码
  * @param callback
  */

@@ -34,8 +34,21 @@ function ajaxSubmit(params, url, subType, fun){
     //获取带"/"的项目名，如：/Tmall
     var projectName=pathName.substring(0,pathName.substr(1).indexOf('/')+1);
 
-    //url = localhostPath + '/' + url;//'./' + url;
-    url='./'+url;
+    //直接访问http://localhost:3000/时localhostPath会被截取为http:,因此加上这个判断
+    //如果直接用http:/users/getProUser也能访问到后台，但是会变成get请求。(此问题待解)
+    if(pathName=='/'){
+        var hostUrl = curWwwPath.substring(0,curWwwPath.lastIndexOf('/'));//去除最后一个“/”
+        localhostPath = hostUrl;
+    }
+    url = localhostPath + '/' + url;    //'./' + url;
+    //url='./'+url;
+
+//    console.info('curWwwPath:' + curWwwPath);
+//    console.info('pathName:' + pathName);
+//    console.info('pos:' + pos);
+//    console.info('localhostPath:' + localhostPath);
+//    console.info('url:' + url);
+
     $.ajax({
         data: params,
         url: url,
@@ -69,8 +82,15 @@ function ajaxSubmit(params, url, subType, fun){
  * 向后台请求所有的用户名信息
  */
 function getAllUerName(){
-    var params;
-    url = 'users/getAllName';
+    //获取系统中全部用户
+    //var params;
+    //url = 'users/getAllName';
+    //ajaxSubmit(params, url, 'post', 'showUser');
+    //获取当前项目所有参与者
+    var params={
+        taskId: $('#taskId').val()
+    };
+    url='users/getProUser';
     ajaxSubmit(params, url, 'post', 'showUser');
 }
 
