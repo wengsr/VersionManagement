@@ -62,24 +62,24 @@ function submitForm_unPass(){
 
 
 
-function fileUp(url){
-    debugger
-    $('#fileupload').fileupload({
-        url: url,
-        dataType: 'json',
-        done: function (e, data) {
-            debugger
-            $.each(data.result.files, function (index, file) {
-                $('<p/>').text(file.name).appendTo('#files');
-            });
-        },
-        fail:function(e,data){
-            debugger
-            console.log(e);
-            console.log(data);
-        }
-    })
-}
+//function fileUp(url){
+//    debugger
+//    $('#fileupload').fileupload({
+//        url: url,
+//        dataType: 'json',
+//        done: function (e, data) {
+//            debugger
+//            $.each(data.result.files, function (index, file) {
+//                $('<p/>').text(file.name).appendTo('#files');
+//            });
+//        },
+//        fail:function(e,data){
+//            debugger
+//            console.log(e);
+//            console.log(data);
+//        }
+//    })
+//}
 
 /**
  * 文件路径信息提示条
@@ -118,8 +118,8 @@ function bindClick_btnUploadFile(){
         }
 
         var extName = fulAvatarVal.substring(fulAvatarVal.lastIndexOf('.'),fulAvatarVal.length).toLowerCase();
-        if(extName != '.rar'){
-            showTipInfo('err','只支持rar文件');
+        if(extName != '.rar' && extName != '.xls'){
+            showTipInfo('err','只支持rar和xls文件');
             return false;
         }
 

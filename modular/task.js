@@ -576,13 +576,16 @@ Task.submitComplete = function(taskId,callback){
         var sql= {
             selectDealer:"select * from tasks where taskid=? and processStepId=7",
             updateTask: "update tasks set state='上库完成',processStepId=7 where taskid=?",
-            updateFileList: "update filelist set commit=1 where taskId=?"
+            updateFileList: "update filelist set commit=1 where taskId=?",
+            updateTPS:"insert into taskprocessstep (taskid, processStepId, turnNum) " +
+                " values (?,7,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?))"
         }
         var selectDealer_params = [taskId];
         var updateTask_params = [taskId];
         var updateFileList_params = [taskId];
-        var sqlMember = ['selectDealer', 'updateTask', 'updateFileList'];
-        var sqlMember_params = [selectDealer_params, updateTask_params, updateFileList_params];
+        var updateTPS_params = [taskId,taskId];
+        var sqlMember = ['selectDealer', 'updateTask', 'updateFileList', 'updateTPS'];
+        var sqlMember_params = [selectDealer_params, updateTask_params, updateFileList_params, updateTPS_params];
         var i = 0;
         async.eachSeries(sqlMember, function (item, callback_async) {
             trans.query(sql[item], sqlMember_params[i++],function (err_async, result) {
@@ -595,7 +598,7 @@ Task.submitComplete = function(taskId,callback){
                     trans.rollback();
                     return callback('err',err_async);
                 }
-                if(item == 'updateFileList' && !err_async){//最后一条sql语句执行没有错就返回成功
+                if(item == 'updateTPS' && !err_async){//最后一条sql语句执行没有错就返回成功
                     trans.commit();
                     return callback('success');
                 }
@@ -661,24 +664,105 @@ Task.findTaskByParam = function(userId,projectId,state,processStepId,taskcode,ta
             "        WHERE " +
             "        selectTable.taskcode LIKE ?" +
             "        AND selectTable.taskname LIKE ?" +
-            "        AND selectTable.createrName LIKE ? ORDER BY selectTable.taskcode";
+            "        AND selectTable.createrName LIKE ?";
         var params = [userId,userId,userId,userId,taskcode,taskname,createrName];
 
         if(projectId!=''){
-            sql = sql + "AND selectTable.projectId = ?";
+            sql = sql + " AND selectTable.projectId = ? ";
             params.push(projectId);
         }
         if(state!=''){
-            sql = sql + "AND selectTable.state = ?";
+            sql = sql + " AND selectTable.state = ? ";
             params.push(state);
         }
         if(processStepId!=''){
-            sql = sql + "AND selectTable.processStepId = ?";
+            sql = sql + " AND selectTable.processStepId = ? ";
             params.push(processStepId);
         }
+        sql = sql + ' ORDER BY selectTable.taskcode ';
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY TASKS ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',result);
+        });
+    });
+}
 
 
 
+
+
+/**
+ * 模糊查询所有变更单
+ * @param userId
+ * @param callback
+ */
+Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode,taskname,createrName,callback){
+    taskcode = "%" + taskcode + "%";
+    taskname = "%" + taskname + "%";
+    createrName = "%" + createrName + "%";
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN TASKS ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = "SELECT" +
+            "            *" +
+            "            FROM" +
+            "            (" +
+            "                SELECT" +
+            "        taskTable2.*, oU2.realName AS createrName" +
+            "        FROM" +
+            "        (" +
+            "            SELECT" +
+            "        taskTable.*, oU.realName AS dealerName" +
+            "        FROM" +
+            "        (" +
+            "            SELECT DISTINCT" +
+            "        t.*, ps.processStepName AS stepName" +
+            "        FROM" +
+            "        tasks t" +
+            "        JOIN processstepdealer psd ON psd.projectId = t.projectId" +
+            "        JOIN processstep ps ON ps.processStepId = t.processStepId" +
+            "        AND t.projectId IN (" +
+            "            SELECT utp.projectId from usertoproject utp where utp.userId = ?" +
+            "        )" +
+            "        ) taskTable" +
+            "        JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid" +
+            "        AND oTps.turnNum IN (" +
+            "            SELECT" +
+            "        MAX(turnNum)" +
+            "        FROM" +
+            "        taskprocessstep maxtps2" +
+            "        WHERE" +
+            "        maxtps2.taskId = taskTable.taskid" +
+            "        )        AND oTps.processStepId = taskTable.processStepId" +
+            "        LEFT JOIN USER oU ON oTps.dealer = oU.userId" +
+            "        ) taskTable2" +
+            "        LEFT JOIN USER oU2 ON taskTable2.creater = oU2.userId" +
+            "        ) selectTable" +
+            "        WHERE" +
+            "        selectTable.taskcode LIKE ?" +
+            "            AND selectTable.taskname LIKE ?" +
+            "            AND selectTable.createrName LIKE ?";
+        var params = [userId,taskcode,taskname,createrName];
+
+        if(projectId!=''){
+            sql = sql + " AND selectTable.projectId = ? ";
+            params.push(projectId);
+        }
+        if(state!=''){
+            sql = sql + " AND selectTable.state = ? ";
+            params.push(state);
+        }
+        if(processStepId!=''){
+            sql = sql + " AND selectTable.processStepId = ? ";
+            params.push(processStepId);
+        }
+        sql = sql + ' ORDER BY selectTable.taskcode ';
         connection.query(sql, params, function (err, result) {
             if (err) {
                 console.log('[QUERY TASKS ERROR] - ', err.message);

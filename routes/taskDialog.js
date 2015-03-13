@@ -57,6 +57,12 @@ var findAttaByTaskIdAndStepId = function(req, taskId, processStepId, callback){
  * @param taskId
  */
 var openTask = function(stepName, req, res, callback){
+    var cookieUser = req.cookies.user;
+    if(cookieUser){
+        req.session.user = cookieUser;
+    }else{
+        return res.redirect("/");
+    }
     var userId = req.session.user.userId;    //当前登录用户的ID
     var taskId = req.params.taskId;          //变更单记录ID
     var taskCreater = req.params.taskCreater;//这条变更单记录创建者的ID

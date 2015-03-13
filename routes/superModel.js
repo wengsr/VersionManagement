@@ -65,6 +65,8 @@ router.get('/super', function(req, res) {
     var cookieUser = req.cookies.user;
     if(cookieUser){
         req.session.user = cookieUser;
+    }else{
+        return res.redirect("/");
     }
     var user = req.session.user;
     SuperModel.getProNoManager(function(msg,proNoManager) {

@@ -4,17 +4,17 @@
 var nodemailer = require('nodemailer');
 
 var transporter = nodemailer.createTransport({
-    service: 'AsinInfo',
-    secureConnection: true, // use SSL
-    host: "mail.asiainfo.com",
+    service: 'AliYun',          //'AsinInfo',
+    secureConnection: true,     // use SSL
+    host: "smtp.aliyun.com",    //"mail.asiainfo.com",
     auth: {
-        user: 'wangfeng13@asiainfo.com',
-        pass: ''
+        user: 'crm_wangfeng@aliyun.com',
+        pass: '123456!'
     }
 });
 
 var mailOptions = {
-    from: '版本管理系统<wangfeng13@asiainfo.com>',
+    from: '版本管理系统<crm_wangfeng@aliyun.com>',
     to: '', // wangfeng13@asiainfo.com
     subject: '【版本管理系统】文件占用解除',
     html: ''
