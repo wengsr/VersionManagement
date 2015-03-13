@@ -136,7 +136,7 @@ function bindClick_btnUploadFile(){
             showTipInfo('err','只支持rar,zip文件');
             return false;
         }
-        submitForm_submitFile();
+        //submitForm_submitFile();
         $('#submitFileForm').submit();
         return true;
     });
@@ -158,7 +158,7 @@ function fileUpReturn(){
             //1.隐藏“上传新旧文件”按钮
             $('#btnSubmitFile').hide();
             //2.显示“上传文件成功文件”按钮
-
+            submitForm_submitFile();
             $('#btnSelectReport').hide();
             $('#btnExtractFile').hide();
             //3.把已上传文件的名称和下载链接显示在页面上

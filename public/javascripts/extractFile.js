@@ -26,7 +26,7 @@ var fieldValues ;
 */
 function getFieldValues(){
     fieldValues = {
-        taskDetails: $("#inputTaskDesc").val(),
+        taskDesc: $("#inputTaskDesc").val(),
         taskNewFiles: $("#addTaskList").val(),
         taskModFiles: $("#modifyTaskList").val(),
         taskDelFiles: $("#delTaskList").val()
@@ -72,7 +72,7 @@ function ajaxSubmit(params, url, subType){
                 else{
                     $('#btnConfirm').hide();
                     $('#btnModify').show();
-                    $('#btnModifySuccess').hide();
+
                 }
             }else if('success'==flag) {
                 if (url == './task/extractFile') {
@@ -103,8 +103,8 @@ function ajaxSubmit(params, url, subType){
                 else{
                     $('#btnConfirm').hide();
                     $("#btnModCancel").hide();
-                    $('#btnModifySuccess').show();
                     $('#btnExtractFile').show();
+                    $('#btnModify').show();
                     $('#modifyTaskList').attr('disabled', true);
                     $('#addTaskList').attr('disabled', true);
                     $('#inputTaskDesc').attr('disabled', true);
@@ -150,7 +150,7 @@ function submitForm_modify(){
         var params = {
             taskId:$("#taskId").val(),
             //projectId:$("#projectId").val(),
-            taskDetails: $("#inputTaskDesc").val(),
+            taskDesc: $("#inputTaskDesc").val(),
             taskNewFiles: $("#addTaskList").val(),
             taskDelFiles: $("#delTaskList").val(),
             taskModFiles: $("#modifyTaskList").val()

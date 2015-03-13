@@ -203,18 +203,17 @@ router.post('/addTask', function (req, res) {
     var flag = false;
 
     dao.addTask({name: taskName, tasker: tasker ,state: taskState,projectId:taskProject,desc:taskDetails,newFiles:taskNewFiles, modFiles:taskModFiles,delFiles:taskDelFiles}, function (msg,result) {
+        var queryObj = url.parse(req.url,true).query;
+        var jsonStr;
         if('success' == msg){
-            var queryObj = url.parse(req.url,true).query;
             console.log("申请成功");
-            var jsonStr = '{"sucFlag":"success","message":"【提交申请】申请成功！"}';
-            res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+            jsonStr = '{"sucFlag":"success","message":"【提交申请】申请成功！"}';
         }
         else{
-            var queryObj = url.parse(req.url,true).query;
             console.log("申请失败");
-            var jsonStr = '{"sucFlag":"err","message":"【提交申请】申请失败！"}';
-            res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+            jsonStr = '{"sucFlag":"err","message":"【提交申请】申请失败！"}';
         }
+        res.send(queryObj.callback+'(\'' + jsonStr + '\')');
     });
 
 });
@@ -471,7 +470,7 @@ router.post('/submitFile', function(req, res) {
     var jsonStr;
     dao.submitFile(taskId, function(msg,result){
         if('success' == msg){
-            jsonStr = '{"sucFlag":"success","message":"【上传文件成功】执行成功"}';
+            jsonStr = '{"sucFlag":"success","message":"【上传变更单】执行成功"}';
         }else{
             jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
         }
@@ -621,7 +620,7 @@ router.post('/extractFile', function(req, res) {
  */
 router.post('/modifyTask', function(req, res) {
     var taskId = req.body['taskId'];
-    var taskDetails =  req.body['taskDetails'];
+    var taskDetails =  req.body['taskDesc'];
     var taskNewFiles = req.body['taskNewFiles'];
     var taskModFiles= req.body['taskModFiles'];
     var taskDelFiles= req.body['taskDelFiles'];
@@ -631,9 +630,9 @@ router.post('/modifyTask', function(req, res) {
     var jsonStr;
     dao.modifyTask({taskId:taskId, details:taskDetails, newFiles: taskNewFiles, modFiles: taskModFiles,delFiles:taskDelFiles}, function(msg,result){
         if('success' == msg){
-            jsonStr = '{"sucFlag":"success","message":"【修改变更单成功】执行成功"}';
+            jsonStr = '{"sucFlag":"success","message":"【修改变更单】执行成功"}';
         }else{
-            jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
+            jsonStr = '{"sucFlag":"err","message":"【修改变更单】执行失败 "}';
         }
         var queryObj = url.parse(req.url,true).query;
         res.send(queryObj.callback+'(\'' + jsonStr + '\')');

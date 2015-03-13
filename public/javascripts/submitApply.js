@@ -63,6 +63,9 @@ function ajaxSubmit(params, url, subType){
                 //$('#submitApply').hide();
                 //disableInput();
             }
+            else{
+                showTipInfo('err',"未知错误");
+            }
         },
         error: function(jqXHR, textStatus, errorThrown){
             alert('error ' + textStatus + " " + errorThrown);
