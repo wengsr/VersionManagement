@@ -78,8 +78,20 @@ function acceptAndCompBtn(){
 }
 
 
+/**
+ * 如果文件清单中“修改”和“删除”的文件都为空的时候，说明没有旧文件可以下载
+ */
+function showOldFile(){
+    var addList = $('#addTaskList').text();
+    var modifyList = $('#modifyTaskList').text();
+    var delList = $('#delTaskList').text();
+    if(modifyList=='' && delList==''){
+        $('#a_oldFile').hide();//没有旧文件
+    }
+}
 
 jQuery(document).ready(function() {
+    showOldFile();
     acceptAndCompBtn();
     //接受任务
     $('#btnSubmitAccept').click(function(){

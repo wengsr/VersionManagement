@@ -159,7 +159,21 @@ function fileUpReturn(){
     });
 }
 
+
+/**
+ * 如果文件清单中“修改”和“删除”的文件都为空的时候，说明没有旧文件可以下载
+ */
+function showOldFile(){
+    var addList = $('#addTaskList').text();
+    var modifyList = $('#modifyTaskList').text();
+    var delList = $('#delTaskList').text();
+    if(modifyList=='' && delList==''){
+        $('#a_oldFile').hide();//没有旧文件
+    }
+}
+
 jQuery(document).ready(function() {
+    showOldFile();
     //隐藏文件上传时用于替代走查通过or不通过的按钮
     $('#btnUnPassCheck2, #btnPassCheck2').hide();
     //隐藏文件路径信息提示条
