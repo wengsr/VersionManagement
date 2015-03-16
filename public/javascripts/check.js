@@ -111,6 +111,7 @@ function fileUploadBtnLoading(btnId,tipString){
 function bindClick_btnUploadFile(){
     $('#submit_UpReport').on('click',function(){
         $('#diaInfoTip,#diaErrTip,#diaSuccessTip').hide();
+
         var fulAvatarVal = $('#fulAvatar').val();
         if(fulAvatarVal.length == 0){
             showTipInfo('err','请选择要上传的文件');
@@ -197,7 +198,9 @@ jQuery(document).ready(function() {
     $('#btnCloseModel').click(function(){
         location.reload();
     });
-
-
+    //文件上传重复选择时文件名太长bug解决
+    $('#fulAvatar').click(function(){
+        $('#fulAvatar').val('');
+    });
 });
 
