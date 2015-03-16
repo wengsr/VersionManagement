@@ -129,6 +129,7 @@ function submitForm_extract(){
         taskProject: $('#taskProject').val(),
         modFilesList: modFiles,
         taskCode:$('#taskCode').text(),
+       delFilesList: $("#delTaskList").val(),
         taskId: $('#taskId').val()
     };
     var extractFile_url='task/extractFile';

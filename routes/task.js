@@ -1,4 +1,25 @@
+/**
+ * 将文件路径'\'转成'/',并将多个文件分割成数组
+ * @param str
+ */
+function getFilesUri(str){
+    if(str == undefined){
+        return [];
+    }
+    str = str.trim();
+    while(str.indexOf('\\')!=-1){
+        str = str.replace('\\', '/');
+    }
+    while(str.indexOf('\r')!=-1) {
+        str.replace("\r", '');
+    }
+    str= str.split('\n');
+    if(str.length ==1 &&str[0] ==''){
+        str = [];
+    }
 
+    return str;
+}
 var express = require('express');
 var router = express.Router();
 var Task = require('../modular/task');
@@ -603,10 +624,16 @@ router.post('/extractFile', function(req, res) {
     var taskId = req.body['taskId'];
     var taskProject = req.body['taskProject'];
     var taskCode = req.body['taskCode'];
-    var  modFiles = req.body['modFilesList'].replace('\r' ,'').split('\n');
+    var  modFiles = req.body['modFilesList'];
+    var  delFiles = req.body['delFilesList'];
     var userId = req.session.user.userId;
     var jsonStr;
     var userFlag = false;
+
+    modFiles =getFilesUri(modFiles);
+    delFiles = getFilesUri(delFiles);
+    var oldFiles = modFiles.concat(delFiles);
+    console.log("oldFiles:",oldFiles);
     dao.searchProject({projectId: taskProject}, function (msg, result) {
         var queryObj = url.parse(req.url, true).query;
         if (msg == "success") {
@@ -617,7 +644,7 @@ router.post('/extractFile', function(req, res) {
             }
             projectUri = result.projectUri;
 
-            if (modFiles == "" || typeof(modFiles) == "undefined") {
+            if (oldFiles.length == 0) {
                message = "【提取旧文件】没有文件需要提取";
                 dao.extractFile(taskId,userId,3,undefined,undefined,function (msg, result) {
                     if ('success' == msg) {
@@ -632,14 +659,13 @@ router.post('/extractFile', function(req, res) {
 
             }
             else {
-                console.log("testFiledUsed!");
-                testFileUsed(modFiles, taskProject,taskId, function (msg, users) {//判断需要提取的文件是否被占用
+                testFileUsed(oldFiles, taskProject,taskId, function (msg, users) {//判断需要提取的文件是否被占用
                     var flag = false;
                     if(msg == "err"){
                         jsonStr = '{"sucFlag":"err","message":"【testFileUsed Failed】，联系管理员"}';
                         res.send(queryObj.callback + '(\'' + jsonStr + '\')');
                     }
-                    if (msg == "success") {
+                    else if (msg == "success") {
                         for (var name in users) {
                             flag = true;
                             break;
@@ -670,25 +696,25 @@ router.post('/extractFile', function(req, res) {
                             //var localDir = "c:/test/变更单1/old/";
                             //var versionDir = 'http://192.168.1.22:8000/svn/hxbss/testVersion/';
                             var versionDir = projectUri;
-                            var fileList = modFiles;
+                            var fileList = oldFiles;
                             /*提取文件*/
-                           var checkFlag = testTask.checkout(localDir, versionDir, fileList, function (err,flag, data) {
+                           var checkFlag = testTask.checkout(localDir, versionDir, fileList, function (err, flag, data) {
                                 if (err) {//checkout 失败
                                     if(flag) {//svn 连接错误
                                         jsonStr = '{"sucFlag":"err","message":"【提取文件】执行失败，svn连接失败！！"}'
-                                        console.log("ExtractFile Faild：" + err);
+                                        console.log("ExtractFile Faild1：" + err);
                                         var queryObj = url.parse(req.url, true).query;
                                         res.send(queryObj.callback + '(\'' + jsonStr + '\')');
                                     }
                                     else{//文件路径错误
                                         jsonStr = '{"sucFlag":"err","message":"【提取文件】执行失败，检查文件路径是否正确？"}'
-                                        console.log("ExtractFile Faild：" + err);
+                                        console.log("ExtractFile Faild2：" + err);
                                         var queryObj = url.parse(req.url, true).query;
                                         res.send(queryObj.callback + '(\'' + jsonStr + '\')');
                                     }
                                 } else {
+                                    //文件提取成功
                                     console.log("ExtractFile success" + data);
-
                                     //更新数据库
                                     //var zipName = fileRename(userId +taskId+"extra");
                                     var zipName = "old.zip";
@@ -701,7 +727,8 @@ router.post('/extractFile', function(req, res) {
                                         jsonStr = '{"sucFlag":"err","message":"【提取文件】执行失败,请检查文件路径是否正确！！！"}';
                                         res.send(queryObj.callback + '(\'' + jsonStr + '\')');
                                     }
-                                    else {//压缩文件成功
+                                    else {
+                                    //压缩文件成功
                                         //console.log("zipFile success!");
                                         dao.extractFile(taskId,userId, 2, zipName, zipUriSaved, function (msg, result) {
                                             if ('success' == msg) {
@@ -723,8 +750,6 @@ router.post('/extractFile', function(req, res) {
                                 }
                                 }
                             });
-
-
                         }
                     }
                 });
@@ -742,9 +767,6 @@ router.post('/modifyTask', function(req, res) {
     var taskNewFiles = req.body['taskNewFiles'];
     var taskModFiles= req.body['taskModFiles'];
     var taskDelFiles= req.body['taskDelFiles'];
-    //taskDelFiles = fileStrChange(taskDelFiles);
-    //taskModFiles = fileStrChange(taskModFiles);
-    //taskNewFiles = fileStrChange(taskNewFiles);
     var jsonStr;
     dao.modifyTask({taskId:taskId, details:taskDetails, newFiles: taskNewFiles, modFiles: taskModFiles,delFiles:taskDelFiles}, function(msg,result){
         if('success' == msg){

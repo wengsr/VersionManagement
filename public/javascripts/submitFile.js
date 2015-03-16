@@ -30,7 +30,7 @@ function ajaxSubmit(params, url, subType){
                 showTipInfo('err',dataJson.message);
                 if (url == './task/submitFile') {
                     $('#btnSelectReport').show();
-                    $('#uploadInfo').hide();
+                    //$('#uploadInfo').hide();
                     $('#btnSubmitFile').button('reset');
                 }
             }else if('success'==flag) {
@@ -53,7 +53,7 @@ function ajaxSubmit(params, url, subType){
             //    }
             //
             }
-            $('#uploadInfo').hide();
+            //$('#uploadInfo').hide();
         },
         error: function(jqXHR, textStatus, errorThrown){
             alert('error ' + textStatus + " " + errorThrown);
@@ -75,7 +75,7 @@ function submitForm_submitFile(){
     fileUploadBtnLoading("btnSubmitFile","文件上传中...");
     ajaxSubmit(submitFile_params, submitFile_url, 'post');
     $('#btnSelectReport').hide();
-    $('#uploadInfo').show();
+    //$('#uploadInfo').show();
 }
 
 
@@ -85,7 +85,6 @@ function fileUp(url){
         url: url,
         dataType: 'json',
         done: function (e, data) {
-            debugger
             $.each(data.result.files, function (index, file) {
                 $('<p/>').text(file.name).appendTo('#files');
             });
@@ -130,7 +129,6 @@ function bindClick_btnUploadFile(){
             showTipInfo('err','请选择要上传的文件');
             return false;
         }
-
         var extName = fulAvatarVal.substring(fulAvatarVal.lastIndexOf('.'),fulAvatarVal.length).toLowerCase();
         if(extName != '.rar'&& extName != '.zip'){
             showTipInfo('err','只支持rar,zip文件');
@@ -178,10 +176,13 @@ jQuery(document).ready(function() {
     //隐藏文件上传时用于替代走查通过or不通过的按钮
 
     $('#diaInfoTip').hide();
-    $('#uploadInfo').hide();
+    //$('#uploadInfo').hide();
     //文件上传后回传值的处理
     fileUpReturn();
     //选择文件后的信息提示
+    $('#fulAvatar').click(function(){
+        $('#fulAvatar').val('');
+    });
     $('#fulAvatar').change(function(){
         var showMsg = '已选新旧文件：' + $('#fulAvatar').val();
 

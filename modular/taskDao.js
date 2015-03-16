@@ -1,8 +1,8 @@
 /**
- * 将文件路径'\'转成'/'
+ * 将文件路径'\'转成'/',并将多个文件分割成数组
  * @param str
  */
-function fileStrChange(str){
+function getFilesUri(str){
     str = str.trim();
     while(str.indexOf('\\')!=-1){
         str = str.replace('\\', '/');
@@ -13,7 +13,27 @@ function fileStrChange(str){
    str= str.split('\n');
     return str;
 }
-
+function getFilesName(files){
+    var filesName=[];
+    for(var j = 0; j < files.length; j++){
+        //newUri[j] = projectUri + newFiles[j].substr(0,newFiles[j].lastIndexOf('/')+1);
+        filesName[j] = files[j].substr(files[j].lastIndexOf('/')+1);
+    }
+    return filesName;
+}
+function addFilesParam(param,taskId,filesName,filesUri,state){
+    for(var i in filesName){
+        if(state==0){
+            var para = [taskId, filesName[i], state, 3, filesUri[i]];
+             param.push(para);
+        }
+        else{
+            var para = [taskId, filesName[i], state,, filesUri[i]];//新增文件和删除文件commit默认为null
+            param.push(para);
+        }
+    }
+    return param;
+}
 /**
  * 向fileList表写入数据
  * @param conn数据库连接
@@ -23,27 +43,52 @@ function fileStrChange(str){
  * @param i files数组的下标
  * @param callback
  */
-//    function insertFile(conn, files, taskId ,state, commit, i, callback){
-//    files = fileStrChange(fiels);
-//    var sql ='INSERT INTO fileList(taskId,fileName,state,commit,fileUri) VALUES(?,?,?,?,?)' ;
-//    filesName = files[i].substr(files[i].lastIndexOf('/')+1);
-//    var sql_params = [taskId,filesName, state,commit,filesUri];
-//    conn.query(sql ,sql_params,function(err, result){
-//        if(err){
-//            console.log("insertFiles ERR:",err.message);
-//            callback("err");
-//        }
-//        i++;
-//        if(i<=files.length){
-//            filesName = files[i].substr(files[i].lastIndexOf('/')+1);
-//            sql_params = [taskId,filesName, state,commit,filesUri,i,callback];
-//            console.log("insertFiles result:", result);
-//        }
-//        else{
-//            callback("success");
-//        }
-//    });
-//}
+function insertFile(conn, params, i, callback){
+    if(i==params.length){
+        callback("success");
+        return ;
+    }
+    var sql ='INSERT INTO fileList(taskId,fileName,state,commit,fileUri) VALUES(?,?,?,?,?)' ;
+    //var params = [taskId,files[i], state, commit, filesUri[i]];
+    conn.query(sql ,params[i],function(err, result){
+        if(err){
+            conn.rollback();
+            console.log("insertFiles ERR:"+i,err.message);
+            return callback("err");
+        }
+        else{
+            i++;
+            console.log("insertFiles result:", result);
+            insertFile(conn, params, i, callback);
+        }
+    });
+}
+/**
+ * 删除fileList表的记录；
+ * @param conn 数据库连接connection
+ * @param params 删除语句的参数数组
+ * @param i 参数数组下标，一般从0开始
+ * @param callback
+ */
+function deleteFile(conn, params, i, callback){
+    if(i==params.length){
+        callback("success");
+        return ;
+    }
+    var sql ='DELETE FROM FILELIST WHERE taskId = ? and state =?' ;
+    conn.query(sql ,params[i],function(err, result){
+        if(err){
+            conn.rollback();
+            console.log("deleteFiles ERR:",err.message);
+            return callback("err");
+        }
+        else{
+            i++;
+            console.log("deleteFiles result:", result);
+            deleteFile(conn, params, i, callback);
+        }
+    });
+}
 var pool = require('../util/connPool.js').getPool();
 var queues = require('mysql-queues');
 //const DEBUG = true;
@@ -91,8 +136,11 @@ exports.searchModFiles= function(params, callback){
         });
     });
 };
-exports.addTask = function (taskInfo, callback) {
+exports.addTask = function (taskInfo,callback) {
     pool.getConnection(function (err, connection) {
+        if(err){
+            return callback("err");
+        }
         queues(connection);
         var trans = connection.startTransaction();
         var sql= {
@@ -100,7 +148,7 @@ exports.addTask = function (taskInfo, callback) {
             selectProject :' SELECT * FROM project where projectId = ?',
             userAddSql : 'INSERT INTO tasks(taskCode, taskName, creater, state, processStepId, projectId, taskDesc) VALUES(?,?,?,?,?,?,?)',
             addTaskProcess : ' INSERT INTO taskProcessStep(taskId, processStepId, dealer,turnNum) VALUES(?,?,?,?)',
-            addFiles: 'INSERT INTO fileList(taskId,fileName,state,commit,fileUri) VALUES(?,?,?,?,?)'
+            addFiles: 'INSERT INTO fileList(taskId,fileName,state,commit,fileUri) VALUES(?,?,?,?)'
 
         };
         var addTaskProcess_params = [1, 2];
@@ -111,96 +159,26 @@ exports.addTask = function (taskInfo, callback) {
         var addTaskPro_params = [];
         var addFiles_params =[];
         var userId = taskInfo.tasker;
-        var task = ['countTask', 'selectProject', 'userAddSql','addTaskProcess', 'addFiles' ];
-        var task_params = [projectId, projectId, userAddSql_params,addTaskPro_params, addFiles_params];
-
+        //var task = ['countTask', 'selectProject', 'userAddSql','addTaskProcess', 'addFiles' ];
+        var task = ['countTask', 'selectProject', 'userAddSql','addTaskProcess' ];
+        //var task_params = [projectId, projectId, userAddSql_params,addTaskPro_params, addFiles_params];
+        var task_params = [projectId, projectId, userAddSql_params,addTaskPro_params];
         var taskId,projectUri;
         var newFiles, modFiles,delFiles;
         var newUri=[];
         var modUri=[];
         var  delUri=[];
-
         var i= 0;
         async.eachSeries(task, function (item, callback_async) {
-            //console.log(item + " ==> ",  sql[item]);
-            if( i == 4) {//插入多条的file数据
-                //获取文件完整的uri；
-                if(taskInfo.newFiles!=""){
-                    newFiles = fileStrChange(taskInfo.newFiles);
-                    for(var j = 0; j < newFiles.length; j++){
-                        //newUri[j] = projectUri + newFiles[j].substr(0,newFiles[j].lastIndexOf('/')+1);
-                        newUri[j] = newFiles[j];
-                        newFiles[j] = newFiles[j].substr(newFiles[j].lastIndexOf('/')+1);
-                    }
-                }
-                if(taskInfo.modFiles!='') {
-                    modFiles = fileStrChange(taskInfo.modFiles);
-
-                    for(var j = 0; j < modFiles.length; j++){
-                        //modUri[j]= projectUri + modFiles[j].substr(0,modFiles[j].lastIndexOf('/')+1);
-                        modUri[j]= modFiles[j];
-                        modFiles[j] = modFiles[j].substr(modFiles[j].lastIndexOf('/')+1);
-                    }
-
-                }
-                if(taskInfo.delFiles!='') {
-                  delFiles = fileStrChange(taskInfo.delFiles);
-
-                    for(var j = 0; j < delFiles.length; j++){
-                        delUri[j]= delFiles[j];
-                        delFiles[j] = delFiles[j].substr(delFiles[j].lastIndexOf('/')+1);
-                    }
-
-                }
-                if(newFiles!== "" && typeof(newFiles)!='undefined') {
-                    for (var j = 0; j < newFiles.length; j++) {
-                        addFiles_para = [ taskId,newFiles[j], 1,,newUri[j]];//1表示新增文件；
-                        trans.query(sql[item], addFiles_para, function (err, result) {
-                            if (err) {
-                                console.log("addNewFiles ERR" + j + ";", err.message);
-                            }
-                            else {
-                                //console.log("addNewFiles" + j + ";", result);
-                            }
-                        });
-                    }
-                }
-                if(modFiles!=="" && typeof(modFiles)!='undefined') {
-                    for (var j = 0; j < modFiles.length; j++){
-                        addFiles_para = [taskId,modFiles[j],0,3,modUri[j]];//0表示修改文件；commit:默认为3 表示未占用
-                        trans.query(sql[item],addFiles_para,function(err,result){
-                            if(err){
-                                console.log("addModFiles ERR" + j+";",err.message);
-                            }
-                            //else{
-                            //    console.log("addModFiles" + j+";",result);
-                            //}
-                        });
-                    }
-                }
-                if(delFiles!=="" && typeof(delFiles)!='undefined') {
-                    for (var j = 0; j < delFiles.length; j++){
-                        addFiles_para = [taskId,delFiles[j],2,,delUri[j]];//0表示修改文件；commit:默认为3 表示未占用
-                        trans.query(sql[item],addFiles_para,function(err,result){
-                            if(err){
-                                console.log("addDelFiles ERR" + j+";",err.message);
-                            }
-                            //else{
-                            //    console.log("addDelFiles" + j+";",result);
-                            //}
-                        });
-                    }
-                }
-                return;
-            }
+            console.log(item + " ==> ",  sql[item]);
             trans.query(sql[item], task_params[i],function (err, result) {
-                if(err)
-                {
+                if(err) {
                     console.log(item+" result:", err.message);
+                    callback("err");
+                    trans.rollback();
                     return ;
                 }
                 i++;
-                //console.log(item+" result):" , result);
                 if (item == 'selectProject') {
                     if (result.length > 0) {
                         project = result;
@@ -210,27 +188,43 @@ exports.addTask = function (taskInfo, callback) {
                         projectUri = project[0].projectUri;
                         task_params[2] = [taskCode, taskInfo.name, taskInfo.tasker, taskInfo.state, "2",
                             taskInfo.projectId, taskInfo.desc];
-                }
-
+                    }
                 }
                 else if (item == 'userAddSql') {
                     //console.log("userAddSql:", result);
                     taskId = result.insertId;
-                    task_params[3]= [taskId, '2',userId,0];//taskPrecessStep turnNum 默认为0：
+                    task_params[3] = [taskId, '2', userId, 0];//taskPrecessStep turnNum 默认为0：
+                    //插入多条的file数据
+                    //获取文件完整的uri；
+                        if(taskInfo.newFiles!=""){
+                            newUri = getFilesUri(taskInfo.newFiles);
+                            newFiles = getFilesName(newUri);
+                        }
+                        if(taskInfo.modFiles!='') {
+                            modUri = getFilesUri(taskInfo.modFiles);
+                           modFiles = getFilesName(modUri);
+                        }
+                        if(taskInfo.delFiles!='') {
+                            delUri = getFilesUri(taskInfo.delFiles);
+                            delFiles = getFilesName(delUri);
+                        }
+                    }
+                else if(item =='addTaskProcess') {
+                    //插入新增文件，修改文件，删除文件
+                    addFiles_params = addFilesParam(addFiles_params, taskId, newFiles, newUri, 1);
+                    addFiles_params = addFilesParam(addFiles_params, taskId, modFiles, modUri, 0);
+                    addFiles_params = addFilesParam(addFiles_params, taskId, delFiles, delUri, 2);
+                    //console.log("addFiles_params:", addFiles_params);
+                    insertFile(trans, addFiles_params, 0, callback);
                 }
-                //console.log(result);
+                console.log(result);
                 callback_async(err, result);
             });
         });
-        trans.execute();
-        connection.release();
-        callback("success");
-
-
+       trans.execute();
+       connection.release();
     });
-
 };
-
 
 /**提交新旧文件
  *
@@ -258,7 +252,7 @@ exports.submitFile= function(taskId,callback){
         async.eachSeries(sqlMember, function (item, callback_async) {
             trans.query(sql[item], sqlMember_params[i++],function (err_async, result) {
                 if(err_async){
-                    callback("err");
+                     return callback("err");
                 }
                 if(item == 'selectDealer' && undefined!=result && ''!=result ){
                     //console.log("selectDealer:",result);
@@ -271,7 +265,6 @@ exports.submitFile= function(taskId,callback){
                 if(item == 'updateDealer' && !err_async){//最后一条sql语句执行没有错就返回成功
                   //  return callback('success');
                 }
-
                 callback_async(err_async, result);
             });
         });
@@ -355,115 +348,64 @@ exports.modifyTask= function(taskInfo,callback){
             updateTask: "update tasks set  taskDesc =? where taskid= ?",
             updateFileList:"INSERT INTO fileList(taskId,fileName,state,commit,fileUri) VALUES(?,?,?,?,?)",
             deleteFiles: "delete from fileList where taskId = ? and state = ?"
-        }
-
-
-        if(typeof(taskInfo.details)!='undefined'){
-            var updateTask_params = [taskInfo.details, taskInfo.taskId];
-            trans.query(sql.updateTask, updateTask_params, function(err, result){
-                 if(err){
-                     console.log("[modifyTask] updateTask ERR:",err.message);
-                     callback("err");
-                 }
-                //else{
-                //     console.log("[modifyTask] updateTask result:",result);
-                //
-                // }
-            });
-        }
-        if(typeof(taskInfo.modFiles)!='undefined') {
-            var modUri = [];
-            var modSql_params = [];
-            modFiles = fileStrChange(taskInfo.modFiles);
-            var deleteParam = [taskId, 0];
-            trans.query(sql.deleteFiles, deleteParam, function (err, result) {
+        };
+        var newFiles, newUri, modFiles, modUri, delFiles,delUri;
+        var addFiles_params = [];
+        var  deleteFiles_params =[];
+        var insertFile_params = [];
+        if(taskInfo.details!=undefined) {
+            var updateParam = [taskInfo.details,taskId];
+            trans.query(sql.updateTask, updateParam, function (err, result) {
                 if (err) {
-                    console.log("[modifyTask] deleteFileList ERR:", err.message);
-                    callback("err");
+                    console.log("[modifyTask] updateTask ERR:", err.message);
+                    trans.rollback();
+                    return callback("err");
                 }
-                //else{
-                //    console.log("delete result:",result);
-                //}
-            });
-            if (taskInfo.modFiles != '') {
-                for (var j = 0; j < modFiles.length; j++) {
-                    modUri[j] = modFiles[j];
-                    modFiles[j] = modFiles[j].substr(modFiles[j].lastIndexOf('/') + 1);
-                    //modSql_params[j] =[taskId,modFiles[j],0,3,modUri[j]];
-                    modSql_params = [taskId, modFiles[j], 0, 3, modUri[j]];
-                    trans.query(sql.updateFileList, modSql_params, function (err, result) {
-                        if (err) {
-                            console.log("[modifyTask] updateFileList ERR:", err.message);
-                            callback("err");
-                        }
-                        //else{
-                        //    console.log("updateModFilesList result:",result);
-                        //}
-                    })
+                else{
+                    console.log("updateTask result",result);
                 }
+            })
+        }
+        if(taskInfo.newFiles!=undefined){
+            newUri = getFilesUri(taskInfo.newFiles);
+            newFiles = getFilesName(newUri);
+            deleteFiles_params.push([taskId,1]);
+            var newFilesParams = [];
+            if(taskInfo.newFiles!='') {
+                insertFile_params = addFilesParam(insertFile_params, taskId, newFiles, newUri, 1);
             }
         }
-        if(typeof(taskInfo.newFiles)!='undefined') {
-                var newUri =[];
-                newFiles = fileStrChange(taskInfo.newFiles);
-                var deleteParam = [taskId, 1];
-                trans.query(sql.deleteFiles, deleteParam, function (err, result) {
-                    if (err) {
-                        console.log("[modifyTask] deleteFiles ERR:", err.message);
-                        callback("err");
-                    }
-                        //else {
-                        //    console.log("delete result:", result);
-                        //}
-                });
-                if (taskInfo.newFiles != '') {
-                    for (var j = 0; j < newFiles.length; j++) {
-                        newUri[j] = newFiles[j];
-                        newFiles[j] = newFiles[j].substr(newFiles[j].lastIndexOf('/') + 1);
-                        modSql_params = [taskId, newFiles[j], 1, 3, newUri[j]];
-                        trans.query(sql.updateFileList, modSql_params, function (err, result) {
-                            if (err) {
-                                console.log("[modifyTask] updateNewFileList ERR:", err.message);
-                                callback("err");
-                            }
-                            //else {
-                            //    console.log("updateNewFileList result:", result);
-                            //}
-                        })
-                    }
-                }
+        if(taskInfo.modFiles!=undefined) {
+            modUri = getFilesUri(taskInfo.modFiles);
+            modFiles = getFilesName(modUri);
+            var modFilesParams = [];
+            if(taskInfo.modFiles!='') {
+                insertFile_params = addFilesParam(insertFile_params, taskId, modFiles, modUri, 0);
             }
-        if(typeof(taskInfo.delFiles)!='undefined') {
-                var newUri =[];
-                delFiles = fileStrChange(taskInfo.delFiles);
-                var deleteParam = [taskId, 1];
-                trans.query(sql.deleteFiles, deleteParam, function (err, result) {
-                    if (err) {
-                        console.log("[modifyTask] deleteFiles ERR:", err.message);
-                        callback("err");
-                    }
-                    //else {
-                    //    console.log("delete result:", result);
-                    //}
-                });
-                if (taskInfo.delFiles != '') {
-                    for (var j = 0; j < delFiles.length; j++) {
-                        newUri[j] = delFiles[j];
-                        delFiles[j] = delFiles[j].substr(delFiles[j].lastIndexOf('/') + 1);
-                        modSql_params = [taskId, delFiles[j], 1, 3, newUri[j]];
-                        trans.query(sql.updateFileList, modSql_params, function (err, result) {
-                            if (err) {
-                                console.log("[modifyTask] updateDelFileList ERR:", err.message);
-                                callback("err");
-                            }
-                            //else {
-                            //    console.log("updateNewFileList result:", result);
-                            //}
-                        })
-                    }
-                }
+            deleteFiles_params.push([taskId,0]);
+
+        }
+        if(taskInfo.delFiles!=undefined) {
+            delUri = getFilesUri(taskInfo.delFiles);
+            deleteFiles_params.push([taskId ,2]);
+            delFiles = getFilesName(delUri);
+            var delFilesParams = [];
+            if(taskInfo.delFiles!='') {
+                insertFile_params = addFilesParam(insertFile_params, taskId, delFiles, delUri, 2);
             }
-        callback("success","修改变更单成功");
+            //console.log("insertFile_params:",insertFile_params);
+
+        }
+        deleteFile(trans, deleteFiles_params,0,function(msg){
+            if(msg == 'success'){
+                insertFile(trans,insertFile_params, 0, callback);
+
+            }
+            else{
+                //trans.rollback();
+                return callback('err');
+            }
+        });
         trans.execute();//提交事务
         connection.release();
     });

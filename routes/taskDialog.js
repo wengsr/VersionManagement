@@ -89,7 +89,7 @@ var openTask = function(stepName, req, res, callback){
                                         "attachmentId": '',
                                         "taskId": '',
                                         "processStepId": '',
-                                        "fileName": '未找到附件',
+                                        "fileName": '没有旧文件',
                                         "fileUri": '#'
                                     });
                                 }

@@ -35,8 +35,8 @@ var testFileUsed = function(fileList, projectId,taskId, callback) {
                 users = result;
                 }
             //console.log("testFiled release!");
-            connection.destroy();
-            callback('success',users);
+            connection.release();
+            return callback('success',users);
         });
         //var params = fileList;
         //var params ='(';
