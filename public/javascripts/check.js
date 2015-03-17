@@ -57,6 +57,8 @@ function submitForm_unPass(){
     //1.验证文件是否已经上传
     var checkReportHref = $('#a_reportAtta').attr('href');
     if(checkReportHref=='#'){
+        $('#diaInfoTip').hide();
+        $('#fulAvatar').val('');
         showTipInfo('err','不通过前请先上传走查报告');
         return;
     }
