@@ -3,9 +3,6 @@
  * @param str
  */
 function getFilesUri(str){
-    if(str == undefined){
-        return [];
-    }
     str = str.trim();
     while(str.indexOf('\\')!=-1){
         str = str.replace('\\', '/');
@@ -14,12 +11,21 @@ function getFilesUri(str){
         str.replace("\r", '');
     }
     str= str.split('\n');
-    if(str.length ==1 &&str[0] ==''){
-        str = [];
+    for(var i in str){
+        str[i]=str[i].match(/[\/a-zA-Z0-9_\/]+[.][a-zA-Z0-9_]+/g);
+        if(str[i]==null){
+            str.splice(i,i);
+        }
+        else{
+            str[i]=str[i].toString();
+        }
     }
-
+    if(str[0] == null){
+        return [];
+    }
     return str;
 }
+
 var express = require('express');
 var router = express.Router();
 var Task = require('../modular/task');
@@ -698,7 +704,7 @@ router.post('/extractFile', function(req, res) {
                             var versionDir = projectUri;
                             var fileList = oldFiles;
                             /*提取文件*/
-                           var checkFlag = testTask.checkout(localDir, versionDir, fileList, function (err, flag, data) {
+                           var checkFlag = testTask.checkout(localDir, versionDir, fileList, function (err, flag, data, file) {
                                 if (err) {//checkout 失败
                                     if(flag) {//svn 连接错误
                                         jsonStr = '{"sucFlag":"err","message":"【提取文件】执行失败，svn连接失败！！"}'
@@ -707,8 +713,12 @@ router.post('/extractFile', function(req, res) {
                                         res.send(queryObj.callback + '(\'' + jsonStr + '\')');
                                     }
                                     else{//文件路径错误
-                                        jsonStr = '{"sucFlag":"err","message":"【提取文件】执行失败，检查文件路径是否正确？"}'
+                                        //jsonStr = '{"sucFlag":"err","message":"【提取文件】执行失败，文件路径是否正确或文件不存在？"}'
+                                        //var msg = '【提取失败】，'+file+'路径正确？文件存在？';
+                                        //jsonStr = '{"sucFlag":"err","message":"'+msg+'"}'
+                                        //res.send(queryObj.callback + '(\'' + jsonStr + '\')');
                                         console.log("ExtractFile Faild2：" + err);
+                                        jsonStr = '{"sucFlag":"err","message":"【提取文件】执行失败,请检查文件路径是否正确！！！","file":"'+file+'"}';
                                         var queryObj = url.parse(req.url, true).query;
                                         res.send(queryObj.callback + '(\'' + jsonStr + '\')');
                                     }
@@ -723,8 +733,11 @@ router.post('/extractFile', function(req, res) {
                                     zipFilesFlag = fileZip.zipFiles(localDir,fileList,zipUri);
                                     var zipUriSaved = "./old/"+taskCode+"/" +zipName;
                                     var queryObj = url.parse(req.url, true).query;
-                                    if(!zipFilesFlag){
-                                        jsonStr = '{"sucFlag":"err","message":"【提取文件】执行失败,请检查文件路径是否正确！！！"}';
+                                    if(!zipFilesFlag[0]){
+                                        //var msg = '【提取失败】，'+zipFilesFlag[1]+'路径正确？文件存在？';
+                                        //jsonStr = '{"sucFlag":"err","message":"'+msg+'"}'
+                                        console.log("zipFilesFlag:",zipFilesFlag[1]);
+                                        jsonStr = '{"sucFlag":"err","message":"【提取文件】执行失败,请检查文件路径是否正确！！！","file":"'+zipFilesFlag[1]+'"}';
                                         res.send(queryObj.callback + '(\'' + jsonStr + '\')');
                                     }
                                     else {

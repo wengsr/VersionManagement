@@ -59,9 +59,13 @@ function ajaxSubmit(params, url, subType){
 
             var dataJson = $.parseJSON(data);
             var flag =  dataJson.sucFlag;
+            var errFile = dataJson.file;
             if('err'==flag){
-                debugger
+                if(errFile!=undefined){
+                    alert("出错文件："+errFile);
+                }
                 showTipInfo('err',dataJson.message);
+
                 //提取文件成功后返回
                 if (url == './task/extractFile') {
                     $('#btnExtractFile').button('reset');

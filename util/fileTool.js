@@ -11,7 +11,7 @@ exports.zipFiles = function (localBaseDir, fileList, zipFileName) {
     var fs = require('fs');
     for (var i = 0; i < fileList.length; i++) {
         if(!fs.existsSync(localBaseDir + fileList[i])){
-            return false;
+            return [false,fileList[i]];
         }
         var tmpPath = fileList[i].substr(0, fileList[i].lastIndexOf('/') + 1);
 
@@ -19,7 +19,7 @@ exports.zipFiles = function (localBaseDir, fileList, zipFileName) {
     }
     var willSendthis = zip.toBuffer();
     zip.writeZip(zipFileName);
-    return true;
+    return [true,];
 };
 
 exports.extractZip = function (zipFileName, targetDir) {
@@ -96,14 +96,15 @@ exports.syncFolder = function (src, dst) {
 
 var localDir = "E:/VersionManagement0308/bin/old/";
 var fileList = [
-   // 'a/b/b1.txt',
-   // 'a/b/a.txt'
-   // 'a/b1.txt',
-   // 'b1.txt',
+   'a/b/b1.txt',
+   'a/b/a.txt',
+   'a/b1.txt',
+   'b1.txt',
     'a.'
 ];
 var zipName = "E:/VersionManagement0308/bin/old/a.zip";
 var fs = require('fs');
-//exports.zipFiles(localDir, fileList, zipName);
+//var flag =exports.zipFiles(localDir, fileList, zipName);
+//console.log(flag);
 
 //exports.extractZip(zipName, 'c:/test/变更单1/new/');

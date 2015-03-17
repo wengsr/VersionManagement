@@ -38,6 +38,27 @@ TaskAtta.findAttaByTaskIdAndStepId = function(taskId, processStepId, callback){
         });
     });
 }
+TaskAtta.findOldAttaByTaskId = function(taskId, processStepId, callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN ATTACHMENT ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'SELECT * FROM taskattachment where taskid = ? and processStepId=? ';
+        var params = [taskId,processStepId];
+        var params2 = [taskId,taskId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY ATTACHMENT ERROR] - ', err.message);
+                connection.release();
+                return callback(err,null);
+            }
+            connection.release();
+            return callback('success',result[0]);
+        });
+    });
+}
+
 
 
 /**

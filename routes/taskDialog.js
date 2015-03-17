@@ -49,7 +49,21 @@ var findAttaByTaskIdAndStepId = function(req, taskId, processStepId, callback){
         callback(result);
     })
 }
-
+/**
+ * 查找变更单已提取旧文件的附件
+ * @param taskId
+ * @param processStepId
+ * @param callback
+ */
+var findOldAttaByTaskId = function(req, taskId, processStepId, callback){
+    TaskAtta.findOldAttaByTaskId(taskId, processStepId, function(msg,result){
+        if('success'!=msg){
+            req.session.error = "查找变更单附件时发生错误,请记录并联系管理员";
+            return null;
+        }
+        callback(result);
+    })
+}
 
 
 /**
@@ -83,7 +97,7 @@ var openTask = function(stepName, req, res, callback){
                     t.createName = createName;
                     findFileListByTaskId(req, taskId, function(addFileList,modifyFileList,delFileList){
                         if(stepName=='submitFile'){
-                            findAttaByTaskIdAndStepId(req, taskId, '2',function(oldAtta) {//找到走查环节上传的走查报告
+                            findOldAttaByTaskId(req, taskId, '2',function(oldAtta) {//找到走查环节上传的走查报告
                                 if (undefined == oldAtta) {
                                     oldAtta = new TaskAtta({
                                         "attachmentId": '',

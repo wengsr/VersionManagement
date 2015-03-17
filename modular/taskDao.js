@@ -10,7 +10,20 @@ function getFilesUri(str){
     while(str.indexOf('\r')!=-1) {
         str.replace("\r", '');
     }
-   str= str.split('\n');
+    str= str.split('\n');
+    for(var i in str){
+        str[i]=str[i].match(/[\/a-zA-Z0-9_\/]+[.][a-zA-Z0-9_]+/g);
+        if(str[i]==null){
+            str.splice(i,i);
+        }
+        else{
+            str[i]=str[i].toString();
+        }
+    }
+    if(str[0] == null){
+        return [];
+    }
+
     return str;
 }
 function getFilesName(files){
@@ -111,7 +124,8 @@ exports.searchProject = function( taskInfo , callback){
 }
 exports.searchAllProject = function(userId, callback){
     pool.getConnection(function (err, connection){
-        var sql = "select projectId , projectName, projectUri from project  where projectId in ( select projectId from userToProject where userId = ?)";
+        var sql = "select projectId , projectName, projectUri from project  where projectId in" +
+            " ( select projectId from userToProject where userId = ?)";
         var param = [userId];
         connection.query(sql, param,function (err, result){
             if (err) {
@@ -287,7 +301,7 @@ exports.extractFile= function(taskId, userId, processStepId, fileName, fileUri,c
             saveAtta: 'INSERT INTO taskattachment (taskId, processStepId, fileName, fileUri, turnNum) ' +
             ' VALUES (?,?,?,?,' +
             ' (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable))',
-            updateFiles:"update fileList set commit = 0 where taskId = ? and state = 0"
+            updateFiles:"update fileList set commit = 0 where taskId = ? and state in (0,2)"
         };
        // var selectDealer_params = [taskId, taskId];
         var updateTask_params = [taskId];

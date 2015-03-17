@@ -27,7 +27,7 @@ Svn.prototype.checkout = function (localDir, versionDir, fileList, callback) {
     tmpDoList.push(localDir);
     var curContext = this;
     curContext.client.checkout(tmpDoList, function (err, data) {
-        if (!!err) {
+        if (err) {
             console.log("检出失败" + err);
             var connectionFlag = true;
             callback(err, connectionFlag, data);
@@ -48,7 +48,8 @@ Svn.prototype.checkout = function (localDir, versionDir, fileList, callback) {
                         checkoutProcess(fileList, err, data);
                     } else {
                         var connectionFlag = false;
-                        callback(err, connectionFlag, data);
+                        //console.log("svn err", fileList[i])
+                        callback(err, connectionFlag, data, fileList[i] );
                     }
                 });
             };
@@ -69,6 +70,7 @@ Svn.prototype.commit = function (localDir, callback) {
     this.client.addLocal(function (err, data) {
         if (!!err) {
             console.log("添加本地变更失败" + err);
+
         } else {
             console.log("添加本地变更成功" + data);
             curContext.client.commit(localDir, callback);
@@ -78,11 +80,23 @@ Svn.prototype.commit = function (localDir, callback) {
 module.exports = Svn;
 /********测试案例*********/
 var test = new Svn({username: 'wengsr', password: 'wengsr62952'});
-var localDir = "c:/test/变更单1/repo/";
-var versionDir = 'http://192.168.1.22:8000/svn/hxbss/NCRM/baseLine/Source/trunk';
+//var localDir = "c:/test/变更单4/";
+//var localDir = "F:/Asiainfo/git/变更单4/";
+var localDir = "c:/test/变更单6/";
+var versionDir = 'http://192.168.1.22:8000/svn/hxbss/NCRM/baseLine/Source/';
 var fileList = [
+    'trunk/local/YN_TRUNK/SaleWeb/src/main/java/com/al/crm/sale/choosechannel/view/chooseChannel.html',
+    'a/b/c'
     //'local/YN_TRUNK/SaleWeb/src/main/java/com/al/crm/sale/choosechannel/view/chooseChannel.html'
-    'local/YN_TRUNK/SaleWeb/src/main/java/com/al/crm/sale/choosechannel/view/chooseChannel.html'
+    //'trunk/common/CrmResourceManager/src/main/java/com/al/crm/resource/smo/impl/RscServiceQuerySMOImpl.java',
+    //'trunk/common/CrmResourceManager/src/main/java/com/al/crm/resource/smo/IRscServiceQuerySMO.java',
+    //'trunk/service/CrmServiceWeb/src/main/java/com/al/crm/controler/crmresource/CrmResourceServiceControler.java',
+    //'trunk/service/CrmServiceWeb/src/main/java/com/al/crm/controler/so/SoServiceControler.java',
+    //'trunk/service/MultiServiceManager/src/main/java/com/al/crm/mutil/service/so/smo/impl/SoSaveMutilSMOImpl.java',
+    //'trunk/service/MultiServiceManager/src/main/java/com/al/crm/mutil/service/so/smo/ISoSaveMutilSMO.java',
+    //'trunk/service/SoManager/src/main/java/com/al/crm/so/save/smo/ISoSaveSMO.java',
+    //'trunk/service/SoManager/src/main/java/com/al/crm/so/save/smo/impl/SoSaveSMOImpl.java'
+
 ];
 //var test = new Svn({username: 'wengsr', password: 'wengsr62952'});
 //var localDir = "c:/test/变更单/repo/a/";
@@ -92,12 +106,14 @@ var fileList = [
 //    'trunk/local/YN_TRUNK/SaleWeb/src/main/java/com/al/crm/sale/choosechannel/chooseChannel.html'
 //
 //];
-//test.checkout(localDir, versionDir, fileList, function (err, flag, data) {
+//test.checkout(localDir, versionDir, fileList, function (err, flag, data,fileList) {
 //    if (!!err) {
-//        if(flag)
-//        console.log("取文件失败:svn检出失败" + err);
+//        if(flag) {
+//            console.log("取文件失败:svn检出失败" + err);
+//            return ;
+//        }
 //        else{
-//            console.log("取文件失败:路径错误" + err);
+//            console.log("取文件失败:路径错误" + fileList);
 //        }
 //    } else {
 //        console.log("取文件成功" + data);
