@@ -87,19 +87,23 @@
         </div>
     </div>
     <div class="modal-footer">
-        <div style="width:68%;float:left;margin-bottom:-20px;margin-top:-9px;height:50px;" id="diaInfoTip" class="alert alert-info alert-dismissible" role="alert"><span style="text-align:center;margin-left:auto;margin-right:auto;display:block;"><strong>信息提示</strong></span></div>
-        <div style="width:68%;float:left;margin-bottom:-20px;margin-top:-9px;height:50px;" id="diaErrTip" class="alert alert-danger alert-dismissible" role="alert"><span style="text-align:center;margin-left:auto;margin-right:auto;display:block;"><strong>错误提示</strong></span></div>
-        <div style="width:68%;float:left;margin-bottom:-20px;margin-top:-9px;height:50px;" id="diaSuccessTip" class="alert alert-success alert-dismissible" role="alert"><span style="text-align:center;margin-left:auto;margin-right:auto;display:block;"><strong>操作成功</strong></span></div>
-        <div style="width:30%;float:right;margin-right: 12px">
+        <div style="width:48%;float:left;margin-bottom:-20px;margin-top:-9px;height:50px;" id="diaInfoTip" class="alert alert-info alert-dismissible" role="alert"><span style="text-align:center;margin-left:auto;margin-right:auto;display:block;"><strong>信息提示</strong></span></div>
+        <div style="width:48%;float:left;margin-bottom:-20px;margin-top:-9px;height:50px;" id="diaErrTip" class="alert alert-danger alert-dismissible" role="alert"><span style="text-align:center;margin-left:auto;margin-right:auto;display:block;"><strong>错误提示</strong></span></div>
+        <div style="width:48%;float:left;margin-bottom:-20px;margin-top:-9px;height:50px;" id="diaSuccessTip" class="alert alert-success alert-dismissible" role="alert"><span style="text-align:center;margin-left:auto;margin-right:auto;display:block;"><strong>操作成功</strong></span></div>
+        <div style="width:50%;float:right;margin-right: 12px">
             <button id="btnCloseModel" type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-            <%if(reportAtta.attachmentId){%>
-                <button id="btnUnPassCheck" type="button" class="btn btn-primary">走查不通过</button>
-                <button id="btnPassCheck" type="button" class="btn btn-primary">走查通过</button>
-            <%}else{%>
-                <button id="submit_UpReport" type="button" class="btn btn-primary">上传走查报告</button>
-                <button id="btnUnPassCheck2" type="button" class="btn btn-primary">走查不通过</button>
-                <button id="btnPassCheck2" type="button" class="btn btn-primary">走查通过</button>
-            <%}%>
+            <button id="submit_UpReport" type="button" class="btn btn-primary">上传走查报告</button>
+            <button id="btnPassCheck" type="button" class="btn btn-primary">走查通过</button>
+            <button id="btnUnPassCheck" type="button" class="btn btn-primary">走查不通过</button>
+
+            <!--<%if(reportAtta.attachmentId){%>-->
+                <!--<button id="btnUnPassCheck" type="button" class="btn btn-primary">走查不通过</button>-->
+                <!--<button id="btnPassCheck" type="button" class="btn btn-primary">走查通过</button>-->
+            <!--<%}else{%>-->
+                <!--<button id="submit_UpReport" type="button" class="btn btn-primary">上传走查报告</button>-->
+                <!--<button id="btnUnPassCheck2" type="button" class="btn btn-primary">走查不通过</button>-->
+                <!--<button id="btnPassCheck2" type="button" class="btn btn-primary">走查通过</button>-->
+            <!--<%}%>-->
         </div>
     </div>
 </form>
