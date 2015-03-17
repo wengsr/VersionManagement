@@ -707,7 +707,7 @@ router.post('/extractFile', function(req, res) {
                                         res.send(queryObj.callback + '(\'' + jsonStr + '\')');
                                     }
                                     else{//文件路径错误
-                                        jsonStr = '{"sucFlag":"err","message":"【提取文件】执行失败，检查文件路径是否正确？"}'
+                                        jsonStr = '{"sucFlag":"err","message":"【提取文件】执行失败，文件路径错误或者文件不存在"}'
                                         console.log("ExtractFile Faild2：" + err);
                                         var queryObj = url.parse(req.url, true).query;
                                         res.send(queryObj.callback + '(\'' + jsonStr + '\')');
