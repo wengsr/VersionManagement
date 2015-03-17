@@ -49,16 +49,49 @@ var findAttaByTaskIdAndStepId = function(req, taskId, processStepId, callback){
         callback(result);
     })
 }
+
 /**
- * 查找变更单已提取旧文件的附件
+ * 找到上一个环节的不通过的走查报告
+ * @param req
  * @param taskId
- * @param processStepId
  * @param callback
  */
-var findOldAttaByTaskId = function(req, taskId, processStepId, callback){
-    TaskAtta.findOldAttaByTaskId(taskId, processStepId, function(msg,result){
+var findUnPassReport = function(req, taskId, callback){
+    Task.findUnPassReport(taskId, function(msg,result){
         if('success'!=msg){
-            req.session.error = "查找变更单附件时发生错误,请记录并联系管理员";
+            req.session.error = "查找上一个环节的不通过的走查报告时发生错误,请记录并联系管理员";
+            return null;
+        }
+        callback(result);
+    });
+}
+
+/**
+ * 找到上一个环节的不通过的不通过原因和走查环节的处理人(id，账号，真实姓名等)
+ * @param req
+ * @param taskId
+ * @param callback
+ */
+var findUnPassReason = function(req, taskId, callback){
+    Task.findUnPassReason(taskId, function(msg,result){
+        if('success'!=msg){
+            req.session.error = "查找不通过原因时发生错误,请记录并联系管理员";
+            return null;
+        }
+        callback(result);
+    });
+}
+
+/**
+ * 原来上传的变更单
+ * @param req
+ * @param taskId
+ * @param callback
+ */
+var findUploadedAtta = function(req, taskId, callback){
+    Task.findUploadedAtta(taskId, function(msg,result){
+        if('success'!=msg){
+            req.session.error = "查找原来上传的变更单时发生错误,请记录并联系管理员";
             return null;
         }
         callback(result);
@@ -97,17 +130,37 @@ var openTask = function(stepName, req, res, callback){
                     t.createName = createName;
                     findFileListByTaskId(req, taskId, function(addFileList,modifyFileList,delFileList){
                         if(stepName=='submitFile'){
-                            findOldAttaByTaskId(req, taskId, '2',function(oldAtta) {//找到走查环节上传的走查报告
-                                if (undefined == oldAtta) {
-                                    oldAtta = new TaskAtta({
-                                        "attachmentId": '',
-                                        "taskId": '',
-                                        "processStepId": '',
-                                        "fileName": '没有旧文件',
-                                        "fileUri": '#'
+                            findAttaByTaskIdAndStepId(req, taskId, '2',function(oldAtta) {//找到走查环节上传的走查报告
+                                //获取走查不通过信息
+                                findUnPassReport(req, taskId, function(unPassReport){//不通过的走查报告附件
+                                    findUnPassReason(req, taskId, function(unPassReason){//不通过的原因
+                                        findUploadedAtta(req, taskId, function(beforeAtta){//原来上传的变更单--走查不通过前的变更单
+                                            if (undefined == oldAtta) {
+                                                oldAtta = new TaskAtta({
+                                                    "attachmentId": '',
+                                                    "taskId": '',
+                                                    "processStepId": '',
+                                                    "fileName": '没有旧文件',
+                                                    "fileUri": '#'
+                                                });
+                                            }
+                                            if(undefined == unPassReport)unPassReport=null;
+                                            if(undefined == unPassReason)unPassReason=null;
+                                            if(undefined == beforeAtta)beforeAtta=null;
+                                            res.render(stepName,{
+                                                task:t,
+                                                addFileList:addFileList,
+                                                modifyFileList:modifyFileList,
+                                                delFileList:delFileList,
+                                                oldAtta:oldAtta,
+                                                unPassReport:unPassReport,
+                                                unPassReason:unPassReason,
+                                                beforeAtta:beforeAtta
+                                            });
+
+                                        });
                                     });
-                                }
-                                res.render(stepName,{task:t, addFileList:addFileList, modifyFileList:modifyFileList, delFileList:delFileList, oldAtta:oldAtta});
+                                });
                             });
                         }
                         else {

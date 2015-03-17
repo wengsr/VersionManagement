@@ -509,7 +509,7 @@ Task.doCheckPass = function(taskId,callback){
  * @param taskId
  * @param callback
  */
-Task.doCheckUnPass = function(taskId,callback){
+Task.doCheckUnPass = function(taskId, userId, noPassReason, callback){
     pool.getConnection(function (err, connection) {
         //开启事务
         queues(connection);
@@ -520,6 +520,10 @@ Task.doCheckUnPass = function(taskId,callback){
                 " and turnNum IN (SELECT MAX(turnNum) FROM taskprocessstep where taskId=?)",
             selectDealer_Unpass:"select * from tasks where taskid=? and state='走查不通过'",
             updateTask: "update tasks set state='走查不通过', processStepId=3 where taskid=?",
+            insertCheckUnpass: "insert into checkUnPass " +
+                "            (taskId, turnNum, checkPerson, noPassReason)" +
+                "            values(?, (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskProcessStep WHERE taskId=?) as maxNumTable)," +
+                "           ?,?)",
             insertReturnInfo: 'INSERT INTO taskProcessStep (taskId, processStepId, dealer, turnNum) VALUES ' +
                 '        ( ?,3,' +
                 '          (SELECT CREATER FROM tasks WHERE taskId=?),' +
@@ -529,9 +533,10 @@ Task.doCheckUnPass = function(taskId,callback){
         var selectDealer_params = [taskId, taskId];
         var selectDealer_Unpass_params = [taskId];
         var updateTask_params = [taskId];
+        var insertCheckUnpass_params = [taskId, taskId, userId, noPassReason];
         var insertReturnInfo_params = [taskId,taskId,taskId];
-        var sqlMember = ['selectDealer_pass', 'selectDealer_Unpass', 'updateTask', 'insertReturnInfo'];
-        var sqlMember_params = [selectDealer_params, selectDealer_Unpass_params, updateTask_params, insertReturnInfo_params];
+        var sqlMember = ['selectDealer_pass', 'selectDealer_Unpass', 'updateTask', 'insertCheckUnpass', 'insertReturnInfo'];
+        var sqlMember_params = [selectDealer_params, selectDealer_Unpass_params, updateTask_params, insertCheckUnpass_params, insertReturnInfo_params];
         var i = 0;
         async.eachSeries(sqlMember, function (item, callback_async) {
             trans.query(sql[item], sqlMember_params[i++],function (err_async, result) {
@@ -770,6 +775,89 @@ Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode
             }
             connection.release();
             callback('success',result);
+        });
+    });
+}
+
+/**
+ * 找到上一个环节的不通过的走查报告
+ * @param taskId
+ * @param callback
+ */
+Task.findUnPassReport = function(taskId,callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN TASKS ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'select * from taskattachment ta' +
+            '        where taskId=? and processStepId=5' +
+            '        and turnNum=(select max(turnNum) from checkUnPass where taskId=?)';
+        var params = [taskId,taskId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY TASKS ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',result[0]);
+        });
+    });
+}
+
+/**
+ * 找到上一个环节的不通过的不通过原因和走查环节的处理人
+ * @param taskId
+ * @param callback
+ */
+Task.findUnPassReason = function(taskId,callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN TASKS ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'select * from checkunpass cup ' +
+            '        JOIN user u ON cup.checkPerson = u.userId' +
+            '        AND cup.taskId=? AND cup.turnNum=' +
+            '        (' +
+            '           SELECT o.maxTurnNum FROM' +
+            '           (select max(turnNum) as maxTurnNum from checkUnPass where taskId=?) o' +
+            '        )';
+        var params = [taskId,taskId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY TASKS ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',result[0]);
+        });
+    });
+}
+
+
+/**
+ * 原来上传的变更单--走查不通过前上传的
+ * @param taskId
+ * @param callback
+ */
+Task.findUploadedAtta = function(taskId,callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN TASKS ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'select * from taskattachment ta' +
+            '        where taskId=? and processStepId=3' +
+            '        and turnNum=(select max(turnNum) from checkUnPass where taskId=?)';
+        var params = [taskId,taskId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY TASKS ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',result[0]);
         });
     });
 }

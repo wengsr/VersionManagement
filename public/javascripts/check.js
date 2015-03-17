@@ -28,6 +28,8 @@ function ajaxSubmit(params, url, subType){
                 $('#btnToSubmit').hide();
                 $('#btnPassCheck, #btnPassCheck2').hide();
                 $('#btnUnPassCheck, #btnUnPassCheck2').hide();
+                $('#submit_UpReport').hide();
+                $('#btnSelectReport').hide();
             }
         },
         error: function(jqXHR, textStatus, errorThrown){
@@ -52,9 +54,27 @@ function submitForm_pass(){
  * 提交表单信息_走查不通过
  */
 function submitForm_unPass(){
+    //1.验证文件是否已经上传
+    var checkReportHref = $('#a_reportAtta').attr('href');
+    if(checkReportHref=='#'){
+        $('#diaInfoTip').hide();//隐藏已选择文件提示
+        $('#fulAvatar').val('');//清楚已选择的文件
+        showTipInfo('err','不通过前请先上传走查报告');
+        return;
+    }
+    //2.验证走查不通过原因是否填写
+    var noPassReason = $('#noPassReason').val();
+    if(noPassReason==''){
+        $('#diaInfoTip').hide();//隐藏已选择文件提示
+        $('#fulAvatar').val('');//清楚已选择的文件
+        showTipInfo('err','请填写不通过原因');
+        return;
+    }
+    //2.走查不通过逻辑
     var planCheck_params={
         nextDealer: $('#checkPerson').val(),
-        taskId: $('#taskId').val()
+        taskId: $('#taskId').val(),
+        noPassReason: $('#noPassReason').val()
     };
     var planCheck_url='task/checkUnPass';
     ajaxSubmit(planCheck_params, planCheck_url, 'post');
@@ -202,5 +222,12 @@ jQuery(document).ready(function() {
     $('#fulAvatar').click(function(){
         $('#fulAvatar').val('');
     });
+
+
+    //验证文件是否已经上传
+    var checkReportHref = $('#a_reportAtta').attr('href');
+    if(checkReportHref!='#'){
+        $('#submit_UpReport').hide();
+    }
 });
 

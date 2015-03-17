@@ -7,7 +7,11 @@
     <input type="hidden" id="processStepId" name="processStepId" value="<%= task.processStepId%>"/>
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
-        <h4 class="modal-title" id="myLargeModalLabel">提交变更单</h4>
+        <%if(unPassReason){%>
+            <h4 class="modal-title" id="myLargeModalLabel">提交变更单--走查不通过</h4>
+        <%}else{%>
+            <h4 class="modal-title" id="myLargeModalLabel">提交变更单</h4>
+        <%}%>
     </div>
     <div  class="modal-body">
         <div class="container-fluid">
@@ -27,7 +31,8 @@
                         </div>
                         <label for="inputTaskList" class="col-sm-2 control-label">已提取的旧文件</label>
                         <div class="col-sm-4" style="margin-top:6px">
-                            <span><a id="a_attaFile" href="<%=oldAtta==undefined?'':oldAtta.fileUri%>"><%=oldAtta==undefined?'':oldAtta.fileName%></a></span>
+                            <span><a id="a_oldFile" href="old/<%=task.taskcode%>/old.zip">old.zip</a></span>
+                            <!--<span><a id="a_attaFile" href="<%=oldAtta==undefined?'':oldAtta.fileUri%>"><%=oldAtta==undefined?'':oldAtta.fileName%></a></span>-->
                         </div>
                     </div>
                     <div class="form-group">
@@ -68,7 +73,7 @@
                             </span>
                         </div>
                         <div id="btnSelectReport"  class="col-sm-5" style="margin-left: 20px;">
-                            <span >（仅支持zip,rar文件，请将 新文件new.zip, 基线变更单.xls, 测试报告， 数据变更单打包上传）</span>
+                            <span >（请将“新文件”,“基线变更单”,“测试报告”,“数据变更单”打成一个rar或zip压缩包上传）</span>
                         </div>
                       <!--  <div id="uploadInfo"  class="col-sm-2" style="width: 90px;margin-left: -56px;">
                             <span>
@@ -78,6 +83,39 @@
                         -->
 
                     </div>
+
+                    <%if(unPassReason){%>
+                    <div id="unPassDiv">
+                        <div style="border: 1px solid #bbbbbb"></div>
+                        <div class="form-group">
+                            <label for="delTaskList" class="col-sm-2 control-label">走查人员</label>
+                            <div class="col-sm-10" style="margin-top:6px">
+                                <%=unPassReason.realName%>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="delTaskList" class="col-sm-2 control-label">原上传变更单</label>
+                            <div class="col-sm-10" style="margin-top:6px">
+                                <span><a id="a_attaFile_unPass" href="<%=beforeAtta.fileUri%>"><%=beforeAtta.fileName%></a></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="delTaskList" class="col-sm-2 control-label">走查报告</label>
+                            <div class="col-sm-10" style="margin-top:6px">
+                                <span><a id="a_attaReport_unPass" href="<%=unPassReport.fileUri%>"><%=unPassReport.fileName%></a></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="delTaskList" class="col-sm-2 control-label">不通过原因</label>
+                            <div class="col-sm-10" style="margin-top:6px">
+                                <textarea class="form-control" id="noPassReason" rows="3" disabled="disabled"><%=unPassReason.noPassReason==undefined?'':unPassReason.noPassReason%></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <%}%>
 
                 </div>
             </div>
@@ -100,3 +138,8 @@
 <!--<script src="/javascripts/bootstrap-suggest.js"></script>-->
 <script src="/javascripts/common.js"></script>
 <script src="/javascripts/submitFile.js"></script>
+<script>
+    //赋予走查不通过相关附件的下载功能
+    resetAttaDownloadUri('a_attaFile_unPass');
+    resetAttaDownloadUri('a_attaReport_unPass');
+</script>
