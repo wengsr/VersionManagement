@@ -311,8 +311,10 @@ router.post('/checkPass', function(req, res) {
  */
 router.post('/checkUnPass', function(req, res) {
     var taskId = req.body['taskId'];
+    var userId = req.session.user.userId;
+    var noPassReason = req.body['noPassReason'];
     var jsonStr;
-    Task.doCheckUnPass(taskId, function(msg,result){
+    Task.doCheckUnPass(taskId, userId, noPassReason, function(msg,result){
         if('success' == msg){
             jsonStr = '{"sucFlag":"success","message":"【走查不通过】执行成功"}';
         }else{
