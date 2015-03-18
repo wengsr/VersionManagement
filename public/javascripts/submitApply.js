@@ -1,4 +1,61 @@
 var fields =['#inputTaskName', '#inputTaskDesc', '#project','#inputTaskNewList','#inputTaskModList','#delTaskList'];
+var dynFileds = [ '#inputTaskDesc', '#inputTaskNewList','#inputTaskModList','#delTaskList'];
+var dynDivs = [ '#divTaskDesc', '#divTaskNewList','#divTaskModList','#divDelTaskList'];
+
+function animationExt(area){
+    var row = $(area).attr("rows");
+    if(row<15) {
+        if(area=='#inputTaskModList'){
+            $(area).animate({
+                rows: 15
+            }, 250, 'swing');
+        }
+        else{
+                $(area).animate({
+                rows: 12
+              }, 250, 'swing');
+        }
+    }
+}
+function animationShr(area){
+    if($(area).attr("rows")>3) {
+        $(area).animate({
+            rows: 3
+        }, 250, 'swing');
+    }
+}
+function dynInputFocus(inputName){
+    $(inputName).focus(function() {
+        animationExt(inputName);
+    });
+
+}
+function dynInputBlur(inputName){
+    debugger
+        $(inputName).blur(function () {
+            debugger
+            animationShr(inputName);
+            });
+}
+//function dynInputBlur(){
+//    debugger
+//    for(var j in dynFileds) {
+//        $(dynFileds[j]).blur(function () {
+//            debugger
+//            $(dynFileds[j]).val("blur")
+//            animationShr(dynFileds[j]);
+//            });
+//            //$('#inputTaskDesc').attr('rows', 3);
+//            //$('#inputTaskNewList').attr('rows', 3);
+//            //$('#inputTaskModList').attr('rows', 5);
+//            //$('#delTaskList').attr('rows', 3);
+//            //$('#divTaskDesc').removeAttr('hidden');
+//            //$('#divTaskNewList').removeAttr('hidden');
+//            //$('#divTaskModList').removeAttr('hidden');
+//            //$('#divDelTaskList').removeAttr('hidden');
+//    }
+//}
+
 //function showTipInfo(tipType, tipContent){
 //    var tip = $('#applySuccessTip');
 //    var unTip = $('#applyErrTip');
@@ -52,14 +109,26 @@ function ajaxSubmit(params, url, subType){
         timeout: 5000,
         type: subType,
         success:function(data){
+
             var dataJson = $.parseJSON(data);
             var flag =  dataJson.sucFlag;
+            debugger
+            var id = dataJson.id;
+            var tCode = dataJson.code;
             if('err'==flag){
                 showTipInfo('err',dataJson.message);
             }else if('success'==flag){
-                $('#divModelDialog').modal('hide');
+                disableInput();
+                $('#btnExtractFile').show();
+                $('#oldAtta').show();
+                $('#btnModify').show();
+                $('#submitApply').hide();
+                $('#taskId').val(id);
+                $('#taskCode').text(tCode);
+
+                //$('#divModelDialog').modal('hide');
                 showTipInfo('success',dataJson.message);
-                location.reload();
+                //location.reload();
                 //$('#submitApply').hide();
                 //disableInput();
             }
@@ -76,6 +145,16 @@ function ajaxSubmit(params, url, subType){
 jQuery(document).ready(function() {
     //隐藏文件路径信息提示条
     $('#diaInfoTip').hide();
+    $('#btnExtractFile').hide();
+    $('#btnModify').hide();
+    $('#btnConfirm').hide();
+    //dynInputBlur();
+    for(var i in dynFileds) {
+        dynInputBlur(dynFileds[i])
+    }
+    for(var i in dynFileds) {
+        dynInputFocus(dynFileds[i])
+    }
     $('#submitApply').click(function () {
         var check = checkSubmit(fields);
         var newFiles = $("#inputTaskNewList").val();
@@ -108,6 +187,8 @@ jQuery(document).ready(function() {
     });
     $("#project").change(function(){
         $("#taskProjectUri").text($("#project").find("option:selected").attr("projectUri"));
+        $("#taskProject").val($("#project").find("option:selected").val());
+
     });
     $('#closeModel').click(function(){
         location.reload();

@@ -1,4 +1,8 @@
 <form action="/task/addTask" id="formAddTask" class=" bs-component form-horizontal" method='post'>
+    <input type="hidden" id="taskId" name="taskId" value=""/>
+    <input type="hidden" id="taskProject" name="taskProject" value=""/>
+    <input type="hidden" id="taskCode" name="taskCode" value=""/>
+    <span type="hidden" id="taskCode"></span>
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
         <h4 class="modal-title" id="myLargeModalLabel">申请变更单</h4>
@@ -7,7 +11,6 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-lg-12">
-
                     <div class="form-group">
                         <label for="inputTaskName" class="col-sm-2 control-label">产品</label>
                         <div class="col-sm-10">
@@ -27,14 +30,14 @@
                             <span id="taskProjectUri"></span>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id ='divTaskName'>
                         <label for="inputTaskName" class="col-sm-2 control-label">变更单名称</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control"  name="inputTaskName" id="inputTaskName" placeholder="变更单名称" >
                             <input type="text"  style="display: none;"   hidden="hidden"/>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id ='divTaskDesc'>
                         <label for="inputTaskDesc" class="col-sm-2 control-label">变更内容描述</label>
 
                         <div class="col-sm-10">
@@ -42,22 +45,28 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group" id ='divTaskModList'>
                         <label for="inputTaskModList" class="col-sm-2 control-label">修改文件清单</label>
                         <div class="col-sm-10">
                             <textarea class="form-control" id="inputTaskModList" rows="3" name="taskModFiles" placeholder="输入文件项目路径，多个文件间请换行，文件路径不包含项目路径，如:trunk/local/YN_TRUNK/SaleWeb/src/main/java/com/al/crm/sale/choosechannel/view/chooseChannel.html"></textarea>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="inputTaskList" class="col-sm-2 control-label">新增文件清单</label>
+                <div class="form-group" id ='divTaskNewList'>
+                    <label for="inputTaskNewList" class="col-sm-2 control-label">新增文件清单</label>
                         <div class="col-sm-10">
                             <textarea class="form-control" id="inputTaskNewList" rows="3" name="taskNewFiles"></textarea>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group"id ='divDelTaskList'>
                         <label for="delTaskList" class="col-sm-2 control-label">删除文件清单</label>
                         <div class="col-sm-10" style="margin-top:6px">
-                            <textarea class="form-control" id="delTaskList" rows="3" ></textarea>
+                            <textarea class="form-control" id="delTaskList" rows="2" ></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group" id="oldAtta">
+                        <label for="inputTaskList" class="col-sm-2 control-label">已提取旧文件</label>
+                        <div class="col-sm-3" style="margin-top:8px">
+                            <span><a id="a_reportAtta" href="">没有旧文件</a></span>
                         </div>
                     </div>
                 </div>
@@ -70,7 +79,11 @@
         <div style="width:68%;float:left;margin-bottom:-20px;margin-top:-9px;height:50px;" id="diaSuccessTip" class="alert alert-success alert-dismissible" role="alert"><span style="text-align:center;margin-left:auto;margin-right:auto;display:block;"><strong>操作成功</strong></span></div>
         <button type="button"  id ="closeModel" class="btn btn-default" data-dismiss="modal">关闭</button>
         <button id="submitApply" type="button" class="btn btn-primary" >提交</button>
+        <button id="btnExtractFile" type="button" class="btn btn-primary">提取旧文件</button>
+        <button id="btnModify" type="button" class="btn btn-primary">修改变更单</button>
+        <button id="btnConfirm" type="button" class="btn btn-primary">确定修改</button>
     </div>
 </form>
 <script src="/javascripts/submitApply.js"></script>
 <script src="/javascripts/common.js"></script>
+<script src="/javascripts/extractFile.js"></script>

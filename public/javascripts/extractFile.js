@@ -2,7 +2,7 @@
 /**
  *提交是变更单的描述信息，或新增文件和修改文件不能同时为空
  */
-function checkSubmit(field) {
+function checkSubmit_extrat(field) {
     var flag = true;
     $.each(field, function (i, n) {
         if (i < 1) {
@@ -19,7 +19,7 @@ function checkSubmit(field) {
     return flag;
 }
 
-var fields=[ '#inputTaskDesc','#addTaskList','#modifyTaskList','#delTaskList'];
+var extractFields=[ '#inputTaskDesc','#inputTaskNewList','#inputTaskModList','#delTaskList'];
 var fieldValues ;
 /**
 * 变更单修改前的信息
@@ -27,8 +27,8 @@ var fieldValues ;
 function getFieldValues(){
     fieldValues = {
         taskDesc: $("#inputTaskDesc").val(),
-        taskNewFiles: $("#addTaskList").val(),
-        taskModFiles: $("#modifyTaskList").val(),
+        taskNewFiles: $("#inputTaskNewList").val(),
+        taskModFiles: $("#inputTaskModList").val(),
         taskDelFiles: $("#delTaskList").val()
     };
 }
@@ -46,7 +46,7 @@ function fileUploadBtnLoading(btnId,tipString){
  * @param url
  * @param subType
  */
-function ajaxSubmit(params, url, subType){
+function ajaxSubmit_extract(params, url, subType){
     url = './' + url;
     $.ajax({
         data: params,
@@ -61,11 +61,11 @@ function ajaxSubmit(params, url, subType){
             var flag =  dataJson.sucFlag;
             var errFile = dataJson.file;
             if('err'==flag){
+
+                showTipInfo('err',dataJson.message);
                 if(errFile!=undefined){
                     alert("出错文件："+errFile);
                 }
-                showTipInfo('err',dataJson.message);
-
                 //提取文件成功后返回
                 if (url == './task/extractFile') {
                     $('#btnExtractFile').button('reset');
@@ -109,8 +109,8 @@ function ajaxSubmit(params, url, subType){
                     $("#btnModCancel").hide();
                     $('#btnExtractFile').show();
                     $('#btnModify').show();
-                    $('#modifyTaskList').attr('disabled', true);
-                    $('#addTaskList').attr('disabled', true);
+                    $('#inputTaskModList').attr('disabled', true);
+                    $('#inputTaskNewList').attr('disabled', true);
                     $('#inputTaskDesc').attr('disabled', true);
                     $('#delTaskList').attr('disabled', true);
                     showTipInfo('success', dataJson.message);
@@ -128,7 +128,8 @@ function ajaxSubmit(params, url, subType){
  * 提交表单信息_走查通过
  */
 function submitForm_extract(){
-    var modFiles = $('#modifyTaskList').val();
+    var modFiles = $('#inputTaskModList').val();
+
     var extractFile_params={
         taskProject: $('#taskProject').val(),
         modFilesList: modFiles,
@@ -137,7 +138,7 @@ function submitForm_extract(){
         taskId: $('#taskId').val()
     };
     var extractFile_url='task/extractFile';
-    ajaxSubmit(extractFile_params, extractFile_url, 'post');
+    ajaxSubmit_extract(extractFile_params, extractFile_url, 'post');
     fileUploadBtnLoading("btnExtractFile","正在提取文件");
 }
 
@@ -147,7 +148,7 @@ function submitForm_extract(){
  */
 
 function submitForm_modify(){
-    var check = checkSubmit(fields);
+    var check = checkSubmit_extrat(extractFields);
     if (check) {
         var params_modify = {
             taskId: $("#taskId").val()
@@ -156,9 +157,9 @@ function submitForm_modify(){
             taskId:$("#taskId").val(),
             //projectId:$("#projectId").val(),
             taskDesc: $("#inputTaskDesc").val(),
-            taskNewFiles: $("#addTaskList").val(),
+            taskNewFiles: $("#inputTaskNewList").val(),
             taskDelFiles: $("#delTaskList").val(),
-            taskModFiles: $("#modifyTaskList").val()
+            taskModFiles: $("#inputTaskModList").val()
         };
         var modifyFlag = false;
         for(var val in fieldValues){
@@ -169,7 +170,7 @@ function submitForm_modify(){
         }
         if(modifyFlag) {
             var modifyFile_url = 'task/modifyTask';
-            ajaxSubmit(params_modify, modifyFile_url, 'post');
+            ajaxSubmit_extract(params_modify, modifyFile_url, 'post');
 
         }
         else{
@@ -178,8 +179,8 @@ function submitForm_modify(){
             $("#btnModify").show();
             $("#btnConfirm").hide();
             $("#btnModCancel").hide();
-            $('#modifyTaskList').attr('disabled', true);
-            $('#addTaskList').attr('disabled', true);
+            $('#inputTaskModList').attr('disabled', true);
+            $('#inputTaskNewList').attr('disabled', true);
             $('#inputTaskDesc').attr('disabled', true);
             $('#delTaskList').attr('disabled', true);
 
@@ -229,8 +230,8 @@ function bindClick_btnUploadFile(){
         $("#btnModify").hide();
         getFieldValues();
         $("#btnExtractFile").hide();
-        $('#modifyTaskList').attr('disabled', false);
-        $('#addTaskList').attr('disabled', false);
+        $('#inputTaskModList').attr('disabled', false);
+        $('#inputTaskNewList').attr('disabled', false);
         $('#inputTaskDesc').attr('disabled', false);
         $('#delTaskList').attr('disabled', false);
     });
@@ -240,16 +241,16 @@ function bindClick_btnUploadFile(){
         $("#btnExtractFile").show();
         $("#btnModify").show();
         $("#inputTaskDesc").val(fieldValues.taskDetails);
-        $("#addTaskList").val(fieldValues.taskNewFiles);
-        $("#modifyTaskList").val(fieldValues.taskModFiles);
-        $('#modifyTaskList').attr('disabled', true);
-        $('#addTaskList').attr('disabled', true);
+        $("#inputTaskNewList").val(fieldValues.taskNewFiles);
+        $("#inputTaskModList").val(fieldValues.taskModFiles);
+        $('#inputTaskModList').attr('disabled', true);
+        $('#inputTaskNewList').attr('disabled', true);
         $('#inputTaskDesc').attr('disabled', true);
         $('#delTaskList').attr('disabled', true);
     });
     $("#btnConfirm").on("click", function () {
-        var newFiles = $("#addTaskList").val();
-        var modFiles = $("#modifyTaskList").val()
+        var newFiles = $("#inputTaskNewList").val();
+        var modFiles = $("#inputTaskModList").val()
         var delFiles = $("#delTaskList").val()
         var checkFile ;
         checkFile = isFile(newFiles)&&isFile(modFiles)&isFile(delFiles);

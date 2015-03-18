@@ -3,6 +3,9 @@
  * @param str
  */
 function getFilesUri(str){
+    if(str == undefined){
+        return [];
+    }
     str = str.trim();
     while(str.indexOf('\\')!=-1){
         str = str.replace('\\', '/');
@@ -12,18 +15,18 @@ function getFilesUri(str){
     }
     str= str.split('\n');
     for(var i in str){
-        str[i]=str[i].match(/[\/a-zA-Z0-9_\/]+[.][a-zA-Z0-9_]+/g);
-        if(str[i]==null){
-            str.splice(i,i);
+        if(str ==''){
+            return [];
         }
-        else{
-            str[i]=str[i].toString();
+        var tmp;
+        tmp = str[i].match(/[\/a-zA-Z0-9_\/]+[.][a-zA-Z0-9_]+/g);
+        if(  tmp!=null){
+            str[i] = tmp.toString();
         }
     }
     if(str[0] == null){
         return [];
     }
-
     return str;
 }
 function getFilesName(files){
@@ -196,9 +199,25 @@ exports.addTask = function (taskInfo,callback) {
                 if (item == 'selectProject') {
                     if (result.length > 0) {
                         project = result;
-                        taskCount = project[0].taskCount;
+                       var taskCount = project[0].taskCount;
                         projectName = project[0].projectName;
-                        taskCode = project[0].projectName + project[0].taskCount;
+                        var count =project[0].taskCount;
+                        var newDate = new Date();
+                        var year = newDate.getFullYear().toString() ;
+                        var month = (newDate.getMonth() + 1).toString();
+                        if(month<10){
+                            month = '0' + month;
+                        }
+                        var day = newDate.getDate().toString();
+                        var nowDate = year + month + day;
+                        if(taskCount<10000){
+                            taskCount ='0'+taskCount;
+                            while(taskCount.lenth<4){
+                                taskCount ='0'+taskCount;
+                            }
+
+                        }
+                        taskCode = project[0].projectName +'_'+nowDate+'_'+taskCount;
                         projectUri = project[0].projectUri;
                         task_params[2] = [taskCode, taskInfo.name, taskInfo.tasker, taskInfo.state, "2",
                             taskInfo.projectId, taskInfo.desc];
@@ -229,7 +248,11 @@ exports.addTask = function (taskInfo,callback) {
                     addFiles_params = addFilesParam(addFiles_params, taskId, modFiles, modUri, 0);
                     addFiles_params = addFilesParam(addFiles_params, taskId, delFiles, delUri, 2);
                     //console.log("addFiles_params:", addFiles_params);
-                    insertFile(trans, addFiles_params, 0, callback);
+                    insertFile(trans, addFiles_params, 0, function(msg){
+                        if(msg =='success'){
+                            callback("success",taskId,taskCode);
+                        }
+                    });
                 }
                 console.log(result);
                 callback_async(err, result);
