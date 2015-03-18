@@ -3,6 +3,7 @@
  * @param str
  */
 function getFilesUri(str){
+    //console.log("str:",str);
     if(str == undefined){
         return [];
     }
@@ -15,12 +16,13 @@ function getFilesUri(str){
     }
     str= str.split('\n');
     for(var i in str){
-        str[i]=str[i].match(/[\/a-zA-Z0-9_\/]+[.][a-zA-Z0-9_]+/g);
-        if(str[i]==null){
-            str.splice(i,i);
+        if(str ==''){
+            return [];
         }
-        else{
-            str[i]=str[i].toString();
+        var tmp;
+        tmp = str[i].match(/[\/a-zA-Z0-9_\/]+[.][a-zA-Z0-9_]+/g);
+        if(  tmp!=null){
+            str[i] = tmp.toString();
         }
     }
     if(str[0] == null){
@@ -243,12 +245,13 @@ router.post('/addTask', function (req, res) {
     var projectUri ;
     var flag = false;
 
-    dao.addTask({name: taskName, tasker: tasker ,state: taskState,projectId:taskProject,desc:taskDetails,newFiles:taskNewFiles, modFiles:taskModFiles,delFiles:taskDelFiles}, function (msg,result) {
+    dao.addTask({name: taskName, tasker: tasker ,state: taskState,projectId:taskProject,desc:taskDetails,newFiles:taskNewFiles, modFiles:taskModFiles,delFiles:taskDelFiles}, function (msg,taskId,taskCode) {
         var queryObj = url.parse(req.url,true).query;
         var jsonStr;
         if('success' == msg){
-            console.log("申请成功");
-            jsonStr = '{"sucFlag":"success","message":"【提交申请】申请成功！"}';
+            console.log("申请成功",taskCode,":",taskId);
+            jsonStr = '{"sucFlag":"success","message":"【提交申请】申请成功！","id":"'+taskId+'","code":"'+taskCode+'"}';
+            //jsonStr = '{"sucFlag":"success","message":"【提交申请】申请成功！"}';
         }
         else{
             console.log("申请失败");
@@ -709,7 +712,7 @@ router.post('/extractFile', function(req, res) {
                             var versionDir = projectUri;
                             var fileList = oldFiles;
                             /*提取文件*/
-                           var checkFlag = testTask.checkout(localDir, versionDir, fileList, function (err, flag, data) {
+                           var checkFlag = testTask.checkout(localDir, versionDir, fileList, function (err, flag, data,file) {
                                 if (err) {//checkout 失败
                                     if(flag) {//svn 连接错误
                                         jsonStr = '{"sucFlag":"err","message":"【提取文件】执行失败，svn连接失败！！"}'
@@ -718,7 +721,7 @@ router.post('/extractFile', function(req, res) {
                                         res.send(queryObj.callback + '(\'' + jsonStr + '\')');
                                     }
                                     else{//文件路径错误
-                                        jsonStr = '{"sucFlag":"err","message":"【提取文件】执行失败，检查文件路径是否正确？"}'
+                                        jsonStr = '{"sucFlag":"err","message":"【提取文件】执行失败，检查文件路径是否正确？","file":"'+file+'"}'
                                         console.log("ExtractFile Faild2：" + err);
                                         var queryObj = url.parse(req.url, true).query;
                                         res.send(queryObj.callback + '(\'' + jsonStr + '\')');
@@ -734,8 +737,8 @@ router.post('/extractFile', function(req, res) {
                                     zipFilesFlag = fileZip.zipFiles(localDir,fileList,zipUri);
                                     var zipUriSaved = "./old/"+taskCode+"/" +zipName;
                                     var queryObj = url.parse(req.url, true).query;
-                                    if(!zipFilesFlag){
-                                        jsonStr = '{"sucFlag":"err","message":"【提取文件】执行失败,请检查文件路径是否正确！！！"}';
+                                    if(!zipFilesFlag[0]){
+                                        jsonStr = '{"sucFlag":"err","message":"【提取文件】执行失败,请检查文件路径是否正确！！！","file":"'+zipFilesFlag[1]+'"}';
                                         res.send(queryObj.callback + '(\'' + jsonStr + '\')');
                                     }
                                     else {
