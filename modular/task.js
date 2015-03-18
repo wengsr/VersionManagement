@@ -572,7 +572,7 @@ Task.doCheckUnPass = function(taskId, userId, noPassReason, callback){
  * @param taskId
  * @param callback
  */
-Task.submitComplete = function(taskId,callback){
+Task.submitComplete = function(taskId, userId, callback){
     pool.getConnection(function (err, connection) {
         //开启事务
         queues(connection);
@@ -582,13 +582,13 @@ Task.submitComplete = function(taskId,callback){
             selectDealer:"select * from tasks where taskid=? and processStepId=7",
             updateTask: "update tasks set state='上库完成',processStepId=7 where taskid=?",
             updateFileList: "update filelist set commit=1 where taskId=?",
-            updateTPS:"insert into taskprocessstep (taskid, processStepId, turnNum) " +
-                " values (?,7,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?))"
+            updateTPS:"insert into taskprocessstep (taskid, processStepId, turnNum, dealer) " +
+                " values (?,7,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?)"
         }
         var selectDealer_params = [taskId];
         var updateTask_params = [taskId];
         var updateFileList_params = [taskId];
-        var updateTPS_params = [taskId,taskId];
+        var updateTPS_params = [taskId,taskId,userId];
         var sqlMember = ['selectDealer', 'updateTask', 'updateFileList', 'updateTPS'];
         var sqlMember_params = [selectDealer_params, updateTask_params, updateFileList_params, updateTPS_params];
         var i = 0;
@@ -858,6 +858,35 @@ Task.findUploadedAtta = function(taskId,callback){
             }
             connection.release();
             callback('success',result[0]);
+        });
+    });
+}
+
+
+/**
+ * 查找变更单历史数据
+ * @param taskId
+ * @param callback
+ */
+Task.findHistory = function(taskId,callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN TASKS ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'SELECT tps.*, u.realName, ta.fileName, ta.fileUri, cup.noPassReason FROM taskprocessstep tps ' +
+            '        JOIN user u ON tps.dealer = u.userId AND tps.taskid=?' +
+            '        LEFT JOIN taskattachment ta ON ta.taskId=tps.taskid AND ta.processStepId=tps.processStepId AND ta.turnNum=tps.turnNum' +
+            '        LEFT JOIN checkunpass cup ON cup.taskId = tps.taskid AND cup.turnNum=tps.turnNum AND tps.processStepId=5' +
+            '        ORDER BY turnNum,processStepId,id';
+        var params = [taskId];
+        connection.query(sql, params, function (err, results) {
+            if (err) {
+                console.log('[QUERY TASKS ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',results);
         });
     });
 }

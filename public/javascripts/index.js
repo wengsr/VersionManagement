@@ -115,5 +115,24 @@ jQuery(document).ready(function() {
 
     //变更单记录为0时候的处理
     dealZeroTask();
+
+    //查看变更单历史
+    var btnHistory = $('[btnType=taskHistory]');
+    btnHistory.click(function(){
+        var clickTaskId = $(this).attr('taskId');//点击了哪个变更单的查看历史按钮
+        var taskHistoryUrl = '/task/history/' + clickTaskId;
+//        console.info('###########' + clickTask);
+
+        $('#divModel').load(taskHistoryUrl,function(){
+//            $('#btnSubmit').click(function () {
+//                $(findFormName).submit();
+//            });
+        });
+        $('#divModelDialog').modal();
+
+
+    });
+
+
 });
 

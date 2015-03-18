@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>变更单历史</title>
+    <link href="../stylesheets/history.css" rel="stylesheet" />
+</head>
+<body>
+
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title"><%=title%></h4>
+</div>
+
+
+<div class="head-warp">
+    <div class="head">
+        <div class="nav-box">
+            <ul>
+                <li class="cur" style="text-align:center; font-size:62px; font-family:'微软雅黑', '宋体';"></li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="main">
+    <div class="history">
+        <%for(var j=0; j<=maxTurnNum; j++){%>
+        <div class="history-date">
+            <ul>
+                <h2 class="data01"><a href="#">第<%=j+1%>轮</a></h2>
+                <%taskHis.forEach(function(tHis, item){%>
+                <%if(tHis.turnNum == j){%>
+                <%if(tHis.processStepId == 2){%>
+                <li>
+                    <h3>发起变更单</h3>
+                    <dl>
+                        <dt><%=tHis.realName%>
+                            <span>填写提交了变更单基本信息</span>
+                        </dt>
+                    </dl>
+                </li>
+                <%}%>
+
+                <%if(tHis.processStepId==2 && tHis.fileName){%>
+                <li>
+                    <h3>提取旧文件</h3>
+                    <dl>
+                        <dt>系统
+                            <span>提取SVN上存在的旧文件：<a typeId="attaLink" href="<%=tHis.fileUri%>" style="color:#32B1EC"><%=tHis.fileName%></a></span>
+                        </dt>
+                    </dl>
+                </li>
+                <%}%>
+
+                <%if(tHis.processStepId==3){%>
+                <li>
+                    <h3>提交变更单</h3>
+                    <dl>
+                        <dt><%=tHis.realName%>
+                            <span>上传了变更单：<a typeId="attaLink" href="<%=tHis.fileUri%>" style="color:#32B1EC"><%=tHis.fileName%></a></span>
+                        </dt>
+                    </dl>
+                </li>
+                <%}%>
+
+                <%if(tHis.processStepId==4){%>
+                <li>
+                    <h3>指定走查</h3>
+                    <dl>
+                        <dt><%=tHis.realName%>
+                            <%taskHis.forEach(function(tempHis, tempItem){%>
+                                <%if(tempHis.turnNum==tHis.turnNum && tempHis.processStepId==5){%>
+                                    <span>指定<%=tempHis.realName%>对该变更单走查</span>
+                                <%}%>
+                            <%});%>
+                        </dt>
+                    </dl>
+                </li>
+                <%}%>
+
+                <%if(tHis.processStepId==5 && tHis.turnNum==maxTurnNum){%>
+                <li>
+                    <h3>走查</h3>
+                    <dl>
+                        <dt><%=tHis.realName%>
+                            <span>走查该变更单后，做出“走查通过”的判定<br/>
+                                <label>上传了走查报告：<a typeId="attaLink" href="<%=tHis.fileUri%>" style="color:#32B1EC"><%=tHis.fileName%></a></label>。
+                            </span>
+                        </dt>
+                    </dl>
+                </li>
+                <%}%>
+
+                <%if(tHis.processStepId==5 && tHis.turnNum<maxTurnNum){%>
+                <li>
+                    <h3>走查</h3>
+                    <dl>
+                        <dt><%=tHis.realName%>
+                            <span>走查该变更单后，做出“走查不通过”的判定。<br/>
+                            上传了走查报告：<a typeId="attaLink" href="<%=tHis.fileUri%>" style="color:#32B1EC"><%=tHis.fileName%></a><br/>
+                            描述了不通过原因：<%=tHis.noPassReason%><br/>
+                            变更单退回“提交变更单”环节
+                            </span>
+                        </dt>
+                    </dl>
+                </li>
+                <%}%>
+
+                <%if(tHis.processStepId==6){%>
+                <li>
+                    <h3>上库</h3>
+                    <dl>
+                        <dt><%=tHis.realName%>
+                            <span>接受了上库任务</span>
+                        </dt>
+                    </dl>
+                </li>
+                <%}%>
+
+                <%if(tHis.processStepId==6){%>
+                <li>
+                    <h3>上库完成</h3>
+                    <dl>
+                        <dt>张三
+                            <span>完成了代码上库任务</span>
+                        </dt>
+                    </dl>
+                </li>
+                <%}%>
+
+                <%}%>
+                <%});%>
+            </ul>
+        </div>
+        <%}%>
+
+
+
+
+
+        <!--<div class="history-date">-->
+            <!--<ul>-->
+                <!--<h2 class="date02"><a href="#">第n轮</a></h2>-->
+                <!--<li>-->
+                    <!--<h3>发起变更单1</h3>-->
+                    <!--<dl>-->
+                        <!--<dt>填写提交了变更单基本信息-->
+                            <!--<span>处理人：XXX</span>-->
+                        <!--</dt>-->
+                    <!--</dl>-->
+                <!--</li>-->
+            <!--</ul>-->
+        <!--</div>-->
+
+
+    </div>
+</div>
+
+
+</body>
+</html>
+
+
+<!-- <li>
+  <h3>变更单流程结束</h3>
+  <dl>
+    <dt>流程结束
+		<span>处理人：XXX</span>
+	</dt>
+	<br><br><br><br><br><br><br><br>
+  </dl>
+</li> -->
+
+<script src="../javascripts/historyJs.js"></script>
+<script>
+
+    function resetAttaUri(aInputId){
+        var aInput = "[typeId="+aInputId+"]";
+        var attaUri = $(aInput).attr('href');
+        var attaName = $(aInput).html();
+        if(!attaUri || '#'==attaUri){
+            return;
+        }
+        attaUri = attaUri.replace(/\./g,'%2E');
+        attaUri = attaUri.replace(/\//g,'%2F');
+        attaName = attaName.replace(/\./g,'%2E');
+        attaName = attaName.replace(/\//g,'%2F');
+        var currentUri = '/file/fileDownLoad/' + attaName + '/' + attaUri;
+        $(aInput).attr('href',currentUri);
+    }
+
+
+    jQuery(document).ready(function() {
+        //重置附件的超链接
+        resetAttaUri('attaLink');
+        //下载附件
+        var aLink = $('[typeId=attaLink]');
+        aLink.click(function(){
+            var aHref = $(this).attr('href');
+            location.href = aHref;
+        });
+    });
+</script>
+
