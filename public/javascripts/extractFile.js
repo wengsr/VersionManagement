@@ -8,11 +8,18 @@ function checkSubmit_extrat(field) {
         if (i < 1) {
             if ($(field[i]).val() == '') {
                 flag = false;
+                $('#alertInfo').text(field[i] + "不能为空");
+                var selector = "label[for="+field[i].replace('#','')+"]";
+                var text = $(selector).text();
+                $('#alertInfo').text("【"+text + "】不能为空");
+                $('#divAlert').show();
                 return flag;
             }
         }
         if (($(field[1]).val() == '') && ($(field[2]).val() == '')&& ($(field[3]).val() == '')) {//修改清单和新增清单不能同时为空
             flag = false;
+            $('#alertInfo').text("文件清单不能同时为空");
+            $('#divAlert').show();
             return flag;
         }
     });
@@ -56,15 +63,15 @@ function ajaxSubmit_extract(params, url, subType){
         timeout: 500000,
         type: subType,
         success: function(data){
-
             var dataJson = $.parseJSON(data);
             var flag =  dataJson.sucFlag;
             var errFile = dataJson.file;
             if('err'==flag){
-
                 showTipInfo('err',dataJson.message);
                 if(errFile!=undefined){
-                    alert("出错文件："+errFile);
+                    //alert("出错文件："+errFile);
+                    $("#divAlert").show();
+                    $("#alertInfo").text("  出错文件: "+ errFile);
                 }
                 //提取文件成功后返回
                 if (url == './task/extractFile') {
@@ -76,12 +83,14 @@ function ajaxSubmit_extract(params, url, subType){
                 else{
                     $('#btnConfirm').hide();
                     $('#btnModify').show();
-
                 }
             }else if('success'==flag) {
+                $("#divAlert").hide();
                 if (url == './task/extractFile') {
                     if (dataJson.userFlag) {
-                        alert(dataJson.user);
+                        //alert(dataJson.user);
+                        $("#divAlert").show();
+                        $("#alertInfo").text( dataJson.user);
                         $('#btnExtractFile').val("提取旧文件");
                         $('#a_reportAtta').html("没有旧文件");
                         $('#btnExtractFile').button('reset');
@@ -198,13 +207,11 @@ function fileUp(url){
         url: url,
         dataType: 'json',
         done: function (e, data) {
-            debugger
             $.each(data.result.files, function (index, file) {
                 $('<p/>').text(file.name).appendTo('#files');
             });
         },
         fail:function(e,data){
-            debugger
             console.log(e);
             console.log(data);
         }
@@ -254,7 +261,6 @@ function bindClick_btnUploadFile(){
         var delFiles = $("#delTaskList").val()
         var checkFile ;
         checkFile = isFile(newFiles)&&isFile(modFiles)&isFile(delFiles);
-        debugger;
         if(!checkFile){
             showTipInfo('err', '文件名是否正确！');
             return false;
@@ -269,10 +275,9 @@ function bindClick_btnUploadFile(){
 
 jQuery(document).ready(function() {
     //隐藏文件上传时用于替代走查通过or不通过的按钮
-
-
     $('#btnModCancel').hide();
     $('#btnConfirm').hide();
+    $('#divAlert').hide();
     //$("#btnModifyTask").hide();
 
     //隐藏文件路径信息提示条

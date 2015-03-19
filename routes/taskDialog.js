@@ -4,6 +4,7 @@
 var express = require('express');
 var router = express.Router();
 var Task = require('../modular/task');
+var taskDao = require('../modular/taskDao');
 var TaskAtta = require('../modular/taskAtta');
 
 /**
@@ -161,6 +162,17 @@ var openTask = function(stepName, req, res, callback){
                                         });
                                     });
                                 });
+                            });
+                        }
+                        else if(stepName =='extractFile'){
+                            var projectId = t.projectId;
+                           taskDao.searchProject({projectId:projectId},function(msg, result){
+                                if(msg == 'err'){
+                                    console.log("【searchProject】 Err：");
+                                }
+                                else{
+                                    res.render(stepName,{task:t, addFileList:addFileList, modifyFileList:modifyFileList, delFileList:delFileList, project:result});
+                                }
                             });
                         }
                         else {
@@ -347,11 +359,10 @@ router.get('/check/:taskId/:taskCreater/:dealerName/:createName', function(req, 
 router.get('/submit/:taskId/:taskCreater/:dealerName/:createName', function(req, res) {
     openTask('submit',req,res);
 });
-/**
- * 打开"修改变更单"的页面（步骤6）
- */
-router.get('/modifyTask/:taskId/:taskCreater/:dealerName/:createName', function(req, res) {
-    openTask('modifyTask',req,res);
+
+router.get('/errModal', function(req, res) {
+    res.render('errModal.ejs');
 });
+
 
 module.exports = router;

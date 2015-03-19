@@ -1,75 +1,97 @@
 var fields =['#inputTaskName', '#inputTaskDesc', '#project','#inputTaskNewList','#inputTaskModList','#delTaskList'];
+var storageNames=['inputTaskName', 'inputTaskDesc', 'project','inputTaskNewList','inputTaskModList','delTaskList'];
 var dynFileds = [ '#inputTaskDesc', '#inputTaskNewList','#inputTaskModList','#delTaskList'];
 var dynDivs = [ '#divTaskDesc', '#divTaskNewList','#divTaskModList','#divDelTaskList'];
+var storageFlag = true;
+/**
+ *保存申请变更单失败时，或未提交时，已提交的变更单信息
+ * @param filed 需要保存的值
+ */
+function storageTask(field) {
+    if (window.sessionStorage) {
+        for (var i in field) {
+            if ($(fields[i]).val()) {
+                sessionStorage.setItem(field[i], $(fields[i]).val());
+            }
+        }
+    }
+}
+/**
+ *填写变更单时，恢复之前未提交的变更单信息
+ * @param field 需要保存的值
+ */
+function recoverTask(field){
+    if(window.sessionStorage){
+        for(var i in field) {
+            if (sessionStorage.length > 0) {
+                if (sessionStorage.getItem(field[i])) {
+                    $(fields[i]).val(sessionStorage.getItem(field[i]));
+                }
+            }
+        }
+        $("#taskProject").val($("#project").find("option:selected").val());
+        $("#taskProjectUri").text($("#project").find("option:selected").attr("projectUri"));
+    }
+}
+/**
+ *变跟单提交成功时，删除已保存的信息
+ */
+function  deleteStrorage(field){
+    debugger
+    if(window.sessionStorage){
+    //    for(var i in field)
+    //        if(sessionStorage.field[i]) {
+    //            sessionStorage.removeItem(field[i])
+    //        }
+        sessionStorage.clear();
+    }
 
+}
 function animationExt(area){
     var row = $(area).attr("rows");
+
     if(row<15) {
         if(area=='#inputTaskModList'){
             $(area).animate({
                 rows: 15
-            }, 250, 'swing');
+            }, 200, 'swing');
         }
         else{
-                $(area).animate({
+            $(area).animate({
                 rows: 12
-              }, 250, 'swing');
+            }, 200, 'swing');
         }
     }
 }
 function animationShr(area){
-    if($(area).attr("rows")>3) {
-        $(area).animate({
-            rows: 3
-        }, 250, 'swing');
+    if($(area).attr("rows")>6) {
+        if(area=='#inputTaskModList'){
+            $(area).animate({
+                rows: 6
+            }, 200, 'swing');
+        }
+        else {
+            $(area).animate({
+                rows: 3
+            }, 200, 'swing');
+        }
     }
 }
 function dynInputFocus(inputName){
     $(inputName).focus(function() {
-        animationExt(inputName);
+        
+        setTimeout(function() {
+            animationExt(inputName);
+        },300);
     });
 
 }
 function dynInputBlur(inputName){
-    debugger
-        $(inputName).blur(function () {
-            debugger
-            animationShr(inputName);
+        $(inputName).mouseout(function () {
+            setTimeout(function(){
+                animationShr(inputName)},200);
             });
 }
-//function dynInputBlur(){
-//    debugger
-//    for(var j in dynFileds) {
-//        $(dynFileds[j]).blur(function () {
-//            debugger
-//            $(dynFileds[j]).val("blur")
-//            animationShr(dynFileds[j]);
-//            });
-//            //$('#inputTaskDesc').attr('rows', 3);
-//            //$('#inputTaskNewList').attr('rows', 3);
-//            //$('#inputTaskModList').attr('rows', 5);
-//            //$('#delTaskList').attr('rows', 3);
-//            //$('#divTaskDesc').removeAttr('hidden');
-//            //$('#divTaskNewList').removeAttr('hidden');
-//            //$('#divTaskModList').removeAttr('hidden');
-//            //$('#divDelTaskList').removeAttr('hidden');
-//    }
-//}
-
-//function showTipInfo(tipType, tipContent){
-//    var tip = $('#applySuccessTip');
-//    var unTip = $('#applyErrTip');
-//    if('success'==tipType){
-//        tip = $('#applySuccessTip');
-//        unTip = $('#applyErrTip');
-//    }else if('err'==tipType){
-//        tip = $('#applyErrTip');
-//        unTip = $('#applySuccessTip');
-//    }
-//    tip.find('span').find('strong').html(tipContent);
-//    unTip.hide();
-//    tip.show();
-//}
 
 function disableInput(){
     $("#project").attr("disabled","disabled");
@@ -81,17 +103,23 @@ function disableInput(){
 }
 
 function checkSubmit(fields){
-    debugger
     var flag = true;
     $.each(fields,function(i,n){
         if(i<3) {
             if ($(fields[i]).val() == '') {
                 flag = false;
+                debugger
+                var selector = "label[for="+fields[i].replace('#','')+"]";
+                var text = $(selector).text();
+                $('#alertInfo').text("【"+text + "】不能为空");
+                $('#divAlert').show();
                 return flag;
             }
         }
         if (($(fields[3]).val() == '')&& ($(fields[4]).val() == '')&&$(fields[5]).val() == ''){//修改清单和新增清单不能同时为空
             flag = false;
+            $('#alertInfo').text("文件清单不能同时为空");
+            $('#divAlert').show();
             return flag;
         }
     });
@@ -109,28 +137,25 @@ function ajaxSubmit(params, url, subType){
         timeout: 5000,
         type: subType,
         success:function(data){
-
             var dataJson = $.parseJSON(data);
             var flag =  dataJson.sucFlag;
-            debugger
+            
             var id = dataJson.id;
             var tCode = dataJson.code;
             if('err'==flag){
                 showTipInfo('err',dataJson.message);
             }else if('success'==flag){
                 disableInput();
+                storageFlag = false;
                 $('#btnExtractFile').show();
                 $('#oldAtta').show();
                 $('#btnModify').show();
                 $('#submitApply').hide();
                 $('#taskId').val(id);
                 $('#taskCode').text(tCode);
-
                 //$('#divModelDialog').modal('hide');
+                $('#divAlert').hide();
                 showTipInfo('success',dataJson.message);
-                //location.reload();
-                //$('#submitApply').hide();
-                //disableInput();
             }
             else{
                 showTipInfo('err',"未知错误");
@@ -148,49 +173,64 @@ jQuery(document).ready(function() {
     $('#btnExtractFile').hide();
     $('#btnModify').hide();
     $('#btnConfirm').hide();
+    $('#oldAtta').hide();
+    //$('#divPop').hide();
+    $('#divAlert').hide();
+
     //dynInputBlur();
-    for(var i in dynFileds) {
+    for (var i in dynFileds) {
         dynInputBlur(dynFileds[i])
     }
-    for(var i in dynFileds) {
+    for (var i in dynFileds) {
         dynInputFocus(dynFileds[i])
     }
     $('#submitApply').click(function () {
         var check = checkSubmit(fields);
         var newFiles = $("#inputTaskNewList").val();
-        var modFiles = $("#inputTaskModList").val() ;
+        var modFiles = $("#inputTaskModList").val();
         var delFiles = $("#delTaskList").val();
-        var checkFile ;
-        checkFile = isFile(newFiles)&&isFile(delFiles)&&isFile(modFiles);
-        if(!checkFile){
-            showTipInfo('err', '文件名是否正确！');
+        var checkFile;
+        checkFile = isFile(newFiles) && isFile(delFiles) && isFile(modFiles);
+        if (!checkFile) {
+            showTipInfo('err', '请检查文件路径是否正确！');
             return true;
         }
         if (check) {
-            var params ={
-                taskName : $("#inputTaskName").val(),
-            // tasker : $(#inputTasker).val();
-            taskState  : "申请通过",//提交申请
-            taskProject : $("#project").val(),
-            taskDetails: $("#inputTaskDesc").val(),
-            taskNewFiles : $("#inputTaskNewList").val(),
-            taskModFiles : $("#inputTaskModList").val(),
-            taskDelFiles : $("#delTaskList").val()
+            var params = {
+                taskName: $("#inputTaskName").val(),
+                // tasker : $(#inputTasker).val();
+                taskState: "申请通过",//提交申请
+                taskProject: $("#project").val(),
+                taskDetails: $("#inputTaskDesc").val(),
+                taskNewFiles: $("#inputTaskNewList").val(),
+                taskModFiles: $("#inputTaskModList").val(),
+                taskDelFiles: $("#delTaskList").val()
             };
             url = 'task/addTask';
-           ajaxSubmit(params, url, 'post');
+            ajaxSubmit(params, url, 'post');
             //showTipInfo('success', '任务已申请，且文件提取成功！');
         }
         else {
             showTipInfo('err', '请填写必填项！');
         }
     });
-    $("#project").change(function(){
+    $("#project").change(function () {
         $("#taskProjectUri").text($("#project").find("option:selected").attr("projectUri"));
         $("#taskProject").val($("#project").find("option:selected").val());
 
     });
-    $('#closeModel').click(function(){
+    $('#closeModel').click(function () {
         location.reload();
     });
-});
+    $('#divModelDialog').on('hide.bs.modal', function (e) {
+        if (storageFlag) {
+            storageTask(storageNames);
+        }
+        else {
+            deleteStrorage(storageNames);
+        }
+    });
+    $('#divModelDialog').on('shown.bs.modal', function (e) {
+        recoverTask(storageNames);
+    });
+})

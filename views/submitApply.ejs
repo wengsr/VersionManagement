@@ -12,7 +12,7 @@
             <div class="row">
                 <div class="col-lg-12">
                     <div class="form-group">
-                        <label for="inputTaskName" class="col-sm-2 control-label">产品</label>
+                        <label for="project" class="col-sm-2 control-label">产品</label>
                         <div class="col-sm-10">
                             <select class="form-control" name="project" id="project">
                                 <option value="" selected  projectUri="">--请选择--</option>
@@ -48,7 +48,7 @@
                     <div class="form-group" id ='divTaskModList'>
                         <label for="inputTaskModList" class="col-sm-2 control-label">修改文件清单</label>
                         <div class="col-sm-10">
-                            <textarea class="form-control" id="inputTaskModList" rows="3" name="taskModFiles" placeholder="输入文件项目路径，多个文件间请换行，文件路径不包含项目路径，如:trunk/local/YN_TRUNK/SaleWeb/src/main/java/com/al/crm/sale/choosechannel/view/chooseChannel.html"></textarea>
+                            <textarea class="form-control" id="inputTaskModList" rows="6" name="taskModFiles" placeholder="输入文件项目路径，多个文件间请换行，文件路径不包含项目路径，如:trunk/local/YN_TRUNK/SaleWeb/src/main/java/com/al/crm/sale/choosechannel/view/chooseChannel.html"></textarea>
                     </div>
                 </div>
                 <div class="form-group" id ='divTaskNewList'>
@@ -69,8 +69,20 @@
                             <span><a id="a_reportAtta" href="">没有旧文件</a></span>
                         </div>
                     </div>
+                    <!--<div class="col-sm-offset-2 col-sm-3" style="margin-top:8px" id="divPop" >-->
+                        <!--<a href="#" id="pop" class="btn btn-danger" rel="popover"-->
+                           <!--data-content=""  data-original-title="错误信息">点击查看出错文件</a>-->
+                    <!--</div>-->
+                    <div class="alert alert-warning" id="divAlert" style="word-break: break-all; word-wrap:break-word;">
+                        <strong>出错啦！</strong><span id = "alertInfo"></span>
+                    </div>
                 </div>
             </div>
+        </div>
+    </div>
+    <div id="divErrDialog" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" id="errModal"></div>
         </div>
     </div>
     <div class="modal-footer">

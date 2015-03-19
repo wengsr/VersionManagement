@@ -51,30 +51,60 @@ function resetAttaDownloadUri(aInputId){
 /**
  * 判断字符串是否为路径
  */
-function isFile(files) {
-    var fileArray;
-    var flag = true ;
-    if (typeof(files) != 'undefined') {
-        files.replace('\\','/');
-        //var fileUris = [];
-        if (files != '') {
-            while (files.indexOf('\r') != -1) {
-                files.replace("\r", '');
-            }
-            files = files.trim().split('\n');
-            for (var j = 0; j < files.length; j++) {
-                //fileUris[j] = files[j];
-                files[j] = files[j].substr(files[j].lastIndexOf('/') + 1);
-                if(files[j].indexOf('.')==-1){
-                    flag = false;
-                    break;
-                }
-            }
+//function isFile(files) {
+//    var fileArray;
+//    var flag = true ;
+//    if (typeof(files) != 'undefined') {
+//        files.replace('\\','/');
+//        //var fileUris = [];
+//        if (files != '') {
+//            while (files.indexOf('\r') != -1) {
+//                files.replace("\r", '');
+//            }
+//            files = files.trim().split('\n');
+//            for (var j = 0; j < files.length; j++) {
+//                //fileUris[j] = files[j];
+//                files[j] = files[j].substr(files[j].lastIndexOf('/') + 1);
+//                if(files[j].indexOf('.')==-1){
+//                    flag = false;
+//                    break;
+//                }
+//            }
+//        }
+//    }
+//    return flag;
+//}
+function isFile(str){
+    if(str == undefined){
+        return true;
+    }
+    str = str.trim();
+    while(str.indexOf('\\')!=-1){
+        str = str.replace('\\', '/');
+    }
+    while(str.indexOf('\r')!=-1) {
+        str.replace("\r", '');
+    }
+    str= str.split('\n');
+    for(var i in str){
+        if(str ==''){
+            return true;
+        }
+        var tmp;
+        //tmp = str[i].match(/[[\/a-zA-Z0-9_]+\/]+[a-zA-Z0-9_]+[.][a-zA-Z0-9_]+/g);
+        tmp = str[i].match(/[\/]?([a-zA-Z0-9_\/])*[a-zA-Z0-9_]+[.][a-zA-Z0-9_]+/g);
+        if(  tmp==null){
+            $('#alertInfo').text("出错文件："+str[i]);
+            $('#divAlert').show();
+
+           return false;
         }
     }
-    return flag;
+    if(str[0] == null){
+        return false;
+    }
+    return true;
 }
-
 jQuery(document).ready(function() {
     hideTip();
     resetAttaDownloadUri('a_attaFile');
