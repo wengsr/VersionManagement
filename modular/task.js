@@ -875,9 +875,10 @@ Task.findHistory = function(taskId,callback){
             return callback(err);
         }
         var sql = 'SELECT tps.*, u.realName, ta.fileName, ta.fileUri, cup.noPassReason FROM taskprocessstep tps ' +
-            '        JOIN user u ON tps.dealer = u.userId AND tps.taskid=?' +
+            '        LEFT JOIN user u ON tps.dealer = u.userId' +
             '        LEFT JOIN taskattachment ta ON ta.taskId=tps.taskid AND ta.processStepId=tps.processStepId AND ta.turnNum=tps.turnNum' +
             '        LEFT JOIN checkunpass cup ON cup.taskId = tps.taskid AND cup.turnNum=tps.turnNum AND tps.processStepId=5' +
+            '        WHERE tps.taskid=?' +
             '        ORDER BY turnNum,processStepId,id';
         var params = [taskId];
         connection.query(sql, params, function (err, results) {
