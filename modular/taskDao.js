@@ -74,7 +74,7 @@ function insertFile(conn, params, i, callback){
         }
         else{
             i++;
-            console.log("insertFiles result:", result);
+            //console.log("insertFiles result:", result);
             insertFile(conn, params, i, callback);
         }
     });
@@ -100,7 +100,7 @@ function deleteFile(conn, params, i, callback){
         }
         else{
             i++;
-            console.log("deleteFiles result:", result);
+            //console.log("deleteFiles result:", result);
             deleteFile(conn, params, i, callback);
         }
     });
@@ -187,7 +187,7 @@ exports.addTask = function (taskInfo,callback) {
         var  delUri=[];
         var i= 0;
         async.eachSeries(task, function (item, callback_async) {
-            console.log(item + " ==> ",  sql[item]);
+            //console.log(item + " ==> ",  sql[item]);
             trans.query(sql[item], task_params[i],function (err, result) {
                 if(err) {
                     console.log(item+" result:", err.message);
@@ -254,7 +254,7 @@ exports.addTask = function (taskInfo,callback) {
                         }
                     });
                 }
-                console.log(result);
+                //console.log(result);
                 callback_async(err, result);
             });
         });

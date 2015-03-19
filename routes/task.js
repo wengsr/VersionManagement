@@ -249,7 +249,6 @@ router.post('/addTask', function (req, res) {
         var queryObj = url.parse(req.url,true).query;
         var jsonStr;
         if('success' == msg){
-            console.log("申请成功",taskCode,":",taskId);
             jsonStr = '{"sucFlag":"success","message":"【提交申请】申请成功！","id":"'+taskId+'","code":"'+taskCode+'"}';
             //jsonStr = '{"sucFlag":"success","message":"【提交申请】申请成功！"}';
         }
@@ -689,7 +688,7 @@ router.post('/extractFile', function(req, res) {
                             var userStr = "文件占用的情况：";
                             for (var i in users) {
                                 userFlag = true;
-                                userStr += users[i].fileUri + ': user = (' + users[i].userId + ' ,'+  users[i].realName+');';
+                                userStr += users[i].fileUri + ': user = (' + users[i].userId + ' ,'+  users[i].realName+');    ';
                             }
                             jsonStr = '{"sucFlag":"success","message":"有文件被占用，无法申请","user":"' + userStr + '" ,"userFlag":"' + userFlag + '"}';
                             res.send(queryObj.callback + '(\'' + jsonStr + '\')');
