@@ -13,6 +13,7 @@
                     <th>状态</th>
                     <th>环节</th>
                     <th>处理人</th>
+                    <th>历史</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -27,6 +28,7 @@
                             <td><%=task.state%></td>
                             <td><%=task.stepName%></td>
                             <td><%=task.dealerName==null?'':task.dealerName%></td>
+                            <td>&nbsp;&nbsp;<a class="glyphicon glyphicon-time" btnType="taskHistory" taskId="<%=task.taskid%>"></a></td>
                         </tr>
                     <% } %>
                 <% }); %>

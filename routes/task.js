@@ -179,6 +179,23 @@ var sendEmail = function(taskId, content){
 
 
 /**
+ * 查找变更单历史数据
+ * @param taskId
+ * @param content
+ */
+var findHistory = function(taskId,req,callback){
+    Task.findHistory(taskId,function(msg,result){
+        if('success'!=msg){
+            req.session.error = "查找变更单历史数据时发生错误,请记录并联系管理员";
+            return null;
+        }
+        callback(result);
+    });
+}
+
+
+
+/**
  * 查找用户所属项目，用于显示“申请变更单”和“查找变更单”按钮
  * @param userId
  * @param req
@@ -369,9 +386,16 @@ router.post('/submitAccept', function(req, res) {
  * “上库步骤_上库完成”业务实现
  */
 router.post('/submitComplete', function(req, res) {
+    var cookieUser = req.cookies.user;
+    if(cookieUser){
+        req.session.user = cookieUser;
+    }else{
+        return res.redirect("/");
+    }
     var taskId = req.body['taskId'];
+    var userId = req.session.user.userId;
     var jsonStr;
-    Task.submitComplete(taskId, function(msg,result){
+    Task.submitComplete(taskId, userId, function(msg,result){
         if('success' == msg){
             jsonStr = '{"sucFlag":"success","message":"【上库完成】执行成功"}';
             //判断其他变更单的文件占用情况并发邮件
@@ -796,5 +820,26 @@ router.post('/modifyTask', function(req, res) {
 //
 //    res.render('modalWindowErr',{title:'文件冲突'});
 //});
+
+/**
+ * 查询变更单历史
+ */
+router.get('/history/:taskId', function(req, res) {
+    var taskId = req.params.taskId;
+    //console.log('#########' + taskId);
+    findHistory(taskId,req,function(taskHis) {//找到变更单历史记录数据
+        var maxTurnNum=0;//找出最大的turnNum(即提交了几轮)
+        taskHis.forEach(function(his,item){
+            if(his.turnNum>0){
+                maxTurnNum = his.turnNum;
+            }
+        });
+
+        res.render('taskHistory',{title:'变更单历史', taskHis:taskHis, maxTurnNum:maxTurnNum});
+    });
+
+
+
+});
 
 module.exports = router;
