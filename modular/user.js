@@ -184,6 +184,36 @@ User.findUserProject = function(userId,callback){
 }
 
 
+/**
+ * 查询当前用户有哪些工程的【上库管理员】权限或者【组长】权限
+ * @param userId
+ * @param callback
+ */
+User.findUserProjectForFindAllTask = function(userId,callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN USER ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'SELECT * FROM project p' +
+            '        where p.projectId IN' +
+            '        (' +
+            '            SELECT distinct psd.projectId' +
+            '        FROM processstepdealer psd' +
+            '        WHERE psd.processStepId IN (4,6) AND psd.userId=?' +
+            '        )';
+        var params = [userId];
+        connection.query(sql, params, function (err, results) {
+            if (err) {
+                console.log('[QUERY USER ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',results);
+        });
+    });
+}
+
 
 /**
  * 获取所有用户登录名和实名

@@ -502,7 +502,7 @@ router.get('/findAllTaskPage', function(req, res) {
         return res.redirect("/");
     }
     var userId = req.session.user.userId;
-    User.findUserProject(userId,function(msg,projects){
+    User.findUserProjectForFindAllTask(userId,function(msg,projects){
         if('success'!=msg){
             req.session.error = "查找用户能操作的项目时发生错误,请记录并联系管理员";
             return null;
