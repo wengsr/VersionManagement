@@ -87,7 +87,9 @@
                                 <dl>
                                     <dt><%=tHis.realName%>
                                         <span>走查该变更单后，做出“走查通过”的判定<br/>
-                                            <label>上传了走查报告：<a typeId="attaLink" href="<%=tHis.fileUri%>" style="color:#32B1EC"><%=tHis.fileName%></a></label>。
+                                            <%if(tHis.fileUri!=null){%>
+                                                <label>上传了走查报告：<a typeId="attaLink" href="<%=tHis.fileUri%>" style="color:#32B1EC"><%=tHis.fileName%></a></label>。
+                                            <%}%>
                                         </span>
                                     </dt>
                                 </dl>
@@ -102,7 +104,9 @@
                     <dl>
                         <dt><%=tHis.realName%>
                             <span>走查该变更单后，做出“走查不通过”的判定。<br/>
+                            <%if(tHis.fileUri!=null){%>
                             上传了走查报告：<a typeId="attaLink" href="<%=tHis.fileUri%>" style="color:#32B1EC"><%=tHis.fileName%></a><br/>
+                            <%}%>
                             描述了不通过原因：<%if(tHis.noPassReason==null){%> 无<br/> <%}else{%>
                                                 <%var n1 = tHis.noPassReason.length/20; var n2=tHis.noPassReason.length%20;%>
                                                 <%if(n2!=0){n1 = Math.floor(n1)+1;}else{n1 = Math.floor(n1)}%>
