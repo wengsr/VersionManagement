@@ -92,7 +92,7 @@ function isFile(str){
         }
         var tmp;
         //tmp = str[i].match(/[[\/a-zA-Z0-9_]+\/]+[a-zA-Z0-9_]+[.][a-zA-Z0-9_]+/g);
-        tmp = str[i].match(/[\/]?([a-zA-Z0-9_\/])*[a-zA-Z0-9_]+[.][a-zA-Z0-9_]+/g);
+        tmp = str[i].match(/[\/]?([a-zA-Z0-9_\/])*[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)+/g);
         if(  tmp==null){
             $('#alertInfo').text("出错文件："+str[i]);
             $('#divAlert').show();
@@ -105,6 +105,52 @@ function isFile(str){
     }
     return true;
 }
+function animationExt(area){
+    var row = $(area).attr("rows");
+
+    if(row<15) {
+        if(area=='#inputTaskModList'){
+            $(area).animate({
+                rows: 15
+            }, 200, 'swing');
+        }
+        else{
+            $(area).animate({
+                rows: 12
+            }, 200, 'swing');
+        }
+    }
+}
+function animationShr(area){
+    if($(area).attr("rows")>6) {
+        if(area=='#inputTaskModList'){
+            $(area).animate({
+                rows: 6
+            }, 200, 'swing');
+        }
+        else {
+            $(area).animate({
+                rows: 3
+            }, 200, 'swing');
+        }
+    }
+}
+function dynInputFocus(inputName){
+    $(inputName).focus(function() {
+
+        setTimeout(function() {
+            animationExt(inputName);
+        },300);
+    });
+
+}
+function dynInputBlur(inputName){
+    $(inputName).blur(function () {
+        setTimeout(function(){
+            animationShr(inputName)},200);
+    });
+}
+
 jQuery(document).ready(function() {
     hideTip();
     resetAttaDownloadUri('a_attaFile');

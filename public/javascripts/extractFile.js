@@ -1,4 +1,4 @@
-
+var dynEtraFileds = [ '#inputTaskDesc', '#inputTaskNewList','#inputTaskModList','#delTaskList'];
 /**
  *提交是变更单的描述信息，或新增文件和修改文件不能同时为空
  */
@@ -288,6 +288,12 @@ jQuery(document).ready(function() {
     $('#btnCloseModel').click(function(){
         location.reload();
     });
+    for (var i in dynEtraFileds) {
+        dynInputBlur(dynEtraFileds[i])
+    }
+    for (var i in dynEtraFileds) {
+        dynInputFocus(dynEtraFileds[i])
+    }
 
 });
 
