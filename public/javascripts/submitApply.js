@@ -87,7 +87,7 @@ function dynInputFocus(inputName){
 
 }
 function dynInputBlur(inputName){
-        $(inputName).mouseout(function () {
+        $(inputName).blur(function () {
             setTimeout(function(){
                 animationShr(inputName)},200);
             });
@@ -190,6 +190,7 @@ jQuery(document).ready(function() {
         var modFiles = $("#inputTaskModList").val();
         var delFiles = $("#delTaskList").val();
         var checkFile;
+        debugger
         checkFile = isFile(newFiles) && isFile(delFiles) && isFile(modFiles);
         if (!checkFile) {
             showTipInfo('err', '请检查文件路径是否正确！');

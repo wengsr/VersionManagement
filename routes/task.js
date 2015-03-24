@@ -20,7 +20,9 @@ function getFilesUri(str){
             return [];
         }
         var tmp;
-        tmp = str[i].match(/[\/a-zA-Z0-9_\/]+[.][a-zA-Z0-9_]+/g);
+        tmp = str[i].match(/[\/a-zA-Z0-9_\/]+[.a-zA-Z0-9_]+/g);
+        tmp = str[i].match(/[\/]?([a-zA-Z0-9_\/])*[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)+/g);
+
         if(  tmp!=null){
             str[i] = tmp.toString();
         }
