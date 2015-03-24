@@ -395,7 +395,8 @@ router.post('/modifyUserInfo', function(req, res) {
     var cookieUser = req.cookies.user;
     if(cookieUser){
         req.session.user = cookieUser;
-    }else{
+    }
+    if(!req.session.user || 'undefined'==req.session.user){
         return res.redirect("/");
     }
     //校验两次输入的密码是否一致
