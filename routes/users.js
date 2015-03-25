@@ -342,6 +342,28 @@ router.post('/getProUser', function(req, res) {
         }
     });
 });
+/**
+ * 获取当前变更单所在项目的所有走查人员登录名和实名post方式
+ */
+router.post('/getProCheckUser', function(req, res) {
+    var taskId = req.body['taskId'];
+    User.getProUser(taskId, function(msg,results){
+        if('success' == msg){
+            var queryObj = url.parse(req.url,true).query;
+            var jsonStr = "[";
+            results.forEach(function(result){
+                var uName = result.userName;
+                var uRealName = result.realName;
+                if(null==uRealName)uRealName='';
+                var userObj = '{ "userName": "' + uName + '", "realName": "' + uRealName + '" },';
+                jsonStr = jsonStr + userObj;
+            });
+            jsonStr = jsonStr + "]";
+            jsonStr = jsonStr.replace(",]","]");
+            res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+        }
+    });
+});
 
 
 /**

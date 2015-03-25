@@ -238,7 +238,137 @@ Task.findTaskById = function(taskId,callback){
         });
     });
 }
+/**
+ * 根据id查询变更单信息和邮箱地址
+ * @param taskId
+ * @param callback
+ */
+Task.findTaskAndEmailByTaskId = function(taskId,callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN TASKS ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'SELECT t.taskCode , t.taskname , t.processStepId , u.userName , u.realName ,u.email  FROM tasks t ' +
+            '        JOIN User u  ON t.creater=u.userId ' +
+            '        where taskid = ?';
+        var params = [taskId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY TASKS ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',result[0]);
+        });
+    });
+}
 
+/**
+ * 根据id查询变更单信息和manager
+ * @param taskId
+ * @param callback
+ */
+Task.findTaskAndManagerByTaskId = function(taskId,callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN TASKS ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'SELECT t.taskCode , t.taskname , t.processStepId , u.userName , u.realName ,u.email  FROM tasks t ' +
+            '     JOIN project p  ON t.projectId=p.projectId ' +
+            '     JOIN user u  ON p.manager=u.userId' +
+            '     where taskid = ?';
+        var params = [taskId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY TASKS ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',result[0]);
+        });
+    });
+}
+/**
+ * 根据taskid userName查询变更单信息
+ * @param taskId
+ * @param callback
+ */
+Task.findTaskByTaskIdAndUser = function(taskId,dealer, callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN TASKS ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'SELECT t.taskCode , t.taskname , t.processStepId,u.userName , u.realName ,u.email from tasks t ' +
+            '    JOIN taskprocessstep tps on tps.taskid =t.taskid' +
+            '   JOIN user u ON u.userId = tps.dealer' +
+            '   where  t.taskid = ? and u.username = ? and tps.processstepid = 5  ' +
+            '  AND tps.turnNum =' +
+            '  (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)' ;
+        //var sql =' user ON user.userName = ?';
+        var params = [taskId,dealer,taskId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY TASKS ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+           return  callback('success',result[0]);
+        });
+    });
+}
+/**
+ * 根据taskid 查询变更单信息
+ * @param taskId
+ * @param callback
+ */
+Task.findTaskByTaskId = function(taskId, callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN TASKS ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'SELECT * from tasks  where taskId= ?'
+        //var sql =' user ON user.userName = ?';
+        var params = [taskId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY TASKS ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            return  callback('success',result[0]);
+        });
+    });
+}
+/**
+ * g根据processStepId ,projectId查询所有的配置管理员
+ * @param taskId
+ * @param callback
+ */
+Task.findDealerByStepId = function(processStepId, projectId,callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN TASKS ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'SELECT * from processstepdealer psd' +
+            '   JOIN user u ON psd.userId = u.userId ' +
+            '   where processStepId= ?  and projectId =? ';
+        //var sql =' user ON user.userName = ?';
+        var params = [processStepId,projectId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY DEALER ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            return  callback('success',result);
+        });
+    });
+}
 
 /**
  * 根据id查询变更单信息(带申请者姓名)
@@ -390,6 +520,52 @@ Task.findFileListByTaskId = function(taskId, callback){
 //    });
 //}
 
+/**
+ * 将走查转给他人
+ * @param taskId
+ * @param dealer
+ * @param callback
+ */
+Task.assignToOther = function(taskId,dealer,callback){
+        pool.getConnection(function (err, connection) {
+            var sql = {
+                selectUser: "select userId from user where userName=?",
+                updateDealer: 'update taskprocessstep set dealer = ? where turnNum =' +
+                '   (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)' +
+                '   and taskId =? and processStepId = 5'
+            }
+            var selectUser_params = [dealer];
+            var updateDealer_params;
+            var sqlMember = ['selectUser', 'updateDealer'];
+            //var sqlMember_params = [selectUser_params,  updateDealer_params];
+            var i = 0;
+            connection.query(sql['selectUser'], selectUser_params, function (err, result) {
+                if (err) {
+                    connection.rollback();
+                    console.log("Assigncheck err:", err);
+                    return callback('err', err);
+                }
+                if (undefined == result || '' == result || null == result) {
+                    //判断用户是否存在
+                    connection.release();
+                    return callback('err', '该用户不存在');
+                }
+                else {
+                    //console.log("selectUser:", result);
+                    updateDealer_params = [result[0].userId, taskId, taskId];
+                    connection.query(sql['updateDealer'], updateDealer_params, function (err_update, result_update) {
+                        if (err_update) {
+                            //console.log("Assigncheck err:", err_update);
+                            return callback("err");
+                        }
+                        //console.log("Assigncheck Success:", result_update);
+                        connection.release();
+                        return callback('success');
+                    });
+                }
+            });
+        });
+}
 /**
  * 设置走查人员
  * @param taskId

@@ -2,14 +2,28 @@
  * Created by wangfeng on 2015/02/09 0000.
  */
 
-
+/**
+ * 展示所有可选择的走查人员供组长选择
+ * @param userNameAndRealName
+ */
+function showSelectCheckUser(userNameAndRealName){
+    $("#checkPerson").bsSuggest({
+        indexId: 0, //data.value 的第几个数据，作为input输入框的内容
+        indexKey: 0, //data.value 的第几个数据，作为input输入框的内容
+        data: {
+            'value':userNameAndRealName,
+            'defaults':''
+        }
+    });
+}
 /**
  * ajax提交
  * @param params
  * @param url
  * @param subType
+ * @param submitflag
  */
-function ajaxSubmit(params, url, subType){
+function ajaxSubmit(params, url, subType,submitflag){
     url = './' + url;
     $.ajax({
         data: params,
@@ -21,6 +35,25 @@ function ajaxSubmit(params, url, subType){
         success: function(data){
             var dataJson = $.parseJSON(data);
             var flag =  dataJson.sucFlag;
+            debugger
+            if('showUser'==submitflag) {
+                //展示出所有用户
+                debugger
+                showSelectCheckUser(dataJson);
+                return
+            }
+            if('subForm'==submitflag){
+                //提交表单
+                var flag =  dataJson.sucFlag;
+                if('err'==flag){
+                    showTipInfo('err',dataJson.message);
+                }else if('success'==flag){
+                    showTipInfo('success',dataJson.message);
+                    $('#btnAssignConfirm').hide();
+                    $('#btnReturn').hide();
+                }
+                return
+            }
             if('err'==flag){
                 showTipInfo('err',dataJson.message);
             }else if('success'==flag){
@@ -80,6 +113,17 @@ function submitForm_unPass(){
     ajaxSubmit(planCheck_params, planCheck_url, 'post');
 }
 
+/**
+* 提交表单信息
+*/
+function submitForm_assignCheck(){
+    var planCheck_params={
+        nextDealer: $('#checkPerson').val(),
+        taskId: $('#taskId').val()
+    };
+    var planCheck_url='task/assignCheck';
+    ajaxSubmit(planCheck_params, planCheck_url, 'post', 'subForm');
+}
 
 
 //function fileUp(url){
@@ -123,15 +167,25 @@ function fileUploadBtnLoading(btnId,tipString){
     $(btnId).attr('data-loading-text',tipString);
     $(btnId).button('loading').delay(1000).queue(function() {});
 }
-
+/**
+ * 核查输入的信息
+ * @returns {boolean}
+ */
+function checkInput_check(){
+    var checkPerson = $('#checkPerson').val();
+    if(undefined==checkPerson || ''==checkPerson || null==checkPerson){
+        showTipInfo('err','走查人员不能为空，请指定');
+        return false;
+    }
+    return true;
+}
 
 /**
  * 绑定文件上传按钮的点击事件
  */
 function bindClick_btnUploadFile(){
     $('#submit_UpReport').on('click',function(){
-        $('#diaInfoTip,#diaErrTip,#diaSuccessTip').hide();
-
+        $('#diaInfoTip,#diaErrTip,#diaSuccessTip,#btnAssign').hide();
         var fulAvatarVal = $('#fulAvatar').val();
         if(fulAvatarVal.length == 0){
             showTipInfo('err','请选择要上传的文件');
@@ -148,9 +202,44 @@ function bindClick_btnUploadFile(){
         fileUploadBtnLoading('submit_UpReport','文件上传中...');//文件上传按钮遮罩
         $('#fileUpForm_check').submit();
         return true;
-    })
+    });
+    $('#btnAssign').on('click',function(){
+        $('#unPassReasonDiv').hide();
+        $('#submit_UpReport').hide();
+        $('#btnPassCheck').hide();
+        $('#btnAssign').hide();
+        $('#btnUnPassCheck').hide();
+        $('#assignCheckDiv').show();
+        $('#btnReturn').show();
+        $('#btnAssignConfirm').show();
+    });
+    $('#btnAssignConfirm').on('click',function(){
+            if(checkInput_check()){
+                submitForm_assignCheck();
+            };
+        });
+    $('#btnReturn').on('click',function(){
+        $('#unPassReasonDiv').show();
+        $('#submit_UpReport').show();
+        $('#btnPassCheck').show();
+        $('#btnAssign').show();
+        $('#btnUnPassCheck').show();
+        $('#assignCheckDiv').hide();
+        $('#btnReturn').hide();
+        $('#btnAssignConfirm').hide();
+        });
 }
-
+/**
+ * 处理走查人员下拉列表
+ */
+function dealSelectUl(){
+//    $("#selectUl").find("tbody").each(function(){
+//        console.info($(this).val());
+//    });
+    $("#selectUl").find("table").find("tbody").load(function(){
+        console.info($(this));
+    });
+}
 /**
  * 文件上传后回传值的处理
  */
@@ -192,12 +281,29 @@ function showOldFile(){
         $('#a_oldFile').hide();//没有旧文件
     }
 }
-
+/**
+ * 向后台请求所有走查人员的信息
+ */
+function getAllCheckPersonName(){
+    //获取系统中全部用户
+    //var params;
+    //url = 'users/getAllName';
+    //ajaxSubmit(params, url, 'post', 'showUser');
+    //获取当前项目所有参与者
+    var params={
+        taskId: $('#taskId').val()
+    };
+    url='users/getProCheckUser';
+    ajaxSubmit(params, url, 'post', 'showUser');
+}
 jQuery(document).ready(function() {
     showOldFile();
     //隐藏文件上传时用于替代走查通过or不通过的按钮
     $('#btnUnPassCheck2, #btnPassCheck2').hide();
     //隐藏文件路径信息提示条
+    $('#assignCheckDiv').hide();
+    $('#btnReturn').hide();
+    $('#btnAssignConfirm').hide();
     $('#diaInfoTip').hide();
     //文件上传后回传值的处理
     fileUpReturn();
@@ -208,6 +314,7 @@ jQuery(document).ready(function() {
     bindClick_btnUploadFile();
     //走查通过
     $('#btnPassCheck, #btnPassCheck2').click(function(){
+        $('#btnAssign').hide();
         submitForm_pass();
     });
     //走查不通过
@@ -222,12 +329,13 @@ jQuery(document).ready(function() {
     $('#fulAvatar').click(function(){
         $('#fulAvatar').val('');
     });
-
+    getAllCheckPersonName();
 
     //验证文件是否已经上传
     var checkReportHref = $('#a_reportAtta').attr('href');
     if(checkReportHref!='#'){
         $('#submit_UpReport').hide();
     }
+    //dealSelectUl();
 });
 

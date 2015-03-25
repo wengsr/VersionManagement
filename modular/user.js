@@ -260,10 +260,41 @@ User.getProUser = function(taskId, callback){
                 return callback(err,null);
             }
             connection.release();
+            //console.log("getProUser",result);
+           return  callback('success',result);
+
+        });
+    });
+}
+
+/**
+ * 获取当前项目的所有走查人员
+ * @param callback
+ */
+User.getProCheckUser = function(taskId, callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN USER ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'select u.userName,u.realName from usertoproject utp' +
+            '   JOIN user u ON utp.userId = u.userId' +
+            '    JOIN  processstepdealer psd ON psd.userId = u.userId' +
+            '   JOIN tasks t ON t.projectId = utp.projectId' +
+            '   AND t.taskId = ?  and psd.processStepId = 5';
+        var params = [taskId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY USER ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            //console.log("getProCheckUser:",result);
             callback('success',result);
         });
     });
 }
+
 
 
 /**

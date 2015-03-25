@@ -38,7 +38,7 @@ var router = express.Router();
 var Task = require('../modular/task');
 var User = require('../modular/user');
 var FileList = require('../modular/fileList');
-var sendMailToCreater = require('../util/email');
+var Email = require('../util/email');
 var file = require('../routes/file');
 var dao =require('../modular/taskDao');
 var url = require('url');
@@ -165,7 +165,7 @@ var isAllFileListReady = function(taskId,req,callback){
  * 给文件清单处于未占用的用户发送邮件
  * @param content
  */
-var sendEmail = function(taskId, content){
+var sendEmail = function(req,taskId, content){
     Task.findTaskByIdWithCreater(taskId,function(msg,result){
         if('success'!=msg){
             req.session.error = "发送邮件时查找变更单信息发生错误,请记录并联系管理员";
@@ -175,10 +175,95 @@ var sendEmail = function(taskId, content){
         var taskname = result.taskname;
         var creater = result.realName;
         var userEmail = result.email;
-        sendMailToCreater(taskcode, taskname, creater, content, userEmail);
+        Email.sendMailToCreater(taskcode, taskname, creater, content, userEmail);
+        console.log("email success");
     });
 }
 
+/**
+ * 给指定人员发邮件
+ * @param content
+ */
+var sendEmailToNext = function(req,taskId,dealer, stepId,content){
+    if(stepId == 5) {
+        //给走查人员发送邮件
+        Task.findTaskByTaskIdAndUser(taskId, dealer, function (msg, result) {
+            if ('success' != msg) {
+                req.session.error = "发送邮件时查找变更单信息发生错误,请记录并联系管理员";
+                return null;
+            }
+            var taskcode = result.taskcode;
+            var taskname = result.taskname;
+            var dealer = result.realName;
+            var userEmail = result.email;
+            var processStepId = result.processStepId;
+            Email.sendMailToDealer(taskcode, taskname, dealer, processStepId, userEmail);
+            //console.log("email success");
+        });
+    }
+    else if(stepId ==6){
+        //给系统配置人员发送邮件
+        Task.findTaskByTaskId(taskId,function(msg, result_task) {
+            if(msg == 'err'){
+                console.log('[findTaskByTaskId] err');
+                return ;
+            }
+           if(msg=='success'){
+               if(result_task.length == 0){
+                   return ;
+               }
+               var projectId = result_task.projectId;
+               var processStepId = 6;
+               Task.findDealerByStepId(processStepId, projectId, function(msg,result_dealer){
+                   if(msg == 'err'){
+                       console.log('[check sendEmail Err]');
+                       return ;
+                   }
+                   var dealers = result_dealer;
+
+                   var taskcode = result_task.taskcode;
+                   var taskname = result_task.taskname;
+                   for(var i in dealers){
+                       var userName = dealers[i].realName;
+                       //console.log('Email to :',userName);
+                       var userEmail = dealers[i].email;
+                       Email.sendMailToDealer(taskcode, taskname, userName, processStepId, userEmail);
+                   }
+               });
+           }
+        });
+        }
+    else if(stepId ==4){
+        //给mannage发送邮件
+        Task.findTaskAndManagerByTaskId(taskId, function (msg, result) {
+            if ('success' != msg) {
+                req.session.error = "发送邮件时查找变更单信息发生错误,请记录并联系管理员";
+                return null;
+            }
+            var taskcode = result.taskcode;
+            var taskname = result.taskname;
+            var dealer = result.realName;
+            var userEmail = result.email;
+            Email.sendMailToDealer(taskcode, taskname, dealer, 4, userEmail);
+            //console.log("email success");
+        });
+    }
+    else if(stepId == 3||stepId == 7){
+        //给变更单的发起人发送邮件
+        Task.findTaskAndEmailByTaskId(taskId,function(msg, result_taskId) {
+            if(msg == 'err'){
+                console.log('[checkUnpass sendEmail Err]');
+                return ;
+            }
+            var taskcode = result_taskId.taskcode;
+            var taskname = result_taskId.taskname;
+            var userEmail = result_taskId.email;
+            var userName = result_taskId.realName;
+            var processStepId = stepId;
+            Email.sendMailToDealer(taskcode, taskname, userName, processStepId, userEmail);
+        });
+        }
+}
 
 /**
  * 查找变更单历史数据
@@ -311,8 +396,27 @@ router.post('/planCheck', function(req, res) {
     Task.setCheckPerson(taskId, nextDelear, function(msg,result){
         if('success' == msg){
             jsonStr = '{"sucFlag":"success","message":"走查任务成功安排给【' + nextDelear + '】"}';
+            sendEmailToNext(req,taskId,nextDelear,5);//发送邮件
         }else{
             jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
+        }
+        var queryObj = url.parse(req.url,true).query;
+        res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+    });
+});
+/**
+ * “走查转给其它走查人员的业务实现”业务实现
+ */
+router.post('/assignCheck', function(req, res) {
+    var nextDelear = req.body['nextDealer'];
+    var taskId = req.body['taskId'];
+    var jsonStr;
+    Task.assignToOther(taskId, nextDelear, function(msg,result){
+        if('success' == msg){
+            sendEmailToNext(req,taskId,nextDelear,'5');//发送邮件
+            jsonStr = '{"sucFlag":"success","message":"走查任务成功安排给【' + nextDelear + '】"}';
+        }else{
+            jsonStr = '{"sucFlag":"err","message":"' + nextDelear + '"}';
         }
         var queryObj = url.parse(req.url,true).query;
         res.send(queryObj.callback+'(\'' + jsonStr + '\')');
@@ -328,6 +432,7 @@ router.post('/checkPass', function(req, res) {
     Task.doCheckPass(taskId, function(msg,result){
         if('success' == msg){
             jsonStr = '{"sucFlag":"success","message":"【走查通过】执行成功"}';
+            sendEmailToNext(req,taskId,'','6');//发送邮件
         }else{
             jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
         }
@@ -348,6 +453,7 @@ router.post('/checkUnPass', function(req, res) {
     Task.doCheckUnPass(taskId, userId, noPassReason, function(msg,result){
         if('success' == msg){
             jsonStr = '{"sucFlag":"success","message":"【走查不通过】执行成功"}';
+          sendEmailToNext(req,taskId,'',3);
         }else{
             jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
         }
@@ -392,6 +498,7 @@ router.post('/submitComplete', function(req, res) {
         if('success' == msg){
             jsonStr = '{"sucFlag":"success","message":"【上库完成】执行成功"}';
             //判断其他变更单的文件占用情况并发邮件
+            sendEmailToNext(req,taskId,'',7);
             findUnUsedTaskAndFileUri(taskId,req,function(fileLists){
 //                var tempTaskId = '';
 //                var tempFileUriStr = '';
@@ -418,7 +525,7 @@ router.post('/submitComplete', function(req, res) {
                                         }
                                     }
                                 });
-                                sendEmail(effectTaskId, conflictTaskFileUri);//发送邮件
+                                sendEmail(req,effectTaskId, conflictTaskFileUri);//发送邮件
                                 //console.log('effectTaskId==' + effectTaskId + '|||' + conflictTaskFileUri);
                                 conflictTaskFileUri=''
                             }
@@ -613,6 +720,7 @@ router.post('/submitFile', function(req, res) {
     dao.submitFile(taskId, function(msg,result){
         if('success' == msg){
             jsonStr = '{"sucFlag":"success","message":"【上传变更单】执行成功"}';
+            sendEmailToNext(req,taskId,'',4);
         }else{
             jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
         }
