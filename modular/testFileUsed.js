@@ -18,7 +18,6 @@ var testFileUsed = function(fileList, projectId,taskId, callback) {
             console.log('[CONN FILELIST ERROR] - ', err.message);
             return callback("err");
         }
-        console.log("testFiled connection");
         var flag = false;
         var sql ='select u.userId, u.realName, fl.fileUri from filelist fl'   +
         '   join tasks t on fl.taskId = t.taskId  '   +

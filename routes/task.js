@@ -20,8 +20,8 @@ function getFilesUri(str){
             return [];
         }
         var tmp;
-        tmp = str[i].match(/[\/a-zA-Z0-9_\/]+[.a-zA-Z0-9_]+/g);
-        tmp = str[i].match(/[\/]?([a-zA-Z0-9_\/])*[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)+/g);
+        //tmp = str[i].match(/[\/a-zA-Z0-9_\/]+[.a-zA-Z0-9_]+/g);
+        tmp = str[i].match(/[\/]?([a-zA-Z0-9_\/])*[a-zA-Z0-9_\-]+([.][a-zA-Z0-9_]+)+/g);
 
         if(  tmp!=null){
             str[i] = tmp.toString();
@@ -745,7 +745,7 @@ router.post('/extractFile', function(req, res) {
     modFiles =getFilesUri(modFiles);
     delFiles = getFilesUri(delFiles);
     var oldFiles = modFiles.concat(delFiles);
-    console.log("oldFiles:",oldFiles);
+    //console.log("oldFiles:",oldFiles);
     dao.searchProject({projectId: taskProject}, function (msg, result) {
         var queryObj = url.parse(req.url, true).query;
         if (msg == "success") {

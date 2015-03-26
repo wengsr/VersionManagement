@@ -6,22 +6,57 @@ var AdmZip = require('adm-zip');
  * 判断文件是否存在,放在fileList 为文件夹引起压缩出错
  */
 
+//exports.zipFiles = function (localBaseDir, fileList, zipFileName) {
+//    var zip = new AdmZip();
+//    var fs = require('fs');
+//    for (var i = 0; i < fileList.length; i++) {
+//        if(!fs.existsSync(localBaseDir + fileList[i])){
+//            return [false,fileList[i]];
+//        }
+//        var tmpPath = fileList[i].substr(0, fileList[i].lastIndexOf('/') + 1);
+//
+//        zip.addLocalFile(localBaseDir + fileList[i], tmpPath);
+//        //zip.addLocalFolder(localBaseDir,tmpPath);
+//
+//    }
+//    //localBaseDir = localBaseDir ;
+//    //zip.addLocalFolder(localBaseDir);
+//    var willSendthis = zip.toBuffer();
+//    zip.writeZip(zipFileName);
+//    return [true,];
+//};
+var fs = require('fs');
+
+var archiver = require('archiver');
 exports.zipFiles = function (localBaseDir, fileList, zipFileName) {
-    var zip = new AdmZip();
-    var fs = require('fs');
+
+    //var output = fs.createWriteStream(__dirname + '/example111.zip');
+    var output = fs.createWriteStream(zipFileName);
+    var archive = archiver('zip');
+
+    //output.on('close', function() {
+    //    console.log(archive.pointer() + ' total bytes');
+    //    //console.log('archiver has been finalized and the output file descriptor has closed.');
+    //});
+
+    archive.on('error', function(err) {
+        throw err;
+    });
+    archive.pipe(output);
     for (var i = 0; i < fileList.length; i++) {
         if(!fs.existsSync(localBaseDir + fileList[i])){
+            if(fs.existsSync(zipFileName)){
+                fs.unlink(zipFileName);
+            }
+            console.log("【zipFiles failed！】",fileList[i]);
             return [false,fileList[i]];
         }
-        var tmpPath = fileList[i].substr(0, fileList[i].lastIndexOf('/') + 1);
-
-        zip.addLocalFile(localBaseDir + fileList[i], tmpPath);
+        var tmpPath = fileList[i].substr( fileList[i].lastIndexOf('/') + 1);
+        archive =archive.append(fs.createReadStream(localBaseDir + fileList[i]), { name:fileList[i] });
     }
-    var willSendthis = zip.toBuffer();
-    zip.writeZip(zipFileName);
+    archive.finalize();
     return [true,];
 };
-
 exports.extractZip = function (zipFileName, targetDir) {
     var zip = new AdmZip(zipFileName);
     zip.extractAllTo(targetDir);
@@ -91,20 +126,34 @@ exports.syncFolder = function (src, dst) {
 
 /******测试案例*********/
 
-//var localDir = "c:test/变更单1/repo/";
-//var localDir = "c:test/old/";
+var localDir = "d:test/变更单9/";
+//var localDir = "c:/test/变更单6/";
+//var localDir = "C:/test/变更单7/trunk/local";
 
-var localDir = "E:/VersionManagement0308/bin/old/";
+//var localDir = "E:/VersionManagement0308/bin/old/";
 var fileList = [
-   'a/b/b1.txt',
-   'a/b/a.txt',
-   'a/b1.txt',
-   'b1.txt',
-    'a.'
+   //'a/b/b1.txt',
+   //'a/b/a.txt',
+   //'a/b1.txt',
+   //'b1.txt',
+   //'a.',
+   // 'sssss.t'
+   //'trunk/service/CrmServiceWeb/src/main/java/com/al/crm/controler/limit/LimitServiceControler.java',
+   //'trunk/service/LimitManager/src/main/java/com/al/crm/limit/shortcut/bmo/impl/ShortcutQueryBMOImpl.java',
+   //'trunk/service/LimitManager/src/main/java/com/al/crm/limit/shortcut/bmo/IShortcutQueryBMO.java',
+   //'trunk/service/LimitManager/src/main/java/com/al/crm/limit/shortcut/dao/IShortcutQueryDAO.java',
+   //'trunk/service/LimitManager/src/main/java/com/al/crm/limit/shortcut/smo/impl/ShortcutQuerySMOImpl.java',
+   //'trunk/service/LimitManager/src/main/java/com/al/crm/limit/shortcut/smo/IShortcutQuerySMO.java',
+   //'trunk/local/YN_TRUNK/SaleWeb/src/main/java/com/al/crm/sale/main/mvc/MainController.java',
+   //'trunk/local/YN_TRUNK/SaleWeb/src/main/java/com/al/crm/sale/service/intf/IShortcutQuerySmo.java',
+   //'trunk/local/YN_TRUNK/SaleWeb/src/main/java/com/al/crm/sale/main/view/index.js',
+   //'trunk/common/CrmCommon/src/main/java/com/al/crm/crmcommon/MDA.java',
+   //'trunk/service/LimitManager/src/main/resources/com/al/crm/limit/shortcut/dao/IShortcutQueryMapper.xml'
+//'IShortcutQueryBMO.java'
 ];
-var zipName = "E:/VersionManagement0308/bin/old/a.zip";
-var fs = require('fs');
+//var zipName ="d:/test/变更单9/a.zip";
+//var fs = require('fs');
 //var flag =exports.zipFiles(localDir, fileList, zipName);
 //console.log(flag);
 
-//exports.extractZip(zipName, 'c:/test/变更单1/new/');
+//exports.extractZip(zipName, 'c:/test/变更单9/new/');
