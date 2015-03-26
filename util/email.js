@@ -47,9 +47,10 @@ exports.sendMailToDealer = function(taskcode, taskname, creater, processStepId, 
     }
     if(processStepId == 7){
          sendContent = '<b>亲爱的'+creater+'：<br/>' +
-            '&emsp;&emsp;你的变更单：【变更单号】:“'+taskname+'”   (变更单号：'+taskcode+') 已经上库了！！！' +
-            '<br/><br/></b>' ;
-        mailOptions.subject= '【版本管理系统】变跟单已上库';
+            '&emsp;&emsp;你的变更单：【变更单号】:“'+taskname+'”   (变更单号：'+taskcode+') 已经上库了。' +
+            '<br/> &emsp;&emsp;请记得上库检查哦！！ ' +
+         '<br/><br/></b> ' ;
+        mailOptions.subject= '【版本管理系统】变跟单已上库，请记得上库检查哦';
         mailOptions.html = sendContent;
     }
     if(processStepId==5){
