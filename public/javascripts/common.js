@@ -48,9 +48,7 @@ function resetAttaDownloadUri(aInputId){
     var currentUri = '/file/fileDownLoad/' + attaName + '/' + attaUri;
     $(aInput).attr('href',currentUri);
 }
-/**
- * 判断字符串是否为路径
- */
+
 //function isFile(files) {
 //    var fileArray;
 //    var flag = true ;
@@ -74,27 +72,30 @@ function resetAttaDownloadUri(aInputId){
 //    }
 //    return flag;
 //}
+/**
+ * 判断字符串是否为路径
+ */
 function isFile(str){
     if(str == undefined){
         return true;
     }
-    str = str.trim();
+    str = str.trim();//去除头尾空格
     while(str.indexOf('\\')!=-1){
-        str = str.replace('\\', '/');
+        str = str.replace('\\', '/');//将‘\'替换成’/'
     }
-    while(str.indexOf('\r')!=-1) {
+    while(str.indexOf('\r')!=-1) {//处理换行
         str.replace("\r", '');
     }
     str= str.split('\n');
     for(var i in str){
-        if(str ==''){
+        if(str ==''){//空字符串也是合法，但是不写入数据库
             return true;
         }
         var tmp;
         //tmp = str[i].match(/[[\/a-zA-Z0-9_]+\/]+[a-zA-Z0-9_]+[.][a-zA-Z0-9_]+/g);
-        tmp = str[i].match(/[\/]?([a-zA-Z0-9_\/])*[a-zA-Z0-9_\-]+([.][a-zA-Z0-9_]+)+/g);
+        tmp = str[i].match(/[\/]?([a-zA-Z0-9_\/])*[a-zA-Z0-9_\-]+([.][a-zA-Z0-9_]+)+/g);//合法路径的正则表达式
         if(  tmp==null){
-            $('#alertInfo').text("出错文件："+str[i]);
+            $('#alertInfo').text("出错文件："+str[i]);//返回出错的文件名
             $('#divAlert').show();
 
            return false;

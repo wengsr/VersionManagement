@@ -349,7 +349,7 @@ router.post('/addTask', function (req, res) {
     //taskDelFiles = fileStrChange(taskDelFiles);
     //taskModFiles = fileStrChange(taskModFiles);
     //taskNewFiles = fileStrChange(taskNewFiles);
-
+     taskName = taskName.trim();
     var dao = require('../modular/taskDao');
 
     var projectUri ;
@@ -364,7 +364,13 @@ router.post('/addTask', function (req, res) {
         }
         else{
             console.log("申请失败");
-            jsonStr = '{"sucFlag":"err","message":"【提交申请】申请失败！"}';
+            if(taskId ) {//出错时，传回来的要么是undefined 或是变更单重名的情况；
+                var message = "变更单名："+ taskName+" 已被占用!";
+                jsonStr = '{"sucFlag":"err","message":"'+message+'"}';
+            }
+            else {
+                jsonStr = '{"sucFlag":"err","message":"【提交申请】申请失败！"}';
+            }
         }
         res.send(queryObj.callback+'(\'' + jsonStr + '\')');
     });
@@ -377,7 +383,6 @@ router.post('/acceptMission', function(req, res) {
     var processStepId = req.body['processStepId'];
     var userId = req.session.user.userId;
     var taskState = '申请通过';
-    debugger;
     Task.acceptMission(taskId,processStepId,taskState,userId,function(msg,result){
         if('success' == msg){
             var queryObj = url.parse(req.url,true).query;

@@ -162,6 +162,14 @@ exports.addTask = function (taskInfo,callback) {
         queues(connection);
         var trans = connection.startTransaction();
         var sql= {
+            searchTaskName:'select * from tasks t' +
+            '   JOIN taskprocessstep psd3 ON t.taskId = psd3.taskid and psd3.processStepId =(' +
+            '   select MAX(processStepId) as maxStep from taskprocessstep tps1 where   tps1.turnNum = (' +
+            '   SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep tps where tps.taskid in (' +
+            '   select taskId from tasks where taskName = ?)) as maxTurnTable)' +
+            '   and tps1.taskid in' +
+            '   ( select taskId from tasks where taskname = ?))' +
+            '   and t.taskName = ? and psd3.processStepId < 7',
             countTask: 'UPDATE  project set taskCount = taskCount + 1 where projectId= ?',
             selectProject :' SELECT * FROM project where projectId = ?',
             userAddSql : 'INSERT INTO tasks(taskCode, taskName, creater, state, processStepId, projectId, taskDesc) VALUES(?,?,?,?,?,?,?)',
@@ -169,6 +177,7 @@ exports.addTask = function (taskInfo,callback) {
             addFiles: 'INSERT INTO fileList(taskId,fileName,state,commit,fileUri) VALUES(?,?,?,?)'
 
         };
+        var searchTaskName_params = [taskInfo.name, taskInfo.name, taskInfo.name];
         var addTaskProcess_params = [1, 2];
         var project, taskCount, projectName, taskCode;
         var projectId = [taskInfo.projectId];
@@ -177,10 +186,12 @@ exports.addTask = function (taskInfo,callback) {
         var addTaskPro_params = [];
         var addFiles_params =[];
         var userId = taskInfo.tasker;
-        //var task = ['countTask', 'selectProject', 'userAddSql','addTaskProcess', 'addFiles' ];
-        var task = ['countTask', 'selectProject', 'userAddSql','addTaskProcess' ];
+        //var task = ['countTask', 'selectProject', 'us、erAddSql','addTaskProcess', 'addFiles' ];
+        //var task = ['countTask', 'selectProject', 'userAddSql','addTaskProcess' ];
+        var task = ['searchTaskName','countTask', 'selectProject', 'userAddSql','addTaskProcess' ];
         //var task_params = [projectId, projectId, userAddSql_params,addTaskPro_params, addFiles_params];
-        var task_params = [projectId, projectId, userAddSql_params,addTaskPro_params];
+        //var task_params = [projectId, projectId, userAddSql_params,addTaskPro_params];
+        var task_params = [searchTaskName_params, projectId, projectId, userAddSql_params,addTaskPro_params];
         var taskId,projectUri;
         var newFiles, modFiles,delFiles;
         var newUri=[];
@@ -197,6 +208,14 @@ exports.addTask = function (taskInfo,callback) {
                     return ;
                 }
                 i++;
+                if(item =='searchTaskName') {
+                    if (result.length > 0) {
+                        var testTaskName = true;
+                        callback("err", testTaskName);
+                        trans.rollback();
+                        return;
+                    }
+                }
                 if (item == 'selectProject') {
                     if (result.length > 0) {
                         project = result;
@@ -220,14 +239,14 @@ exports.addTask = function (taskInfo,callback) {
                         }
                         taskCode = project[0].projectName +'_'+nowDate+'_'+taskCount;
                         projectUri = project[0].projectUri;
-                        task_params[2] = [taskCode, taskInfo.name, taskInfo.tasker, taskInfo.state, "2",
+                        task_params[3] = [taskCode, taskInfo.name, taskInfo.tasker, taskInfo.state, "2",
                             taskInfo.projectId, taskInfo.desc];
                     }
                 }
                 else if (item == 'userAddSql') {
                     //console.log("userAddSql:", result);
                     taskId = result.insertId;
-                    task_params[3] = [taskId, '2', userId, 0];//taskPrecessStep turnNum 默认为0：
+                    task_params[4] = [taskId, '2', userId, 0];//taskPrecessStep turnNum 默认为0：
                     //插入多条的file数据
                     //获取文件完整的uri；
                         if(taskInfo.newFiles!=""){
@@ -279,7 +298,8 @@ exports.submitFile= function(taskId,callback){
             updateTask: "update tasks set processStepId= 4, state='变更文件已提交' where taskid=?",
             updateDealer: 'insert into taskprocessstep(taskId,processStepId,turnNum,dealer) values ' +
             ' (?,4,' +
-            ' (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable),?)'
+            ' (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=' +
+            '  (select taskid from tasks where taskName = ?) as maxNumTable),?)'
         }
         var selectDealer_params = [taskId, taskId];
         var updateTask_params = [taskId];
