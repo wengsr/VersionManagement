@@ -35,10 +35,8 @@ function ajaxSubmit(params, url, subType,submitflag){
         success: function(data){
             var dataJson = $.parseJSON(data);
             var flag =  dataJson.sucFlag;
-            debugger
             if('showUser'==submitflag) {
                 //展示出所有用户
-                debugger
                 showSelectCheckUser(dataJson);
                 return
             }

@@ -395,6 +395,29 @@ User.findProIdForAdmin = function(userId, callback){
 }
 
 
+/**
+ * 找出“系统”用户的信息
+ * @param callback
+ */
+User.findSys = function(callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN USER ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = "select * from user where userName = 'sys'";
+        connection.query(sql, function (err, result) {
+            if (err) {
+                console.log('[QUERY USER ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',result[0]);
+        });
+    });
+}
+
+
 module.exports = User;
 
 User.prototype.save = function save(user,callback){

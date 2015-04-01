@@ -13,9 +13,9 @@
                 <div class="col-lg-12">
 
                     <div class="form-group">
-                        <label for="taskName" class="col-sm-2 control-label">变更单号</label>
+                        <label for="taskCode" class="col-sm-2 control-label">变更单号</label>
                         <div class="col-sm-10" style="margin-top:6px">
-                            <span id="taskCode"><%=task.taskcode%></span>
+                            <span id="taskCode" name="taskCode" id="taskCode"><%=task.taskcode%></span>
                         </div>
                     </div>
                     <div class="form-group">
@@ -90,6 +90,7 @@
             <button id="btnCloseModel" type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
             <input type="hidden" id="taskState" value="<%=task.state%>"/>
             <button id="btnSubmitAccept" type="button" class="btn btn-primary">接受任务</button>
+            <button id="btnAutoSubmit" type="button" class="btn btn-primary">自动上库</button>
             <button id="btnSubmitComplete" type="button" class="btn btn-primary">上库完成</button>
         </div>
     </div>
