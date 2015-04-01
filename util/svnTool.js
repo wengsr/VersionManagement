@@ -93,7 +93,7 @@ Svn.prototype.autoUpload = function(localDir, delFileList, callback) {
         password: 'wengsr62952'
     });
     //2.删除
-    if(delFileList.length>0) {
+    if((delFileList.length>0) && (delFileList[0]!='')) {
         client.del(delFileList, function (err, data) {
             if (err) return callback('err', err);
             console.log('删除本地SVN文件成功');

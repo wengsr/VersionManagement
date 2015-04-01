@@ -1189,7 +1189,7 @@ router.post('/autoUpload', function(req,res) {
             //4.提交变更单到SVN!
             svnTool.autoUpload(localDir, delFileList,function(isSuccess,result){//除了被删除的文件，目录下的所有文件将被提交
                 if('success' != isSuccess){
-                    return returnJsonMsg(req, res, "err", "自动上库过程出现错误，请手动上库");
+                    return returnJsonMsg(req, res, "err", "自动上库过程出现错误，请手动上库后点击【上库完成】");
                 }
                 returnJsonMsg(req, res, "success", "自动上库成功,请上SVN库确认无误后点击【上库完成】");
 //                //5.提交SVN成功，记录相关信息到数据库中
