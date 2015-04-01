@@ -81,6 +81,41 @@ function insertFile(conn, params, i, callback){
     });
 }
 /**
+ *提交新旧文件，顺序执行sql语句
+ * @param conn
+ * @param sql 数据库语句对象
+ * @param sql_item 要执行的sql语句数组
+ * @param sql_param
+ * @param i sql语句计数，一般都为0
+ * @param callback
+ */
+function asyQuery_submit(conn,sql,sql_item,sql_param,i,callback){
+    if(i==sql_item.length){
+        callback("success");
+        return ;
+    }
+    conn.query(sql[sql_item[i]] ,sql_param[i],function(err, result){
+        if(err){
+            conn.rollback();
+            //console.log(sql[sql_item[i]]+" ERR:",err.message);
+            console.log(sql[sql_item[i]],' '+sql_param[i]+'e rr');
+            return callback("err");
+        }
+        else{
+            if(i==0) {
+                sql_param[2].push(result[0].manager);
+            }
+            //console.log(sql[sql_item[i]],' '+sql_param[i]+' result:');
+            //console.log(result);
+            i++;
+
+            //console.log("insertFiles result:", result);
+            asyQuery_submit(conn,sql,sql_item,sql_param,i,callback);
+        }
+    });
+};
+
+/**
  * 删除fileList表的记录；
  * @param conn 数据库连接connection
  * @param params 删除语句的参数数组
@@ -299,36 +334,46 @@ exports.submitFile= function(taskId,callback){
             updateDealer: 'insert into taskprocessstep(taskId,processStepId,turnNum,dealer) values ' +
             ' (?,4,' +
             ' (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=' +
-            '  (select taskid from tasks where taskName = ?) as maxNumTable),?)'
+            '  (select taskid from tasks where taskid = ?)) as maxNumTable),?)'
         }
-        var selectDealer_params = [taskId, taskId];
+        var selectDealer_params = [taskId];
         var updateTask_params = [taskId];
         var updateDealer_params = [taskId,taskId];
         var sqlMember = ['selectDealer','updateTask', 'updateDealer'];
         var sqlMember_params = [selectDealer_params, updateTask_params, updateDealer_params];
         var i = 0;
-        async.eachSeries(sqlMember, function (item, callback_async) {
-            trans.query(sql[item], sqlMember_params[i++],function (err_async, result) {
-                if(err_async){
-                     return callback("err");
-                }
-                if(item == 'selectDealer' && undefined!=result && ''!=result ){
-                    //console.log("selectDealer:",result);
-                            updateDealer_params.push(result[0].manager);
-                }
-                if(err_async){
-                    trans.rollback();
-                    return callback('err',err_async);
-                }
-                if(item == 'updateDealer' && !err_async){//最后一条sql语句执行没有错就返回成功
-                  //  return callback('success');
-                }
-                callback_async(err_async, result);
-            });
-        });
+        //async.eachSeries(sqlMember, function (item, callback_async) {
+        //    trans.query(sql[item], sqlMember_params[i++],function (err_async, result) {
+        //        console.log("submitFile:");
+        //        console.log(sql[item],' '+sqlMember_params[i-1]+' result',result );
+        //        if(err_async){
+        //            trans.rollback();
+        //            console.log(sql[item],' '+sqlMember_params[i-1]+'err');
+        //            return callback('err',err_async);
+        //        }
+        //        if(item == 'selectDealer' && undefined!=result && ''!=result ){
+        //            //console.log("selectDealer:",result);
+        //                    updateDealer_params.push(result[0].manager);
+        //        }
+        //
+        //        if(item == 'updateDealer'){//最后一条sql语句执行没有错就返回成功
+        //            console.log("success");
+        //            return callback('success');
+        //        }
+        //        //callback_async(err_async, result);
+        //    });
+        //});
 
+        asyQuery_submit(trans,sql,sqlMember,sqlMember_params,i ,function(msg){
+            if(msg =='success'){
+               return  callback('success');
+            }
+            else {
+               return  callback('err');
+            }
+        });
         trans.execute();//提交事务
-        callback('success');
+        //callback('success');
         connection.release();
     });
 };

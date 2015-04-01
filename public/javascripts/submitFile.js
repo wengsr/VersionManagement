@@ -56,6 +56,7 @@ function ajaxSubmit(params, url, subType){
             //$('#uploadInfo').hide();
         },
         error: function(jqXHR, textStatus, errorThrown){
+            debugger
             alert('error ' + textStatus + " " + errorThrown);
         }
     });

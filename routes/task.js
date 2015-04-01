@@ -355,7 +355,8 @@ router.post('/addTask', function (req, res) {
     var projectUri ;
     var flag = false;
 
-    dao.addTask({name: taskName, tasker: tasker ,state: taskState,projectId:taskProject,desc:taskDetails,newFiles:taskNewFiles, modFiles:taskModFiles,delFiles:taskDelFiles}, function (msg,taskId,taskCode) {
+    dao.addTask({name: taskName, tasker: tasker ,state: taskState,projectId:taskProject,desc:taskDetails,newFiles:taskNewFiles,
+        modFiles:taskModFiles,delFiles:taskDelFiles}, function (msg,taskId,taskCode) {
         var queryObj = url.parse(req.url,true).query;
         var jsonStr;
         if('success' == msg){
@@ -374,7 +375,6 @@ router.post('/addTask', function (req, res) {
         }
         res.send(queryObj.callback+'(\'' + jsonStr + '\')');
     });
-
 });
 
 router.post('/acceptMission', function(req, res) {
@@ -725,12 +725,15 @@ router.post('/submitFile', function(req, res) {
     dao.submitFile(taskId, function(msg,result){
         if('success' == msg){
             jsonStr = '{"sucFlag":"success","message":"【上传变更单】执行成功"}';
+            var queryObj = url.parse(req.url,true).query;
+            res.send(queryObj.callback+'(\'' + jsonStr + '\')');
             sendEmailToNext(req,taskId,'',4);
-        }else{
+        }else if('err' == msg){
             jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
+            var queryObj = url.parse(req.url,true).query;
+            res.send(queryObj.callback+'(\'' + jsonStr + '\')');
         }
-        var queryObj = url.parse(req.url,true).query;
-        res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+
     });
 });
 /**

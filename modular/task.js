@@ -249,9 +249,9 @@ Task.findTaskAndEmailByTaskId = function(taskId,callback){
             console.log('[CONN TASKS ERROR] - ', err.message);
             return callback(err);
         }
-        var sql = 'SELECT t.taskCode , t.taskname , t.processStepId , u.userName , u.realName ,u.email  FROM tasks t ' +
+        var sql = 'SELECT t.taskcode , t.taskname , t.processStepId , u.userName , u.realName ,u.email  FROM tasks t ' +
             '        JOIN User u  ON t.creater=u.userId ' +
-            '        where taskid = ?';
+            '        where t.taskid = ?';
         var params = [taskId];
         connection.query(sql, params, function (err, result) {
             if (err) {
@@ -259,7 +259,9 @@ Task.findTaskAndEmailByTaskId = function(taskId,callback){
                 return callback(err,null);
             }
             connection.release();
+            //console.log("findTaskAndEmailByTaskId:",result[0]);
             callback('success',result[0]);
+
         });
     });
 }
@@ -275,7 +277,7 @@ Task.findTaskAndManagerByTaskId = function(taskId,callback){
             console.log('[CONN TASKS ERROR] - ', err.message);
             return callback(err);
         }
-        var sql = 'SELECT t.taskCode , t.taskname , t.processStepId , u.userName , u.realName ,u.email  FROM tasks t ' +
+        var sql = 'SELECT t.taskcode , t.taskname , t.processStepId , u.userName , u.realName ,u.email  FROM tasks t ' +
             '     JOIN project p  ON t.projectId=p.projectId ' +
             '     JOIN user u  ON p.manager=u.userId' +
             '     where taskid = ?';
