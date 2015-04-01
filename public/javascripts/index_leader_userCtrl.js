@@ -41,13 +41,25 @@ jQuery(document).ready(function() {
 
     //添加管理员操作界面
     $('#newProAdmin').click(function(){
-        $('#divAddProAdminDialog').modal();
+        $('#divAddProAdminDialog').modal({
+            backdrop:false
+        });
     });
 
     //添加项目参与者界面
     $('#newProUser').click(function(){
-        $('#divAddProUserDialog').modal();
+        $('#divAddProUserDialog').modal({
+            backdrop:false
+        });
     });
+    //添加走查人员界面
+
+    $('#newProCheck').click(function(){
+        $('#divAddProCheckDialog').modal({
+            backdrop:false
+        });
+    });
+
 
 
 });

@@ -325,7 +325,7 @@ router.post('/getAllName', function(req, res) {
  */
 router.post('/getProUser', function(req, res) {
     var taskId = req.body['taskId'];
-    User.getProUser(taskId, function(msg,results){
+    User.getProCheckUser(taskId, function(msg,results){
         if('success' == msg){
             var queryObj = url.parse(req.url,true).query;
             var jsonStr = "[";
@@ -347,7 +347,7 @@ router.post('/getProUser', function(req, res) {
  */
 router.post('/getProCheckUser', function(req, res) {
     var taskId = req.body['taskId'];
-    User.getProUser(taskId, function(msg,results){
+    User.getProCheckUser(taskId, function(msg,results){
         if('success' == msg){
             var queryObj = url.parse(req.url,true).query;
             var jsonStr = "[";

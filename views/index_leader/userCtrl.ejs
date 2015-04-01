@@ -5,13 +5,16 @@
     <div class="panel panel-default">
         <div class="panel-heading">版本管理员&emsp;&emsp;&emsp;&emsp;<a id="newProAdmin" href="#"><span class="glyphicon glyphicon-plus"/>添加人员</a></div>
         <div class="panel-body table-responsive">
-                <%if(eachStepDealers){%>
+                <%if(eachStepDealers){var count = -1;%>
                 <form action="/leaderModel/delAdmin/<%=projects[0].projectId%>" id="formDelAdmin" class=" bs-component form-Vertical" method='post'>
                     <input type="hidden" id="delAdminId" name="delAdminId"/>
                     <%eachStepDealers.forEach(function(esd,i){%>
-                    <%if(esd.processStepId==6){%>
+                    <%if(esd.processStepId==6){ count++;%>
                     &emsp;
                     <!-- 管理人员名按钮 -->
+                    <%if(count&&count%10==0){ %>
+                    <div style="clear:both;margin-bottom: 20px;"></div>
+                    <%}%>
                     <div typeId="proAdminBtn" style="float: left;margin-left: 20px;">
                     <%if(esd.userId==user.userId){%><!--判断是否为组长-->
                         <button type="button" class="btn btn-danger" typeId="proAdminBtn1"><%=esd.realName%>(组长)&nbsp;</button>
@@ -53,12 +56,15 @@
     <div class="panel panel-default">
         <div class="panel-heading">项目参与人员&emsp;&emsp;&emsp;<a id="newProUser" href="#"><span class="glyphicon glyphicon-plus"/>添加人员</a></div>
         <div class="panel-body table-responsive">
-            <%if(proAllUser){%>
+            <%if(proAllUser ){var count = -1;%>
             <form action="/leaderModel/delProUser/<%=projects[0].projectId%>" id="formDelProUser" class=" bs-component form-Vertical" method='post'>
                 <input type="hidden" id="delProUserId" name="delProUserId"/>
-                <%proAllUser.forEach(function(pau,i){%>
+                <%proAllUser.forEach(function(pau,i){count++; %>
                     &emsp;
                     <!-- 项目参与人名按钮 -->
+                <%if(count&&count%10==0){ %>
+                <div style="clear:both;margin-bottom: 20px;"></div>
+                <%}%>
                     <div typeId="proUserBtn" style="float: left;margin-left: 20px;">
                         <%if(pau.userId==user.userId){%><!--判断是否为组长-->
                         <button type="button" class="btn btn-danger"><%=pau.realName%>(组长)&nbsp;</button>
@@ -94,6 +100,56 @@
     </div>
 </div>
 
+<!--走查人员列表-->
+<div id="proCheck" class="container-fluid">
+    <div class="panel panel-default">
+        <div class="panel-heading">走查人员&emsp;&emsp;&emsp;&emsp;<a id="newProCheck" href="#"><span class="glyphicon glyphicon-plus"/>添加人员</a></div>
+        <div class="panel-body table-responsive">
+            <%if(eachStepDealers){ var count=-1 ;%>
+            <form action="/leaderModel/delCheck/<%=projects[0].projectId%>" id="formDelCheck" class=" bs-component form-Vertical" method='post'>
+                <input type="hidden" id="delCheckId" name="delCheckId"/>
+                <%eachStepDealers.forEach(function(esd,i){%>
+                <%if(esd.processStepId==5){count++;%>
+                &emsp;
+                <!-- 走查人员名按钮 -->
+                <%if(count&&count%10==0){ %>
+                <div style="clear:both;margin-bottom: 20px;"></div>
+                <%}%>
+                <div typeId="proCheckBtn" style="float: left;margin-left: 20px;">
+                    <%if(esd.userId==user.userId){%><!--判断是否为组长-->
+                    <button type="button" class="btn btn-danger" typeId="proCheckBtn1"><%=esd.realName%>(组长)&nbsp;</button>
+                    <%}else{%>
+                    <button type="button" class="btn btn-primary" typeId="proCheckBtn1"><%=esd.realName%>&nbsp;</button>
+                    <%}%>
+                    <button typeId="xxCheck" type="button" class="am-close am-close-spin am-icon-times" data-toggle="modal" data-target="#proCheck<%=esd.userId%>"></button>
+                </div>
+
+                <!--走查人员名按钮对应的弹出删除对话框-->
+                <div id="proCheck<%=esd.userId%>" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-sm">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="myModalLabel" style="color: #ffffff">删除确定</h4>
+                            </div>
+                            <div class="modal-body">
+                                确定删除走查人员：【<%=esd.realName%>】
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                <button id="btnDelProCheck" type="button" userId="<%=esd.userId%>" class="btn btn-primary">确定</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <%}%>
+                <%});%>
+            </form>
+            <%}%>
+        </div>
+        <div id="" class="panel-footer" recCount=""></div>
+    </div>
+</div>
 
 <!--添加管理员对话框-->
 <div id="divAddProAdminDialog" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
@@ -109,6 +165,15 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content" id="divModel">
             <%include addProUser.ejs%>
+        </div>
+    </div>
+</div>
+
+<!--添加走查人员对话框-->
+<div id="divAddProCheckDialog" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" id="divModel">
+            <%include addProCheck.ejs%>
         </div>
     </div>
 </div>
@@ -135,6 +200,15 @@
         })
     });
 
+    $ ("[id=btnDelProCheck]").each (function ()
+    {
+        //console.info($(this).attr('userid'));
+        $(this).click(function(){
+            $('#delCheckId').val($(this).attr('userid'));
+            $('#formDelCheck').submit();
+        })
+    });
+
 
     $('div[typeId=proAdminBtn]').each (function(){
         var thisBtn = $(this);
@@ -157,6 +231,18 @@
         });
         thisBtn.find('[typeId=xxUser]').hide();
     });
+
+    $('div[typeId=proCheckBtn]').each (function(){
+        var thisBtn = $(this);
+        thisBtn.mouseover(function(){
+            thisBtn.find('[typeId=xxCheck]').show();
+        });
+        thisBtn.mouseleave(function(){
+            thisBtn.find('[typeId=xxCheck]').hide();
+        });
+        thisBtn.find('[typeId=xxCheck]').hide();
+    });
+
 
 </script>
 

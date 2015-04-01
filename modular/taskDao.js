@@ -81,6 +81,41 @@ function insertFile(conn, params, i, callback){
     });
 }
 /**
+ *提交新旧文件，顺序执行sql语句
+ * @param conn
+ * @param sql 数据库语句对象
+ * @param sql_item 要执行的sql语句数组
+ * @param sql_param
+ * @param i sql语句计数，一般都为0
+ * @param callback
+ */
+function asyQuery_submit(conn,sql,sql_item,sql_param,i,callback){
+    if(i==sql_item.length){
+        callback("success");
+        return ;
+    }
+    conn.query(sql[sql_item[i]] ,sql_param[i],function(err, result){
+        if(err){
+            conn.rollback();
+            //console.log(sql[sql_item[i]]+" ERR:",err.message);
+            console.log(sql[sql_item[i]],' '+sql_param[i]+'e rr');
+            return callback("err");
+        }
+        else{
+            if(i==0) {
+                sql_param[2].push(result[0].manager);
+            }
+            //console.log(sql[sql_item[i]],' '+sql_param[i]+' result:');
+            //console.log(result);
+            i++;
+
+            //console.log("insertFiles result:", result);
+            asyQuery_submit(conn,sql,sql_item,sql_param,i,callback);
+        }
+    });
+};
+
+/**
  * 删除fileList表的记录；
  * @param conn 数据库连接connection
  * @param params 删除语句的参数数组
@@ -162,6 +197,14 @@ exports.addTask = function (taskInfo,callback) {
         queues(connection);
         var trans = connection.startTransaction();
         var sql= {
+            searchTaskName:'select * from tasks t' +
+            '   JOIN taskprocessstep psd3 ON t.taskId = psd3.taskid and psd3.processStepId =(' +
+            '   select MAX(processStepId) as maxStep from taskprocessstep tps1 where   tps1.turnNum = (' +
+            '   SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep tps where tps.taskid in (' +
+            '   select taskId from tasks where taskName = ?)) as maxTurnTable)' +
+            '   and tps1.taskid in' +
+            '   ( select taskId from tasks where taskname = ?))' +
+            '   and t.taskName = ? and psd3.processStepId < 7',
             countTask: 'UPDATE  project set taskCount = taskCount + 1 where projectId= ?',
             selectProject :' SELECT * FROM project where projectId = ?',
             userAddSql : 'INSERT INTO tasks(taskCode, taskName, creater, state, processStepId, projectId, taskDesc) VALUES(?,?,?,?,?,?,?)',
@@ -169,6 +212,7 @@ exports.addTask = function (taskInfo,callback) {
             addFiles: 'INSERT INTO fileList(taskId,fileName,state,commit,fileUri) VALUES(?,?,?,?)'
 
         };
+        var searchTaskName_params = [taskInfo.name, taskInfo.name, taskInfo.name];
         var addTaskProcess_params = [1, 2];
         var project, taskCount, projectName, taskCode;
         var projectId = [taskInfo.projectId];
@@ -177,10 +221,12 @@ exports.addTask = function (taskInfo,callback) {
         var addTaskPro_params = [];
         var addFiles_params =[];
         var userId = taskInfo.tasker;
-        //var task = ['countTask', 'selectProject', 'userAddSql','addTaskProcess', 'addFiles' ];
-        var task = ['countTask', 'selectProject', 'userAddSql','addTaskProcess' ];
+        //var task = ['countTask', 'selectProject', 'us、erAddSql','addTaskProcess', 'addFiles' ];
+        //var task = ['countTask', 'selectProject', 'userAddSql','addTaskProcess' ];
+        var task = ['searchTaskName','countTask', 'selectProject', 'userAddSql','addTaskProcess' ];
         //var task_params = [projectId, projectId, userAddSql_params,addTaskPro_params, addFiles_params];
-        var task_params = [projectId, projectId, userAddSql_params,addTaskPro_params];
+        //var task_params = [projectId, projectId, userAddSql_params,addTaskPro_params];
+        var task_params = [searchTaskName_params, projectId, projectId, userAddSql_params,addTaskPro_params];
         var taskId,projectUri;
         var newFiles, modFiles,delFiles;
         var newUri=[];
@@ -197,6 +243,14 @@ exports.addTask = function (taskInfo,callback) {
                     return ;
                 }
                 i++;
+                if(item =='searchTaskName') {
+                    if (result.length > 0) {
+                        var testTaskName = true;
+                        callback("err", testTaskName);
+                        trans.rollback();
+                        return;
+                    }
+                }
                 if (item == 'selectProject') {
                     if (result.length > 0) {
                         project = result;
@@ -220,14 +274,14 @@ exports.addTask = function (taskInfo,callback) {
                         }
                         taskCode = project[0].projectName +'_'+nowDate+'_'+taskCount;
                         projectUri = project[0].projectUri;
-                        task_params[2] = [taskCode, taskInfo.name, taskInfo.tasker, taskInfo.state, "2",
+                        task_params[3] = [taskCode, taskInfo.name, taskInfo.tasker, taskInfo.state, "2",
                             taskInfo.projectId, taskInfo.desc];
                     }
                 }
                 else if (item == 'userAddSql') {
                     //console.log("userAddSql:", result);
                     taskId = result.insertId;
-                    task_params[3] = [taskId, '2', userId, 0];//taskPrecessStep turnNum 默认为0：
+                    task_params[4] = [taskId, '2', userId, 0];//taskPrecessStep turnNum 默认为0：
                     //插入多条的file数据
                     //获取文件完整的uri；
                         if(taskInfo.newFiles!=""){
@@ -279,36 +333,47 @@ exports.submitFile= function(taskId,callback){
             updateTask: "update tasks set processStepId= 4, state='变更文件已提交' where taskid=?",
             updateDealer: 'insert into taskprocessstep(taskId,processStepId,turnNum,dealer) values ' +
             ' (?,4,' +
-            ' (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable),?)'
+            ' (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=' +
+            '  (select taskid from tasks where taskid = ?)) as maxNumTable),?)'
         }
-        var selectDealer_params = [taskId, taskId];
+        var selectDealer_params = [taskId];
         var updateTask_params = [taskId];
         var updateDealer_params = [taskId,taskId];
         var sqlMember = ['selectDealer','updateTask', 'updateDealer'];
         var sqlMember_params = [selectDealer_params, updateTask_params, updateDealer_params];
         var i = 0;
-        async.eachSeries(sqlMember, function (item, callback_async) {
-            trans.query(sql[item], sqlMember_params[i++],function (err_async, result) {
-                if(err_async){
-                     return callback("err");
-                }
-                if(item == 'selectDealer' && undefined!=result && ''!=result ){
-                    //console.log("selectDealer:",result);
-                            updateDealer_params.push(result[0].manager);
-                }
-                if(err_async){
-                    trans.rollback();
-                    return callback('err',err_async);
-                }
-                if(item == 'updateDealer' && !err_async){//最后一条sql语句执行没有错就返回成功
-                  //  return callback('success');
-                }
-                callback_async(err_async, result);
-            });
-        });
+        //async.eachSeries(sqlMember, function (item, callback_async) {
+        //    trans.query(sql[item], sqlMember_params[i++],function (err_async, result) {
+        //        console.log("submitFile:");
+        //        console.log(sql[item],' '+sqlMember_params[i-1]+' result',result );
+        //        if(err_async){
+        //            trans.rollback();
+        //            console.log(sql[item],' '+sqlMember_params[i-1]+'err');
+        //            return callback('err',err_async);
+        //        }
+        //        if(item == 'selectDealer' && undefined!=result && ''!=result ){
+        //            //console.log("selectDealer:",result);
+        //                    updateDealer_params.push(result[0].manager);
+        //        }
+        //
+        //        if(item == 'updateDealer'){//最后一条sql语句执行没有错就返回成功
+        //            console.log("success");
+        //            return callback('success');
+        //        }
+        //        //callback_async(err_async, result);
+        //    });
+        //});
 
+        asyQuery_submit(trans,sql,sqlMember,sqlMember_params,i ,function(msg){
+            if(msg =='success'){
+               return  callback('success');
+            }
+            else {
+               return  callback('err');
+            }
+        });
         trans.execute();//提交事务
-        callback('success');
+        //callback('success');
         connection.release();
     });
 };

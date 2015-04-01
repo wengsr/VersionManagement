@@ -249,9 +249,52 @@ LeaderModel.findAllUser_disp = function(callback){
 
 
 /**
-* 添加项目管理员
+* 添加项目走查人员
 * @param callback
 */
+LeaderModel.addProCheck = function(userName, projectId, callback){
+    pool.getConnection(function (err, connection) {
+        //开启事务
+        queues(connection);
+        var trans = connection.startTransaction();
+        var sql= {
+            isCheckExist:"select * from processstepdealer where " +
+                "   userId=(select u.userId from user u where u.userName=?) " +
+                "   and projectId=? and processStepId=5",
+            addProToCheck:"insert into processstepdealer (userId, processStepId, projectId) " +
+                "   values ((select u.userId from user u where u.userName=?),5,?)"
+        }
+        var isCheckExist_params = [userName,projectId];
+        var addProToCheck_params = [userName,projectId];
+        var sqlMember = ['isCheckExist', 'addProToCheck'];
+        var sqlMember_params = [isCheckExist_params, addProToCheck_params];
+        var i = 0;
+        async.eachSeries(sqlMember, function (item, callback_async) {
+            trans.query(sql[item], sqlMember_params[i++],function (err_async, result) {
+                if(item == 'isCheckExist' && undefined!=result && ''!=result && null!=result){
+                    //判断该用户是否已经有管理员权限
+                    trans.rollback();
+                    return callback('err','该用户已经有管理员权限，请勿重复添加');
+                }
+                if(err_async){
+                    trans.rollback();
+                    return callback('err',err_async);
+                }
+                if(item == 'addProToCheck' && !err_async){//最后一条sql语句执行没有错就返回成功
+                    trans.commit();
+                    return callback('success');
+                }
+                callback_async(err_async, result);
+            });
+        });
+        trans.execute();//提交事务
+        connection.release();
+    });
+}
+/**
+ * 添加项目管理员
+ * @param callback
+ */
 LeaderModel.addProAdmin = function(userName, projectId, callback){
     pool.getConnection(function (err, connection) {
         //开启事务
@@ -259,10 +302,10 @@ LeaderModel.addProAdmin = function(userName, projectId, callback){
         var trans = connection.startTransaction();
         var sql= {
             isAdminExist:"select * from processstepdealer where " +
-                "   userId=(select u.userId from user u where u.userName=?) " +
-                "   and projectId=? and processStepId=6",
+            "   userId=(select u.userId from user u where u.userName=?) " +
+            "   and projectId=? and processStepId=6",
             addProToAdmin:"insert into processstepdealer (userId, processStepId, projectId) " +
-                "   values ((select u.userId from user u where u.userName=?),6,?)"
+            "   values ((select u.userId from user u where u.userName=?),6,?)"
         }
         var isAdminExist_params = [userName,projectId];
         var addProToAdmin_params = [userName,projectId];
@@ -430,6 +473,32 @@ LeaderModel.delProUser = function(userId, projectId, callback){
 }
 
 
+/**
+ * 删除走查人员权限
+ * @param userName
+ * @param projectId
+ * @param callback
+ */
+LeaderModel.delProCheck = function(userId, projectId, callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN LEADERMODEL ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'delete from processstepdealer' +
+            '        where userId=?' +
+            '        and processStepId=5 and projectId=?';
+        var params = [userId,projectId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[DEL LEADERMODEL ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',result);
+        });
+    });
+}
 
 
 

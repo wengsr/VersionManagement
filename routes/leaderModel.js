@@ -205,6 +205,23 @@ var addProUser = function(userName, projectId, req, res, callback){
         callback(result);
     });
 }
+/**
+ * 添加走查人员
+ * @param userName
+ * @param proId
+ * @param req
+ * @param res
+ * @param callback
+ */
+var addProCheck = function(userName, projectId, req, res, callback){
+    LeaderModel.addProCheck(userName, projectId, function(msg,result){
+        if(msg!='success'){
+            req.session.error = "添加项目管理员时发生错误【"+result+"】，请记录并联系管理员";
+            return res.redirect("/");
+        }
+        callback(result);
+    });
+}
 
 /**
  * 删除上库管理员
@@ -237,6 +254,24 @@ var delProUser = function(userId, projectId, req, res, callback){
     LeaderModel.delProUser(userId, projectId, function(msg,result){
         if(msg!='success'){
             req.session.error = "删除项目参与人时发生错误,请记录并联系管理员";
+            return res.redirect("/");
+        }
+        callback(result);
+    });
+}
+
+/**
+ * 删除走查人员
+ * @param userId
+ * @param projectId
+ * @param req
+ * @param res
+ * @param callback
+ */
+var delProCheck = function(userId, projectId, req, res, callback){
+    LeaderModel.delProCheck(userId, projectId, function(msg,result){
+        if(msg!='success'){
+            req.session.error = "删除上库管理员时发生错误,请记录并联系管理员";
             return res.redirect("/");
         }
         callback(result);
@@ -390,6 +425,18 @@ router.post('/addProUser/:projectId', function(req, res) {
 
 
 /**
+ * 添加走查人员
+ */
+router.post('/addCheck/:projectId', function(req, res) {
+    var proCheck = req.body["checkProCheck"];//即将被添加的走查人员用户名
+    var currProjectId = req.params.projectId;//当前页面所统计的项目id
+
+    addProCheck(proCheck, currProjectId, req, res, function(allUser_disp){
+        showLeaderPage_userCtrl(currProjectId, req, res, "userCtrlPage");
+    });
+});
+
+/**
  * 删除管理员
  */
 router.post('/delAdmin/:projectId', function(req, res) {
@@ -399,8 +446,6 @@ router.post('/delAdmin/:projectId', function(req, res) {
         showLeaderPage_userCtrl(currProjectId, req, res, "userCtrlPage");
     });
 });
-
-
 
 /**
  * 删除项目参与人
@@ -413,6 +458,16 @@ router.post('/delProUser/:projectId', function(req, res) {
     });
 });
 
+/**
+ * 删除走查人员
+ */
+router.post('/delCheck/:projectId', function(req, res) {
+    var userId = req.body["delCheckId"];//即将被删除的走查人员的Id
+    var currProjectId = req.params.projectId;//当前页面所统计的项目id
+    delProCheck(userId, currProjectId, req, res, function(allUser_disp){
+        showLeaderPage_userCtrl(currProjectId, req, res, "userCtrlPage");
+    });
+});
 
 
 module.exports = router;
