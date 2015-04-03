@@ -2,6 +2,8 @@
  * Created by wengs_000 on 2015/1/30 0030.
  */
 var Client = require('svn-spawn');
+var SVN_USER = "cmsys";
+var SVN_PWD = "717705";
 
 /**
  *
@@ -89,8 +91,8 @@ Svn.prototype.autoUpload = function(localDir, delFileList, callback) {
     //1.设置参数
     var client = new Client({
         cwd: localDir,       //'C:/test/uu/',
-        username: 'wengsr',
-        password: 'wengsr62952'
+        username: SVN_USER,
+        password: SVN_PWD
     });
     //2.删除
     if((delFileList.length>0) && (delFileList[0]!='')) {
@@ -130,8 +132,8 @@ Svn.prototype.update = function(localDir, callback) {
     //1.设置参数
     var client = new Client({
         cwd: localDir,
-        username: 'wengsr',
-        password: 'wengsr62952'
+        username: SVN_USER,
+        password: SVN_PWD
     });
     //2.更新文件
     client.update(function(err, data) {
@@ -215,8 +217,8 @@ module.exports = Svn;
 
 var client = new Client({
     cwd: 'C:/test/uu/',
-    username: 'wengsr', // optional if authentication not required or is already saved
-    password: 'wengsr62952' // optional if authentication not required or is already saved
+    username: SVN_USER, // optional if authentication not required or is already saved
+    password: SVN_PWD // optional if authentication not required or is already saved
 });
 
 //client.getInfo(function(err, data) {

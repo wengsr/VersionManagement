@@ -25,11 +25,13 @@ function ajaxSubmit(params, url, subType, fun){
                 showTipInfo('err',dataJson.message);
             }else if('success'==flag){
                 showTipInfo('success',dataJson.message);
-                if('accept'==fun){                  //任务已经被接受
+                if('accept'==fun){                      //任务已经被接受
                     $('#btnSubmitAccept').hide();
                     $('#btnSubmitComplete').show();
                     $('#btnAutoSubmit').show();
-                }else if('complete'==fun){          //上库完成
+                }else if('autoComplete'==fun){          //自动上库完成
+                    $('#btnAutoSubmit').hide();
+                }else if('complete'==fun){              //上库完成
                     $('#btnSubmitComplete').hide();
                     $('#btnAutoSubmit').hide();
                 }
@@ -77,7 +79,7 @@ function submitForm_autoUpload(){
         a_attaFile: $('#a_attaFile').attr('href')
     };
     var planCheck_url='task/autoUpload';
-    ajaxSubmit(planCheck_params, planCheck_url, 'post', 'complete');
+    ajaxSubmit(planCheck_params, planCheck_url, 'post', 'autoComplete');
 }
 
 
@@ -89,6 +91,10 @@ function acceptAndCompBtn(){
     if('走查通过'==taskState){
         $('#btnSubmitAccept').show();
         $('#btnSubmitComplete').hide();
+        $('#btnAutoSubmit').hide();
+    }else if('自动上库完成'==taskState){
+        $('#btnSubmitAccept').hide();
+        $('#btnSubmitComplete').show();
         $('#btnAutoSubmit').hide();
     }else{
         $('#btnSubmitAccept').hide();

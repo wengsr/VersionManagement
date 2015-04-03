@@ -1070,4 +1070,29 @@ Task.findHistory = function(taskId,callback){
     });
 }
 
+
+/**
+ * 自动上库完成(即自动上库成功)
+ * @param taskId
+ * @param callback
+ */
+Task.autoComp = function(taskId,callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN TASKS ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = "UPDATE tasks SET state='自动上库完成' WHERE taskid = ?";
+        var params = [taskId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY TASKS ERROR] - ', err.message);
+                return callback('err',err);
+            }
+            connection.release();
+            callback('success',null);
+        });
+    });
+}
+
 module.exports = Task;

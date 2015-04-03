@@ -52,6 +52,8 @@ var testFileUsed = require('../modular/testFileUsed');
 var Project = require('../modular/project');
 var OLD_FOLDER = './old';                       //系统自动提取的文件存放路径
 var NEW_OLD_FOLDER = './attachment/newAndOld';  //开发人员上传的新旧附件
+var SVN_USER = "cmsys";
+var SVN_PWD = "717705";
 
 
 /**
@@ -72,6 +74,23 @@ function saveTaskAtta(req, taskId, processStepId, fileName, fileUri, callback){
         callback(insertId);
     });
 }
+
+/**
+ * 自动上库成功后，修改变更单状态为【自动上库成功】
+ * @param req
+ * @param taskId
+ * @param callback
+ */
+function autoComp(req, taskId, callback){
+    Task.autoComp(taskId, function(msg,resu){
+        if('success'!=msg){
+            return callback("err", "修改变更单状态为【自动上库成功】时出错,请联系管理员! 错误信息：" + resu);
+        }
+        callback("success", null);
+    });
+}
+
+
 
 function fileRename( fileName){
     var newDate = new Date();
@@ -1165,7 +1184,7 @@ router.post('/autoUpload', function(req,res) {
     var newOldFile = NEW_OLD_FOLDER + '/' + attaFile;       //开发人员上传的新旧文件的压缩文件
     var localDir = OLD_FOLDER + '/' + taskCode + '/upFolder';
     var svnFolder = OLD_FOLDER + '/' + taskCode;
-    var svnTool = new Svn({username: 'wengsr', password: 'wengsr62952'});
+    var svnTool = new Svn({username: SVN_USER, password: SVN_PWD});
     //2.1清空upFolder文件夹，获取SVN信息的.svn文件夹
     deleteFolderRecursive(localDir);                        //删除文件夹
     deleteFolderRecursive(svnFolder+'/extractRarFolder');
@@ -1194,7 +1213,14 @@ router.post('/autoUpload', function(req,res) {
                 if('success' != isSuccess){
                     return returnJsonMsg(req, res, "err", "自动上库过程出现错误，请手动上库后点击【上库完成】");
                 }
-                returnJsonMsg(req, res, "success", "自动上库成功,请上SVN库确认无误后点击【上库完成】");
+                //5.提交SVN成功，改变当前这条变更单记录的状态为“自动上库成功”
+                autoComp(req, taskId, function(isSuc, errMsg){
+                    if(isSuc!='success'){
+                        return returnJsonMsg(req, res, "err", errMsg);//状态修改为“自动上库成功”时出错
+                    }
+                    returnJsonMsg(req, res, "success", "自动上库成功,请上SVN库确认无误后点击【上库完成】");
+                });
+
 //                //5.提交SVN成功，记录相关信息到数据库中
 //                uploadToDB(req, taskId, sysUser.userId, function(isSucToDB){//记录上库成功信息到数据库中
 //                    if(!isSucToDB){
