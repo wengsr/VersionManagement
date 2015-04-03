@@ -1179,6 +1179,9 @@ router.post('/autoUpload', function(req,res) {
         if(!isSuccess){//解压过程出错，直接返回出错信息
             return returnJsonMsg(req, res, "err", "解压出错，请手工上库! 错误信息：" + extraRarErr);
         }
+        if(!fs.existsSync(svnFolder+'/extractRarFolder/new')){//如果解压出来的new目录不存在,提示用户。
+            return returnJsonMsg(req, res, "err", "解压出来的文件中没有new文件夹或者new文件夹的路径不对，请手工上库!");
+        }
         //2.3从解压好的文件中提取new文件夹内的内容
         copy(svnFolder+'/extractRarFolder/new', localDir);
         //3.到数据库中查找【系统】用户
