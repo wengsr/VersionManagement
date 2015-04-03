@@ -16,7 +16,7 @@ function ajaxSubmit(params, url, subType, fun){
         url: url,
         dataType: 'jsonp',
         cache: false,
-        timeout: 5000,
+        timeout: 30000,
         type: subType,
         success: function(data){
             var dataJson = $.parseJSON(data);
@@ -75,6 +75,7 @@ function submitForm_autoUpload(){
         nextDealer: $('#checkPerson').val(),
         taskId: $('#taskId').val(),
         taskCode: $('#taskCode').html(),
+        taskName: $('#taskName').html(),
         delTaskList: $('#delTaskList').text(),
         a_attaFile: $('#a_attaFile').attr('href')
     };

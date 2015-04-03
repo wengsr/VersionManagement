@@ -87,7 +87,7 @@ Svn.prototype.commit = function (localDir, callback) {
  * @param delFileList 要删除的文件目录
  * @param callback    回调函数
  */
-Svn.prototype.autoUpload = function(localDir, delFileList, callback) {
+Svn.prototype.autoUpload = function(taskName, localDir, delFileList, callback) {
     //1.设置参数
     var client = new Client({
         cwd: localDir,       //'C:/test/uu/',
@@ -104,7 +104,7 @@ Svn.prototype.autoUpload = function(localDir, delFileList, callback) {
                 if (modifyErr) return callback('err', modifyErr);
                 console.log('修改本地SVN文件成功');
                 //4.提交变动到SVN服务器
-                client.commit(['【版本管理系统】--自动上库', './'], function (uploadErr, uploadData) {
+                client.commit(['【版本管理系统】--自动上库:' + taskName, './'], function (uploadErr, uploadData) {
                     if (uploadErr) return callback('err', uploadErr);
                     console.log('文件提交SVN服务器成功!');
                     return callback('success', uploadData);
@@ -117,7 +117,7 @@ Svn.prototype.autoUpload = function(localDir, delFileList, callback) {
             if(modifyErr) return callback('err',modifyErr);
             console.log('修改本地SVN文件成功');
             //4.提交变动到SVN服务器
-            client.commit(['【版本管理系统】--自动上库', './'], function (uploadErr, uploadData) {
+            client.commit(['【版本管理系统】--自动上库:' + taskName, './'], function (uploadErr, uploadData) {
                 if(uploadErr) return callback('err',uploadErr);
                 console.log('文件提交SVN服务器成功!');
                 return callback('success',uploadData);

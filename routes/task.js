@@ -1171,6 +1171,7 @@ router.post('/autoUpload', function(req,res) {
     var userId = req.session.user.userId;
     var nextDealer = req.body['nextDealer'];
     var taskCode = req.body['taskCode'];
+    var taskName = req.body['taskName'];
     //1.2获取要删除的文件清单
     var delTaskList = req.body['delTaskList'];
     var delFileList = delTaskList.split('\n');
@@ -1209,7 +1210,7 @@ router.post('/autoUpload', function(req,res) {
                 return returnJsonMsg(req, res, "err", "查找【系统】用户出错，请手工上库!");
             }
             //4.提交变更单到SVN!
-            svnTool.autoUpload(localDir, delFileList,function(isSuccess,result){//除了被删除的文件，目录下的所有文件将被提交
+            svnTool.autoUpload(taskName, localDir, delFileList,function(isSuccess,result){//除了被删除的文件，目录下的所有文件将被提交
                 if('success' != isSuccess){
                     return returnJsonMsg(req, res, "err", "自动上库过程出现错误，请手动上库后点击【上库完成】");
                 }
