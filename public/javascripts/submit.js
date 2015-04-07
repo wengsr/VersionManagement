@@ -16,7 +16,7 @@ function ajaxSubmit(params, url, subType, fun){
         url: url,
         dataType: 'jsonp',
         cache: false,
-        timeout: 5000,
+        timeout: 30000,
         type: subType,
         success: function(data){
             var dataJson = $.parseJSON(data);
@@ -25,11 +25,15 @@ function ajaxSubmit(params, url, subType, fun){
                 showTipInfo('err',dataJson.message);
             }else if('success'==flag){
                 showTipInfo('success',dataJson.message);
-                if('accept'==fun){
+                if('accept'==fun){                      //任务已经被接受
                     $('#btnSubmitAccept').hide();
                     $('#btnSubmitComplete').show();
-                }else if('complete'==fun){
+                    $('#btnAutoSubmit').show();
+                }else if('autoComplete'==fun){          //自动上库完成
+                    $('#btnAutoSubmit').hide();
+                }else if('complete'==fun){              //上库完成
                     $('#btnSubmitComplete').hide();
+                    $('#btnAutoSubmit').hide();
                 }
             }
         },
@@ -64,6 +68,23 @@ function submitForm_submitComplete(){
 }
 
 /**
+ * 提交表单信息_自动上库
+ */
+function submitForm_autoUpload(){
+    var planCheck_params={
+        nextDealer: $('#checkPerson').val(),
+        taskId: $('#taskId').val(),
+        taskCode: $('#taskCode').html(),
+        taskName: $('#taskName').html(),
+        delTaskList: $('#delTaskList').text(),
+        a_attaFile: $('#a_attaFile').attr('href')
+    };
+    var planCheck_url='task/autoUpload';
+    ajaxSubmit(planCheck_params, planCheck_url, 'post', 'autoComplete');
+}
+
+
+/**
  * “接受任务”和“上库完成”按钮的显示隐藏
  */
 function acceptAndCompBtn(){
@@ -71,9 +92,15 @@ function acceptAndCompBtn(){
     if('走查通过'==taskState){
         $('#btnSubmitAccept').show();
         $('#btnSubmitComplete').hide();
+        $('#btnAutoSubmit').hide();
+    }else if('自动上库完成'==taskState){
+        $('#btnSubmitAccept').hide();
+        $('#btnSubmitComplete').show();
+        $('#btnAutoSubmit').hide();
     }else{
         $('#btnSubmitAccept').hide();
         $('#btnSubmitComplete').show();
+        $('#btnAutoSubmit').show();
     }
 }
 
@@ -104,6 +131,10 @@ jQuery(document).ready(function() {
     //点击关闭按钮时刷新页面
     $('#btnCloseModel').click(function(){
         location.reload();
+    });
+    //自动上库
+    $('#btnAutoSubmit').click(function(){
+        submitForm_autoUpload();
     });
 
 });
