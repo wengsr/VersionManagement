@@ -1,0 +1,96 @@
+<!--index--页面顶部导航栏-->
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">AILK-CRM 版本管理系统 <span style="color:#ff0000;">变更单总览</span>  </a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <!--<%if(user){%>-->
+                <!--<ul id="navMenu" class="nav navbar-nav">-->
+                    <!--<li class="dropdown">-->
+                        <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">操作<span class="caret"></span></a>-->
+                        <!--<ul class="dropdown-menu" role="menu">-->
+                            <!--<li><a class="menuBtn" btnname="btnSubmitApply" btnurl="" href="#" id="btnSubmitApply"> 申请变更单 </a></li>-->
+                            <!--<li><a class="menuBtn" btnname="btnFindTasks" btnurl="" href="#" id="btnFindTasks"> 查找变更单 </a></li>-->
+                        <!--</ul>-->
+                    <!--</li>-->
+                    <!--<li class="dropdown">-->
+                        <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">视图<span class="caret"></span></a>-->
+                        <!--<ul class="dropdown-menu" role="menu">-->
+                            <!--<li><a class="menuBtn" btnname="btnTaskCreater" btnurl="/btnTaskCreater" href="/btnTaskCreater" id="btnTaskCreater"> 我发起的变更单 </a></li>-->
+                            <!--<li><a class="menuBtn" btnname="btnToBeDeal" btnurl="/btnToBeDeal" href="/btnToBeDeal" id="btnToBeDeal"> 待处理的变更单 </a></li>-->
+                        <!--</ul>-->
+                    <!--</li>-->
+                <!--</ul>-->
+            <!--<% } %>-->
+            <ul id="navMenu1" class="nav navbar-nav">
+                <li><a class="menuBtn" btnname="btnUserCtrl"  style="color:#ff0000;"></a></li>
+            </ul>
+
+
+
+            <!--<ul id="navMenu" class="nav navbar-nav">-->
+                <!--<%if('chartsPage'==whichPage){%>&lt;!&ndash;显示统计图表&ndash;&gt;-->
+                    <!--<li><a class="menuBtn" btnname="btnUserCtrl" href="/leaderModel/userCtrl/<%=projects[0].projectId%>" id="btnUserCtrl">指定人员</a></li>-->
+                <!--<%}%>-->
+                <!--<%if('userCtrlPage'==whichPage){%>&lt;!&ndash;给每个步骤授权不同用户&ndash;&gt;-->
+                    <!--<li><a class="menuBtn" btnname="btnUserCtrl" href="/leaderModel/selectProject/<%=projects[0].projectId%>" id="btnUserCtrl">主页</a></li>-->
+                <!--<%}%>-->
+            <!--</ul>-->
+
+            <!--选择项目-->
+            <ul class="nav navbar-nav">
+                <li class="dropdown">
+                    <div class="dropdown" style="margin-top: 8px">
+                        <button class="btn btn-info dropdown-toggle" type="button" id="dropdownMenu3" data-toggle="dropdown" aria-expanded="true">
+                            <%=projects[0].projectName%>
+                            <input type="hidden" id="currProjectId" name="currProjectId" value="<%=projects[0].projectId%>"/>
+                            <span class="caret"></span>
+                        </button>
+                        <%if(projects && projects.length>1){%>
+                        <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu3">
+                            <%projects.forEach(function(project,i){%>
+                                <%if(i>0){%>
+                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="/leaderModel/selectProjectForBoss/<%=project.projectId%>"><%=project.projectName%></a></li>
+                                <%}%>
+                            <%});%>
+                        </ul>
+                        <%}%>
+                    </div>
+                </li>
+            </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                <%if(!user){ %>
+                <li class="dropdown"><a href="/users/login">登录</a></li>
+                <li class="dropdown"></li>
+                <li class="dropdown"><a href="/users/reg">注册</a></li>
+                <% } else { %>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">当前用户：(<%=user.userName%>)<span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="/users/modifyUser">修改资料</a></li>
+                        <li class="divider"></li>
+                        <li><a href="/users/logout">退出</a></li>
+                    </ul>
+                </li>
+                <% } %>
+            </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                <a style="margin-top:9px;" class="btn btn-info btn-sm" href="/" role="button">查看变更单</a>
+            </ul>
+
+
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>
