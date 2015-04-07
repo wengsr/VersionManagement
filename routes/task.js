@@ -606,6 +606,21 @@ router.get('/findAllTaskPage', function(req, res) {
     });
 
 });
+/**
+ * 领导查找所有变更单页面展示
+ */
+router.get('/findAllTasksForBossPage', function(req, res) {
+    getCookieUser(req, res);
+    var userId = req.session.user.userId;
+    User.findProjectForFindAllTaskForBoss(userId,function(msg,projects){
+            if('success'!=msg){
+                req.session.error = "查找用户能操作的项目时发生错误,请记录并联系管理员";
+                return null;
+            }
+        res.render('findAllTasksForBoss',{projects:projects});
+    });
+
+});
 
 
 /**
@@ -680,6 +695,56 @@ router.post('/findAllTask', function (req, res) {
     var createrName = req.body.taskCreater;
 
     Task.findAllTaskByParam(userId,projectId,state,processStepId,taskCode,taskname,createrName,function(msg,tasks){
+        findProsByUserIdForApplyTaskBtn(userId,req,function(userPros){
+            if('success'!=msg){
+                req.session.error = "模糊查询所有变更单时发生错误,请记录并联系管理员";
+                return null;
+            }
+
+            if(tasks.length>0){
+                req.session.tasks = tasks;
+                req.session.taskCount = tasks.length;
+                return res.render('index', {
+                    title: 'AILK-CRM版本管理系统',
+                    user:req.session.user,
+                    menus:req.session.menus,
+                    tasks:req.session.tasks,
+                    taskCount:req.session.taskCount,
+                    topBtnCheckTask:'findTaskResult_noLink',
+                    userPros:userPros
+                });
+            }else{
+                req.session.tasks = null;
+                req.session.taskCount = null;
+                return res.render('index', {
+                    title: 'AILK-CRM版本管理系统',
+                    user:req.session.user,
+                    menus:req.session.menus,
+                    tasks:req.session.tasks,
+                    taskCount:req.session.taskCount,
+                    topBtnCheckTask:'findTaskResult_noLink',
+                    userPros:userPros
+                });
+            }
+            //res.render('findTaskResult',{projects:projects});
+        });
+    });
+});
+
+/**
+ * 领导查找所有变更单业务逻辑
+ */
+router.post('/findAllTaskForBoss', function (req, res) {
+    getCookieUser(req, res);
+    var userId = req.session.user.userId;
+    var projectId = req.body.projectName;
+    var state = req.body.taskState;
+    var processStepId = req.body.taskStep;
+    var taskCode = req.body.taskCode;
+    var taskname = req.body.taskName;
+    var createrName = req.body.taskCreater;
+
+    Task.findAllTaskByParamForBoss(userId,projectId,state,processStepId,taskCode,taskname,createrName,function(msg,tasks){
         findProsByUserIdForApplyTaskBtn(userId,req,function(userPros){
             if('success'!=msg){
                 req.session.error = "模糊查询所有变更单时发生错误,请记录并联系管理员";

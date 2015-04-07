@@ -102,6 +102,8 @@ jQuery(document).ready(function() {
     showModelDialog("btnFindTasks","/task/findTaskPage",'formFindTasks');
     //点击“查找所有变更单”打开模态窗口
     showModelDialog("btnFindAllTasks","/task/findAllTaskPage",'formFindAllTasks');
+    showModelDialog("btnFindAllTasksForBoss","/task/findAllTasksForBossPage",'formAllTasksForBoss');
+
     regTaskLink();
     //隐藏页面上方提示条
     setTimeout(function(){$('#errTip').slideUp(1000);setTimeout(function(){$('#errTip').remove()},2000)},2000);

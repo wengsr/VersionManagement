@@ -34,7 +34,18 @@ var findTask = function(userId,req,callback){
         callback(tasks);
     });
 }
-
+/**
+ * 查找当前领导所能操作的变更单
+ */
+var findTaskForBoss = function(userId,req,callback){
+    Task.findTaskForBossByUserId(userId,function(msg,tasks){
+        if('success'!=msg){
+            req.session.error = "查找变更单信息时发生错误,请记录并联系管理员";
+            return null;
+        }
+        callback(tasks);
+    });
+}
 /**
  * 查询到的变更单的总数量
  * @param userId
@@ -103,6 +114,44 @@ var saveCookieAndSession = function(req,res,user){
  * @param res
  */
 var findInfoForLogin = function(user,req,res){
+   //判断当前用户是否是领导
+    if(user.permissionId == 5){
+        user.isBoss = true ;
+        saveCookieAndSession(req,res,user);//记录到session，登录
+        //return res.redirect('/leaderModel/leader'); ;
+    }
+    else{
+        user.isBoss = false;
+    }
+    if(user.isBoss) {
+        User.findLeaderProjectId(user.userId, function (msg, projectIds) {
+            if ('success' != msg) {
+                req.session.error = "查找用户所拥有的工程权限时发生错误,请记录并联系管理员";
+                return null;
+            }
+            user.projectId = projectIds;
+            findMenu(user.userId, req, function (menus) {//查找菜单
+                if (menus.length > 0) {
+                    req.session.menus = menus;
+                    findTaskForBoss(user.userId, req, function (tasks) {//查找当前用户能操作的变更单
+                        if (tasks.length > 0) {
+                            req.session.tasks = tasks;
+                            req.session.taskCount = tasks.length;
+                            res.redirect("/");
+                        } else {
+                            req.session.tasks = null;
+                            req.session.taskCount = null;
+                            return res.redirect("/");
+                        }
+                    });
+                } else {
+                    req.session.menus = null;
+                    res.redirect("/");
+                }
+            });
+        });
+        return;
+    }
     //查找当前登录用户有哪些工程的权限
     User.findUserProjectId(user.userId,function(msg,projectIds){
         if('success'!=msg){

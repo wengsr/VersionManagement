@@ -14,6 +14,9 @@
   </head>
   <body>
     <!--页面顶部导航栏-->
+
+    //组长界面
+
     <%include index_leader/topNav.ejs%>
 
     <%if('chartsPage'==whichPage){%><!--显示统计图表-->
@@ -22,8 +25,7 @@
 
     <%if('userCtrlPage'==whichPage){%><!--给每个步骤授权不同用户-->
         <%include index_leader/userCtrl.ejs%>
-    <%}%>
-
+  <%}%>
   </body>
   <!--&lt;!&ndash; jQuery文件。务必在bootstrap.min.js 之前引入 &ndash;&gt;-->
   <!--<script src="/javascripts/jquery.min.js"></script>-->

@@ -41,6 +41,50 @@ function Task(task){
 
 
 /**
+ * 查找当前领导能查看的变更单
+ * @param userId
+ * @param callback
+ */
+Task.findTaskForBossByUserId = function(userId,callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN TASKS ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'SELECT taskid, projectid,taskcode,taskname, creater createrName, state, processStepName stepName, dealer dealerName from' +
+            '   (select taskanduser.taskid,projectid,taskcode,taskname,state,taskanduser.userName creater,maxStep,max_turnandstepanduser.userName  dealer from' +
+            '   (select t.taskid,t.projectId, t.taskcode,t.taskname,t.state, t.taskDesc,u1.userName  from tasks t join' +
+            '   user u1 on creater =u1.userId )' +
+            '   as taskanduser' +
+            '   join' +
+            '   (select maxStep,u2.userName , max_turnandstep.id,max_turnandstep.taskid ,max_turnandstep.dealer,max_turnandstep.maxTurn from' +
+            '   (select max(processStepId) maxStep , table_turn.id,table_turn.taskid ,table_turn.dealer,table_turn.maxTurn from' +
+            '   (' +
+            '   select tps6.id,tps6.taskid,tps6.processStepId,tps6.turnNum ,tps6.dealer,table_maxTurn.maxTurn' +
+            '   from taskprocessstep tps6 join' +
+            '   (select max(turnNum) maxTurn ,tps5.taskid from taskprocessstep tps5  GROUP BY tps5.taskid ) table_maxTurn' +
+            '   on  tps6.turnNum = table_maxTurn.maxTurn and tps6.taskid = table_maxTurn.taskid' +
+            '   ) as table_turn' +
+            '   group by taskid' +
+            '   )as max_turnandstep' +
+            '   JOIN user u2  on max_turnandstep.dealer=u2.userId' +
+            '   )' +
+            '   as max_turnandstepanduser on taskanduser.taskid = max_turnandstepanduser.taskid' +
+            '   )as  newTask' +
+            '   join processstep ps  on ps.processstepid = newTask.maxstep and newTask.projectId in (' +
+            '   select projectId from bosstoproject where userid = ? )'
+        var params = [userId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY TASKS ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',result);
+        });
+    });
+}
+/**
  * 查找当期用户能操作的变更单(包括当前用户发起和需要当前用户处理的变更单)
  * @param userId
  * @param callback
@@ -95,6 +139,7 @@ Task.findTaskByUserId = function(userId,callback){
         });
     });
 }
+
 
 /**
  * 查找当期用户能操作的变更单_查询到的记录数量(包括当前用户发起和需要当前用户处理的变更单)
@@ -879,6 +924,71 @@ Task.findTaskByParam = function(userId,projectId,state,processStepId,taskcode,ta
 
 
 /**
+ * 领导模糊查询所有变更单
+ * @param userId
+ * @param callback
+ */
+Task.findAllTaskByParamForBoss = function(userId,projectId,state,processStepId,taskcode,taskname,createrName,callback){
+    taskcode = "%" + taskcode + "%";
+    taskname = "%" + taskname + "%";
+    createrName = "%" + createrName + "%";
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN TASKS ERROR] - ', err.message);
+            return callback(err);
+        }
+    var sql = 'SELECT taskid, projectid,taskcode,taskname, creater createrName, state, processStepName stepName, processStepId,  dealer dealerName from' +
+        '   (select taskanduser.taskid,projectid,taskcode,taskname,state,taskanduser.userName creater,maxStep,max_turnandstepanduser.userName  dealer from' +
+        '   (select t.taskid,t.projectId, t.taskcode,t.taskname,t.state, t.taskDesc,u1.userName  from tasks t join' +
+        '   user u1 on creater =u1.userId )' +
+        '   as taskanduser' +
+        '   join' +
+        '   (select maxStep,u2.userName , max_turnandstep.id,max_turnandstep.taskid ,max_turnandstep.dealer,max_turnandstep.maxTurn from' +
+        '   (select max(processStepId) maxStep , table_turn.id,table_turn.taskid ,table_turn.dealer,table_turn.maxTurn from' +
+        '   (' +
+        '   select tps6.id,tps6.taskid,tps6.processStepId,tps6.turnNum ,tps6.dealer,table_maxTurn.maxTurn' +
+        '   from taskprocessstep tps6 join' +
+        '   (select max(turnNum) maxTurn ,tps5.taskid from taskprocessstep tps5  GROUP BY tps5.taskid ) table_maxTurn' +
+        '   on  tps6.turnNum = table_maxTurn.maxTurn and tps6.taskid = table_maxTurn.taskid' +
+        '   ) as table_turn' +
+        '   group by taskid' +
+        '   )as max_turnandstep' +
+        '   JOIN user u2  on max_turnandstep.dealer=u2.userId' +
+        '   )' +
+        '   as max_turnandstepanduser on taskanduser.taskid = max_turnandstepanduser.taskid' +
+        '   )as  newTask' +
+        '   join processstep ps  on ps.processstepid = newTask.maxstep ' +
+           '     and  taskcode LIKE ?' +
+          '    and   taskname LIKE ?' +
+           '      and     creater LIKE ?';
+        var params = [taskcode,taskname,createrName];
+
+        if(projectId!=''){
+            sql = sql + " AND projectId = ? ";
+            params.push(projectId);
+        }
+        if(state!=''){
+            sql = sql + " AND state = ? ";
+            params.push(state);
+        }
+        if(processStepId!=''){
+            sql = sql + " AND processStepId = ? ";
+            params.push(processStepId);
+        }
+        sql = sql + ' ORDER BY taskcode ';
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY TASKS ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            console.log(result);
+            callback('success',result);
+        });
+    });
+}
+
+/**
  * 模糊查询所有变更单
  * @param userId
  * @param callback
@@ -956,7 +1066,6 @@ Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode
         });
     });
 }
-
 /**
  * 找到上一个环节的不通过的走查报告
  * @param taskId

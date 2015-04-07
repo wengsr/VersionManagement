@@ -40,15 +40,15 @@
 
 
 
-<script src="http://libs.baidu.com/jquery/1.10.2/jquery.min.js"></script>
-<script src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+<!--<script src="http://libs.baidu.com/jquery/1.10.2/jquery.min.js"></script>-->
+<!--<script src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>-->
 <!--<script src="/javascripts/jquery.min.js"></script>-->
 <!--<script src="/javascripts/bootstrap.min.js"></script>-->
-<script src="/javascripts/bootstrap-suggest.js"></script>
+<!--<script src="/javascripts/bootstrap-suggest.js"></script>-->
 <script>
-    var ejsData_addProCheck;<!--获取后台参数-->
+    <!--var ejsData_addProCheck;&lt;!&ndash;获取后台参数&ndash;&gt;-->
     ejsData_addProCheck = {
-        proAllUser: <%- JSON.stringify(proAllUser_disp) %>
+        proAllChecker: <%- JSON.stringify(proAllUser_disp) %>
     };
 
     /**
@@ -56,12 +56,12 @@
      * @param userNameAndRealName
      */
     function showSelectUser_Check(){
-        var proAllUser = ejsData_addProCheck.proAllUser;
+        var proAllChecker = ejsData_addProCheck.proAllChecker;
         $("#checkProCheck").bsSuggest({
             indexId: 0, //data.value 的第几个数据，作为input输入框的内容
             indexKey: 0, //data.value 的第几个数据，作为input输入框的内容
             data: {
-                'value':proAllUser,
+                'value':proAllChecker,
                 'defaults':''
             }
         });

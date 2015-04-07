@@ -18,7 +18,18 @@ var findTask = function(userId,req,callback){
         callback(tasks);
     });
 }
-
+/**
+ * 查找当前用户领导所能查看的变更单
+ */
+var findTaskForBoss = function(userId,req,callback){
+    Task.findTaskForBossByUserId(userId,function(msg,tasks){
+        if('success'!=msg){
+            req.session.error = "查找变更单信息时发生错误,请记录并联系管理员";
+            return null;
+        }
+        callback(tasks);
+    });
+}
 /**
  * 查找用户所属项目，用于显示“申请变更单”和“查找变更单”按钮
  * @param userId
@@ -27,6 +38,21 @@ var findTask = function(userId,req,callback){
  */
 var findProsByUserIdForApplyTaskBtn = function(userId,req,callback){
     Project.findProsByUserIdForApplyTaskBtn(userId,function(msg,tasks){
+        if('success'!=msg){
+            req.session.error = "查找用户所属项目时发生错误,请记录并联系管理员";
+            return null;
+        }
+        callback(tasks);
+    });
+}
+/**
+ * 查找用户所属项目，用于显示“申请变更单”和“查找变更单”按钮
+ * @param userId
+ * @param req
+ * @param callback
+ */
+var findProsByUserIdForBoss = function(userId,req,callback){
+    Project.findProsByUserIdForBoss(userId,function(msg,tasks){
         if('success'!=msg){
             req.session.error = "查找用户所属项目时发生错误,请记录并联系管理员";
             return null;
@@ -61,7 +87,54 @@ var topBtnClick = function(res, req, btnName){
         });
     }
     var userId = req.session.user.userId;
+    //领导界面
+    if(req.session.user.isBoss){
+        //return res.redirect('/leaderModel/leader');
+        var cookieUser = req.cookies.user;
+        if(cookieUser){
+            req.session.user = cookieUser;
+        }else{
+            return res.redirect("/");
+        }
+        if(!req.session.user){
+            return res.redirect("/");
+        }
+        //showLeaderPage(null, req, res, "chartsPage");
+        findTaskForBoss(userId,req,function(tasks){
+            findProsByUserIdForBoss(userId,req,function(userPros){
+                if(tasks.length>0){
+                    req.session.tasks = tasks;
+                    req.session.taskCount = tasks.length;
+                    return res.render('index', {
+                        title: 'AILK-CRM版本管理系统',
+                        user:req.session.user,
+                        menus:req.session.menus,
+                        tasks:req.session.tasks,
+                        taskCount:req.session.taskCount,
+                        topBtnCheckTask:'findTaskResult_noLink',
+                        userPros:null,
+                        bossPros:userPros
+                    });
+                }else{
+                    req.session.tasks = null;
+                    req.session.taskCount = null;
+                    return res.render('index', {
+                        title: 'AILK-CRM版本管理系统',
+                        user:req.session.user,
+                        menus:req.session.menus,
+                        tasks:req.session.tasks,
+                        taskCount:req.session.taskCount,
+                        topBtnCheckTask:'findTaskResult_noLink',
+                        userPros:null,
+                        bossPros:userPros
+                    });
+                }
+            });
+        });
+        return ;
+    }
     //查找当前用户能操作的变更单
+
     findTask(userId,req,function(tasks){
         findProsByUserIdForApplyTaskBtn(userId,req,function(userPros){
             if(tasks.length>0){

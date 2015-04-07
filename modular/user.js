@@ -152,6 +152,39 @@ User.findUserProjectId = function(userId,callback){
         });
     });
 }
+/**
+ * 查询当前领导可以查看哪些工程（查出的是projectId）
+ * @param name
+ * @param pwd
+ * @param callback
+ */
+User.findLeaderProjectId = function(userId,callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN USER ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'select projectId from bosstoproject where userid =?';
+        var params = [userId];
+        connection.query(sql, params, function (err, results) {
+            if (err) {
+                console.log('[QUERY USER ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+
+            var projectIds;
+            results.forEach(function(result){
+                if(undefined == projectIds){
+                    projectIds = result.projectId;
+                }else{
+                    projectIds = projectIds + ',' + result.projectId;
+                }
+            });
+            callback('success',projectIds);
+        });
+    });
+}
 
 /**
  * 查询当前用户可以操作哪些工程（查出project全部信息）
@@ -202,6 +235,30 @@ User.findUserProjectForFindAllTask = function(userId,callback){
             '        FROM processstepdealer psd' +
             '        WHERE psd.processStepId IN (4,6) AND psd.userId=?' +
             '        )';
+        var params = [userId];
+        connection.query(sql, params, function (err, results) {
+            if (err) {
+                console.log('[QUERY USER ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',results);
+        });
+    });
+}
+
+/**
+ * 查询当前领导有哪些工程的权限
+ * @param userId
+ * @param callback
+ */
+User.findProjectForFindAllTaskForBoss = function(userId,callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN USER ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'select * from bosstoproject b2p join project p on  b2p.projectId = p.projectId and b2p.userId =?';
         var params = [userId];
         connection.query(sql, params, function (err, results) {
             if (err) {
@@ -277,7 +334,7 @@ User.getProCheckUser = function(taskId, callback){
             console.log('[CONN USER ERROR] - ', err.message);
             return callback(err);
         }
-        var sql = 'select u.userName,u.realName from usertoproject utp' +
+        var sql = 'select  DISTINCT u.userName,u.realName from usertoproject utp' +
             '   JOIN user u ON utp.userId = u.userId' +
             '    JOIN  processstepdealer psd ON psd.userId = u.userId' +
             '   JOIN tasks t ON t.projectId = utp.projectId' +
@@ -294,7 +351,6 @@ User.getProCheckUser = function(taskId, callback){
         });
     });
 }
-
 
 
 /**

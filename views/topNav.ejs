@@ -15,6 +15,11 @@
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <%if(user){%>
+            <%if(user.isBoss){%>
+            <ul  class="nav navbar-nav">
+                <a class="btn  btn-info btn-sm" btnname="btnFindAllTasksForBoss" btnurl="" href="#" id="btnFindAllTasksForBoss" style = "color:white;margin-top:9px; "> 查找变更单 </a>
+            </ul>
+            <%}%>
             <%if(userPros && userPros.length>0){%>
                 <ul id="navMenu" class="nav navbar-nav">
                     <li class="dropdown">
@@ -22,7 +27,7 @@
                         <ul class="dropdown-menu" role="menu">
                             <li><a class="menuBtn" btnname="btnSubmitApply" btnurl="" href="#" id="btnSubmitApply"> 申请变更单 </a></li>
                             <li><a class="menuBtn" btnname="btnFindTasks" btnurl="" href="#" id="btnFindTasks"> 查找变更单 </a></li>
-                            <%if(user && user.isAdmin){ %>
+                            <%if(user && (user.isAdmin)){ %>
                             <li><a class="menuBtn" btnname="btnFindAllTasks" btnurl="" href="#" id="btnFindAllTasks"> 查找所有变更单 </a></li>
                             <% } %>
                         </ul>
@@ -87,8 +92,14 @@
                     <!--</button>-->
                 </ul>
             <%}%>
-
-
+            <% if(user &&( user.isBoss)){ %>
+            <ul class="nav navbar-nav navbar-right">
+                <!--<button type="button" class="btn btn-default navbar-btn">-->
+                <!--<li class="dropdown"><a href="/leaderModel/leader">立即变身领导模式</a></li>-->
+                <a style="margin-top:9px;" class="btn btn-danger btn-sm" href="/leaderModel/leaderForBoss" role="button">变更单统计</a>
+                <!--</button>-->
+            </ul>
+            <%}%>
             <%if(user && user.userName=='sAdmin'){ %>
             <ul class="nav navbar-nav navbar-right">
                 <!--<button type="button" class="btn btn-default navbar-btn">-->

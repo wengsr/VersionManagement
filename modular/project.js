@@ -60,6 +60,47 @@ Project.findProjectByUserId = function(currProjectId, userId, callback){
     });
 }
 
+/**
+ * 找出用户拥有哪些项目的领导权限
+ * @param currProjectId 该参为null表示默认id最小的工程，否则为用户选择的工程
+ * @param userId
+ * @param callback
+ */
+Project.findLeaderProjectByUserId = function(currProjectId, userId, callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN PROJECT ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql;
+        var params;
+        if(!currProjectId){
+            sql = 'SELECT * from project p WHERE p.projectId in (' +
+            '       select btp.projectId from bosstoproject btp ' +
+            '       where btp.userId=? ) ORDER BY p.projectId';
+            params = [userId];
+        }else{
+            sql =' SELECT * from project p WHERE p.projectId in (' +
+            '   select btp.projectId from bosstoproject btp' +
+            '   where btp.userId=? and btp.projectId = ?) UNION' +
+            '   (SELECT * from project p2 WHERE p2.projectId in (' +
+            '   select btp1.projectId from bosstoproject btp1' +
+            '   where btp1.userId=? and btp1.projectId <> ?' +
+            '   ))';
+            params = [userId,currProjectId,  userId,currProjectId];
+        }
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY PROJECT ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            console.log(result);
+            callback('success',result);
+        });
+    });
+}
+
 
 /**
  * 根据用户ID找用户属于哪些项目
@@ -73,6 +114,29 @@ Project.findProsByUserIdForApplyTaskBtn = function(userId,callback){
             return callback(err);
         }
         var sql = 'select * from usertoproject where userId=?';
+        var params = [userId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY USERTOPROJECT ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',result);
+        });
+    });
+}
+/**
+ *查找当前领导有 哪些项目权限
+ * @param userId
+ * @param callback
+ */
+Project.findProsByUserIdForBoss = function(userId,callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN USERTOPROJECT ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'select * from bosstoproject where userId=?';
         var params = [userId];
         connection.query(sql, params, function (err, result) {
             if (err) {
