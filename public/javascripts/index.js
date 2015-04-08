@@ -138,21 +138,7 @@ jQuery(document).ready(function() {
 
 
 
-//var tasks= $("#totalTask").val();
-//    tasks.forEach(function(task,i) {
-//        if (task.taskType == 1) {
-//            //var imageMenuData = [[
-//            //    {
-//            //        text: "删除",
-//            //        func: function () {
-//            //            //alert($('#task_250'));
-//            //            $('#delTask_' + task.taskid).modal();
-//            //        }
-//            //    }
-//            //]];
-//            //$('#delTask_' + task.taskid).smartMenu(imageMenuData, {name: 'myMenu'});
-//        }
-//    });
+
   $("[deleteName=deleteTask]").each (function ()
     {
         $("this").bind("mousedown", (function (e) {
@@ -169,98 +155,7 @@ jQuery(document).ready(function() {
             }
         ]];
         $(this).smartMenu(imageMenuData, {name: 'myMenu'});
-        //$("this").bind("mousedown", (function (e) {
-        //    debugger
-        //    if (e.which == 3) {
-        //
-        //        var    opetion = {
-        //            name: "",
-        //            offsetX: 2,
-        //            offsetY: 2,
-        //            textLimit: 10,
-        //            beforeShow: $.noop,
-        //            afterShow: $.noop
-        //        };
-        //
-        //        var imageMenuData = [
-        //            [{
-        //                    text: "删除",
-        //                    func: function () {
-        //                        //alert($('#task_250'));
-        //                        $('#delTask_292').atrr("taskId").val($(e.target).attr("id"));
-        //
-        //                        $('#delTask_292').modal();
-        //                    }
-        //                }
-        //                ]
-        //        ];
-        //
-        //        $(this).smartMenu(imageMenuData, opetion);
-        //    }
-        //}));
+
     });
-
-
-
-
-
-//    $("#myCreateTask").bind("mousedown", (function (e) {
-//        if (e.which == 3) {
-//
-//            var    opertionn = {
-//                name: "",
-//                offsetX: 2,
-//                offsetY: 2,
-//                textLimit: 10,
-//                beforeShow: $.noop,
-//                afterShow: $.noop
-//            };
-//
-//            var imageMenuData = [
-//                [{
-//                    text: e.target.cellIndex + ":" + e.target.innerHTML,
-//                    func: function () {
-//                        $(this).css("padding", "10px");
-//                        alert(e.target.innerHTML);
-//                    }
-//                }, {
-//                    text: "添加",
-//                    func: function () {
-//                        alert(e.target.innerHTML);
-//                    }
-//                }, {
-//                    text: "复制",
-//                    func: function () {
-//                        $(this).css("background-color", "#beceeb");
-//                    }
-//                }],
-//                [{
-//                    text: "再次查询",
-//                    func: function () {
-//                        var src = $(this).attr("src");
-//                        window.open(src.replace("/s512", ""));
-//                    }
-//                }]
-//                ,
-//                [{
-//                    text: "过滤",
-//                    func: function () {
-//                        var src = $(this).attr("src");
-//                        window.open(src.replace("/s512", ""));
-//                    }
-//                }]
-//            ];
-//            $('#createrTable>td.td_selected').removeClass('td_selected');
-//            if ($(e.target).hasClass('td_selected')) {
-//                $(e.target).removeClass('td_selected');
-//            } else {
-//                $(e.target).addClass('td_selected');
-//            }
-//            $(this).smartMenu(imageMenuData, opertionn);
-//        }
-//    }));
-
-
-
 });
 
