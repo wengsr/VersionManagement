@@ -1299,4 +1299,29 @@ router.post('/autoUpload', function(req,res) {
     });
 });
 
+router.post("/delTask",function(req, res){
+    getCookieUser(req, res);
+    //1.获取参数
+    //1.1获取普通参数
+    var taskId = req.body['taskId'];
+    dao.delTask(taskId,function(msg,result){
+        if(msg == 'err'){
+            req.session.error ="删除变更单失败，请联系管理员";
+            return null;
+        }
+        if(result==false){
+            req.session.error="删除变更单失败,变更单已上库";
+            console.log("[delTask] sorry,you can't delete the task!!1");
+            var queryObj = url.parse(req.url,true).query;
+            res.send(queryObj.callback+'(\'{"message": "【删除变更单】变更单已上库无法删除，"}\')');
+            return null ;
+        }
+        else{
+            //console.log("[delTask] success!");
+            var queryObj = url.parse(req.url,true).query;
+            res.send(queryObj.callback+'(\'{"message": "【删除变更单】已成功删除成功"}\')');
+            return null ;
+        }
+    });
+})
 module.exports = router;

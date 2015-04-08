@@ -114,6 +114,31 @@ function asyQuery_submit(conn,sql,sql_item,sql_param,i,callback){
         }
     });
 };
+var async_delTask = function(conn,sql,sql_item,sql_params,i ,callback){
+    if(i==sql_params.length){
+        callback("success");
+        return ;
+    }
+
+    conn.query(sql[sql_item[i]] ,sql_params[i],function(err, result){
+
+        if(err){
+            conn.rollback();
+            console.log("DELETE　TASK  ERR:"+i,err.message);
+            return callback("err");
+        }
+
+        else if((sql_item[i] == "selectState")&&(result[0].state =="上库完成")){
+                return  callback("success",false);
+        }
+       else {
+            //console.log(sql[sql_item[i]] + "   " + sql_params[i] + "  " , result[0]);
+            i++;
+            async_delTask(conn, sql, sql_item, sql_params, i, callback);
+        }
+
+    });
+}
 
 /**
  * 删除fileList表的记录；
@@ -507,6 +532,59 @@ exports.modifyTask= function(taskInfo,callback){
             else{
                 //trans.rollback();
                 return callback('err');
+            }
+        });
+        trans.execute();//提交事务
+        connection.release();
+    });
+};
+/**
+ * 删除变更单
+ * @param taskId
+ * @param callback
+ */
+exports.delTask = function(taskId,callback) {
+    pool.getConnection(function (err, connection) {
+        //开启事务
+        queues(connection);
+        var trans = connection.startTransaction();
+        //var sql = {
+        //    selectState: "select state from tasks where taskId = ? ",
+        //    updateTask: "update tasks set  state = '已删除', processStepId = -1 where taskid= ?",
+        //    updateFileList: "update  fileList set commit = -1 where taskId = ?",
+        //    updateTaskProcessStep: "update  taskprocessstep set processStepId = -1 where taskId = ?"
+        //};
+        var sql = {
+            selectState: "select state from tasks where taskId = ? ",
+            insertFiles:"insert into deletedfilelist" +
+            "   select * from filelist where taskid = ?",
+            insertAttachment:"insert into deletedtaskattachment" +
+            "   select * from taskattachment where taskid = ?",
+            insertProcessStep:"insert into deletedtaskprocessstep" +
+            "   select * from taskprocessstep where taskid = ?",
+            insertTasks:"insert into deletedtasks" +
+            "   select * from tasks where taskid = ?",
+            updateAttachment:"delete from taskattachment where taskId =?",
+            updateFileList: "delete from filelist where taskId  = ?",
+            updateTaskProcessStep: "delete from taskprocessstep where taskId  = ?",
+            updateTask: "delete from tasks where taskId  = ?"
+        };
+        var sql_item = ["selectState","insertFiles","insertAttachment","insertProcessStep","insertTasks",
+          "updateAttachment",  "updateFileList","updateTaskProcessStep","updateTask"];
+        var sql_params = [[taskId],[taskId],[taskId],[taskId],[taskId],[taskId],[taskId],[taskId],[taskId]];
+        var i= 0;
+        async_delTask(trans,sql,sql_item,sql_params,i,function(msg,flag){
+            if(msg == "err"){
+                callback("err");
+            }
+            else{
+                if(flag==false){
+                   return  callback("success",false);
+                }
+                else{
+                   return  callback("success",true);
+                }
+
             }
         });
         trans.execute();//提交事务

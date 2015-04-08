@@ -3,7 +3,8 @@
     <div class="panel panel-info">
         <div class="panel-heading">我发起的任务</div>
         <div class="panel-body table-responsive">
-            <table class="table">
+            <input id="totalTask" type="hidden" value="<%=tasks%>"/>
+            <table class="table" >
                 <thead>
                 <tr>
                     <th>序号</th>
@@ -21,14 +22,31 @@
                 <% tasks.forEach(function(task,i){ var psId=task.processStepId%>
                 <% if(task.taskType==1){ recCount++;%>
                 <tr id="myCreateTask">
-                    <td><%=recCount%></td>
-                    <td><a id="task_<%=task.taskid%>" createName="<%=task.createrName%>" dealerName="<%=task.dealerName%>" step="taskProcessStepId_<%=task.processStepId%>" taskid="<%=task.taskid%>" taskcreater="<%=task.creater%>"><%=task.taskcode%></a></td>
-                    <td><a id="task_<%=task.taskid%>" createName="<%=task.createrName%>" dealerName="<%=task.dealerName%>" step="taskProcessStepId_<%=task.processStepId%>" taskid="<%=task.taskid%>" taskcreater="<%=task.creater%>"><%=task.taskname%></a></td>
+                    <td ><%=recCount%></td>
+                    <td><a id="task_<%=task.taskid%>"  deleteName ="deleteTask" createName="<%=task.createrName%>" dealerName="<%=task.dealerName%>" step="taskProcessStepId_<%=task.processStepId%>" taskid="<%=task.taskid%>" taskcreater="<%=task.creater%>"><%=task.taskcode%></a></td>
+                    <td><a id="task_<%=task.taskid%>"   createName="<%=task.createrName%>" dealerName="<%=task.dealerName%>" step="taskProcessStepId_<%=task.processStepId%>" taskid="<%=task.taskid%>" taskcreater="<%=task.creater%>"><%=task.taskname%></a></td>
                     <td><%=task.createrName%></td>
                     <td><%=task.state%></td>
                     <td><%=task.stepName%></td>
                     <td><%=task.dealerName==null?'':task.dealerName%></td>
                     <td>&nbsp;&nbsp;<a class="glyphicon glyphicon-time" btnType="taskHistory" taskId="<%=task.taskid%>"></a></td>
+                    <div id="deltask_<%=task.taskid%>"   class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-sm">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    <h4 class="modal-title" id="myModalLabel" style="color:#0000cc;">删除确定</h4>
+                                </div>
+                                <div class="modal-body">
+                                    确定删除变更单：&nbsp;【变更单号】<%=task.taskcode%>&nbsp; &nbsp;【变更单名称】<%= task.taskname%>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                    <button id="btnDelTask" type="button" taskId="<%=task.taskid%>" class="btn btn-primary" data-dismiss="modal" >确定</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </tr>
                 <% } %>
                 <% }); %>
@@ -50,3 +68,5 @@
     </div>
     <div class="col-sm-3"></div>
 </div>
+<script src="http://libs.baidu.com/jquery/1.10.2/jquery.min.js"></script>
+<script src ="/javascripts/deltask.js"></script>
