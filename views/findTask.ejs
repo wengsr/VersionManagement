@@ -1,3 +1,6 @@
+<!--<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">-->
+<link rel="stylesheet" type="text/css" href="/stylesheets/bootstrap-clockpicker.min.css">
+<link rel="stylesheet" href="/stylesheets/bootstrap-datetimepicker.min.css">
 <!--变更单处理--“查找变更单”模态窗口-->
 <form action="/task/findTask" id="formAddTask" class=" bs-component form-horizontal" method='post'>
     <div class="modal-header">
@@ -74,7 +77,31 @@
                         </div>
                     </div>
 
+                    <div class="form-group">
+                        <label for="beginDate" class="col-sm-2 control-label">开始时间</label>
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control" name="startDate" id="startDate" style="">
+                        </div>
+                        <div class="input-group clockpicker col-sm-2"  data-placement="top" data-align="top" data-autoclose="true">
+                            <input type="text" class="form-control" id ="startTime" name="startTime" value="09:00">
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-time"></span>
+                            </span>
+                        </div>
+                    </div>
 
+                    <div class="form-group">
+                        <label for="endDate" class="col-sm-2 control-label">结束时间</label>
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control" name="endDate" id="endDate" >
+                        </div>
+                        <div class="input-group clockpicker col-sm-2"   data-placement="top" data-align="top" data-autoclose="true">
+                            <input type="text" class="form-control" id ="endTime" name ="endTime" value="24:00">
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-time"></span>
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -89,3 +116,24 @@
         <button type="submit" class="btn btn-primary" >提交</button>
     </div>
 </form>
+
+<!--<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>-->
+
+<script type="text/javascript" src="/javascripts/bootstrap-clockpicker.min.js"></script>
+<script>
+    $(function() {
+        $( "#startDate").datetimepicker({format:"yy-mm-dd",
+            autoclose:true,
+            minView:3,
+            pickerPosition:"top-right"});
+
+    });
+    $(function() {
+        $( "#endDate" ).datetimepicker({format:"yy-mm-dd",
+            autoclose:true,
+            minView:3,
+            pickerPosition:"top-right"});
+    });
+
+    $('.clockpicker').clockpicker();
+</script>

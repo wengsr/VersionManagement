@@ -1,5 +1,5 @@
 <!--变更单处理--“当前用户发起的变更单”模态窗口-->
-<form action="" id="formExtractFile" class=" bs-component form-horizontal" method='post'>
+<form action="" id="formTaskInfo" class=" bs-component form-horizontal" method='post'>
     <input type="hidden" id="taskId" name="taskId" value="<%= task.taskid%>"/>
     <input type="hidden" id="processStepId" name="processStepId" value="<%= task.processStepId%>"/>
     <div class="modal-header">
@@ -61,11 +61,12 @@
     </div>
     <div class="modal-footer">
         <div style="width:20%;float:right;">
+            <button id="btnDeleteTask" type="button" class="btn btn-danger" data-dismiss="modal">放弃变更单</button>
             <button id="btnCloseModel" type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
         </div>
     </div>
 </form>
-
 <script src="/javascripts/bootstrap-suggest.js"></script>
 <script src="/javascripts/common.js"></script>
 <script src="/javascripts/planCheck.js"></script>
+<script src ="/javascripts/deltask.js"></script>

@@ -16,6 +16,34 @@ function fileStrChange(str){
     str.split('\n');
     return str;
 }
+
+/**
+ * 日期格式化 yyyy-MM—dd HH-mm-ss
+ * @param format
+ * @returns {*}
+ */
+Date.prototype.format = function(format){
+    var o = {
+        "M+" : this.getMonth()+1, //month
+        "d+" : this.getDate(), //day
+        "H+" : this.getHours(), //hour
+        "m+" : this.getMinutes(), //minute
+        "s+" : this.getSeconds(), //second
+        "q+" : Math.floor((this.getMonth()+3)/3), //quarter
+        "S" : this.getMilliseconds() //millisecond
+    }
+
+    if(/(y+)/.test(format)) {
+        format = format.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length));
+    }
+
+    for(var k in o) {
+        if(new RegExp("("+ k +")").test(format)) {
+            format = format.replace(RegExp.$1, RegExp.$1.length==1 ? o[k] : ("00"+ o[k]).substr((""+ o[k]).length));
+        }
+    }
+    return format;
+}
 var pool = require('../util/connPool.js').getPool();
 var async = require('async');// 加载async 支持顺序执行
 var queues = require('mysql-queues');// 加载mysql-queues 支持事务
@@ -630,15 +658,16 @@ Task.setCheckPerson = function(taskId,dealer,callback){
             selectDealer:"select * from taskprocessstep where taskid=? and processStepId=5 " +
                 " and turnNum IN (SELECT MAX(turnNum) FROM taskprocessstep where taskId=?)",
             updateTask: "update tasks set processStepId=5, state='已安排走查' where taskid=?",
-            updateDealer: 'insert into taskprocessstep(taskId,processStepId,dealer,turnNum) values ' +
+            updateDealer: 'insert into taskprocessstep(taskId,processStepId,dealer,turnNum,execTime) values ' +
                 ' (?,5,' +
                 ' (select userId from user where userName=?),' +
-                ' (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable))'
+                ' (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable),?)'
         }
         var selectUser_params = [dealer];
         var selectDealer_params = [taskId,taskId];
         var updateTask_params = [taskId];
-        var updateDealer_params = [taskId, dealer, taskId];
+        var now = new Date().format("yyyy-MM-dd HH:mm:ss") ;
+        var updateDealer_params = [taskId, dealer, taskId,now];
         var sqlMember = ['selectUser','selectDealer', 'updateTask', 'updateDealer'];
         var sqlMember_params = [selectUser_params, selectDealer_params, updateTask_params, updateDealer_params];
         var i = 0;
@@ -687,14 +716,15 @@ Task.doCheckPass = function(taskId,callback){
                 " and turnNum IN (SELECT MAX(turnNum) FROM taskprocessstep where taskId=?)",
             selectDealer_Unpass:"select * from tasks where taskid=? and state='走查不通过'",
             updateTask: "update tasks set processStepId=6, state='走查通过' where taskid=?",
-            updateDealer: 'insert into taskprocessstep(taskId,processStepId,turnNum) values ' +
+            updateDealer: 'insert into taskprocessstep(taskId,processStepId,turnNum,execTime) values ' +
                 ' (?,6,' +
-                ' (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable))'
+                ' (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable),?)'
         }
         var selectDealer_params = [taskId, taskId];
         var selectDealer_Unpass_params = [taskId];
         var updateTask_params = [taskId];
-        var updateDealer_params = [taskId,taskId];
+        var now = new Date().format("yyyy-MM-dd HH:mm:ss") ;
+        var updateDealer_params = [taskId,taskId,now];
         var sqlMember = ['selectDealer','selectDealer_Unpass', 'updateTask', 'updateDealer'];
         var sqlMember_params = [selectDealer_params, selectDealer_Unpass_params, updateTask_params, updateDealer_params];
         var i = 0;
@@ -747,17 +777,18 @@ Task.doCheckUnPass = function(taskId, userId, noPassReason, callback){
                 "            (taskId, turnNum, checkPerson, noPassReason)" +
                 "            values(?, (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskProcessStep WHERE taskId=?) as maxNumTable)," +
                 "           ?,?)",
-            insertReturnInfo: 'INSERT INTO taskProcessStep (taskId, processStepId, dealer, turnNum) VALUES ' +
+            insertReturnInfo: 'INSERT INTO taskProcessStep (taskId, processStepId, dealer, turnNum,execTime) VALUES ' +
                 '        ( ?,3,' +
                 '          (SELECT CREATER FROM tasks WHERE taskId=?),' +
                 '          (SELECT maxNum+1 from (SELECT MAX(turnNum) as maxNum FROM taskProcessStep WHERE taskId=?) as maxNumTable)' +
-                '        )'
+                '       ? )'
         }
         var selectDealer_params = [taskId, taskId];
         var selectDealer_Unpass_params = [taskId];
         var updateTask_params = [taskId];
         var insertCheckUnpass_params = [taskId, taskId, userId, noPassReason];
-        var insertReturnInfo_params = [taskId,taskId,taskId];
+        var now = new Date().format("yyyy-MM-dd HH:mm:ss") ;
+        var insertReturnInfo_params = [taskId,taskId,taskId,now];
         var sqlMember = ['selectDealer_pass', 'selectDealer_Unpass', 'updateTask', 'insertCheckUnpass', 'insertReturnInfo'];
         var sqlMember_params = [selectDealer_params, selectDealer_Unpass_params, updateTask_params, insertCheckUnpass_params, insertReturnInfo_params];
         var i = 0;
@@ -805,13 +836,14 @@ Task.submitComplete = function(taskId, userId, callback){
             selectDealer:"select * from tasks where taskid=? and processStepId=7",
             updateTask: "update tasks set state='上库完成',processStepId=7 where taskid=?",
             updateFileList: "update filelist set commit=1 where taskId=?",
-            updateTPS:"insert into taskprocessstep (taskid, processStepId, turnNum, dealer) " +
-                " values (?,7,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?)"
+            updateTPS:"insert into taskprocessstep (taskid, processStepId, turnNum, dealer,execTime) " +
+                " values (?,7,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?,?)"
         }
         var selectDealer_params = [taskId];
         var updateTask_params = [taskId];
         var updateFileList_params = [taskId];
-        var updateTPS_params = [taskId,taskId,userId];
+        var now = new Date().format("yyyy-MM-dd HH:mm:ss") ;
+        var updateTPS_params = [taskId,taskId,userId,now];
         var sqlMember = ['selectDealer', 'updateTask', 'updateFileList', 'updateTPS'];
         var sqlMember_params = [selectDealer_params, updateTask_params, updateFileList_params, updateTPS_params];
         var i = 0;
@@ -844,7 +876,7 @@ Task.submitComplete = function(taskId, userId, callback){
  * @param userId
  * @param callback
  */
-Task.findTaskByParam = function(userId,projectId,state,processStepId,taskcode,taskname,createrName,callback){
+Task.findTaskByParam = function(userId,projectId,state,processStepId,taskcode,taskname,createrName,startTime,endTime,callback){
     taskcode = "%" + taskcode + "%";
     taskname = "%" + taskname + "%";
     createrName = "%" + createrName + "%";
@@ -857,7 +889,7 @@ Task.findTaskByParam = function(userId,projectId,state,processStepId,taskcode,ta
             "        (" +
             "            SELECT taskTable2.*, oU2.realName as createrName from" +
             "        (" +
-            "            SELECT taskTable.*, oU.realName as dealerName from" +
+            "            SELECT taskTable.*, oU.realName as dealerName , oTps.execTime from" +
             "        (" +
             "            SELECT DISTINCT t.*,ps.processStepName as stepName from tasks t" +
             "        JOIN processstepdealer psd ON t.creater = psd.userId" +
@@ -907,6 +939,14 @@ Task.findTaskByParam = function(userId,projectId,state,processStepId,taskcode,ta
             sql = sql + " AND selectTable.processStepId = ? ";
             params.push(processStepId);
         }
+        if(startTime!=''){
+            sql = sql + " AND selectTable.execTime >  ? ";
+            params.push(startTime);
+        }
+        if(endTime!=''){
+            sql = sql + " AND selectTable.execTime <  ? ";
+            params.push(endTime);
+        }
         sql = sql + ' ORDER BY selectTable.taskcode ';
         connection.query(sql, params, function (err, result) {
             if (err) {
@@ -928,7 +968,7 @@ Task.findTaskByParam = function(userId,projectId,state,processStepId,taskcode,ta
  * @param userId
  * @param callback
  */
-Task.findAllTaskByParamForBoss = function(userId,projectId,state,processStepId,taskcode,taskname,createrName,callback){
+Task.findAllTaskByParamForBoss = function(userId,projectId,state,processStepId,taskcode,taskname,createrName,startTime,endTime,callback){
     taskcode = "%" + taskcode + "%";
     taskname = "%" + taskname + "%";
     createrName = "%" + createrName + "%";
@@ -937,16 +977,16 @@ Task.findAllTaskByParamForBoss = function(userId,projectId,state,processStepId,t
             console.log('[CONN TASKS ERROR] - ', err.message);
             return callback(err);
         }
-    var sql = 'SELECT taskid, projectid,taskcode,taskname, creater createrName, state, processStepName stepName, processStepId,  dealer dealerName from' +
-        '   (select taskanduser.taskid,projectid,taskcode,taskname,state,taskanduser.userName creater,maxStep,max_turnandstepanduser.userName  dealer from' +
+    var sql = 'SELECT execTime,taskid, projectid,taskcode,taskname, creater createrName, state, processStepName stepName, processStepId,  dealer dealerName from' +
+        '   ( select execTime,taskanduser.taskid,projectid,taskcode,taskname,state,taskanduser.userName creater,maxStep,max_turnandstepanduser.userName  dealer from' +
         '   (select t.taskid,t.projectId, t.taskcode,t.taskname,t.state, t.taskDesc,u1.userName  from tasks t join' +
         '   user u1 on creater =u1.userId )' +
         '   as taskanduser' +
         '   join' +
-        '   (select maxStep,u2.userName , max_turnandstep.id,max_turnandstep.taskid ,max_turnandstep.dealer,max_turnandstep.maxTurn from' +
-        '   (select max(processStepId) maxStep , table_turn.id,table_turn.taskid ,table_turn.dealer,table_turn.maxTurn from' +
+        '   (select execTime,maxStep,u2.userName , max_turnandstep.id,max_turnandstep.taskid ,max_turnandstep.dealer,max_turnandstep.maxTurn from' +
+        '   (select execTime, max(processStepId) maxStep , table_turn.id,table_turn.taskid ,table_turn.dealer,table_turn.maxTurn from' +
         '   (' +
-        '   select tps6.id,tps6.taskid,tps6.processStepId,tps6.turnNum ,tps6.dealer,table_maxTurn.maxTurn' +
+        '   select  execTime,tps6.id,tps6.taskid,tps6.processStepId,tps6.turnNum ,tps6.dealer,table_maxTurn.maxTurn' +
         '   from taskprocessstep tps6 join' +
         '   (select max(turnNum) maxTurn ,tps5.taskid from taskprocessstep tps5  GROUP BY tps5.taskid ) table_maxTurn' +
         '   on  tps6.turnNum = table_maxTurn.maxTurn and tps6.taskid = table_maxTurn.taskid' +
@@ -975,6 +1015,14 @@ Task.findAllTaskByParamForBoss = function(userId,projectId,state,processStepId,t
             sql = sql + " AND processStepId = ? ";
             params.push(processStepId);
         }
+        if(startTime!=''){
+            sql = sql + " AND execTime >  ? ";
+            params.push(startTime);
+        }
+        if(endTime!=''){
+            sql = sql + " AND execTime <  ? ";
+            params.push(endTime);
+        }
         sql = sql + ' ORDER BY taskcode ';
         connection.query(sql, params, function (err, result) {
             if (err) {
@@ -993,7 +1041,7 @@ Task.findAllTaskByParamForBoss = function(userId,projectId,state,processStepId,t
  * @param userId
  * @param callback
  */
-Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode,taskname,createrName,callback){
+Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode,taskname,createrName,startTime,endTime,callback){
     taskcode = "%" + taskcode + "%";
     taskname = "%" + taskname + "%";
     createrName = "%" + createrName + "%";
@@ -1011,7 +1059,7 @@ Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode
             "        FROM" +
             "        (" +
             "            SELECT" +
-            "        taskTable.*, oU.realName AS dealerName" +
+            "        taskTable.*, oU.realName AS dealerName ,oTps.execTime" +
             "        FROM" +
             "        (" +
             "            SELECT DISTINCT" +
@@ -1055,7 +1103,16 @@ Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode
             sql = sql + " AND selectTable.processStepId = ? ";
             params.push(processStepId);
         }
+        if(startTime!=''){
+            sql = sql + " AND selectTable.execTime >  ? ";
+            params.push(startTime);
+        }
+        if(endTime!=''){
+            sql = sql + " AND selectTable.execTime <  ? ";
+            params.push(endTime);
+        }
         sql = sql + ' ORDER BY selectTable.taskcode ';
+
         connection.query(sql, params, function (err, result) {
             if (err) {
                 console.log('[QUERY TASKS ERROR] - ', err.message);

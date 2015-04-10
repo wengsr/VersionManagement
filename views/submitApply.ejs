@@ -13,7 +13,7 @@
                 <div class="col-lg-12">
                     <div class="form-group">
                         <label for="project" class="col-sm-2 control-label">产品</label>
-                        <div class="col-sm-10">
+                        <div class="col-sm-8">
                             <select class="form-control" name="project" id="project">
                                 <option value="" selected  projectUri="">--请选择--</option>
                                 <%if(project && project.length>0){%>
@@ -22,6 +22,9 @@
                                 <%})%>
                                 <%}%>
                             </select>
+                        </div>
+                        <div class="col-sm-2" style="margin-top:6px">
+                            <button id="btnSADelete" type="button" class=" btn btn-danger" style="float:right">放弃变更单</button>
                         </div>
                     </div>
                     <div class="form-group">
@@ -99,3 +102,4 @@
 <script src="/javascripts/submitApply.js"></script>
 <script src="/javascripts/common.js"></script>
 <script src="/javascripts/extractFile.js"></script>
+<script src ="/javascripts/deltask.js"></script>

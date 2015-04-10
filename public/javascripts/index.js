@@ -146,7 +146,7 @@ jQuery(document).ready(function() {
         }));
         var imageMenuData = [[
             {
-                text: "删除",
+                text: "放弃变更单",
                 func: function () {
                     //alert($('#task_250'));
                     var id = $(this).attr("id");
