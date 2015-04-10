@@ -52,6 +52,34 @@ function addFilesParam(param,taskId,filesName,filesUri,state){
     return param;
 }
 /**
+ * 日期格式化 yyyy-MM—dd HH-mm-ss
+ * @param format
+ * @returns {*}
+ */
+Date.prototype.format = function(format){
+    var o = {
+        "M+" : this.getMonth()+1, //month
+        "d+" : this.getDate(), //day
+        "H+" : this.getHours(), //hour
+        "m+" : this.getMinutes(), //minute
+        "s+" : this.getSeconds(), //second
+        "q+" : Math.floor((this.getMonth()+3)/3), //quarter
+        "S" : this.getMilliseconds() //millisecond
+    }
+
+    if(/(y+)/.test(format)) {
+        format = format.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length));
+    }
+
+    for(var k in o) {
+        if(new RegExp("("+ k +")").test(format)) {
+            format = format.replace(RegExp.$1, RegExp.$1.length==1 ? o[k] : ("00"+ o[k]).substr((""+ o[k]).length));
+        }
+    }
+    return format;
+}
+
+/**
  * 向fileList表写入数据
  * @param conn数据库连接
  * @param files 文件数组
@@ -104,6 +132,8 @@ function asyQuery_submit(conn,sql,sql_item,sql_param,i,callback){
         else{
             if(i==0) {
                 sql_param[2].push(result[0].manager);
+                var now = new Date().format("yyyy-MM-dd HH:mm:ss") ;
+                sql_param[2].push(now);
             }
             //console.log(sql[sql_item[i]],' '+sql_param[i]+' result:');
             //console.log(result);
@@ -233,7 +263,7 @@ exports.addTask = function (taskInfo,callback) {
             countTask: 'UPDATE  project set taskCount = taskCount + 1 where projectId= ?',
             selectProject :' SELECT * FROM project where projectId = ?',
             userAddSql : 'INSERT INTO tasks(taskCode, taskName, creater, state, processStepId, projectId, taskDesc) VALUES(?,?,?,?,?,?,?)',
-            addTaskProcess : ' INSERT INTO taskProcessStep(taskId, processStepId, dealer,turnNum) VALUES(?,?,?,?)',
+            addTaskProcess : ' INSERT INTO taskProcessStep(taskId, processStepId, dealer,turnNum,execTime) VALUES(?,?,?,?,?)',
             addFiles: 'INSERT INTO fileList(taskId,fileName,state,commit,fileUri) VALUES(?,?,?,?)'
 
         };
@@ -306,7 +336,8 @@ exports.addTask = function (taskInfo,callback) {
                 else if (item == 'userAddSql') {
                     //console.log("userAddSql:", result);
                     taskId = result.insertId;
-                    task_params[4] = [taskId, '2', userId, 0];//taskPrecessStep turnNum 默认为0：
+                    var now = new Date().format("yyyy-MM-dd HH:mm:ss");
+                    task_params[4] = [taskId, '2', userId, 0,now];//taskPrecessStep turnNum 默认为0：
                     //插入多条的file数据
                     //获取文件完整的uri；
                         if(taskInfo.newFiles!=""){
@@ -356,10 +387,10 @@ exports.submitFile= function(taskId,callback){
         var sql= {
             selectDealer:"select manager from project where projectId in ( select projectId from tasks where taskId = ?)",
             updateTask: "update tasks set processStepId= 4, state='变更文件已提交' where taskid=?",
-            updateDealer: 'insert into taskprocessstep(taskId,processStepId,turnNum,dealer) values ' +
+            updateDealer: 'insert into taskprocessstep(taskId,processStepId,turnNum,dealer,execTime) values ' +
             ' (?,4,' +
             ' (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=' +
-            '  (select taskid from tasks where taskid = ?)) as maxNumTable),?)'
+            '  (select taskid from tasks where taskid = ?)) as maxNumTable),?,?)'
         }
         var selectDealer_params = [taskId];
         var updateTask_params = [taskId];
@@ -409,9 +440,9 @@ exports.extractFile= function(taskId, userId, processStepId, fileName, fileUri,c
         var trans = connection.startTransaction();
         var sql= {
             updateTask: "update tasks set processStepId= 3, state='旧文件已提取' where taskid=?",
-            updateDealer: 'insert into taskprocessstep(taskId,processStepId,turnNum,dealer) values ' +
+            updateDealer: 'insert into taskprocessstep(taskId,processStepId,turnNum,dealer,execTime) values ' +
             ' (?,3,' +
-            ' (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable),?)',
+            ' (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable),?,?)',
             saveAtta: 'INSERT INTO taskattachment (taskId, processStepId, fileName, fileUri, turnNum) ' +
             ' VALUES (?,?,?,?,' +
             ' (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable))',
@@ -419,7 +450,8 @@ exports.extractFile= function(taskId, userId, processStepId, fileName, fileUri,c
         };
        // var selectDealer_params = [taskId, taskId];
         var updateTask_params = [taskId];
-        var updateDealer_params = [taskId,taskId, userId];
+        var now = new Date().format("yy-MM-dd HH-mm-ss");
+        var updateDealer_params = [taskId,taskId, userId,now];
         var saveAtta_params = [taskId, processStepId, fileName, fileUri, taskId]
         var sqlMember = ['updateTask', 'updateDealer', 'saveAtta','updateFiles'];
         var updateFiles_params =[taskId];
@@ -438,7 +470,7 @@ exports.extractFile= function(taskId, userId, processStepId, fileName, fileUri,c
             if(err){
                 trans.rollback();
                 console.log("updateDealer :",err.message);
-                return callback('err',err_async);
+                return callback('err',err);
             }
             //console.log("updateDealer :", result);
         });
@@ -447,7 +479,7 @@ exports.extractFile= function(taskId, userId, processStepId, fileName, fileUri,c
                 if (err) {
                     trans.rollback();
                     console.log("saveAtta :", err.message);
-                    return callback('err', err_async);
+                    return callback('err', err);
                 }
                 //console.log("saveAtta :", result);
             });
@@ -455,7 +487,7 @@ exports.extractFile= function(taskId, userId, processStepId, fileName, fileUri,c
                 if (err) {
                     trans.rollback();
                     console.log("updateFiles :", err.message);
-                    return callback('err', err_async);
+                    return callback('err', err);
                 }
                 //console.log("updateFiles :", result);
             });

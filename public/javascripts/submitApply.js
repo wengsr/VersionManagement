@@ -150,6 +150,7 @@ function ajaxSubmit(params, url, subType){
                 $('#btnExtractFile').show();
                 $('#oldAtta').show();
                 $('#btnModify').show();
+                $('#btnSADelete').show();
                 $('#submitApply').hide();
                 $('#taskId').val(id);
                 $('#taskCode').text(tCode);
@@ -172,6 +173,7 @@ jQuery(document).ready(function() {
     $('#diaInfoTip').hide();
     $('#btnExtractFile').hide();
     $('#btnModify').hide();
+    $('#btnSADelete').hide();
     $('#btnConfirm').hide();
     $('#oldAtta').hide();
     //$('#divPop').hide();

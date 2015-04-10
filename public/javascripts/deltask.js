@@ -28,3 +28,42 @@ $("[id=btnDelTask]").each (function ()
         ajaxSubmit_delTask(param,url,'post');
     });
 })
+$("#btnDeleteTask").click(function(){
+    debugger
+    var taskId = $('#taskInfoId').val();
+    var url = "task/delTask";
+    var param = {
+        taskId:taskId
+    }
+    ajaxSubmit_delTask(param,url,'post');
+})
+$("#btnSADelete").click(function(){
+    debugger
+    var taskId = $('#formAddTask> #taskId').val();
+    var url = "task/delTask";
+    var param = {
+        taskId:taskId
+    }
+    ajaxSubmit_delTask(param,url,'post');
+})
+$("#btnEFDelete").click(function(){
+    debugger
+    var taskId = $('#extractFileForm> #taskId').val();
+    var url = "task/delTask";
+    var param = {
+        taskId:taskId
+    }
+    ajaxSubmit_delTask(param,url,'post');
+})
+$("#btnSFDelete").click(function(){
+    debugger
+    var taskId = $('#submitFileForm> #taskId').val();
+    var url = "task/delTask";
+    var param = {
+        taskId:taskId
+    }
+    ajaxSubmit_delTask(param,url,'post');
+})
+
+
+

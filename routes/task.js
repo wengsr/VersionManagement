@@ -679,9 +679,15 @@ router.post('/findTask', function (req, res) {
     var taskCode = req.body.taskCode;
     var taskname = req.body.taskName;
     var createrName = req.body.taskCreater;
+    var startDate = req.body.startDate;
+    var startTime = req.body.startTime;
+    var endDate = req.body.endDate;
+    var endTime = req.body.endTime;
+    startTime = startDate ? startDate+' '+startTime+":00" : '';
+    endTime = endDate? endDate+' '+endTime+":59" : '';
 
 
-    Task.findTaskByParam(userId,projectId,state,processStepId,taskCode,taskname,createrName,function(msg,tasks){
+    Task.findTaskByParam(userId,projectId,state,processStepId,taskCode,taskname,createrName,startTime,endTime,function(msg,tasks){
         findProsByUserIdForApplyTaskBtn(userId,req,function(userPros){
             if('success'!=msg){
                 req.session.error = "模糊查询变更单时发生错误,请记录并联系管理员";
@@ -730,8 +736,14 @@ router.post('/findAllTask', function (req, res) {
     var taskCode = req.body.taskCode;
     var taskname = req.body.taskName;
     var createrName = req.body.taskCreater;
+    var startDate = req.body.startDate;
+    var startTime = req.body.startTime;
+    var endDate = req.body.endDate;
+    var endTime = req.body.endTime;
+    startTime = startDate ? startDate+' '+startTime+":00" : '';
+    endTime = endDate? endDate+' '+endTime+":59" : '';
 
-    Task.findAllTaskByParam(userId,projectId,state,processStepId,taskCode,taskname,createrName,function(msg,tasks){
+    Task.findAllTaskByParam(userId,projectId,state,processStepId,taskCode,taskname,createrName,startTime,endTime,function(msg,tasks){
         findProsByUserIdForApplyTaskBtn(userId,req,function(userPros){
             if('success'!=msg){
                 req.session.error = "模糊查询所有变更单时发生错误,请记录并联系管理员";
@@ -780,8 +792,14 @@ router.post('/findAllTaskForBoss', function (req, res) {
     var taskCode = req.body.taskCode;
     var taskname = req.body.taskName;
     var createrName = req.body.taskCreater;
+    var startDate = req.body.startDate;
+    var startTime = req.body.startTime;
+    var endDate = req.body.endDate;
+    var endTime = req.body.endTime;
+    startTime = startDate ? startDate+' '+startTime+":00" : '';
+    endTime = endDate? endDate+' '+endTime+":59" : '';
 
-    Task.findAllTaskByParamForBoss(userId,projectId,state,processStepId,taskCode,taskname,createrName,function(msg,tasks){
+    Task.findAllTaskByParamForBoss(userId,projectId,state,processStepId,taskCode,taskname,createrName,startTime,endTime,function(msg,tasks){
         findProsByUserIdForApplyTaskBtn(userId,req,function(userPros){
             if('success'!=msg){
                 req.session.error = "模糊查询所有变更单时发生错误,请记录并联系管理员";
