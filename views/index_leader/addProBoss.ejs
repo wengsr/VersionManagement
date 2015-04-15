@@ -1,0 +1,78 @@
+<form action="/leaderModel/addBoss/<%=projects[0].projectId%>" id="formAddProBoss" class=" bs-component form-horizontal" method='post'>
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="myLargeModalLabel"><span style="color: #ffffff">指定版本管理员</span></h4>
+    </div>
+    <div  class="modal-body">
+        <div class="container-fluid">
+            <div class="row">
+                <!--<div class="col-lg-1"></div>-->
+                <div class="col-lg-11">
+
+                    <div class="form-group">
+                        <label for="inputTaskList" class="col-sm-2 control-label">指定领导</label>
+                        <div class="col-sm-10">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="checkProBoss" name="checkProBoss" placeholder="输入人员账号或姓名">
+                                <div class="input-group-btn">
+                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul id="selectUl" class="dropdown-menu dropdown-menu-right" role="menu">
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div >
+            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            <button id="btnSubmitProBoss" type="button" class="btn btn-primary" data-dismiss="modal">确定添加</button>
+        </div>
+    </div>
+</form>
+
+
+
+<!--<script src="http://libs.baidu.com/jquery/1.10.2/jquery.min.js"></script>-->
+<!--<script src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>-->
+<!--<script src="/javascripts/jquery.min.js"></script>-->
+<!--<script src="/javascripts/bootstrap.min.js"></script>-->
+<!--<script src="/javascripts/bootstrap-suggest.js"></script>-->
+<script>
+    var ejsData_addProBoss;<!--获取后台参数-->
+    ejsData_addProBoss = {
+        proAllUser: <%- JSON.stringify(allUser_disp) %>
+    };
+
+    /**
+     * 展示所有可选择的走查人员供组长选择
+     * @param userNameAndRealName
+     */
+    function showSelectUser(){
+        var proAllUser = ejsData_addProBoss.proAllUser;
+        $("#checkProBoss").bsSuggest({
+            indexId: 0, //data.value 的第几个数据，作为input输入框的内容
+            indexKey: 0, //data.value 的第几个数据，作为input输入框的内容
+            data: {
+                'value':proAllUser,
+                'defaults':''
+            }
+        });
+    }
+
+    showSelectUser();
+
+    $('#btnSubmitProBoss').click(function(){
+        $('#formAddProBoss').submit();
+    });
+</script>
+
+
+

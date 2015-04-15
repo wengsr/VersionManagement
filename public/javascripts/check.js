@@ -24,7 +24,7 @@ function showSelectCheckUser(userNameAndRealName){
  * @param submitflag
  */
 function ajaxSubmit(params, url, subType,submitflag){
-    url = './' + url;
+    url = '/' + url;
     $.ajax({
         data: params,
         url: url,

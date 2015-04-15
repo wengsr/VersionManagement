@@ -35,15 +35,39 @@ var findTask = function(userId,req,callback){
     });
 }
 /**
- * 查找当前领导所能操作的变更单
+ * 查找当前用户待处理的变更单
  */
-var findTaskForBoss = function(userId,req,callback){
-    Task.findTaskForBossByUserId(userId,function(msg,tasks){
+var findDealTask = function(userId,req,callback){
+    Task.findDealTaskByUserId(userId,function(msg,tasks){
         if('success'!=msg){
             req.session.error = "查找变更单信息时发生错误,请记录并联系管理员";
             return null;
         }
         callback(tasks);
+    });
+}
+    /**
+    * 查找当前用户发的变更单
+    */
+var findCreateTask = function(userId,req,callback){
+    Task.findCreateTaskByUserId(userId,function(msg,tasks){
+        if('success'!=msg){
+            req.session.error = "查找变更单信息时发生错误,请记录并联系管理员";
+            return null;
+        }
+        callback(tasks);
+    });
+}
+/**
+ * 查找当前领导所能操作的变更单
+ */
+var findTaskForBoss = function(userId,startNum,req,callback){
+    Task.findTaskForBossByUserId(userId,startNum,function(msg,tasks,count){
+        if('success'!=msg){
+            req.session.error = "查找变更单信息时发生错误,请记录并联系管理员";
+            return null;
+        }
+        callback(tasks,count);
     });
 }
 /**
@@ -133,10 +157,10 @@ var findInfoForLogin = function(user,req,res){
             findMenu(user.userId, req, function (menus) {//查找菜单
                 if (menus.length > 0) {
                     req.session.menus = menus;
-                    findTaskForBoss(user.userId, req, function (tasks) {//查找当前用户能操作的变更单
+                    findTaskForBoss(user.userId,0, req, function (tasks,count) {//查找当前用户能操作的变更单
                         if (tasks.length > 0) {
                             req.session.tasks = tasks;
-                            req.session.taskCount = tasks.length;
+                            req.session.taskCount = count
                             res.redirect("/");
                         } else {
                             req.session.tasks = null;

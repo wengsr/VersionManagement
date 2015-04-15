@@ -198,6 +198,31 @@ LeaderModel.findProAllUser_disp = function(projectId,callback){
         });
     });
 }
+/**
+ * 查找项目的Boss(用于输入框显示)
+ * @param projectId
+ * @param callback
+ */
+LeaderModel.findAllBoss = function(projectId,callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN LEADERMODEL ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'select u.userId,u.userName,u.realName from Bosstoproject btp ' +
+            '        JOIN user u ON btp.userId = u.userId' +
+            '        AND btp.projectId=?';
+        var params = [projectId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY LEADERMODEL ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',result);
+        });
+    });
+}
 
 
 
@@ -334,7 +359,60 @@ LeaderModel.addProAdmin = function(userName, projectId, callback){
         connection.release();
     });
 }
-
+/**
+ * 添加项目领导
+ * @param callback
+ */
+LeaderModel.addBoss = function(userName, projectId, callback){
+    pool.getConnection(function (err, connection) {
+        //开启事务
+        queues(connection);
+        var trans = connection.startTransaction();
+        var sql= {
+            isBossExist:"select * from bossToProject where " +
+            "   userId=(select u.userId from user u where u.userName=?) " +
+            "   and projectId=?",
+            isAdmin:"select * from processstepdealer where " +
+            "   userId=(select u.userId from user u where u.userName=?) " +
+            "   and projectId=? and processStepId=6",
+            addBossToProject:"insert into bossToProject values(("+
+            "   select userId from user where userName = ?),?)",
+            updateUser: "update user set permissionId = 5 where userName = ?"
+        }
+        var isBossExist_params = [userName,projectId];
+        var isAdmin_params=[userName,projectId];
+        var addBossToProject_params = [userName,projectId];
+        var updateUser_params = [userName];
+        var sqlMember = ['isBossExist','isAdmin', 'addBossToProject','updateUser'];
+        var sqlMember_params = [isBossExist_params,isAdmin_params, addBossToProject_params,updateUser_params];
+        var i = 0;
+        async.eachSeries(sqlMember, function (item, callback_async) {
+            trans.query(sql[item], sqlMember_params[i++],function (err_async, result) {
+                if(item == 'isBossExist' && undefined!=result && ''!=result && null!=result){
+                    //判断该用户是否已经有管理员权限
+                    trans.rollback();
+                    return callback('err','该用户已经有领导权限，请勿重复添加');
+                }
+                if(item == 'isAdmin' && undefined!=result && ''!=result && null!=result){
+                    //判断该用户是否已经有管理员权限
+                    trans.rollback();
+                    return callback('err','该用户是组长，不能同时添加领导权限');
+                }
+                if(err_async){
+                    trans.rollback();
+                    return callback('err',err_async);
+                }
+                if(item == 'updateUser' && !err_async){//最后一条sql语句执行没有错就返回成功
+                    trans.commit();
+                    return callback('success');
+                }
+                callback_async(err_async, result);
+            });
+        });
+        trans.execute();//提交事务
+        connection.release();
+    });
+}
 
 /**
  * 添加项目参与者
@@ -499,7 +577,50 @@ LeaderModel.delProCheck = function(userId, projectId, callback){
         });
     });
 }
-
+/**
+ * 删除领导
+ * @param userName
+ * @param projectId
+ * @param callback
+ */
+LeaderModel.delBoss = function(userId, projectId, callback){
+    pool.getConnection(function(err, connection){
+        //开启事务
+        queues(connection);
+        var trans = connection.startTransaction();
+        if(err){
+            console.log('[CONN LEADERMODEL ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = {
+            deleteBoss:'delete from bossToProject' +
+                '        where userId=?' +
+            '        and  projectId=?',
+           deletePermission:"update user u set permissionId = '' where  u.userId = ? and u.userId not in (" +
+                " select btp.userId from bossToProject btp)"
+        };
+        var deleteBoss_params = [userId,projectId];
+        var deletePermission_params = [userId];
+        var sqlMember = ['deleteBoss', 'deletePermission'];
+        var sqlMember_params = [deleteBoss_params, deletePermission_params];
+        var i = 0;
+        async.eachSeries(sqlMember, function (item, callback_async) {
+            trans.query(sql[item], sqlMember_params[i++],function (err_async, result) {
+                if(err_async){
+                    trans.rollback();
+                    return callback('err',err_async);
+                }
+                if(item == 'deletePermission' && !err_async){//最后一条sql语句执行没有错就返回成功
+                    trans.commit();
+                    return callback('success');
+                }
+                callback_async(err_async, result);
+            });
+        });
+        trans.execute();//提交事务
+        connection.release();
+    });
+}
 
 
 module.exports = LeaderModel;

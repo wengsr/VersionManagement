@@ -32,7 +32,33 @@ function getFilesUri(str){
     }
     return str;
 }
+/**
+ * 日期格式化 yyyy-MM—dd HH-mm-ss
+ * @param format
+ * @returns {*}
+ */
+Date.prototype.format = function(format){
+    var o = {
+        "M+" : this.getMonth()+1, //month
+        "d+" : this.getDate(), //day
+        "H+" : this.getHours(), //hour
+        "m+" : this.getMinutes(), //minute
+        "s+" : this.getSeconds(), //second
+        "q+" : Math.floor((this.getMonth()+3)/3), //quarter
+        "S" : this.getMilliseconds() //millisecond
+    }
 
+    if(/(y+)/.test(format)) {
+        format = format.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length));
+    }
+
+    for(var k in o) {
+        if(new RegExp("("+ k +")").test(format)) {
+            format = format.replace(RegExp.$1, RegExp.$1.length==1 ? o[k] : ("00"+ o[k]).substr((""+ o[k]).length));
+        }
+    }
+    return format;
+}
 var express = require('express');
 var router = express.Router();
 var Task = require('../modular/task');
@@ -313,6 +339,9 @@ var findHistory = function(taskId,req,callback){
             req.session.error = "查找变更单历史数据时发生错误,请记录并联系管理员";
             return null;
         }
+        result.forEach(function(task,i){
+             task.execTime = task.execTime.format("yyyy-MM-dd HH:mm:ss");
+        });
         callback(result);
     });
 }
@@ -350,7 +379,21 @@ var getCookieUser = function(req, res){
         return res.redirect("/");
     }
 }
-
+/**
+ * 判断前一次查找的条件是否存在
+ * @param req
+ * @param res
+ * @returns {*}
+ */
+var isSearchCondsExits= function(req, res){
+    var searchConds = req.session.finAllTaskConds;
+    if(searchConds){
+       return true;
+    }
+    if(!searchConds || 'undefined'==searchConds){
+        return res.redirect("/");
+    }
+}
 
 
 router.get('/addTaskPage', function(req, res) {
@@ -683,11 +726,24 @@ router.post('/findTask', function (req, res) {
     var startTime = req.body.startTime;
     var endDate = req.body.endDate;
     var endTime = req.body.endTime;
+    var searchConds = {
+        userId:userId,
+        projectId:projectId,
+        state:state,
+        processStepId:processStepId,
+        taskname:taskname,
+        taskCode:taskCode,
+        createrName :createrName,
+        startDate:startDate,
+        startTime :startTime,
+        endDate:endDate,
+        endTime: endTime
+    };
+    req.session.finAllTaskConds = searchConds;
     startTime = startDate ? startDate+' '+startTime+":00" : '';
     endTime = endDate? endDate+' '+endTime+":59" : '';
-
-
-    Task.findTaskByParam(userId,projectId,state,processStepId,taskCode,taskname,createrName,startTime,endTime,function(msg,tasks){
+    var curPage =  1;//这里是第一次查询得到的结果
+    Task.findTaskByParam(userId,projectId,state,processStepId,taskCode,taskname,createrName,startTime,endTime,0,function(msg,tasks,count){
         findProsByUserIdForApplyTaskBtn(userId,req,function(userPros){
             if('success'!=msg){
                 req.session.error = "模糊查询变更单时发生错误,请记录并联系管理员";
@@ -695,6 +751,7 @@ router.post('/findTask', function (req, res) {
             }
 
             if(tasks.length>0){
+                var pageCount = parseInt((count-1)/30 + 1);
                 req.session.tasks = tasks;
                 req.session.taskCount = tasks.length;
                 return res.render('index', {
@@ -704,7 +761,9 @@ router.post('/findTask', function (req, res) {
                     tasks:req.session.tasks,
                     taskCount:req.session.taskCount,
                     topBtnCheckTask:'findTaskResult',
-                    userPros:userPros
+                    userPros:userPros,
+                    totalFindTaskPage:pageCount ,
+                    curFindTaskPage:1
                 });
             }else{
                 req.session.tasks = null;
@@ -716,14 +775,21 @@ router.post('/findTask', function (req, res) {
                     tasks:req.session.tasks,
                     taskCount:req.session.taskCount,
                     topBtnCheckTask:'findTaskResult',
-                    userPros:userPros
+                    userPros:userPros,
+                    totalFindTaskPage: pageCount,
+                    curFindTaskPage:1
                 });
             }
             //res.render('findTaskResult',{projects:projects});
         });
     });
 });
-
+//router.get('/findTask/:curPage', function(req, res) {
+//    topBtnClick(res, req, 'findTaskResult');
+//});
+//router.get('/findAllTask/:curPage', function(req, res) {
+//    topBtnClick(res, req, 'findTaskResult_noLink');
+//});
 /**
  * 查找所有变更单业务逻辑
  */
@@ -742,15 +808,30 @@ router.post('/findAllTask', function (req, res) {
     var endTime = req.body.endTime;
     startTime = startDate ? startDate+' '+startTime+":00" : '';
     endTime = endDate? endDate+' '+endTime+":59" : '';
+    var searchConds = {
+        userId:userId,
+        projectId:projectId,
+        state:state,
+        processStepId:processStepId,
+        taskname:taskname,
+        taskCode:taskCode,
+        createrName :createrName,
+        startDate:startDate,
+        startTime :startTime,
+        endDate:endDate,
+        endTime: endTime
+    };
+    req.session.finAllTaskConds = searchConds;
 
-    Task.findAllTaskByParam(userId,projectId,state,processStepId,taskCode,taskname,createrName,startTime,endTime,function(msg,tasks){
+    Task.findAllTaskByParam(userId,projectId,state,processStepId,taskCode,taskname,createrName,startTime,endTime,0,function(msg,tasks,count){
         findProsByUserIdForApplyTaskBtn(userId,req,function(userPros){
             if('success'!=msg){
                 req.session.error = "模糊查询所有变更单时发生错误,请记录并联系管理员";
                 return null;
             }
-
+           //console.log(tasks,'dddddd',count);
             if(tasks.length>0){
+                var pageCount = parseInt((count-1)/30) + 1;
                 req.session.tasks = tasks;
                 req.session.taskCount = tasks.length;
                 return res.render('index', {
@@ -760,7 +841,9 @@ router.post('/findAllTask', function (req, res) {
                     tasks:req.session.tasks,
                     taskCount:req.session.taskCount,
                     topBtnCheckTask:'findTaskResult_noLink',
-                    userPros:userPros
+                    userPros:userPros,
+                    totalFindAllPage: pageCount,
+                    curFindAllPage:1
                 });
             }else{
                 req.session.tasks = null;
@@ -772,7 +855,280 @@ router.post('/findAllTask', function (req, res) {
                     tasks:req.session.tasks,
                     taskCount:req.session.taskCount,
                     topBtnCheckTask:'findTaskResult_noLink',
-                    userPros:userPros
+                    userPros:userPros,
+                    totalFindAllPage:0,
+                    curFindAllPage:0
+                });
+            }
+            //res.render('findTaskResult',{projects:projects});
+        });
+    });
+});
+/**
+ * 查找所有变更单:分页查找
+ */
+router.get('/findAllTask/:curPage', function (req, res) {
+    getCookieUser(req, res);
+    isSearchCondsExits(req,res);
+    console.log(req.session.finAllTaskConds);
+    var searchConds = req.session.finAllTaskConds;
+    var userId = searchConds.userId;
+    var projectId = searchConds.projectId;
+    var state =searchConds.state;
+    var processStepId = searchConds.processStepId;
+    var taskCode = searchConds.taskCode;
+    var taskname = searchConds.taskname;
+    var createrName =searchConds.createrName;
+    var startDate = searchConds.startDate;
+    var startTime = searchConds.startTime;
+    var endDate = searchConds.endDate;
+    var endTime = searchConds.endTime;
+    var curPage = req.params.curPage;
+    var startNum = (curPage-1)*30 -1;
+    if(startNum< 0){
+        startNum = 0;
+    }
+    startTime = startDate ? startDate+' '+startTime+":00" : '';
+    endTime = endDate? endDate+' '+endTime+":59" : '';
+    Task.findAllTaskByParam(userId,projectId,state,processStepId,taskCode,taskname,createrName,startTime,endTime,startNum,function(msg,tasks,count){
+        //console.log(tasks,'dddddd',count);
+        findProsByUserIdForApplyTaskBtn(userId,req,function(userPros){
+            if('success'!=msg){
+                req.session.error = "模糊查询所有变更单时发生错误,请记录并联系管理员";
+                return null;
+            }
+
+            if(tasks.length>0){
+                var pageCount = parseInt((count-1)/30) + 1;
+                req.session.tasks = tasks;
+                req.session.taskCount = tasks.length;
+                return res.render('index', {
+                    title: 'AILK-CRM版本管理系统',
+                    user:req.session.user,
+                    menus:req.session.menus,
+                    tasks:req.session.tasks,
+                    taskCount:req.session.taskCount,
+                    topBtnCheckTask:'findTaskResult_noLink',
+                    userPros:userPros,
+                    totalFindAllPage: pageCount,
+                    curFindAllPage:curPage
+                });
+            }else{
+                var pageCount = 0;
+                req.session.tasks = null;
+                req.session.taskCount = null;
+                return res.render('index', {
+                    title: 'AILK-CRM版本管理系统',
+                    user:req.session.user,
+                    menus:req.session.menus,
+                    tasks:req.session.tasks,
+                    taskCount:req.session.taskCount,
+                    topBtnCheckTask:'findTaskResult_noLink',
+                    userPros:userPros,
+                    totalFindAllPage: pageCount,
+                    curFindAllPage:curPage
+                });
+            }
+            //res.render('findTaskResult',{projects:projects});
+        });
+    });
+});
+/**
+ * 查找领导能查查看所有变更单:分页查找
+ */
+router.get('/findAllTaskForBoss/:curPage', function (req, res) {
+    getCookieUser(req, res);
+    isSearchCondsExits(req,res);
+    var searchConds = req.session.finAllTaskConds;
+    var userId = searchConds.userId;
+    var projectId = searchConds.projectId;
+    var state =searchConds.state;
+    var processStepId = searchConds.processStepId;
+    var taskCode = searchConds.taskCode;
+    var taskname = searchConds.taskname;
+    var createrName =searchConds.createrName;
+    var startDate = searchConds.startDate;
+    var startTime = searchConds.startTime;
+    var endDate = searchConds.endDate;
+    var endTime = searchConds.endTime;
+    var curPage = req.params.curPage;
+    var startNum = (curPage-1)*30 -1;
+    if(startNum< 0){
+        startNum = 0;
+    }
+    startTime = startDate ? startDate+' '+startTime+":00" : '';
+    endTime = endDate? endDate+' '+endTime+":59" : '';
+    Task.findAllTaskByParamForBoss(userId,projectId,state,processStepId,taskCode,taskname,createrName,startTime,endTime,startNum,function(msg,tasks,count){
+        console.log(tasks,'dddddd',count);
+        findProsByUserIdForApplyTaskBtn(userId,req,function(userPros){
+            if('success'!=msg){
+                req.session.error = "模糊查询所有变更单时发生错误,请记录并联系管理员";
+                return null;
+            }
+
+            if(tasks.length>0){
+                var pageCount = parseInt((count-1)/30) + 1;
+                req.session.tasks = tasks;
+                req.session.taskCount = tasks.length;
+                return res.render('index', {
+                    title: 'AILK-CRM版本管理系统',
+                    user:req.session.user,
+                    menus:req.session.menus,
+                    tasks:req.session.tasks,
+                    taskCount:req.session.taskCount,
+                    topBtnCheckTask:'findAllTaskResultForBoss',
+                    userPros:userPros,
+                    totalFindAllPage: pageCount,
+                    curFindAllPage:curPage
+                });
+            }else{
+                var pageCount = 0;
+                req.session.tasks = null;
+                req.session.taskCount = null;
+                return res.render('index', {
+                    title: 'AILK-CRM版本管理系统',
+                    user:req.session.user,
+                    menus:req.session.menus,
+                    tasks:req.session.tasks,
+                    taskCount:req.session.taskCount,
+                    topBtnCheckTask:'findAllTaskResultForBoss',
+                    userPros:userPros,
+                    totalFindAllPage: pageCount,
+                    curFindAllPage:curPage
+                });
+            }
+            //res.render('findTaskResult',{projects:projects});
+        });
+    });
+});
+/**
+ * 查找领导能查查看所有变更单:分页查找
+ */
+router.get('/allTaskForBoss/:curPage', function (req, res) {
+    getCookieUser(req, res);
+    var searchConds = req.session.finAllTaskConds;
+    var userId = req.session.user.userId;
+    //var projectId = searchConds.projectId;
+    //var state =searchConds.state;
+    //var processStepId = searchConds.processStepId;
+    //var taskCode = searchConds.taskCode;
+    //var taskname = searchConds.taskname;
+    //var createrName =searchConds.createrName;
+    //var startDate = searchConds.startDate;
+    //var startTime = searchConds.startTime;
+    //var endDate = searchConds.endDate;
+    //var endTime = searchConds.endTime;
+    //var curPage = req.params.curPage;
+    //var startNum = (curPage-1)*30 -1;
+    //if(startNum< 0){
+    //    startNum = 0;
+    //}
+    //startTime = startDate ? startDate+' '+startTime+":00" : '';
+    //endTime = endDate? endDate+' '+endTime+":59" : '';
+    Task.findTaskForBoss(userId,projectId,state,processStepId,taskCode,taskname,createrName,startTime,endTime,startNum,function(msg,tasks,count){
+        console.log(tasks,'dddddd',count);
+        findProsByUserIdForApplyTaskBtn(userId,req,function(userPros){
+            if('success'!=msg){
+                req.session.error = "模糊查询所有变更单时发生错误,请记录并联系管理员";
+                return null;
+            }
+
+            if(tasks.length>0){
+                var pageCount = parseInt((count-1)/30) + 1;
+                req.session.tasks = tasks;
+                req.session.taskCount = tasks.length;
+                return res.render('index', {
+                    title: 'AILK-CRM版本管理系统',
+                    user:req.session.user,
+                    menus:req.session.menus,
+                    tasks:req.session.tasks,
+                    taskCount:req.session.taskCount,
+                    topBtnCheckTask:'allTaskForBoss',
+                    userPros:userPros,
+                    totalFindAllPage: pageCount,
+                    curFindAllPage:curPage
+                });
+            }else{
+                var pageCount = 0;
+                req.session.tasks = null;
+                req.session.taskCount = null;
+                return res.render('index', {
+                    title: 'AILK-CRM版本管理系统',
+                    user:req.session.user,
+                    menus:req.session.menus,
+                    tasks:req.session.tasks,
+                    taskCount:req.session.taskCount,
+                    topBtnCheckTask:'allTaskForBoss',
+                    userPros:userPros,
+                    totalFindAllPage: pageCount,
+                    curFindAllPage:curPage
+                });
+            }
+            //res.render('findTaskResult',{projects:projects});
+        });
+    });
+});
+
+/**
+ * 查找所有变更单:分页查找
+ */
+router.get('/findTask/:curPage', function (req, res) {
+    getCookieUser(req, res);
+    isSearchCondsExits(req,res);
+    var searchConds = req.session.finAllTaskConds;
+    var userId = searchConds.userId;
+    var projectId = searchConds.projectId;
+    var state =searchConds.state;
+    var processStepId = searchConds.processStepId;
+    var taskCode = searchConds.taskCode;
+    var taskname = searchConds.taskname;
+    var createrName =searchConds.createrName;
+    var startDate = searchConds.startDate;
+    var startTime = searchConds.startTime;
+    var endDate = searchConds.endDate;
+    var endTime = searchConds.endTime;
+    var curPage = req.params.curPage;
+    var startNum = (curPage-1)*30 -1;
+    if(startNum< 0){
+        startNum = 0;
+    }
+    startTime = startDate ? startDate+' '+startTime+":00" : '';
+    endTime = endDate? endDate+' '+endTime+":59" : '';
+    Task.findTaskByParam(userId,projectId,state,processStepId,taskCode,taskname,createrName,startTime,endTime,startNum,function(msg,tasks,count){
+        findProsByUserIdForApplyTaskBtn(userId,req,function(userPros){
+            if('success'!=msg){
+                req.session.error = "模糊查询所有变更单时发生错误,请记录并联系管理员";
+                return null;
+            }
+
+            if(tasks.length>0){
+                var pageCount = parseInt((count-1)/30) + 1;
+                req.session.tasks = tasks;
+                req.session.taskCount = tasks.length;
+                return res.render('index', {
+                    title: 'AILK-CRM版本管理系统',
+                    user:req.session.user,
+                    menus:req.session.menus,
+                    tasks:req.session.tasks,
+                    taskCount:req.session.taskCount,
+                    topBtnCheckTask:'findTaskResult',
+                    userPros:userPros,
+                    totalFindTaskPage: pageCount,
+                    curFindTaskPage:curPage
+                });
+            }else{
+                req.session.tasks = null;
+                req.session.taskCount = null;
+                return res.render('index', {
+                    title: 'AILK-CRM版本管理系统',
+                    user:req.session.user,
+                    menus:req.session.menus,
+                    tasks:req.session.tasks,
+                    taskCount:req.session.taskCount,
+                    topBtnCheckTask:'findTaskResult',
+                    userPros:userPros,
+                    totalFindTaskPage: 0,
+                    curFindTaskPage:curPage
                 });
             }
             //res.render('findTaskResult',{projects:projects});
@@ -798,8 +1154,21 @@ router.post('/findAllTaskForBoss', function (req, res) {
     var endTime = req.body.endTime;
     startTime = startDate ? startDate+' '+startTime+":00" : '';
     endTime = endDate? endDate+' '+endTime+":59" : '';
-
-    Task.findAllTaskByParamForBoss(userId,projectId,state,processStepId,taskCode,taskname,createrName,startTime,endTime,function(msg,tasks){
+    var searchConds = {
+        userId:userId,
+        projectId:projectId,
+        state:state,
+        processStepId:processStepId,
+        taskname:taskname,
+        taskCode:taskCode,
+        createrName :createrName,
+        startDate:startDate,
+        startTime :startTime,
+        endDate:endDate,
+        endTime: endTime
+    };
+    req.session.finAllTaskConds = searchConds;
+    Task.findAllTaskByParamForBoss(userId,projectId,state,processStepId,taskCode,taskname,createrName,startTime,endTime,0,function(msg,tasks,count){
         findProsByUserIdForApplyTaskBtn(userId,req,function(userPros){
             if('success'!=msg){
                 req.session.error = "模糊查询所有变更单时发生错误,请记录并联系管理员";
@@ -809,14 +1178,17 @@ router.post('/findAllTaskForBoss', function (req, res) {
             if(tasks.length>0){
                 req.session.tasks = tasks;
                 req.session.taskCount = tasks.length;
+                var pageCount = parseInt((count-1)/30) + 1;
                 return res.render('index', {
                     title: 'AILK-CRM版本管理系统',
                     user:req.session.user,
                     menus:req.session.menus,
                     tasks:req.session.tasks,
                     taskCount:req.session.taskCount,
-                    topBtnCheckTask:'findTaskResult_noLink',
-                    userPros:userPros
+                    topBtnCheckTask:'findAllTaskResultForBoss',
+                    userPros:userPros,
+                    totalFindAllPage: pageCount,
+                    curFindAllPage:1
                 });
             }else{
                 req.session.tasks = null;
@@ -827,8 +1199,10 @@ router.post('/findAllTaskForBoss', function (req, res) {
                     menus:req.session.menus,
                     tasks:req.session.tasks,
                     taskCount:req.session.taskCount,
-                    topBtnCheckTask:'findTaskResult_noLink',
-                    userPros:userPros
+                    topBtnCheckTask:'findAllTaskResultForBoss',
+                    userPros:userPros,
+                    totalFindAllPage: 0,
+                    curFindAllPage:1
                 });
             }
             //res.render('findTaskResult',{projects:projects});
