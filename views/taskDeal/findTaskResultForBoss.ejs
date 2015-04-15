@@ -42,7 +42,7 @@
         <!--<% if(taskCount){%>-->
             <!--<div class="panel-footer">共<%=taskCount%>条</div>-->
         <!--<% } %>-->
-        <div id="recCount" class="panel-footer" recCount="<%=recCount%>">共<%=recCount%>条</div>
+        <div id="recCount" class="panel-footer" recCount="<%=recCount%>">共30条</div>
     </div>
     <div style="float:right">
         <nav  >
@@ -57,17 +57,17 @@
 
                 <%if(minPage!=1){%>
                 <li  id="pagePre">
-                    <a  href="/task/findAllTask/<%=parseInt(curFindAllPage)-1%>" aria-label="Previous" >
+                    <a  href="/task/findAllTaskForBoss/findAllTaskForBoss/<%=parseInt(curFindAllPage)-1%>" aria-label="Previous" >
                         <span aria-hidden="true">&laquo;</span>
                     </a>
                 </li>
                 <%}%>
                 <%for(var i = minPage;i<=maxPage;i++){ %>
-                <li  class="pageId"  value ="<%=i%>"><a  href="/task/findAllTask/<%=i%>"><%=i%></a></li>
+                <li  class="pageId"  value ="<%=i%>"><a  href="/task/findAllTaskForBoss/<%=i%>"><%=i%></a></li>
                 <%}%>
                 <%if(maxPage<totalFindAllPage){%>
                 <li  id="pageNext">
-                    <a  href="/task/findAllTask/<%=parseInt(curFindAllPage)+1%>" aria-label="Next">
+                    <a  href="/task/findAllTaskForBoss/<%=parseInt(curFindAllPage)+1%>" aria-label="Next">
                         <span aria-hidden="true">&raquo;</span>
                     </a>
                 </li>
@@ -91,17 +91,4 @@
     var curPage =$('ul#pageUl').attr("curPage");
     $('li.pageId[value='+curPage+']').addClass('active');
 
-//    var conds = window.sessionStorage.getItem("finAllTaskConds");
-//    $("li#pagePre a").each(function () {
-//        var url = $(this).attr("url");
-//        $(this).attr("url", url + "/" + conds);
-//    });
-//    $("li.pageId a").each(function () {
-//        var url = $(this).attr("url");
-//        $(this).attr("url", url + "/" + conds);
-//    });
-//    $("li#pageNext a").each(function () {
-//        var url = $(this).attr("url");
-//        $(this).attr("url", url + "/" + conds);
-//    });
 </script>

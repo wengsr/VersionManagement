@@ -17,7 +17,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <% var recCount=0%>
+                <% var recCount=(curDealPage-1)*30%>
                 <% tasks.forEach(function(task,i){ var psId=task.processStepId%>
                     <% if(task.taskType==2){ recCount++;%>
                         <tr id="myToBeDealTask">
@@ -38,7 +38,54 @@
         <!--<% if(taskCount){%>-->
             <!--<div class="panel-footer">共<%=taskCount%>条</div>-->
         <!--<% } %>-->
-        <div id="recCount" class="panel-footer" recCount="<%=recCount%>">共<%=recCount%>条</div>
+        <div id="recCount" class="panel-footer" recCount="<%=recCount%>">共30条
+        </div>
+        <div>
+            <nav  style="float:right">
+                <%
+                var  minPage = curDealPage-2>0?curDealPage-2:1;
+                var maxPage = minPage + 4>totalDealPage?totalDealPage:minPage + 4;
+                minPage = maxPage-4<1?1:maxPage-4;
+                //                          var maxPage =curDealPage+2>totalDealPage?totalDealPage:curDealPage+2;
+                %>
+                <ul class="pagination" id="pageUl" pageCount="<%=totalDealPage%>" curPage="<%=curDealPage%>"
+                    minPage="<%=minPage%>",maxPage="<%=maxPage%>">
+                    <%if(minPage!=1){%>
+                    <li  id="pagePre">
+                        <a href="/btnToBeDeal/<%=parseInt(curDealPage)-1%>" aria-label="Previous" >
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <%}%>
+                    <%for(var i = minPage;i<=maxPage;i++){ %>
+                    <li  class="pageId"  value ="<%=i%>"><a href="/btnToBeDeal/<%=i%>"><%=i%></a></li>
+                    <%}%>
+                    <%if(maxPage<totalDealPage){%>
+                    <li  id="pageNext">
+                        <a href="/btnToBeDeal/<%=parseInt(curDealPage)+1%>" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <%}%>
+                    <!--<li  id="pagePre">-->
+                    <!--<a href="#" aria-label="Previous" >-->
+                    <!--<span aria-hidden="true">&laquo;</span>-->
+                    <!--</a>-->
+                    <!--</li>-->
+                    <!--<li  class="pageId"  value = '1'><a href="/btnToBeDeal/1">1</a></li>-->
+                    <!--<li class="pageId"  value = '2'><a href="/btnToBeDeal/2" >2</a></li>-->
+                    <!--<li class="pageId" value = '3'><a href="/btnToBeDeal/3"  >3</a></li>-->
+                    <!--<li class="pageId"  value = '4'><a href="/btnToBeDeal/4">4</a></li>-->
+                    <!--<li class="pageId"   value = '5'><a href="/btnToBeDeal/5">5</a></li>-->
+                    <!--<li  id="pageNext">-->
+                    <!--<a href="#" aria-label="Next">-->
+                    <!--<span aria-hidden="true">&raquo;</span>-->
+                    <!--</a>-->
+                    <!--</li>-->
+                </ul>
+
+            </nav>
+        </div>
     </div>
 </div>
 <div id="noTaskNotice" style="margin-top: 100px">

@@ -165,6 +165,23 @@ var findProAllUser_disp = function(currProjectId, req, res, callback){
         callback(result);
     });
 }
+/**
+ * 找出项目的所有Boss(输入框中显示用)
+ * @param currProjectId
+ * @param req
+ * @param res
+ * @param callback
+ */
+var findAllBoss = function(currProjectId, req, res, callback){
+    var projectId = currProjectId;
+    LeaderModel.findAllBoss(projectId, function(msg,result){
+        if(msg!='success'){
+            req.session.error = "查找项目所有boss时发生错误,请记录并联系管理员";
+            return res.redirect("/");
+        }
+        callback(result);
+    });
+}
 
 /**
  * 找出所有用户用于指定项目参与者时使用(输入框中显示用)
@@ -236,6 +253,24 @@ var addProCheck = function(userName, projectId, req, res, callback){
 }
 
 /**
+ * 添加领导
+ * @param userName
+ * @param proId
+ * @param req
+ * @param res
+ * @param callback
+ */
+var addBoss = function(userName, projectId, req, res, callback){
+    LeaderModel.addBoss(userName, projectId, function(msg,result){
+        if(msg!='success'){
+            req.session.error = "添加项目领导时发生错误【"+result+"】，请记录并联系管理员";
+            return res.redirect("/");
+        }
+        callback(result);
+    });
+}
+
+/**
  * 删除上库管理员
  * @param userId
  * @param projectId
@@ -290,7 +325,23 @@ var delProCheck = function(userId, projectId, req, res, callback){
     });
 }
 
-
+/**
+ * 删除项目领导
+ * @param userId
+ * @param projectId
+ * @param req
+ * @param res
+ * @param callback
+ */
+var delBoss = function(userId, projectId, req, res, callback){
+    LeaderModel.delBoss(userId, projectId, function(msg,result){
+        if(msg!='success'){
+            req.session.error = "删除项目参与人时发生错误,请记录并联系管理员";
+            return res.redirect("/");
+        }
+        callback(result);
+    });
+}
 
 /**
  * 展现领导模式的页面
@@ -369,18 +420,22 @@ var showLeaderPage_userCtrl = function(currProjectId, req, res, whichPage){
             findProAllUser(currProjectId, req, res, function(proAllUser){//找出每个步骤的处理人
                 findProAllUser_disp(currProjectId, req, res, function(proAllUser_disp){//
                     findAllUser_disp(req, res, function(allUser_disp){//
-                        res.render('index_leader',{
-                            title:"领导管理模式",
-                            projects:projects,                  //当前用户的所有项目
-                            fileListCount:null,                 //文件清单统计数
-                            taskCount:null,                     //变更单统计数
-                            createrTaskCount:null,              //开发人员发起的变更单数
-                            whichPage:whichPage,                //显示哪一个页面
-                            eachStepDealers:eachStepDealers,    //每个步骤的处理人
-                            proAllUser:proAllUser,              //项目所有参与人
-                            proAllUser_disp:proAllUser_disp,    //项目所有参与人（输入框显示用）
-                            allUser_disp:allUser_disp           //系统中所有用户(输入框显示用)
-                        });
+                        findAllBoss(currProjectId, req,res,function(allBoss){
+                            res.render('index_leader',{
+                                title:"领导管理模式",
+                                projects:projects,                  //当前用户的所有项目
+                                fileListCount:null,                 //文件清单统计数
+                                taskCount:null,                     //变更单统计数
+                                createrTaskCount:null,              //开发人员发起的变更单数
+                                whichPage:whichPage,                //显示哪一个页面
+                                eachStepDealers:eachStepDealers,    //每个步骤的处理人
+                                proAllUser:proAllUser,              //项目所有参与人
+                                proAllUser_disp:proAllUser_disp,    //项目所有参与人（输入框显示用）
+                                allUser_disp:allUser_disp,          //系统中所有用户(输入框显示用)
+                                allBoss: allBoss
+                            });
+                        })
+
                     });
                 });
             });
@@ -512,6 +567,20 @@ router.post('/addCheck/:projectId', function(req, res) {
     });
 });
 
+
+/**
+ * 添加领导
+ */
+router.post('/addBoss/:projectId', function(req, res) {
+    var proCheck = req.body["checkProBoss"];//即将被添加的走查人员用户名
+    var currProjectId = req.params.projectId;//当前页面所统计的项目id
+
+    addBoss(proCheck, currProjectId, req, res, function(allUser_disp){
+        showLeaderPage_userCtrl(currProjectId, req, res, "userCtrlPage");
+    });
+});
+
+
 /**
  * 删除管理员
  */
@@ -533,6 +602,17 @@ router.post('/delProUser/:projectId', function(req, res) {
         showLeaderPage_userCtrl(currProjectId, req, res, "userCtrlPage");
     });
 });
+/**
+ * 删除领导
+ */
+router.post('/delBoss/:projectId', function(req, res) {
+    var userId = req.body["delBossId"];//即将被删除的管理员Id
+    var currProjectId = req.params.projectId;//当前页面所统计的项目id
+    delBoss(userId, currProjectId, req, res, function(allBoss){
+        showLeaderPage_userCtrl(currProjectId, req, res, "userCtrlPage");
+    });
+});
+
 
 /**
  * 删除走查人员

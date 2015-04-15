@@ -1,5 +1,5 @@
 function ajaxSubmit_delTask(params, url, subType){
-    url = './' + url;
+    url = '/' + url;
     $.ajax({
         data: params,
         url: url,
@@ -58,6 +58,7 @@ $("#btnEFDelete").click(function(){
 $("#btnSFDelete").click(function(){
     debugger
     var taskId = $('#submitFileForm> #taskId').val();
+    debugger
     var url = "task/delTask";
     var param = {
         taskId:taskId

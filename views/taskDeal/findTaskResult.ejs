@@ -17,7 +17,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <% var recCount=0%>
+                <% var recCount=(curFindTaskPage-1)*30%>
                 <% tasks.forEach(function(task,i){ var psId=task.processStepId%>
                     <% recCount++;%>
                     <tr id="myToBeDealTask">
@@ -43,6 +43,37 @@
             <!--<div class="panel-footer">共<%=taskCount%>条</div>-->
         <!--<% } %>-->
         <div id="recCount" class="panel-footer" recCount="<%=recCount%>">共<%=recCount%>条</div>
+        <div style="float:right">
+            <nav  >
+                <%
+                var  minPage = curFindTaskPage-2>0?curFindTaskPage-2:1;
+                var maxPage = minPage + 4>totalFindTaskPage?totalFindTaskPage:minPage + 4;
+                minPage = maxPage-4<1?1:maxPage-4;
+                //                          var maxPage =curFindTaskPage+2>totalDealPage?totalDealPage:curFindTaskPage+2;
+                %>
+                <ul class="pagination" id="pageUl" pageCount="<%=totalFindTaskPage%>" curPage="<%=curFindTaskPage%>"
+                    minPage="<%=minPage%>",maxPage="<%=maxPage%>">
+
+                    <%if(minPage!=1){%>
+                    <li  id="pagePre">
+                        <a href="/task/findTask/<%=parseInt(curFindTaskPage)-1%>" aria-label="Previous" >
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <%}%>
+                    <%for(var i = minPage;i<=maxPage;i++){ %>
+                    <li  class="pageId"  value ="<%=i%>"><a href="/task/findTask/<%=i%>"><%=i%></a></li>
+                    <%}%>
+                    <%if(maxPage<totalFindTaskPage){%>
+                    <li  id="pageNext">
+                        <a href="/task/findTask/<%=parseInt(curFindTaskPage)+1%>" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <%}%>
+                </ul>
+            </nav>
+        </div>
     </div>
 </div>
 <div id="noTaskNotice" style="margin-top: 100px">

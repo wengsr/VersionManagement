@@ -18,7 +18,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <% var recCount=0%>
+                <% var recCount=(curCreatePage-1)*30%>
                 <% tasks.forEach(function(task,i){ var psId=task.processStepId%>
                 <% if(task.taskType==1){ recCount++;%>
                 <tr id="myCreateTask">
@@ -59,16 +59,49 @@
         <!--<div class="panel-footer">共<%=taskCount%>条</div>-->
         <!--<% } %>-->
         <div id="recCount" class="panel-footer" recCount="<%=recCount%>">共<%=recCount%>条</div>
+        <div style="float:right">
+            <nav  >
+                <%
+                var  minPage = curCreatePage-2>0?curCreatePage-2:1;
+                var maxPage = minPage + 4>totalCreatePage?totalCreatePage:minPage + 4;
+                minPage = maxPage-4<1?1:maxPage-4;
+                //                          var maxPage =curCreatePage+2>totalDealPage?totalDealPage:curCreatePage+2;
+                %>
+                <ul class="pagination" id="pageUl" pageCount="<%=totalCreatePage%>" curPage="<%=curCreatePage%>"
+                    minPage="<%=minPage%>",maxPage="<%=maxPage%>">
+
+                    <%if(minPage!=1){%>
+                    <li  id="pagePre">
+                        <a href="/btnTaskCreater/<%=parseInt(curCreatePage)-1%>" aria-label="Previous" >
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <%}%>
+                    <%for(var i = minPage;i<=maxPage;i++){ %>
+                    <li  class="pageId"  value ="<%=i%>"><a href="/btnTaskCreater/<%=i%>"><%=i%></a></li>
+                    <%}%>
+                    <%if(maxPage<totalCreatePage){%>
+                    <li  id="pageNext">
+                        <a href="/btnTaskCreater/<%=parseInt(curCreatePage)+1%>" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <%}%>
+                </ul>
+            </nav>
+        </div>
+        <!--<div style="float:right" ><nav></nav> 共<%=totalCreatePage%>页</nav> </div>-->
     </div>
 </div>
 <div id="noTaskNotice" style="margin-top: 100px">
     <div class="col-sm-3"></div>
     <div class="col-sm-6">
-                            <span style="font-size:20pt; color: #cccccc;height:20px; line-height:20px; text-align:center; display:block;">
-                                当前无变更单，通过"申请变更单"发起申请
-                            </span>
+        <span style="font-size:20pt; color: #cccccc;height:20px; line-height:20px; text-align:center; display:block;">
+            当前无变更单，通过"申请变更单"发起申请
+        </span>
     </div>
     <div class="col-sm-3"></div>
 </div>
 <script src="http://libs.baidu.com/jquery/1.10.2/jquery.min.js"></script>
 <script src ="/javascripts/deltask.js"></script>
+
