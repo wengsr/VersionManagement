@@ -54,6 +54,7 @@ var OLD_FOLDER = './old';                       //系统自动提取的文件存
 var NEW_OLD_FOLDER = './attachment/newAndOld';  //开发人员上传的新旧附件
 var SVN_USER = "cmsys";
 var SVN_PWD = "717705";
+var SCAN_PATH;                                  //【自动上库】时检查新旧文件或文件夹是否相同路径
 
 
 /**
@@ -1103,6 +1104,93 @@ copyFile = function(sourceDir, destDir, fileName){
     console.log("复制完成");
 }
 
+/**
+ * 获取path目录下的文件列表
+ * @param path
+ * @returns {{files: Array, folders: Array}}
+ */
+function scanFolder(path){
+    var fileList = [],
+        folderList = [],
+        walk = function(path, fileList, folderList){
+            files = fs.readdirSync(path);
+            files.forEach(function(item) {
+                var tmpPath = path + '/' + item,
+                    stats = fs.statSync(tmpPath);
+                var outputPath = tmpPath.substring(SCAN_PATH.length, tmpPath.length);
+                if (stats.isDirectory()) {
+                    walk(tmpPath, fileList, folderList);
+                    folderList.push(outputPath);
+                } else {
+                    fileList.push(outputPath);
+                }
+            });
+        };
+    walk(path, fileList, folderList);
+    return {
+        'files': fileList,
+        'folders': folderList
+    }
+}
+
+/**
+ * 判断【old目录】内的文件夹或文件是否全都都在【new目录】中
+ * @param arr1  系统自动提取的旧目录
+ * @param arr2  开发人员上传的新目录
+ * @returns {Array}
+ */
+function arrDiff(arr1, arr2){
+    var arr3 = [];  //两个目录的差异
+    for(var i=0; i < arr1.length; i++){
+        var flag = true;
+        for(var j=0; j < arr2.length; j++){
+            if(arr1[i] == arr2[j]) {//找到一个相同的就退出循环
+                flag = false;
+                break;
+            }
+        }
+        if(flag) {
+            arr3.push(arr1[i]);
+        }
+    }
+    return arr3;
+}
+
+/**
+ * 对比SVN下载的旧文件和开发人员上传的新文件
+ * @param serverOldPath
+ * @param upNewPath
+ * @returns {{msg: string, diff: Array}}
+ */
+function compFolder(serverOldPath, upNewPath){
+    SCAN_PATH = serverOldPath;
+    var serverOld = scanFolder(serverOldPath);
+    SCAN_PATH = upNewPath;
+    var upNew = scanFolder(upNewPath);
+    //console.log("serverOld——" + serverOld.folders);
+    //console.log("upNew——" + upNew.folders);
+
+    //取得新旧文件夹
+    var oldFolder = serverOld.folders;
+    var newFolder = upNew.folders;
+    //取得新旧文件
+    var oldFile = serverOld.files;
+    var newFile = upNew.files;
+    //获取文件和文件夹的差异
+    var diffFiles = arrDiff(oldFile, newFile);
+    var diffFolder = arrDiff(oldFolder, newFolder);
+
+    if(diffFolder.length>0){
+        //console.log("旧文件夹在new文件夹中不存在，请手动上库！具体文件夹：" + diffFolder);
+        return {"msg":"diffFolder", "diff":diffFolder}
+    }
+    if(diffFiles.length>0){
+        //console.log("旧文件在new文件夹中不存在，请手动上库！具体文件：" + diffFiles);
+        return {"msg":"diffFiles", "diff":diffFiles}
+    }
+    return {"msg":"same"}
+}
+
 
 /**
  * 在复制目录前需要判断该目录是否存在，不存在需要先创建目录
@@ -1265,6 +1353,7 @@ router.post('/autoUpload', function(req,res) {
     attaFile = attaFile.replace('%2E','.');
     //2.到新旧附件目录下找到前面步骤开发人员上传的变更单文件(如果严谨，这里还要判断变更单号是否为空)
     var oldRar = OLD_FOLDER + '/' + taskCode + '/old.zip';  //系统自动提取的压缩文件
+    var oldSvnDown = OLD_FOLDER + '/' + taskCode + '/oldSvnDown';//该目录下仅存放svn自动提取的文件
     var newOldFile = NEW_OLD_FOLDER + '/' + attaFile;       //开发人员上传的新旧文件的压缩文件
     var localDir = OLD_FOLDER + '/' + taskCode + '/upFolder';
     var svnFolder = OLD_FOLDER + '/' + taskCode;
@@ -1272,46 +1361,56 @@ router.post('/autoUpload', function(req,res) {
     //2.1清空upFolder文件夹，获取SVN信息的.svn文件夹
     deleteFolderRecursive(localDir);                        //删除文件夹
     deleteFolderRecursive(svnFolder+'/extractRarFolder');
+    deleteFolderRecursive(oldSvnDown);
     mkdirsSync(localDir);                                   //创建文件夹
     mkdirsSync(localDir+"/.svn");
     mkdirsSync(svnFolder+"/extractRarFolder");
+    mkdirsSync(oldSvnDown);
     copy(svnFolder+"/.svn", localDir+"/.svn");//拷贝对应的.svn文件夹到upFolder文件夹下
     //updateSvnCode();//调用Svn工具的autoUpload方法上库。(在解压前到SVN上更新使用，暂不用)
     //2.2解压缩文件到[提交变更单]文件夹。
-    CmdExc.extractRar(newOldFile,svnFolder+'/extractRarFolder',function(isSuccess, extraRarErr){
-        if(!isSuccess){//解压过程出错，直接返回出错信息
-            return returnJsonMsg(req, res, "err", "解压出错，请手工上库! 错误信息：" + extraRarErr);
-        }
-        if(!fs.existsSync(svnFolder+'/extractRarFolder/new')){//如果解压出来的new目录不存在,提示用户。
-            return returnJsonMsg(req, res, "err", "解压出来的文件中没有new文件夹或者new文件夹的路径不对，请手工上库!");
-        }
-        //2.3从解压好的文件中提取new文件夹内的内容
-        copy(svnFolder+'/extractRarFolder/new', localDir);
-        //3.到数据库中查找【系统】用户
-        findSys(function(isSuc, sysUser){
-            if('success' != isSuc){
-                return returnJsonMsg(req, res, "err", "查找【系统】用户出错，请手工上库!");
+    CmdExc.extractRar(newOldFile, svnFolder+'/extractRarFolder', function(isSuccess, extraRarErr){
+        CmdExc.extractRar(svnFolder+"/old.zip", svnFolder+'/oldSvnDown', function(oldIsSuccess, extraOldRarErr){
+            //解压svn自动提取的文件到oldSvnDown文件夹(目的是为了让oldSvnDown下仅存在SVN上提取的文件，方便与开发人员上传的new文件夹进行比较)
+            if(!isSuccess || !oldIsSuccess){//解压过程出错，直接返回出错信息
+                return returnJsonMsg(req, res, "err", "解压出错，请手工上库! 错误信息：" + extraRarErr + extraOldRarErr);
             }
-            //4.提交变更单到SVN!
-            svnTool.autoUpload(taskName, localDir, delFileList,function(isSuccess,result){//除了被删除的文件，目录下的所有文件将被提交
-                if('success' != isSuccess){
-                    return returnJsonMsg(req, res, "err", "自动上库过程出现错误，请手动上库后点击【上库完成】");
+            if(!fs.existsSync(svnFolder+'/extractRarFolder/new')){//如果解压出来的new目录不存在,提示用户。
+                return returnJsonMsg(req, res, "err", "解压出来的文件中没有new文件夹或者new文件夹的路径不对，请手工上库!");
+            }
+            //2.3从解压好的文件中提取new文件夹内的内容
+            copy(svnFolder+'/extractRarFolder/new', localDir);
+            //2.4比较新旧文件以及文件夹差异
+            var compResult = compFolder(svnFolder+'/oldSvnDown', svnFolder+'/extractRarFolder/new');
+            if('same' != compResult){
+                return returnJsonMsg(req, res, "err", "旧文件或文件夹在new文件夹中不存在，请手动上库！涉及文件：" + compResult.diff);
+            }
+            //3.到数据库中查找【系统】用户
+            findSys(function(isSuc, sysUser){
+                if('success' != isSuc){
+                    return returnJsonMsg(req, res, "err", "查找【系统】用户出错，请手工上库!");
                 }
-                //5.提交SVN成功，改变当前这条变更单记录的状态为“自动上库成功”
-                autoComp(req, taskId, function(isSuc, errMsg){
-                    if(isSuc!='success'){
-                        return returnJsonMsg(req, res, "err", errMsg);//状态修改为“自动上库成功”时出错
+                //4.提交变更单到SVN!
+                svnTool.autoUpload(taskName, localDir, delFileList,function(isSuccess,result){//除了被删除的文件，目录下的所有文件将被提交
+                    if('success' != isSuccess){
+                        return returnJsonMsg(req, res, "err", "自动上库过程出现错误，请手动上库后点击【上库完成】");
                     }
-                    returnJsonMsg(req, res, "success", "自动上库成功,请上SVN库确认无误后点击【上库完成】");
-                });
+                    //5.提交SVN成功，改变当前这条变更单记录的状态为“自动上库成功”
+                    autoComp(req, taskId, function(isSuc, errMsg){
+                        if(isSuc!='success'){
+                            return returnJsonMsg(req, res, "err", errMsg);//状态修改为“自动上库成功”时出错
+                        }
+                        returnJsonMsg(req, res, "success", "自动上库成功,请上SVN库确认无误后点击【上库完成】");
+                    });
 
-//                //5.提交SVN成功，记录相关信息到数据库中
-//                uploadToDB(req, taskId, sysUser.userId, function(isSucToDB){//记录上库成功信息到数据库中
-//                    if(!isSucToDB){
-//                       return returnJsonMsg(req, res, "err", "代码更新SVN成功。记录数据库过程出错，请联系系统管理员！");
-//                    }
-//                    returnJsonMsg(req, res, "success", "自动上库成功,请上SVN库确认无误后点击【上库完成】");
-//                });
+    //                //5.提交SVN成功，记录相关信息到数据库中
+    //                uploadToDB(req, taskId, sysUser.userId, function(isSucToDB){//记录上库成功信息到数据库中
+    //                    if(!isSucToDB){
+    //                       return returnJsonMsg(req, res, "err", "代码更新SVN成功。记录数据库过程出错，请联系系统管理员！");
+    //                    }
+    //                    returnJsonMsg(req, res, "success", "自动上库成功,请上SVN库确认无误后点击【上库完成】");
+    //                });
+                });
             });
         });
     });
