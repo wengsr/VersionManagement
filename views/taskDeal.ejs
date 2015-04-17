@@ -10,9 +10,15 @@
         <%include taskDeal/findTaskResult.ejs%>
     <% } %>
     <% if(topBtnCheckTask=='findTaskResult_noLink'){%><!--模糊查询所有变更单-->
-        <%include taskDeal/findTaskResult_noLink.ejs%>
-    <% } %>
-<% if(topBtnCheckTask=='findTaskResultForBoss'){%><!--模糊查询所有变更单-->
+<%include taskDeal/findTaskResult_noLink.ejs%>
+<% } %>
+<% if(topBtnCheckTask=='findTaskResultForBoss'){%><!--所有变更单&ndash;&gt;-->
+<%include tasksForBoss.ejs%>
+<% } %>
+<% if(topBtnCheckTask=='findAllTaskResultForBoss'){%><!--领导：分页查询所有变更单-->
+<%include taskDeal/findTaskResultForBoss.ejs%>
+<% } %>
+<% if(topBtnCheckTask=='allTaskForBoss'){%><!--领导：分页查询所有变更单-->
 <%include tasksForBoss.ejs%>
 <% } %>
 <% }else{ %><!--登录后的任务处理界面(处理任务为空)-->

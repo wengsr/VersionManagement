@@ -60,6 +60,13 @@ jQuery(document).ready(function() {
         });
     });
 
+    //添加领导界面
+    $('#newProBoss').click(function(){
+        $('#divAddProBossDialog').modal({
+            backdrop:false
+        });
+    });
+
 
 
 });

@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>变更单历史</title>
-    <link href="../stylesheets/history.css" rel="stylesheet" />
+    <link href="/stylesheets/history.css" rel="stylesheet" />
 </head>
 <body>
 
@@ -35,7 +35,7 @@
                 <li>
                     <h3>发起变更单</h3>
                     <dl>
-                        <dt><%=tHis.realName%>
+                        <dt><%=tHis.realName%> &nbsp;&nbsp;&nbsp;&nbsp;<time style="display:inline;color:#d3d3d3;font-weight:normal">(<%=tHis.execTime%>)</time>
                             <span>填写提交了变更单基本信息</span>
                         </dt>
                     </dl>
@@ -46,7 +46,7 @@
                 <li>
                     <h3>提取旧文件</h3>
                     <dl>
-                        <dt>系统
+                        <dt>系统 &nbsp;&nbsp;&nbsp;&nbsp;<time style="display:inline;color:#d3d3d3;font-weight:normal">(<%=tHis.execTime%>)</time>
                             <span>提取SVN上存在的旧文件：<a typeId="attaLink" href="<%=tHis.fileUri%>" style="color:#32B1EC"><%=tHis.fileName%></a></span>
                         </dt>
                     </dl>
@@ -57,7 +57,7 @@
                 <li>
                     <h3>提交变更单</h3>
                     <dl>
-                        <dt><%=tHis.realName%>
+                        <dt><%=tHis.realName%> &nbsp;&nbsp;&nbsp;&nbsp;<time style="display:inline;color:#d3d3d3;font-weight:normal">(<%=tHis.execTime%>)</time>
                             <span>上传了变更单：<a typeId="attaLink" href="<%=tHis.fileUri%>" style="color:#32B1EC"><%=tHis.fileName%></a></span>
                         </dt>
                     </dl>
@@ -70,7 +70,7 @@
                             <li>
                                 <h3>安排走查</h3>
                                 <dl>
-                                    <dt><%=tHis.realName%>
+                                    <dt><%=tHis.realName%> &nbsp;&nbsp;&nbsp;&nbsp;<time style="display:inline;color:#d3d3d3;font-weight:normal">(<%=tHis.execTime%>)</time>
                                         <span>指定<%=tempHis.realName%>对该变更单走查</span>
                                     </dt>
                                 </dl>
@@ -85,7 +85,7 @@
                             <li>
                                 <h3>走查</h3>
                                 <dl>
-                                    <dt><%=tHis.realName%>
+                                    <dt><%=tHis.realName%> &nbsp;&nbsp;&nbsp;&nbsp;<time style="display:inline;color:#d3d3d3;font-weight:normal">(<%=tHis.execTime%>)</time>
                                         <span>走查该变更单后，做出“走查通过”的判定<br/>
                                             <%if(tHis.fileUri!=null){%>
                                                 <label>上传了走查报告：<a typeId="attaLink" href="<%=tHis.fileUri%>" style="color:#32B1EC"><%=tHis.fileName%></a></label>。
@@ -102,7 +102,7 @@
                 <li>
                     <h3>走查</h3>
                     <dl>
-                        <dt><%=tHis.realName%>
+                        <dt><%=tHis.realName%> &nbsp;&nbsp;&nbsp;&nbsp;<time style="display:inline;color:#d3d3d3;font-weight:normal">(<%=tHis.execTime%>)</time>
                             <span>走查该变更单后，做出“走查不通过”的判定。<br/>
                             <%if(tHis.fileUri!=null){%>
                             上传了走查报告：<a typeId="attaLink" href="<%=tHis.fileUri%>" style="color:#32B1EC"><%=tHis.fileName%></a><br/>
@@ -125,7 +125,7 @@
                 <li>
                     <h3>上库</h3>
                     <dl>
-                        <dt><%=tHis.realName%>
+                        <dt><%=tHis.realName%> &nbsp;&nbsp;&nbsp;&nbsp;<time style="display:inline;color:#d3d3d3;font-weight:normal">(<%=tHis.execTime%>)</time>
                             <span>接受了上库任务</span>
                         </dt>
                     </dl>
@@ -136,7 +136,7 @@
                 <li>
                     <h3>上库完成</h3>
                     <dl>
-                        <dt><%=tHis.realName%>
+                        <dt><%=tHis.realName%> &nbsp;&nbsp;&nbsp;&nbsp;<time style="display:inline;color:#d3d3d3;font-weight:normal">(<%=tHis.execTime%>)</time>
                             <span>完成了代码上库任务</span>
                         </dt>
                     </dl>
@@ -176,7 +176,7 @@
 </html>
 
 
-<script src="../javascripts/historyJs.js"></script>
+<script src="/javascripts/historyJs.js"></script>
 <script>
     jQuery(document).ready(function() {
         //下载附件

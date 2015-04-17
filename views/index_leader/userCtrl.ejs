@@ -151,6 +151,52 @@
     </div>
 </div>
 
+<!--领导列表-->
+<div id="proBoss" class="container-fluid">
+    <div class="panel panel-default">
+        <div class="panel-heading">领导&emsp;&emsp;&emsp;&emsp;<a id="newProBoss" href="#"><span class="glyphicon glyphicon-plus"/>添加领导</a></div>
+        <div class="panel-body table-responsive">
+            <%if(allBoss){var count = -1;%>
+            <form action="/leaderModel/delBoss/<%=projects[0].projectId%>" id="formDelBoss" class=" bs-component form-Vertical" method='post'>
+                <input type="hidden" id="delBossId" name="delBossId"/>
+                <%allBoss.forEach(function(boss,i){ count++;%>
+                &emsp;
+                <!-- 领导按钮 -->
+                <%if(count&&count%10==0){ %>
+                <div style="clear:both;margin-bottom: 20px;"></div>
+                <%}%>
+                <div typeId="proBossBtn" style="float: left;margin-left: 20px;">
+                    <button type="button" class="btn btn-primary" typeId="proBossBtn1"><%=boss.realName%>&nbsp;</button>
+                    <button typeId="xxBoss" type="button" class="am-close am-close-spin am-icon-times" data-toggle="modal" data-target="#proBoss<%=boss.userId%>"></button>
+                </div>
+
+                <!--领导名按钮对应的弹出删除对话框-->
+                <div id="proBoss<%=boss.userId%>" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-sm">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="myModalLabel" style="color: #ffffff">删除确定</h4>
+                            </div>
+                            <div class="modal-body">
+                                确定删除领导：【<%=boss.realName%>】
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                <button id="btnDelProBoss" type="button" userId="<%=boss.userId%>" class="btn btn-primary">确定</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <%});%>
+            </form>
+            <%}%>
+        </div>
+        <div id="" class="panel-footer" recCount=""></div>
+    </div>
+</div>
+
+
 <!--添加管理员对话框-->
 <div id="divAddProAdminDialog" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -178,6 +224,14 @@
     </div>
 </div>
 
+<!--添加领导对话框-->
+<div id="divAddProBossDialog" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" id="divModel">
+            <%include addProBoss.ejs%>
+        </div>
+    </div>
+</div>
 
 <script src="/javascripts/index_leader_userCtrl.js"></script>
 <script>
@@ -209,6 +263,14 @@
         })
     });
 
+    $ ("[id=btnDelProBoss]").each (function ()
+    {
+        //console.info($(this).attr('userid'));
+        $(this).click(function(){
+            $('#delBossId').val($(this).attr('userid'));
+            $('#formDelBoss').submit();
+        })
+    });
 
     $('div[typeId=proAdminBtn]').each (function(){
         var thisBtn = $(this);
@@ -243,6 +305,16 @@
         thisBtn.find('[typeId=xxCheck]').hide();
     });
 
+    $('div[typeId=proBossBtn]').each (function(){
+        var thisBtn = $(this);
+        thisBtn.mouseover(function(){
+            thisBtn.find('[typeId=xxBoss]').show();
+        });
+        thisBtn.mouseleave(function(){
+            thisBtn.find('[typeId=xxBoss]').hide();
+        });
+        thisBtn.find('[typeId=xxBoss]').hide();
+    });
 
 </script>
 

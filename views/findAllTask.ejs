@@ -16,7 +16,7 @@
 
                     <div class="form-group">
                         <label for="projectName" class="col-sm-2 control-label">所属项目</label>
-                        <div class="col-sm-10">
+                        <div class="col-sm-4">
                             <select class="form-control" name="projectName">
                                 <option value="" selected >--请选择--</option>
                                 <%if(projects && projects.length>0){%>
@@ -26,11 +26,9 @@
                                 <%}%>
                             </select>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label for="taskState" class="col-sm-2 control-label">状态</label>
-                        <div class="col-sm-10">
+                        <label for="taskState" class="col-sm-1 control-label">状态</label>
+                        <div class="col-sm-4">
                             <select class="form-control" name="taskState">
                                 <option value="" selected >--请选择--</option>
                                 <option value="申请完成" >申请完成</option>
@@ -43,11 +41,17 @@
                                 <option value="上库完成" >上库完成</option>
                             </select>
                         </div>
+
                     </div>
 
                     <div class="form-group">
-                        <label for="taskStep" class="col-sm-2 control-label">环节</label>
-                        <div class="col-sm-10">
+                        <label for="taskCreater" class="col-sm-2 control-label">发起者</label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" name="taskCreater" id="taskCreater" placeholder="请填写发起者的真实姓名  (如：张三)">
+                        </div>
+
+                        <label for="taskStep" class="col-sm-1 control-label">环节</label>
+                        <div class="col-sm-4">
                             <select class="form-control" name="taskStep">
                                 <option value="" selected >--请选择--</option>
                                 <option value="3" >提取&上传变更文件</option>
@@ -56,29 +60,23 @@
                                 <option value="6" >上库</option>
                             </select>
                         </div>
+
                     </div>
+
 
                     <div class="form-group">
                         <label for="taskCode" class="col-sm-2 control-label">变更单号</label>
-                        <div class="col-sm-10">
+                        <div class="col-sm-8">
                             <input type="text" class="form-control" name="taskCode" id="taskCode" placeholder="请填写变更单号  (如：ncrm01)">
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="taskName" class="col-sm-2 control-label">变更单名称</label>
-                        <div class="col-sm-10">
+                        <div class="col-sm-8">
                             <input type="text" class="form-control" name="taskName" id="taskName" placeholder="请填写变更单名称  (如：CRM数据变更单-20150101-001-zhangsan-001)">
                         </div>
                     </div>
-
-                    <div class="form-group">
-                        <label for="taskCreater" class="col-sm-2 control-label">发起者</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="taskCreater" id="taskCreater" placeholder="请填写发起者的真实姓名  (如：张三)">
-                        </div>
-                    </div>
-
 
 
                     <div class="form-group">
@@ -118,7 +116,7 @@
             </span>
         </div>
         <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-        <button type="submit" class="btn btn-primary" >提交</button>
+        <button type="submit" id ="btnFindAllTask" class="btn btn-primary" >查询</button>
     </div>
 </form>
 <!--<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>-->
@@ -139,5 +137,37 @@
     });
     $('.clockpicker').clockpicker();
 
-
+</script>
+<script>
+    var storeSearch = function(){
+        var userId =$('[name=userId]').val();
+        var projectId =$('[name=projectName]').val();
+        var state = $('[name=taskState]').val();
+        var processStepId = $('[name=taskStep]').val();
+        var taskCode =$('[name=taskCode]').val();
+        var taskname =  $('[name=taskName]').val();
+        var createrName =  $('[name=taskCreater]').val();
+        var startDate =    $('[name=startDate]').val();
+        var startTime =   $('[name=startTime]').val();
+        var endDate =   $('[name=endDate]').val();
+        var endTime =   $('[name=endTime]').val();
+        var searchConds = {
+            userId:userId,
+            projectId:projectId,
+            state:state,
+            processStepId:processStepId,
+            taskCode:taskCode,
+            createrName :createrName,
+            startDate:startDate,
+            startTime :startTime,
+            endDate:endDate,
+            endTime: endTime
+        };
+        sessionStorage.setItem("finAllTaskConds", searchConds);
+    };
+    jQuery(document).ready(function() {
+        $("#btnFindAllTask").click(function () {
+            storeSearch();
+        });
+    });
 </script>
