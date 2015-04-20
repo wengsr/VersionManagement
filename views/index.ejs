@@ -6,45 +6,45 @@
       <link rel = "stylesheet" href = "/stylesheets/smartMenu.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
       <script type="text/javascript">
-          document.addEventListener('plusready', function(){
-              try{
-                  function getPushInfo(){
-                      var info = plus.push.getClientInfo();
-                  }
-                  getPushInfo();
-                  // 监听点击消息事件
-                  message = document.getElementById("message");
-                  alert("welcome to Html5plus!");
-
-                  plus.push.addEventListener( "click", function( msg ) {
-                      // 判断是从本地创建还是离线推送的消息
-                      switch( msg.payload ) {
-                          case "LocalMSG":
-                              alert( "点击本地创建消息启动：" );
-                              break;
-                          default:
-                              alert( "点击离线推送消息启动：");
-                              break;
-                      }
-                      // 提示点击的内容
-                      plus.ui.alert( msg.content );
-                      // 处理其它数据
-                      logoutPushMsg( msg );
-                  }, false );
-                  // 监听在线消息事件
-                  plus.push.addEventListener( "receive", function( msg ) {
-                      if ( msg.aps ) {  // Apple APNS message
-                          alert( "接收到在线APNS消息：" + msg.content);
-                      } else {
-                          alert( "接收到在线透传消息：" + msg.content);
-                      }
-                      logoutPushMsg( msg );
-                  }, false );
-
-              }catch(e){
-                  alert(e);
-              }
-          },false);
+//          document.addEventListener('plusready', function(){
+//              try{
+//                  function getPushInfo(){
+//                      var info = plus.push.getClientInfo();
+//                  }
+//                  getPushInfo();
+//                  // 监听点击消息事件
+//                  message = document.getElementById("message");
+//                  alert("welcome to Html5plus!");
+//
+//                  plus.push.addEventListener( "click", function( msg ) {
+//                      // 判断是从本地创建还是离线推送的消息
+//                      switch( msg.payload ) {
+//                          case "LocalMSG":
+//                              alert( "点击本地创建消息启动：" );
+//                              break;
+//                          default:
+//                              alert( "点击离线推送消息启动：");
+//                              break;
+//                      }
+//                      // 提示点击的内容
+//                      plus.ui.alert( msg.content );
+//                      // 处理其它数据
+//                      logoutPushMsg( msg );
+//                  }, false );
+//                  // 监听在线消息事件
+//                  plus.push.addEventListener( "receive", function( msg ) {
+//                      if ( msg.aps ) {  // Apple APNS message
+//                          alert( "接收到在线APNS消息：" + msg.content);
+//                      } else {
+//                          alert( "接收到在线透传消息：" + msg.content);
+//                      }
+//                      logoutPushMsg( msg );
+//                  }, false );
+//
+//              }catch(e){
+//                  alert(e);
+//              }
+//          },false);
       </script>
   </head>
   <body>

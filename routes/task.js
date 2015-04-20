@@ -871,7 +871,7 @@ router.post('/findAllTask', function (req, res) {
 router.get('/findAllTask/:curPage', function (req, res) {
     getCookieUser(req, res);
     isSearchCondsExits(req,res);
-    console.log(req.session.finAllTaskConds);
+    //console.log(req.session.finAllTaskConds);
     var searchConds = req.session.finAllTaskConds;
     var userId = searchConds.userId;
     var projectId = searchConds.projectId;
@@ -960,7 +960,7 @@ router.get('/findAllTaskForBoss/:curPage', function (req, res) {
     startTime = startDate ? startDate+' '+startTime+":00" : '';
     endTime = endDate? endDate+' '+endTime+":59" : '';
     Task.findAllTaskByParamForBoss(userId,projectId,state,processStepId,taskCode,taskname,createrName,startTime,endTime,startNum,function(msg,tasks,count){
-        console.log(tasks,'dddddd',count);
+        //console.log(tasks,'dddddd',count);
         findProsByUserIdForApplyTaskBtn(userId,req,function(userPros){
             if('success'!=msg){
                 req.session.error = "模糊查询所有变更单时发生错误,请记录并联系管理员";
@@ -1027,7 +1027,7 @@ router.get('/allTaskForBoss/:curPage', function (req, res) {
     //startTime = startDate ? startDate+' '+startTime+":00" : '';
     //endTime = endDate? endDate+' '+endTime+":59" : '';
     Task.findTaskForBoss(userId,projectId,state,processStepId,taskCode,taskname,createrName,startTime,endTime,startNum,function(msg,tasks,count){
-        console.log(tasks,'dddddd',count);
+        //console.log(tasks,'dddddd',count);
         findProsByUserIdForApplyTaskBtn(userId,req,function(userPros){
             if('success'!=msg){
                 req.session.error = "模糊查询所有变更单时发生错误,请记录并联系管理员";

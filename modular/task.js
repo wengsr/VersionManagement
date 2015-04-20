@@ -422,8 +422,30 @@ Task.findCreateTaskByUserId = function(userId,startNum,callback){
             "   ) taskTable4" +
             "   LEFT JOIN user oU2 ON taskTable4.creater = oU2.userId order by taskTable4.taskid limit ?,1)" +
             "   order by taskTable3.taskid limit 30";
+        var sql_0 = "select taskTable3.*  from (SELECT taskTable2.*, oU2.realName as createrName from " +
+            "   (" +
+            "   SELECT taskTable.*, oU.realName as dealerName from" +
+            "   (" +
+            "   SELECT DISTINCT t.*,ps.processStepName as stepName, 1 as taskType from tasks t" +
+            "   JOIN processstepdealer psd ON t.creater = psd.userId" +
+            "   AND psd.projectId = t.projectId" +
+            "   JOIN user u ON psd.userId = u.userId AND u.userId = ?" +
+            "   JOIN processstep ps ON ps.processStepId = t.processStepId" +
+            "   ) taskTable" +
+            "   JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid" +
+            "   AND oTps.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps2 where maxtps2.taskId = taskTable.taskid)" +
+            "   AND oTps.processStepId = taskTable.processStepId" +
+            "   LEFT JOIN user oU ON oTps.dealer = oU.userId" +
+            "   ) taskTable2" +
+            "   LEFT JOIN user oU2 ON taskTable2.creater = oU2.userId)as taskTable3 "+
+            "   order by taskTable3.taskcode limit 30";
         var params = [userId,userId,startNum];
+        var params_0 = [userId];
         var count_params= [userId];
+        if(!startNum){
+            sql=sql_0;
+            params = params_0;
+        }
         connection.query(sql_count,count_params,function(err,count){
             if (err) {
                 console.log('[QUERY COUNT TASKS ERROR] - ', err.message);
@@ -994,7 +1016,7 @@ Task.doCheckPass = function(taskId,callback){
             updateDealer: 'insert into taskprocessstep(taskId,processStepId,turnNum,execTime) values ' +
                 ' (?,6,' +
                 ' (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable),?)'
-        }
+        };
         var selectDealer_params = [taskId, taskId];
         var selectDealer_Unpass_params = [taskId];
         var updateTask_params = [taskId];
@@ -1055,7 +1077,7 @@ Task.doCheckUnPass = function(taskId, userId, noPassReason, callback){
             insertReturnInfo: 'INSERT INTO taskProcessStep (taskId, processStepId, dealer, turnNum,execTime) VALUES ' +
                 '        ( ?,3,' +
                 '          (SELECT CREATER FROM tasks WHERE taskId=?),' +
-                '          (SELECT maxNum+1 from (SELECT MAX(turnNum) as maxNum FROM taskProcessStep WHERE taskId=?) as maxNumTable)' +
+                '          (SELECT maxNum+1 from (SELECT MAX(turnNum) as maxNum FROM taskProcessStep WHERE taskId=?) as maxNumTable),' +
                 '       ? )'
         }
         var selectDealer_params = [taskId, taskId];
