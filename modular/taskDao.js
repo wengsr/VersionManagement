@@ -386,13 +386,15 @@ exports.searchNewAndOld= function(taskId,processStepId,callback){
             "   select max(turnNum) from taskattachment where taskId = ?)",
             searchFiles: "select fileUri,state from filelist where taskId = ?  ORDER BY fileUri ",
             searchProjectUri:"select projectUri from  project where projectId = (" +
-            "   SELECT projectId from tasks where taskId = ?)"
+            "   SELECT projectId from tasks where taskId = ?)",
+            searchTaskCode :"select taskcode from tasks where taskid = ?"
         }
         var searchNewAdnOld_params = [taskId,processStepId,taskId];
         var usearchFiles_params = [taskId],
-            searchProjectUri_params = [taskId];
-        var sqlMember = ['searchNewAdnOld','searchFiles',"searchProjectUri"];
-        var sqlMember_params = [searchNewAdnOld_params, usearchFiles_params,searchProjectUri_params];
+            searchProjectUri_params = [taskId],
+            searchTaskCode_params = [taskId];
+        var sqlMember = ['searchNewAdnOld','searchFiles',"searchProjectUri","searchTaskCode"];
+        var sqlMember_params = [searchNewAdnOld_params, usearchFiles_params,searchProjectUri_params,searchTaskCode_params];
         var i = 0;
        connection.query(sql["searchNewAdnOld"],searchNewAdnOld_params,function(err,result_atta){
            if(err){
@@ -406,13 +408,20 @@ exports.searchNewAndOld= function(taskId,processStepId,callback){
                        return callback("err");
                    }
                    else{
-                       connection.query(sql["searchProjectUri"],searchProjectUri_params,function(err,result) {
+                       connection.query(sql["searchProjectUri"],searchProjectUri_params,function(err,result_uri) {
                            if (err) {
                                console.log("searchProjectUri:", err.message);
                                return callback("err");
                            }
                            else{
-                               return callback("success",result_atta[0].fileUri,result_atta[0].fileName,resut_files,result[0].projectUri);
+                               connection.query(sql["searchTaskCode"],searchTaskCode_params,function(err,result) {
+                                   if (err) {
+                                       console.log("searchTaskCode ERR:", err.message);
+                                       return callback("err");
+                                   }
+                                   else{
+                                       return callback("success",result_atta[0].fileUri,result[0].taskcode,resut_files,result_uri[0].projectUri);
+                                   }});
                            }
                        });
                    }

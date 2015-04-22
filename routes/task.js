@@ -1267,19 +1267,20 @@ router.post('/findAllTaskForBoss', function (req, res) {
 router.post('/submitFile', function(req, res) {
     var taskId = req.body['taskId'];
     var jsonStr;
-    dao.searchNewAndOld(taskId,3,function(msg,newAndOld,attName,filesAndState,projectUri){
+    dao.searchNewAndOld(taskId,3,function(msg,newAndOld,taskCode,filesAndState,projectUri){
             var att = newAndOld;
             var filesFlag =[];
             var modFiles = [];
             var newFiles = [],
                 delFiles = [],
                 modAndDelete = [];
-            var tempFold = "./temp/newAndOld/";
-        var newFold = attName.substr(0,attName.lastIndexOf('.'));
-        var scanFold =tempFold +"/new/";
-        if(fs.existsSync(scanFold)){
-                deleteFolderRecursive(scanFold);
+            var tempFold = "./temp/newAndOld/"+taskCode +'/';
+        var scanFold =tempFold +"new/";
+        console.log(scanFold);
+        if(fs.existsSync(tempFold)){
+                deleteFolderRecursive(tempFold);
             }
+        mkdirsSync(tempFold);
         mkdirsSync(scanFold);
         //console.log("searchNewAndOld:",newAndOld,":",filesAndState,":",projectUri);
         CmdExc.extractRar(newAndOld,tempFold,function(flag){//解压变更单
