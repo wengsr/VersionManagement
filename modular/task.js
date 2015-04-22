@@ -1016,7 +1016,7 @@ Task.doCheckPass = function(taskId,callback){
             updateDealer: 'insert into taskprocessstep(taskId,processStepId,turnNum,execTime) values ' +
                 ' (?,6,' +
                 ' (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable),?)'
-        }
+        };
         var selectDealer_params = [taskId, taskId];
         var selectDealer_Unpass_params = [taskId];
         var updateTask_params = [taskId];
@@ -1077,7 +1077,7 @@ Task.doCheckUnPass = function(taskId, userId, noPassReason, callback){
             insertReturnInfo: 'INSERT INTO taskProcessStep (taskId, processStepId, dealer, turnNum,execTime) VALUES ' +
                 '        ( ?,3,' +
                 '          (SELECT CREATER FROM tasks WHERE taskId=?),' +
-                '          (SELECT maxNum+1 from (SELECT MAX(turnNum) as maxNum FROM taskProcessStep WHERE taskId=?) as maxNumTable)' +
+                '          (SELECT maxNum+1 from (SELECT MAX(turnNum) as maxNum FROM taskProcessStep WHERE taskId=?) as maxNumTable),' +
                 '       ? )'
         }
         var selectDealer_params = [taskId, taskId];

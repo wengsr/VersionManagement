@@ -21,10 +21,13 @@ function getFilesUri(str){
         }
         var tmp;
         //tmp = str[i].match(/[\/a-zA-Z0-9_\/]+[.a-zA-Z0-9_]+/g);
-        tmp = str[i].match(/[\/]?([a-zA-Z0-9_\/])*[a-zA-Z0-9_\-]+([.][a-zA-Z0-9_]+)+/g);
-
+        //tmp = str[i].match(/[\/]?([a-zA-Z0-9_\/])*[a-zA-Z0-9_\-]+([.][a-zA-Z0-9_]+)+/g);
+        var tmp = str[i].match(/[\/]?([a-zA-Z0-9])+([a-zA-Z0-9_\/])*[a-zA-Z0-9_\-]+([.][a-zA-Z0-9_]+)+/g);
         if(  tmp!=null){
             str[i] = tmp.toString();
+            if(str[i][0]!='/'){
+                str[i] ='/'+str[i];
+            }
         }
     }
     if(str[0] == null){
@@ -59,6 +62,7 @@ Date.prototype.format = function(format){
     }
     return format;
 }
+
 var express = require('express');
 var router = express.Router();
 var Task = require('../modular/task');
@@ -80,8 +84,55 @@ var OLD_FOLDER = './old';                       //系统自动提取的文件存
 var NEW_OLD_FOLDER = './attachment/newAndOld';  //开发人员上传的新旧附件
 var SVN_USER = "cmsys";
 var SVN_PWD = "717705";
-
-
+var SCAN_PATH;                                  //【自动上库】时检查新旧文件或文件夹是否相同路径
+/**
+ * 判断svn上存在该文件
+ * @params files 文件名数组
+ *
+ */
+var svnExist =function(files,projectUri,callback){
+   var svn = new Svn(SVN_USER,SVN_PWD);
+    if(files.length==0){
+       return callback(true);
+    }
+    for(var i in files){
+        files[i] = projectUri+files[i];
+    }
+    svn.propget(files,function(msg){
+        if(msg ==="success"){
+            return   callback(true);
+        }
+        else{
+            return callback(false);
+        }
+    });
+};
+/**
+ * 判断svn上存在该文件
+ * @params files 文件名数组
+ *
+ */
+var svnNotExist =function(files,projectUri,callback){
+    var svn = new Svn(SVN_USER,SVN_PWD);
+    if(files.length==0){
+      return   callback(true);
+    }
+    console.log("svnNotExist:",projectUri);
+    for(var i in files ) {
+        var svnUri = projectUri + files[i];
+        svn.propget(svnUri, function (msg) {
+            if (msg === "err") {
+                if(i == (files.length -1)){
+                  return   callback(true);
+                }
+            }
+            else {
+                return callback(false);
+            }
+        });
+    }
+    return false;
+};
 /**
  * 保存附件信息到数据库
  * @param req
@@ -870,7 +921,7 @@ router.post('/findAllTask', function (req, res) {
 router.get('/findAllTask/:curPage', function (req, res) {
     getCookieUser(req, res);
     isSearchCondsExits(req,res);
-    console.log(req.session.finAllTaskConds);
+    //console.log(req.session.finAllTaskConds);
     var searchConds = req.session.finAllTaskConds;
     var userId = searchConds.userId;
     var projectId = searchConds.projectId;
@@ -959,7 +1010,7 @@ router.get('/findAllTaskForBoss/:curPage', function (req, res) {
     startTime = startDate ? startDate+' '+startTime+":00" : '';
     endTime = endDate? endDate+' '+endTime+":59" : '';
     Task.findAllTaskByParamForBoss(userId,projectId,state,processStepId,taskCode,taskname,createrName,startTime,endTime,startNum,function(msg,tasks,count){
-        console.log(tasks,'dddddd',count);
+        //console.log(tasks,'dddddd',count);
         findProsByUserIdForApplyTaskBtn(userId,req,function(userPros){
             if('success'!=msg){
                 req.session.error = "模糊查询所有变更单时发生错误,请记录并联系管理员";
@@ -1026,7 +1077,7 @@ router.get('/allTaskForBoss/:curPage', function (req, res) {
     //startTime = startDate ? startDate+' '+startTime+":00" : '';
     //endTime = endDate? endDate+' '+endTime+":59" : '';
     Task.findTaskForBoss(userId,projectId,state,processStepId,taskCode,taskname,createrName,startTime,endTime,startNum,function(msg,tasks,count){
-        console.log(tasks,'dddddd',count);
+        //console.log(tasks,'dddddd',count);
         findProsByUserIdForApplyTaskBtn(userId,req,function(userPros){
             if('success'!=msg){
                 req.session.error = "模糊查询所有变更单时发生错误,请记录并联系管理员";
@@ -1216,19 +1267,134 @@ router.post('/findAllTaskForBoss', function (req, res) {
 router.post('/submitFile', function(req, res) {
     var taskId = req.body['taskId'];
     var jsonStr;
-    dao.submitFile(taskId, function(msg,result){
-        if('success' == msg){
-            jsonStr = '{"sucFlag":"success","message":"【上传变更单】执行成功"}';
-            var queryObj = url.parse(req.url,true).query;
-            res.send(queryObj.callback+'(\'' + jsonStr + '\')');
-            sendEmailToNext(req,taskId,'',4);
-        }else if('err' == msg){
-            jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
-            var queryObj = url.parse(req.url,true).query;
-            res.send(queryObj.callback+'(\'' + jsonStr + '\')');
-        }
+    dao.searchNewAndOld(taskId,3,function(msg,newAndOld,attName,filesAndState,projectUri){
+            var att = newAndOld;
+            var filesFlag =[];
+            var modFiles = [];
+            var newFiles = [],
+                delFiles = [],
+                modAndDelete = [];
+            var tempFold = "./temp/newAndOld/";
+        var newFold = attName.substr(0,attName.lastIndexOf('.'));
+        var scanFold =tempFold +"/new/";
+        if(fs.existsSync(scanFold)){
+                deleteFolderRecursive(scanFold);
+            }
+        mkdirsSync(scanFold);
+        //console.log("searchNewAndOld:",newAndOld,":",filesAndState,":",projectUri);
+        CmdExc.extractRar(newAndOld,tempFold,function(flag){//解压变更单
+                if(flag ==="false"){
+                    jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
+                    var queryObj = url.parse(req.url, true).query;
+                    res.send(queryObj.callback + '(\'' + jsonStr + '\')');
+                }
+                else{
+                    var allFiles = scanFoldForUri(scanFold,scanFold).fileUris;//获取变更单中的文件名;
+                    if((allFiles.length==0)||(allFiles.length > filesAndState.length) ){//变更单中new文件夹下的文件数是否和数据库中的一致
+                        console.log("变更单中的new文件数量有误，请核对后上传！！");
+                        jsonStr = '{"sucFlag":"err","message":"变更单中的new文件数量有误，请核对后上传"}';
+                        var queryObj = url.parse(req.url, true).query;
+                        res.send(queryObj.callback + '(\'' + jsonStr + '\')');
+                        dao.delNewAndOld(taskId,3,function(msg){
+                            if(msg =="err"){
+                                console.log("delNewAndOld err:");
+                            }
+                        });
+                        return ;
+                    }
+                    for(var k in filesAndState){
+                        if(filesAndState[k].state==2){
+                            delFiles.push(filesAndState[k].fileUri);
+                        }
+                    }
+                    for (var i in allFiles) {
+                        for(var j=0 ; j<filesAndState.length ;j++) {
+                            if(filesAndState[j].fileUri == allFiles[i])
+                            {
+                                if (filesAndState[j].state == 1) {
+                                    newFiles.push(allFiles[i]);//新增文件
+                                }
+                                else if(filesAndState[j].state == 0){
+                                    modAndDelete.push(allFiles[i]);//修改和删除文件
+                                }
+                                break;
+                            }
+                        }
+                        if(j == filesAndState.length){
+                            console.log("附件中的new文件与变更单填写的不一致，请核对后上传！！",";",allFiles[i]);
+                            var message = "文件名不一致，出错文件："+allFiles[i];
+                            jsonStr = '{"sucFlag":"err","message":"'+message+'"}';
+                            var queryObj = url.parse(req.url, true).query;
+                            res.send(queryObj.callback + '(\'' + jsonStr + '\')');
+                            dao.delNewAndOld(taskId,3,function(msg){
+                                if(msg =="err"){
+                                    console.log("delNewAndOld err:");
+                                }
+                            });
+                            return ;
+                        }
+                    }
+                    modAndDelete=modAndDelete.concat(delFiles);
+                    var existFlag=true;
+                    var noExistFlag =true;
+                    svnExist((modAndDelete),projectUri,function(flag){
+                        if(!flag){
+                            dao.delNewAndOld(taskId,3,function(msg){
+                                if(msg =="err"){
+                                    console.log("delNewAndOld err:");
+                                }
+                            });
+                            console.log("svn上不存在要修改或删除的文件！");
+                            jsonStr = '{"sucFlag":"err","message":"上传的附件文件ERR：svn上不存在要修改或删除的文件"}';
+                            var queryObj = url.parse(req.url, true).query;
+                            res.send(queryObj.callback + '(\'' + jsonStr + '\')');
+                            dao.delNewAndOld(taskId,3,function(msg){
+                                if(msg =="err"){
+                                    console.log("delNewAndOld err:");
+                                }
+                            });
+                            return ;
+                        }
+                        if(flag){
+                             svnNotExist(newFiles,projectUri,function(flag){
+                                 if(!flag){
+                                     dao.delNewAndOld(taskId,3,function(msg){
+                                         if(msg =="err"){
+                                             console.log("delNewAndOld err:");
+                                         }
+                                     });
+                                     console.log("svn上已存在增加的文件！");
+                                     jsonStr = '{"sucFlag":"err","message":"上传的附件文件ERR：svn上已存在增加的文件"}';
+                                     var queryObj = url.parse(req.url, true).query;
+                                     res.send(queryObj.callback + '(\'' + jsonStr + '\')');
+                                     dao.delNewAndOld(taskId,3,function(msg){
+                                         if(msg =="err"){
+                                            console.log("delNewAndOld err:");
+                                         }
+                                     });
+                                     return ;
+                                 }
+                                 else{
+                                     dao.submitFile(taskId, function(msg,result) {//
+                                         if ('success' == msg) {
+                                             jsonStr = '{"sucFlag":"success","message":"【上传变更单】执行成功"}';
+                                             var queryObj = url.parse(req.url, true).query;
+                                             res.send(queryObj.callback + '(\'' + jsonStr + '\')');
+                                             sendEmailToNext(req, taskId, '', 4);
+                                         } else if ('err' == msg) {
+                                             jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
+                                             var queryObj = url.parse(req.url, true).query;
+                                             res.send(queryObj.callback + '(\'' + jsonStr + '\')');
+                                         }
+                                     });
+                                 }
+                             });
+                        }
+                    })
+                }
+            });
 
-    });
+        })
 });
 /**
  *t提取旧文件
@@ -1243,7 +1409,6 @@ router.post('/extractFile', function(req, res) {
     var userId = req.session.user.userId;
     var jsonStr;
     var userFlag = false;
-
     modFiles =getFilesUri(modFiles);
     delFiles = getFilesUri(delFiles);
     var oldFiles = modFiles.concat(delFiles);
@@ -1477,6 +1642,126 @@ copyFile = function(sourceDir, destDir, fileName){
     console.log("复制完成");
 }
 
+/**
+ * 获取path目录下的文件列表
+ * @param path
+ * @returns {{files: Array, folders: Array}}
+ */
+function scanFolder(path){
+    var fileList = [],
+        folderList = [],
+        walk = function(path, fileList, folderList){
+            files = fs.readdirSync(path);
+            files.forEach(function(item) {
+                var tmpPath = path + '/' + item,
+                    stats = fs.statSync(tmpPath);
+                var outputPath = tmpPath.substring(SCAN_PATH.length, tmpPath.length);
+                if (stats.isDirectory()) {
+                    walk(tmpPath, fileList, folderList);
+                    folderList.push(outputPath);
+                } else {
+                    fileList.push(outputPath);
+                }
+            });
+        };
+    walk(path, fileList, folderList);
+    return {
+        'files': fileList,
+        'folders': folderList
+    }
+}
+/**
+ * 获取path目录下的不包含rootParentPath文件路径
+ * @param path
+ * @param projectUri 项目路径
+ * @returns {{files: Array, folders: Array}}
+ *
+ */
+function scanFoldForUri(path,rootParentPath){
+    var fileList = [],
+        fileUris = [],
+    walk = function(path, fileList, fileUris){
+        files = fs.readdirSync(path);
+        files.forEach(function(item) {
+            var tmpPath = path + '/' + item,
+                stats = fs.statSync(tmpPath);
+            var outputPath = tmpPath.substring(rootParentPath.length, tmpPath.length);
+            if (stats.isDirectory()) {
+                walk(tmpPath, fileList, fileUris);
+                //fileFris.push(outputPath);
+            } else {
+                fileUris.push(outputPath);
+                fileList.push(outputPath);
+            }
+        });
+    };
+    walk(path, fileList, fileUris);
+    fileUris.sort();
+    //console.log("scanFoldForUri",fileUris);
+    return {
+        'files': fileList,
+        'fileUris': fileUris
+    }
+}
+
+
+/**
+ * 判断【old目录】内的文件夹或文件是否全都都在【new目录】中
+ * @param arr1  系统自动提取的旧目录
+ * @param arr2  开发人员上传的新目录
+ * @returns {Array}
+ */
+function arrDiff(arr1, arr2){
+    var arr3 = [];  //两个目录的差异
+    for(var i=0; i < arr1.length; i++){
+        var flag = true;
+        for(var j=0; j < arr2.length; j++){
+            if(arr1[i] == arr2[j]) {//找到一个相同的就退出循环
+                flag = false;
+                break;
+            }
+        }
+        if(flag) {
+            arr3.push(arr1[i]);
+        }
+    }
+    return arr3;
+}
+
+/**
+ * 对比SVN下载的旧文件和开发人员上传的新文件
+ * @param serverOldPath
+ * @param upNewPath
+ * @returns {{msg: string, diff: Array}}
+ */
+function compFolder(serverOldPath, upNewPath){
+    SCAN_PATH = serverOldPath;
+    var serverOld = scanFolder(serverOldPath);
+    SCAN_PATH = upNewPath;
+    var upNew = scanFolder(upNewPath);
+    //console.log("serverOld——" + serverOld.folders);
+    //console.log("upNew——" + upNew.folders);
+
+    //取得新旧文件夹
+    var oldFolder = serverOld.folders;
+    var newFolder = upNew.folders;
+    //取得新旧文件
+    var oldFile = serverOld.files;
+    var newFile = upNew.files;
+    //获取文件和文件夹的差异
+    var diffFiles = arrDiff(oldFile, newFile);
+    var diffFolder = arrDiff(oldFolder, newFolder);
+
+    if(diffFolder.length>0){
+        //console.log("旧文件夹在new文件夹中不存在，请手动上库！具体文件夹：" + diffFolder);
+        return {"msg":"diffFolder", "diff":diffFolder}
+    }
+    if(diffFiles.length>0){
+        //console.log("旧文件在new文件夹中不存在，请手动上库！具体文件：" + diffFiles);
+        return {"msg":"diffFiles", "diff":diffFiles}
+    }
+    return {"msg":"same"}
+}
 
 /**
  * 在复制目录前需要判断该目录是否存在，不存在需要先创建目录
@@ -1639,6 +1924,7 @@ router.post('/autoUpload', function(req,res) {
     attaFile = attaFile.replace('%2E','.');
     //2.到新旧附件目录下找到前面步骤开发人员上传的变更单文件(如果严谨，这里还要判断变更单号是否为空)
     var oldRar = OLD_FOLDER + '/' + taskCode + '/old.zip';  //系统自动提取的压缩文件
+    var oldSvnDown = OLD_FOLDER + '/' + taskCode + '/oldSvnDown';//该目录下仅存放svn自动提取的文件
     var newOldFile = NEW_OLD_FOLDER + '/' + attaFile;       //开发人员上传的新旧文件的压缩文件
     var localDir = OLD_FOLDER + '/' + taskCode + '/upFolder';
     var svnFolder = OLD_FOLDER + '/' + taskCode;
@@ -1646,46 +1932,56 @@ router.post('/autoUpload', function(req,res) {
     //2.1清空upFolder文件夹，获取SVN信息的.svn文件夹
     deleteFolderRecursive(localDir);                        //删除文件夹
     deleteFolderRecursive(svnFolder+'/extractRarFolder');
+    deleteFolderRecursive(oldSvnDown);
     mkdirsSync(localDir);                                   //创建文件夹
     mkdirsSync(localDir+"/.svn");
     mkdirsSync(svnFolder+"/extractRarFolder");
+    mkdirsSync(oldSvnDown);
     copy(svnFolder+"/.svn", localDir+"/.svn");//拷贝对应的.svn文件夹到upFolder文件夹下
     //updateSvnCode();//调用Svn工具的autoUpload方法上库。(在解压前到SVN上更新使用，暂不用)
     //2.2解压缩文件到[提交变更单]文件夹。
-    CmdExc.extractRar(newOldFile,svnFolder+'/extractRarFolder',function(isSuccess, extraRarErr){
-        if(!isSuccess){//解压过程出错，直接返回出错信息
-            return returnJsonMsg(req, res, "err", "解压出错，请手工上库! 错误信息：" + extraRarErr);
-        }
-        if(!fs.existsSync(svnFolder+'/extractRarFolder/new')){//如果解压出来的new目录不存在,提示用户。
-            return returnJsonMsg(req, res, "err", "解压出来的文件中没有new文件夹或者new文件夹的路径不对，请手工上库!");
-        }
-        //2.3从解压好的文件中提取new文件夹内的内容
-        copy(svnFolder+'/extractRarFolder/new', localDir);
-        //3.到数据库中查找【系统】用户
-        findSys(function(isSuc, sysUser){
-            if('success' != isSuc){
-                return returnJsonMsg(req, res, "err", "查找【系统】用户出错，请手工上库!");
+    CmdExc.extractRar(newOldFile, svnFolder+'/extractRarFolder', function(isSuccess, extraRarErr){
+        CmdExc.extractRar(svnFolder+"/old.zip", svnFolder+'/oldSvnDown', function(oldIsSuccess, extraOldRarErr){
+            //解压svn自动提取的文件到oldSvnDown文件夹(目的是为了让oldSvnDown下仅存在SVN上提取的文件，方便与开发人员上传的new文件夹进行比较)
+            if(!isSuccess || !oldIsSuccess){//解压过程出错，直接返回出错信息
+                return returnJsonMsg(req, res, "err", "解压出错，请手工上库! 错误信息：" + extraRarErr + extraOldRarErr);
             }
-            //4.提交变更单到SVN!
-            svnTool.autoUpload(taskName, localDir, delFileList,function(isSuccess,result){//除了被删除的文件，目录下的所有文件将被提交
-                if('success' != isSuccess){
-                    return returnJsonMsg(req, res, "err", "自动上库过程出现错误，请手动上库后点击【上库完成】");
+            if(!fs.existsSync(svnFolder+'/extractRarFolder/new')){//如果解压出来的new目录不存在,提示用户。
+                return returnJsonMsg(req, res, "err", "解压出来的文件中没有new文件夹或者new文件夹的路径不对，请手工上库!");
+            }
+            //2.3从解压好的文件中提取new文件夹内的内容
+            copy(svnFolder+'/extractRarFolder/new', localDir);
+            //2.4比较新旧文件以及文件夹差异
+            var compResult = compFolder(svnFolder+'/oldSvnDown', svnFolder+'/extractRarFolder/new');
+            if('same' != compResult.msg){
+                return returnJsonMsg(req, res, "err", "旧文件或文件夹在new文件夹中不存在，请手动上库！涉及文件：" + compResult.diff);
+            }
+            //3.到数据库中查找【系统】用户
+            findSys(function(isSuc, sysUser){
+                if('success' != isSuc){
+                    return returnJsonMsg(req, res, "err", "查找【系统】用户出错，请手工上库!");
                 }
-                //5.提交SVN成功，改变当前这条变更单记录的状态为“自动上库成功”
-                autoComp(req, taskId, function(isSuc, errMsg){
-                    if(isSuc!='success'){
-                        return returnJsonMsg(req, res, "err", errMsg);//状态修改为“自动上库成功”时出错
+                //4.提交变更单到SVN!
+                svnTool.autoUpload(taskName, localDir, delFileList,function(isSuccess,result){//除了被删除的文件，目录下的所有文件将被提交
+                    if('success' != isSuccess){
+                        return returnJsonMsg(req, res, "err", "自动上库过程出现错误，请手动上库后点击【上库完成】");
                     }
-                    returnJsonMsg(req, res, "success", "自动上库成功,请上SVN库确认无误后点击【上库完成】");
-                });
+                    //5.提交SVN成功，改变当前这条变更单记录的状态为“自动上库成功”
+                    autoComp(req, taskId, function(isSuc, errMsg){
+                        if(isSuc!='success'){
+                            return returnJsonMsg(req, res, "err", errMsg);//状态修改为“自动上库成功”时出错
+                        }
+                        returnJsonMsg(req, res, "success", "自动上库成功,请上SVN库确认无误后点击【上库完成】");
+                    });
 
-//                //5.提交SVN成功，记录相关信息到数据库中
-//                uploadToDB(req, taskId, sysUser.userId, function(isSucToDB){//记录上库成功信息到数据库中
-//                    if(!isSucToDB){
-//                       return returnJsonMsg(req, res, "err", "代码更新SVN成功。记录数据库过程出错，请联系系统管理员！");
-//                    }
-//                    returnJsonMsg(req, res, "success", "自动上库成功,请上SVN库确认无误后点击【上库完成】");
-//                });
+    //                //5.提交SVN成功，记录相关信息到数据库中
+    //                uploadToDB(req, taskId, sysUser.userId, function(isSucToDB){//记录上库成功信息到数据库中
+    //                    if(!isSucToDB){
+    //                       return returnJsonMsg(req, res, "err", "代码更新SVN成功。记录数据库过程出错，请联系系统管理员！");
+    //                    }
+    //                    returnJsonMsg(req, res, "success", "自动上库成功,请上SVN库确认无误后点击【上库完成】");
+    //                });
+                });
             });
         });
     });

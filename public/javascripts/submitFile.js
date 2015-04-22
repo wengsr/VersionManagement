@@ -32,6 +32,7 @@ function ajaxSubmit(params, url, subType){
                     $('#btnSelectReport').show();
                     //$('#uploadInfo').hide();
                     $('#btnSubmitFile').button('reset');
+                    $('#btnSubmitFile').show();
                 }
             }else if('success'==flag) {
             //    debugger

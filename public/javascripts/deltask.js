@@ -28,7 +28,7 @@ $("[id=btnDelTask]").each (function ()
         ajaxSubmit_delTask(param,url,'post');
     });
 })
-$("#btnDeleteTask").click(function(){
+$("#btnTIDeleteTask").click(function(){
     debugger
     var taskId = $('#taskInfoId').val();
     var url = "task/delTask";
