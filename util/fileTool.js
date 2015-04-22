@@ -62,6 +62,18 @@ exports.extractZip = function (zipFileName, targetDir) {
     zip.extractAllTo(targetDir);
 };
 
+exports.extractZipAsync = function (zipFileName, targetDir,callback){
+    var zip = new AdmZip(zipFileName);
+    zip.extractAllToAsync(targetDir,true, function(err){
+        if(err){
+            callback("err");
+        }
+        else{
+            callback("success");
+        }
+    });
+    //zip.extractAllToAsync(targetDir);
+};
 exports.syncFolder = function (src, dst) {
     var fs = require('fs'), stat = fs.stat;
     fs.readdir(src, function (err, paths) {
@@ -151,9 +163,15 @@ var fileList = [
    //'trunk/service/LimitManager/src/main/resources/com/al/crm/limit/shortcut/dao/IShortcutQueryMapper.xml'
 //'IShortcutQueryBMO.java'
 ];
-//var zipName ="d:/test/变更单9/a.zip";
+//var zipName ="E:/VersionManagement0308/bin/old/测试工程名称_20150323_0260/old.zip";
+//var zipName ="E:/VersionManagement-master.zip";
 //var fs = require('fs');
 //var flag =exports.zipFiles(localDir, fileList, zipName);
 //console.log(flag);
-
-//exports.extractZip(zipName, 'c:/test/变更单9/new/');
+//fs.unlinkSync("./测试工程名称/old/");
+//exports.extractZipAsync(zipName, './测试工程名称/old/',function(msg){
+//    console.log(msg);
+//});
+//exports.extractZipAsync(zipName, 'E:/test/测试工程名称/old/');
+//exports.extractZip(zipName, './测试工程名称/old/'
+//);

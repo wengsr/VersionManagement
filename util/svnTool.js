@@ -14,10 +14,39 @@ var SVN_PWD = "717705";
 var Svn = function (options) {
     this.client = new Client(options);
 };
+//Client.prototype.cat = function(params, callback) {
+//    if (typeof params === 'function') {
+//        callback = params;
+//        params = null;
+//    }
+//    params = Spawn.joinParams('cat', params);
+//
+//    this.cmd(params, callback);
+//};
+//Client.prototype.propget = function(params, callback) {
+//    if (typeof params === 'function') {
+//        callback = params;
+//        params = null;
+//    }
+//    params = Spawn.joinParams('propget svn:author', params);
+//    this.cmd(params, callback);
+//};
+Svn.prototype.propget = function(params,callback) {
+    var curContext = this;
+    this.client.propget(params, function (err, data) {
+        if (err) {
+            console.log("no exist:", data);
+            return callback("err");
+            console.log('propget: err');
+        }
+        console.log('propget:success');
+        callback("success");
+    });
+}
 /**
  * @author wengsr
  * @desc 从版本库获取文件
- * @param localDir 本地文件夹（一般为变更单目录）
+ * @param localDir 本地文件夹（一般为变更单目录）AA
  * @param versionDir 版本库目录
  * @param fileList 文件清单
  * @param callback 回调函数 err data
@@ -144,6 +173,21 @@ Svn.prototype.update = function(localDir, callback) {
     });
 }
 
+Svn.prototype.update = function(localDir, callback) {
+    //1.设置参数
+    var client = new Client({
+        cwd: localDir,
+        username: SVN_USER,
+        password: SVN_PWD
+    });
+    //2.更新文件
+    client.cat(function(err, data) {
+        if(err){
+            return callback('err',err);
+        }
+        return callback('success',data);
+    });
+}
 
 module.exports = Svn;
 /********测试案例*********/
@@ -168,17 +212,19 @@ module.exports = Svn;
 
 
 
-//var test = new Svn({username: 'wengsr', password: 'wengsr62952'});
-//var localDir = "C:/test/uu/";//"c:/test/变更单/repo/a/";
-////var versionDir = 'http://192.168.1.22:8000/svn/hxbss/NCRM/baseLine/Source/trunk';
+var test = new Svn({username: 'wengsr', password: 'wengsr62952'});
+var localDir = "C:/test/uu/";//"c:/test/变更单/repo/a/";
+var versionDir = 'http://192.168.1.22:8000/svn/hxbss/NCRM/baseLine/Source/trunk';
 //var versionDir = 'http://192.168.1.22:8000/svn/hxbss/testVersion/';
 //var fileList = [
-//    //'trunk/local/YN_TRUNK/SaleWeb/src/main/java/com/al/crm/sale/choosechannel/view/chooseChannel.html'
-//    //'trunk/local/YN_TRUNK/SaleWeb/src/main/java/com/al/crm/sale/choosechannel/chooseChannel.html'
-//    'a/b/b1.txt',
-//    'a/b/b2.txt'
-//    ,'a/b/b3.txt',
-//    'a/b/b4.txt'
+//    //'/local/YN_TRUNK/SaleWeb/src/main/java/com/al/crm/sale/choosechannel/view/chooseChannel.html',
+//   "common/CrmResourceManager/src/main/java/com/al/crm/resource/smo/impl/RscServiceQuerySMOImpl.java",
+//    "trunk/common/CrmResourceManager/src/main/java/com/al/crm/resource/smo/IRscServiceQuerySMO.java"
+//    //'trunk/local/al/YN_TRUNK/SaleWeb/src/main/java/com/al/crm/sale/choosechannel/chooseChannel.html'
+//    //'a/b/b1.txt',
+//    //'a/b/b2.txt'
+//    //,'a/b/b3.txt',
+//    //'a/b/b4.txt'
 //];
 //test.checkout(localDir, versionDir, fileList, function (err, flag, data,fileList) {
 //    if (!!err) {
@@ -211,7 +257,6 @@ module.exports = Svn;
 //        console.log("提交件成功" + data);
 //    }
 //});
-
 
 
 
@@ -270,4 +315,11 @@ var client = new Client({
 //            console.log('提交SVN成功');
 //        });
 //    }
+//});
+//var propfileList = [
+//    //"http://192.168.1.22:8000/svn/hxbss/NCRM/baseLine/Source/trunk/common/CrmResourceManager/src/main/java/com/al/crm/resource/smo/impl/Rs1cServiceQuerySMOImpl.java",
+//    "http://192.168.1.22:8000/svn/hxbss/NCRM/baseLine/Source/trunk/common/CrmResourceManager/src/main/java/com/al/crm/resource/smo/IRscServiceQuerySMO.java"
+//];
+//test.propget(propfileList,function(msg){
+//    console.log(msg);
 //});

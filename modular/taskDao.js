@@ -20,9 +20,13 @@ function getFilesUri(str){
         }
         var tmp;
         //tmp = str[i].match(/[\/a-zA-Z0-9_\/]+[.a-zA-Z0-9_]+/g);
-        tmp = str[i].match(/[\/]?([a-zA-Z0-9_\/])*[a-zA-Z0-9_\-]+([.][a-zA-Z0-9_]+)+/g);
+        //tmp = str[i].match(/[\/]?([a-zA-Z0-9_\/])*[a-zA-Z0-9_\-]+([.][a-zA-Z0-9_]+)+/g);
+        var tmp = str[i].match(/[\/]?([a-zA-Z0-9])+([a-zA-Z0-9_\/])*[a-zA-Z0-9_\-]+([.][a-zA-Z0-9_]+)+/g);
         if(  tmp!=null){
             str[i] = tmp.toString();
+            if(str[i][0]!='/'){
+                str[i] ='/'+str[i];
+            }
         }
     }
     if(str[0] == null){
@@ -373,8 +377,53 @@ exports.addTask = function (taskInfo,callback) {
        connection.release();
     });
 };
-
-/**提交新旧文件
+//查找变更单附近以及该变更的所以改动的文件名
+exports.searchNewAndOld= function(taskId,processStepId,callback){
+    pool.getConnection(function (err, connection) {
+        //开启事务
+        var sql= {
+            searchNewAdnOld:"select fileUri,fileName from taskattachment where taskId = ? and processStepId = ? and turnNum = (" +
+            "   select max(turnNum) from taskattachment where taskId = ?)",
+            searchFiles: "select fileUri,state from filelist where taskId = ?  ORDER BY fileUri ",
+            searchProjectUri:"select projectUri from  project where projectId = (" +
+            "   SELECT projectId from tasks where taskId = ?)"
+        }
+        var searchNewAdnOld_params = [taskId,processStepId,taskId];
+        var usearchFiles_params = [taskId],
+            searchProjectUri_params = [taskId];
+        var sqlMember = ['searchNewAdnOld','searchFiles',"searchProjectUri"];
+        var sqlMember_params = [searchNewAdnOld_params, usearchFiles_params,searchProjectUri_params];
+        var i = 0;
+       connection.query(sql["searchNewAdnOld"],searchNewAdnOld_params,function(err,result_atta){
+           if(err){
+               console.log("searchNewAdnOld:", err.message);
+               return callback("err");
+           }
+           else{
+               connection.query(sql["searchFiles"],usearchFiles_params,function(err,resut_files) {
+                   if (err) {
+                       console.log("searchFiles:", err.message);
+                       return callback("err");
+                   }
+                   else{
+                       connection.query(sql["searchProjectUri"],searchProjectUri_params,function(err,result) {
+                           if (err) {
+                               console.log("searchProjectUri:", err.message);
+                               return callback("err");
+                           }
+                           else{
+                               return callback("success",result_atta[0].fileUri,result_atta[0].fileName,resut_files,result[0].projectUri);
+                           }
+                       });
+                   }
+               });
+           }
+       });
+        //callback('success');
+        connection.release();
+    });
+};
+ /**提交新旧文件
  *
  *
  */
@@ -621,5 +670,21 @@ exports.delTask = function(taskId,callback) {
         });
         trans.execute();//提交事务
         connection.release();
+    });
+};
+exports.delNewAndOld= function(taskId,processsStep,callback){
+    pool.getConnection(function (err, connection){
+        var sql = "delete from taskattachment  where taskId =? and processStepId = ? and turnNum =" +
+            "   ( select max(turnNum) maxTurn from  " +
+            "   ( select  t1.* from taskattachment t1 where t1.taskId = ?) att)";
+        var param = [taskId,processsStep,taskId];
+        connection.query(sql, param,function (err, result){
+            if (err) {
+                console.log("delNewAndOld ERR;", err.message);
+                return  callback("err");
+            }
+            connection.release();
+            callback("success", result);
+        });
     });
 };
