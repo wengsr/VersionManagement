@@ -62,6 +62,7 @@ function regTaskLink(){
             case 6 : url = '/taskDialog/submit'; stepName = 'btnSubmit'; break;
         }
         var stepId = "[step=taskProcessStepId_" + i + "]";
+        var stepId2 = "[step=2taskProcessStepId_" + i + "]";
         $(stepId).each(function(){
             $(this).attr('step',stepName);
             var taskTagId = $(this).attr('id');
@@ -72,6 +73,20 @@ function regTaskLink(){
             var realUrl = url + "/" + taskId + "/" + taskCreater + "/" + dealerName + "/" + createName;
             btnForm = stepName.replace('btn','form');
             showModelDialog(taskTagId, realUrl, btnForm);
+            //showModelDialog(taskTagId2, realUrl, btnForm);
+        });
+        $(stepId2).each(function(){
+            $(this).attr('step',stepName);
+            //var taskTagId = $(this).attr('id');
+            var taskTagId2 = $(this).attr('id2');
+            var taskId = $(this).attr('taskid');
+            var taskCreater = $(this).attr('taskcreater');
+            var dealerName = $(this).attr('dealerName');
+            var createName = $(this).attr('createName');
+            var realUrl = url + "/" + taskId + "/" + taskCreater + "/" + dealerName + "/" + createName;
+            btnForm = stepName.replace('btn','form');
+            //showModelDialog(taskTagId, realUrl, btnForm);
+            showModelDialog(taskTagId2, realUrl, btnForm);
         });
     }
 }

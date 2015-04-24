@@ -697,3 +697,20 @@ exports.delNewAndOld= function(taskId,processsStep,callback){
         });
     });
 };
+
+/**
+ * 获取svn账号
+ */
+exports.getSvnUser = function(callback){
+    pool.getConnection(function (err, connection){
+        var sql = "select username,password from svn ";
+        connection.query(sql, [],function (err, result){
+            if (err) {
+                console.log("getSvnUser ERR;", err.message);
+                return  callback("err");
+            }
+            connection.release();
+            callback("success", result[0]);
+        });
+    });
+}

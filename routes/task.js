@@ -753,7 +753,12 @@ router.get('/findAllTasksForBossPage', function(req, res) {
 
 });
 
-
+router.get('/findTask', function (req, res) {
+    res.redirect("/");
+});
+router.get('/findAllTask', function (req, res) {
+    res.redirect("/");
+});
 /**
  * 查找变更单业务逻辑
  */
@@ -1292,8 +1297,8 @@ router.post('/submitFile', function(req, res) {
                 else{
                     var allFiles = scanFoldForUri(scanFold,scanFold).fileUris;//获取变更单中的文件名;
                     if((allFiles.length==0)||(allFiles.length > filesAndState.length) ){//变更单中new文件夹下的文件数是否和数据库中的一致
-                        console.log("变更单中的new文件数量有误，请核对后上传！！");
-                        jsonStr = '{"sucFlag":"err","message":"变更单中的new文件数量有误，请核对后上传"}';
+                        console.log("变更单压缩包里需要直接放new目录，并且new与old的差异必须与申请文件清单一致，请核对后上传！！");
+                        jsonStr = '{"sucFlag":"err","message":"变更单压缩包里需要直接放new目录，并且new与old的差异必须与申请文件清单一致"}';
                         var queryObj = url.parse(req.url, true).query;
                         res.send(queryObj.callback + '(\'' + jsonStr + '\')');
                         dao.delNewAndOld(taskId,3,function(msg){
@@ -1322,7 +1327,7 @@ router.post('/submitFile', function(req, res) {
                             }
                         }
                         if(j == filesAndState.length){
-                            console.log("附件中的new文件与变更单填写的不一致，请核对后上传！！",";",allFiles[i]);
+                            console.log("附件中的new文件夹下的文件与申请文件清单的不一致",";",allFiles[i]);
                             var message = "文件名不一致，出错文件："+allFiles[i];
                             jsonStr = '{"sucFlag":"err","message":"'+message+'"}';
                             var queryObj = url.parse(req.url, true).query;
@@ -1417,13 +1422,12 @@ router.post('/extractFile', function(req, res) {
     dao.searchProject({projectId: taskProject}, function (msg, result) {
         var queryObj = url.parse(req.url, true).query;
         if (msg == "success") {
-            if(result ==''){
-                message = " 该项目还未定义 projectUri ";
+            if(result ==''||result=== undefined){
+                message = " 该项目( "+rojectId +") 为:"+ projectUri ;
                 console.log(message);
-                return ;
+                return returnJsonMsg(req, res, "err", "查找项目路径出错，请重试!");
             }
             projectUri = result.projectUri;
-
             if (oldFiles.length == 0) {
                message = "【提取旧文件】没有文件需要提取";
                 dao.extractFile(taskId,userId,3,undefined,undefined,function (msg, result) {
@@ -1463,73 +1467,80 @@ router.post('/extractFile', function(req, res) {
                         else {
                             //没有文件被占用 ，提取旧文件
                             //Task
-                            var testTask = new Svn({username: 'cmsys', password: '717705'});
+                            var svn;//svn 对象
                             var  proceess = require('child_process');
                             var localDir = process.cwd() + '/old/'+taskCode+'/';
                             while(localDir.indexOf('\\')!=-1) {
                                 localDir = localDir.replace('\\', '/');
                             }
-
                             if (!fs.existsSync(localDir)) {
                                 fs.mkdir(localDir);
                             }
-                            //var localDir = "c:/test/变更单1/old/";
-                            //var versionDir = 'http://192.168.1.22:8000/svn/hxbss/testVersion/';
                             var versionDir = projectUri;
                             var fileList = oldFiles;
-                            /*提取文件*/
-                           var checkFlag = testTask.checkout(localDir, versionDir, fileList, function (err, flag, data,file) {
-                                if (err) {//checkout 失败
-                                    if(flag) {//svn 连接错误
-                                        jsonStr = '{"sucFlag":"err","message":"【提取文件】执行失败，svn连接失败！！"}'
-                                        console.log("ExtractFile Faild1：" + err);
-                                        var queryObj = url.parse(req.url, true).query;
-                                        res.send(queryObj.callback + '(\'' + jsonStr + '\')');
-                                    }
-                                    else{//文件路径错误
-                                        jsonStr = '{"sucFlag":"err","message":"【提取文件】执行失败，检查文件路径是否正确？","file":"'+file+'"}'
-                                        console.log("ExtractFile Faild2：" + err);
-                                        var queryObj = url.parse(req.url, true).query;
-                                        res.send(queryObj.callback + '(\'' + jsonStr + '\')');
-                                    }
-                                } else {
-                                    //文件提取成功
-                                    console.log("ExtractFile success" + data);
-                                    //更新数据库
-                                    //var zipName = fileRename(userId +taskId+"extra");
-                                    var zipName = "old.zip";
-                                    var zipUri = localDir + zipName;
-                                    var zipFilesFlag =false ;
-                                    zipFilesFlag = fileZip.zipFiles(localDir,fileList,zipUri);
-                                    var zipUriSaved = "./old/"+taskCode+"/" +zipName;
+                            //获取svn账号
+                            dao.getSvnUser(function(msg,result_svn){
+                                if(msg === "err"){
+                                    console.log("ExtractFile Faild1：" + err);
+                                    jsonStr = '{"sucFlag":"err","message":"【svn账号错误】请联系管理员！！"}'
                                     var queryObj = url.parse(req.url, true).query;
-                                    if(!zipFilesFlag[0]){
-                                        jsonStr = '{"sucFlag":"err","message":"【提取文件】执行失败,请检查文件路径是否正确！！！","file":"'+zipFilesFlag[1]+'"}';
-                                        res.send(queryObj.callback + '(\'' + jsonStr + '\')');
-                                    }
-                                    else {
-                                    //压缩文件成功
-                                        //console.log("zipFile success!");
-                                        dao.extractFile(taskId,userId, 2, zipName, zipUriSaved, function (msg, result) {
-                                            if ('success' == msg) {
-                                                var attaFlag = true;
-                                                jsonStr = '{"sucFlag":"success","message":"【提取文件】执行成功","attaFlag":"'+attaFlag+'","attaName":"'+zipName+'","attaUri":"'+zipUriSaved+'"}';
+                                    res.send(queryObj.callback + '(\'' + jsonStr + '\')');
+                                }
+                                else if(msg = "success"){
+                                    var option = result_svn;
+                                    console.log("svn  options;",option);
+                                    svn = new Svn(option);
+                                    /*提取文件*/
+                                    var checkFlag = svn.checkout(localDir, versionDir, fileList, function (err, flag, data,file) {
+                                        if (err) {//checkout 失败
+                                            if(flag) {//svn 连接错误
+                                                console.log("ExtractFile Faild1：" + err);
+                                                jsonStr = '{"sucFlag":"err","message":"【提取文件】执行失败，svn连接失败！！"}'
                                                 var queryObj = url.parse(req.url, true).query;
                                                 res.send(queryObj.callback + '(\'' + jsonStr + '\')');
                                             }
-                                            else {//提取文件更新数据库失败
-                                            jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
-                                            //fileUpReturnInfo(res, "false", "旧文件提取成功", '', '');
-                                            var queryObj = url.parse(req.url, true).query;
-                                            res.send(queryObj.callback + '(\'' + jsonStr + '\')');
+                                            else{//文件路径错误
+                                                console.log("ExtractFile Faild2：" + err);
+                                                jsonStr = '{"sucFlag":"err","message":"【提取文件】执行失败，检查文件路径是否正确？","file":"'+file+'"}'
+                                                var queryObj = url.parse(req.url, true).query;
+                                                res.send(queryObj.callback + '(\'' + jsonStr + '\')');
                                             }
-                                        //fileUpReturnInfo(res, "true", "旧文件提取成功", zipName, zipUri);
-                                        //var queryObj = url.parse(req.url, true).query;
-                                        //res.send(queryObj.callback + '(\'' + jsonStr + '\')');
-                                        });
-                                }
+                                        } else {
+                                            //文件提取成功
+                                            console.log("ExtractFile success" + data);
+                                            //更新数据库
+                                            var zipName = "old.zip";
+                                            var zipUri = localDir + zipName;
+                                            var zipFilesFlag =false ;
+                                            zipFilesFlag = fileZip.zipFiles(localDir,fileList,zipUri);
+                                            var zipUriSaved = "./old/"+taskCode+"/" +zipName;
+                                            var queryObj = url.parse(req.url, true).query;
+                                            if(!zipFilesFlag[0]){
+                                                jsonStr = '{"sucFlag":"err","message":"【提取文件】执行失败,请检查文件路径是否正确！！！","file":"'+zipFilesFlag[1]+'"}';
+                                                res.send(queryObj.callback + '(\'' + jsonStr + '\')');
+                                            }
+                                            else {
+                                                //压缩文件成功
+                                                //console.log("zipFile success!");
+                                                dao.extractFile(taskId,userId, 2, zipName, zipUriSaved, function (msg, result) {
+                                                    if ('success' == msg) {
+                                                        var attaFlag = true;
+                                                        jsonStr = '{"sucFlag":"success","message":"【提取文件】执行成功","attaFlag":"'+attaFlag+'","attaName":"'+zipName+'","attaUri":"'+zipUriSaved+'"}';
+                                                        var queryObj = url.parse(req.url, true).query;
+                                                        res.send(queryObj.callback + '(\'' + jsonStr + '\')');
+                                                    }
+                                                    else {//提取文件更新数据库失败
+                                                        jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
+                                                        var queryObj = url.parse(req.url, true).query;
+                                                        res.send(queryObj.callback + '(\'' + jsonStr + '\')');
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    });
                                 }
                             });
+
                         }
                     }
                 });
@@ -1929,7 +1940,7 @@ router.post('/autoUpload', function(req,res) {
     var newOldFile = NEW_OLD_FOLDER + '/' + attaFile;       //开发人员上传的新旧文件的压缩文件
     var localDir = OLD_FOLDER + '/' + taskCode + '/upFolder';
     var svnFolder = OLD_FOLDER + '/' + taskCode;
-    var svnTool = new Svn({username: SVN_USER, password: SVN_PWD});
+    //var svnTool = new Svn({username: SVN_USER, password: SVN_PWD});
     //2.1清空upFolder文件夹，获取SVN信息的.svn文件夹
     deleteFolderRecursive(localDir);                        //删除文件夹
     deleteFolderRecursive(svnFolder+'/extractRarFolder');
@@ -1957,32 +1968,44 @@ router.post('/autoUpload', function(req,res) {
             if('same' != compResult.msg){
                 return returnJsonMsg(req, res, "err", "旧文件或文件夹在new文件夹中不存在，请手动上库！涉及文件：" + compResult.diff);
             }
-            //3.到数据库中查找【系统】用户
-            findSys(function(isSuc, sysUser){
-                if('success' != isSuc){
-                    return returnJsonMsg(req, res, "err", "查找【系统】用户出错，请手工上库!");
+            //到数据库查找svn 账号
+            dao.getSvnUser(function(msg,result_svn) {
+                if (msg === "err") {
+                    console.log("【svn账号查找出错】",err.message);
+                    returnJsonMsg(req, res, "err", "【svn账号错误】请联系管理员！！");
                 }
-                //4.提交变更单到SVN!
-                svnTool.autoUpload(taskName, localDir, delFileList,function(isSuccess,result){//除了被删除的文件，目录下的所有文件将被提交
-                    if('success' != isSuccess){
-                        return returnJsonMsg(req, res, "err", "自动上库过程出现错误，请手动上库后点击【上库完成】");
-                    }
-                    //5.提交SVN成功，改变当前这条变更单记录的状态为“自动上库成功”
-                    autoComp(req, taskId, function(isSuc, errMsg){
-                        if(isSuc!='success'){
-                            return returnJsonMsg(req, res, "err", errMsg);//状态修改为“自动上库成功”时出错
+                else if (msg = "success") {
+                    var option = result_svn;
+                    console.log("svn  options;", option);
+                    svn = new Svn(option);
+                    //3.到数据库中查找【系统】用户
+                    findSys(function(isSuc, sysUser){
+                        if('success' != isSuc){
+                            return returnJsonMsg(req, res, "err", "查找【系统】用户出错，请手工上库!");
                         }
-                        returnJsonMsg(req, res, "success", "自动上库成功,请上SVN库确认无误后点击【上库完成】");
-                    });
+                        //4.提交变更单到SVN!
+                        svn.autoUpload(taskName, localDir, delFileList,function(isSuccess,result){//除了被删除的文件，目录下的所有文件将被提交
+                            if('success' != isSuccess){
+                                return returnJsonMsg(req, res, "err", "自动上库过程出现错误，请手动上库后点击【上库完成】");
+                            }
+                            //5.提交SVN成功，改变当前这条变更单记录的状态为“自动上库成功”
+                            autoComp(req, taskId, function(isSuc, errMsg){
+                                if(isSuc!='success'){
+                                    return returnJsonMsg(req, res, "err", errMsg);//状态修改为“自动上库成功”时出错
+                                }
+                                returnJsonMsg(req, res, "success", "自动上库成功,请上SVN库确认无误后点击【上库完成】");
+                            });
 
-    //                //5.提交SVN成功，记录相关信息到数据库中
-    //                uploadToDB(req, taskId, sysUser.userId, function(isSucToDB){//记录上库成功信息到数据库中
-    //                    if(!isSucToDB){
-    //                       return returnJsonMsg(req, res, "err", "代码更新SVN成功。记录数据库过程出错，请联系系统管理员！");
-    //                    }
-    //                    returnJsonMsg(req, res, "success", "自动上库成功,请上SVN库确认无误后点击【上库完成】");
-    //                });
-                });
+                            //                //5.提交SVN成功，记录相关信息到数据库中
+                            //                uploadToDB(req, taskId, sysUser.userId, function(isSucToDB){//记录上库成功信息到数据库中
+                            //                    if(!isSucToDB){
+                            //                       return returnJsonMsg(req, res, "err", "代码更新SVN成功。记录数据库过程出错，请联系系统管理员！");
+                            //                    }
+                            //                    returnJsonMsg(req, res, "success", "自动上库成功,请上SVN库确认无误后点击【上库完成】");
+                            //                });
+                        });
+                    });
+                }
             });
         });
     });
