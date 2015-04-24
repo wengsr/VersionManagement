@@ -58,7 +58,7 @@
         <!--<% if(taskCount){%>-->
         <!--<div class="panel-footer">共<%=taskCount%>条</div>-->
         <!--<% } %>-->
-        <div id="recCount" class="panel-footer" recCount="<%=recCount%>">共<%=recCount%>条</div>
+        <div id="recCount" class="panel-footer" recCount="<%=recCount%>">共<%=recCount< 30?recCount:30%>条</div>
         <div style="float:right">
             <nav  >
                 <%
