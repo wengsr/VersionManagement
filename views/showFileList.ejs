@@ -1,0 +1,63 @@
+<form action="/task/addTask" id="formAddTask" class=" bs-component form-horizontal" method='post'>
+    <input type="hidden" id="taskId" name="taskId" value=""/>
+    <input type="hidden" id="taskProject" name="taskProject" value=""/>
+    <input type="hidden" id="taskCode" name="taskCode" value=""/>
+    <span type="hidden" id="taskCode"></span>
+    <div class="modal-header" style = "background-color:#009cda">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="myLargeModalLabel" style ="color:white">变更文件清单</h4>
+    </div>
+    <div  class="modal-body">
+        <div class="container-fluid">
+            <div style ="height:20px"></div>
+            <% if(modFiles!=null){%>
+            <div class="form-group">
+                <div class="row">
+                     <div class="col-lg-offset-1 col-lg-2" style ="color:#009cda;">修改文件</div>
+                     <div class="col-lg-8"style="word-wrap: break-word;word-break:break-all;border-left: solid #009cda 1px;"><%-modFiles%></div>
+                </div>
+                </div>
+            <div class ="row">
+                <hr class="col-lg-offset-1 col-lg-10"/>
+            </div>
+            <%}%>
+            <% if(newFiles!=null){%>
+            <div class="form-group">
+            <div class="row">
+                <div class="col-lg-offset-1 col-lg-2" style = "color:#44b549;">新增文件</div>
+                <div class="col-lg-8" style="word-wrap: break-word;word-break:break-all;  border-left: solid #44b549 1px;"><%-newFiles%></div>
+            </div>
+              </div>
+            <div class ="row">
+                <hr class="col-lg-offset-1 col-lg-10"/>
+            </div>
+            <%}%>
+            <% if(delFiles!=null){%>
+            <div class="form-group">
+            <div class="row">
+                <div class="col-lg-offset-1 col-lg-2" style ="color:red;">删除文件</div>
+                <div class="col-lg-8" style="word-wrap: break-word;word-break:break-all; border-left: solid red 1px"><%-delFiles%></div>
+            </div>
+                </div>
+            <div class ="row">
+            <hr class="col-lg-offset-1 col-lg-10"/>
+            </div>
+            <%}%>
+        </div>
+
+            <div class="row" style="margin-top:15px;" >
+            <div class ="col-lg-offset-10 col-lg-2 "style ="color:#646464;" >共涉及<span style ="color:blue"> <%= fileCount%> </span>个文件</div>
+            </div>
+        </div >
+
+    <div id="divErrDialog" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" id="errModal"></div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button"  id ="closeModel" class="btn btn-default" data-dismiss="modal">关闭</button>
+        <button id="btn" type="button" class="btn btn-primary" data-dismiss="modal"> 确定</button>
+    </div>
+</form>
+<script src="/javascripts/common.js"></script>
