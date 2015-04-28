@@ -75,20 +75,55 @@ function regTaskLink(){
             showModelDialog(taskTagId, realUrl, btnForm);
             //showModelDialog(taskTagId2, realUrl, btnForm);
         });
-        $(stepId2).each(function(){
-            $(this).attr('step',stepName);
-            //var taskTagId = $(this).attr('id');
-            var taskTagId2 = $(this).attr('id2');
-            var taskId = $(this).attr('taskid');
-            var taskCreater = $(this).attr('taskcreater');
-            var dealerName = $(this).attr('dealerName');
-            var createName = $(this).attr('createName');
-            var realUrl = url + "/" + taskId + "/" + taskCreater + "/" + dealerName + "/" + createName;
-            btnForm = stepName.replace('btn','form');
-            //showModelDialog(taskTagId, realUrl, btnForm);
-            showModelDialog(taskTagId2, realUrl, btnForm);
-        });
+        //$(stepId2).each(function(){
+        //    $(this).attr('step',stepName);
+        //    //var taskTagId = $(this).attr('id');
+        //    //var taskTagId2 = $(this).attr('id2');
+        //    var taskTagId2 ;
+        //    var taskId = $(this).attr('taskid');
+        //    var taskCreater = $(this).attr('taskcreater');
+        //    var dealerName = $(this).attr('dealerName');
+        //    var createName = $(this).attr('createName');
+        //    var realUrl = url + "/" + taskId + "/" + taskCreater + "/" + dealerName + "/" + createName;
+        //    btnForm = stepName.replace('btn','form');
+        //    //showModelDialog(taskTagId, realUrl, btnForm);
+        //    showModelDialog(taskTagId2, realUrl, btnForm);
+        //});
     }
+}
+/**
+ * 注册点击变更单后根据当前所处环节弹出的对话框
+ */
+function regTaskFileList() {
+    var stepId = "[step=taskProcessStepId_7]";
+    var stepId2 = "[step=2taskProcessStepId_7]";
+    var url = '/users/showFileList',
+        stepName = 'btnSubmit';
+    $(stepId).each(function(){
+        $(this).attr('step',stepName);
+        var taskTagId = $(this).attr('id');
+        var taskId = $(this).attr('taskid');
+        var taskCreater = $(this).attr('taskcreater');
+        var dealerName = $(this).attr('dealerName');
+        var createName = $(this).attr('createName');
+        var realUrl = url + "/" + taskId + "/"+ createName;
+        btnForm = stepName.replace('btn','form');
+        showModelDialog(taskTagId, realUrl, btnForm);
+        //showModelDialog(taskTagId2, realUrl, btnForm);
+    });
+    //$(stepId2).each(function(){
+    //    $(this).attr('step',stepName);
+    //    var taskTagId = $(this).attr('id');
+    //    //var taskTagId2 = $(this).attr('id2');
+    //    var taskId = $(this).attr('taskid');
+    //    //var taskCreater = $(this).attr('taskcreater');
+    //    //var dealerName = $(this).attr('dealerName');
+    //    var createName = $(this).attr('createName');
+    //    var realUrl = url + "/" + taskId + "/"+ createName;
+    //    btnForm = stepName.replace('btn','form');
+    //    showModelDialog(taskTagId, realUrl, btnForm);
+    //    //showModelDialog(taskTagId2, realUrl, btnForm);
+    //});
 }
 
 /**
@@ -121,6 +156,7 @@ jQuery(document).ready(function() {
     showModelDialog("btnFindAllTasksForBoss","/task/findAllTasksForBossPage",'formAllTasksForBoss');
 
     regTaskLink();
+    regTaskFileList();
     //隐藏页面上方提示条
     setTimeout(function(){$('#errTip').slideUp(1000);setTimeout(function(){$('#errTip').remove()},2000)},2000);
     setTimeout(function(){$('#successTip').slideUp(1000);setTimeout(function(){$('#successTip').remove()},2000)},1000);

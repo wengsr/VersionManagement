@@ -714,3 +714,19 @@ exports.getSvnUser = function(callback){
         });
     });
 }
+/**
+ * 获取变更文件清单
+ */
+exports.getFileList = function(taskId, callback){
+    pool.getConnection(function (err, connection){
+        var sql = "select fileUri,state from fileList where taskId = ? order By state,fileUri ";
+        connection.query(sql, [taskId],function (err, result){
+            if (err) {
+                console.log("getSvnUser ERR;", err.message);
+                return  callback("err");
+            }
+            connection.release();
+            callback("success", result);
+        });
+    });
+}

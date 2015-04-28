@@ -122,6 +122,7 @@ Svn.prototype.autoUpload = function(taskName, localDir, delFileList, callback) {
     //    password: SVN_PWD
     //});
     this.client.option('cwd', localDir);
+    var client   = this.client;
     //2.删除
     if((delFileList.length>0) && (delFileList[0]!='')) {
         client.del(delFileList, function (err, data) {

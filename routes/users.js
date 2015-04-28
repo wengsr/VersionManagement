@@ -8,6 +8,7 @@ var User = require('../modular/user');
 var Menu = require('../modular/menu');
 var Task = require('../modular/task');
 var url = require('url');
+var dao = require("../modular/taskDao");
 
 /**
  * 查找当前用户所能显示的菜单
@@ -129,8 +130,21 @@ var saveCookieAndSession = function(req,res,user){
     var minute = 1000*60*60;   //maxAge的单位为毫秒,这里设置为60分钟
     res.cookie('user', user, {maxAge: minute}, {httpOnly: true});//设置到cookie中
 }
-
-
+/**
+ *将文件数组转换成输出的字符串
+ * @param files
+ */
+var getDivString  = function(files){
+    var filesString  = '';
+    if(!files.length){
+        return null;
+    }
+    for(var i in files){
+        //filesString =filesString + files[i] + '<br/>';
+        filesString =filesString + "<li>"+files[i] + '</li>';
+    }
+    return  "<ol>"+filesString+"</ol>";
+}
 /**
  * 根据获取到的user信息去登录
  * @param user
@@ -465,6 +479,7 @@ router.post('/modifyPwd', function(req, res) {
         req.session.error = "密码位数要求6-8位";
         return res.redirect("/users/modifyUser");
     }
+
     if (password != password_re) {
         req.session.error = "两次输入的密码不一致";
         return res.redirect("/users/modifyUser");
@@ -528,5 +543,34 @@ router.post('/modifyUserInfo', function(req, res) {
     });
 });
 
+/**
+ * 打开"文件变更信息"的页面（步骤4）
+ */
+router.get('/showFileList/:taskId/:createName', function(req, res) {
+    var taskId = req.params.taskId ;
+     dao.getFileList(taskId,function(msg,result) {
+         if(msg ==="success"){
+             var modFiles = [],
+                 newFiles = [],
+                 delFiles = [];
+             for(var i in result){
+                 if(result[i].state == 0){
+                     modFiles.push(result[i].fileUri);
+                 }
+                 else if(result[i].state == 1){
+                     newFiles.push(result[i].fileUri);
+                 }
+                 else if(result[i].state == 2){
+                     delFiles.push(result[i].fileUri);
+                 }
+             };
+             var modFilesDiv = getDivString(modFiles);
+             var newFilesDiv =getDivString(newFiles);
+             var delFilesDiv = getDivString(delFiles);
+             res.render("showFileList",{fileCount: result.length,modFiles:modFilesDiv,newFiles:newFilesDiv,delFiles:delFilesDiv})
+         }
+
+     });
+});
 
 module.exports = router;

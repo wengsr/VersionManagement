@@ -16,18 +16,24 @@ var winRarSoft = "C:/Program Files/WinRAR/WinRAR.exe";//winRar软件的路径；
  */
 exports.extractRar = function(rarSouce, destFolder, callback){
     //检测要解压到的目录是否存在
-    fs.exists(destFolder, function(exists){
-        if(!exists) return callback(false, '“解压到”的目录不存在');
-        //'"C:/Program Files/WinRAR/WinRAR.exe" e -y C:/test/uu/b.rar C:/test/UIUIUI';
-        var cmdStr = '"' + winRarSoft + '" x -y ' + rarSouce + ' ' + destFolder;
-        exec(cmdStr, function(err,data){
-            if(err) {
-                console.log('error:'+err);
-                callback(false, err);
-            } else {
-                console.log(data);
-                callback(true,null);
-            }
+    fs.exists(rarSouce, function(exists){
+        if(!exists){
+            var souce = rarSouce.substr(rarSouce.lastIndexOf('/'));
+            return callback(false, '“被解压”的目录不存在:'+souce);
+        }
+        fs.exists(destFolder, function(exists){
+            if(!exists) return callback(false, '“解压到”的目录不存在');
+            //'"C:/Program Files/WinRAR/WinRAR.exe" e -y C:/test/uu/b.rar C:/test/UIUIUI';
+            var cmdStr = '"' + winRarSoft + '" x -y ' + rarSouce + ' ' + destFolder;
+            exec(cmdStr, function(err,data){
+                if(err) {
+                    console.log('error:'+err);
+                    callback(false, err);
+                } else {
+                    console.log(data);
+                    callback(true,null);
+                }
+            });
         });
     });
 }
