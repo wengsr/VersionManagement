@@ -544,33 +544,34 @@ router.post('/modifyUserInfo', function(req, res) {
 });
 
 /**
- * 打开"文件变更信息"的页面（步骤4）
+ * 打开"文件变更信息"的页面
  */
+
 router.get('/showFileList/:taskId/:createName', function(req, res) {
     var taskId = req.params.taskId ;
-     dao.getFileList(taskId,function(msg,result) {
-         if(msg ==="success"){
-             var modFiles = [],
-                 newFiles = [],
-                 delFiles = [];
-             for(var i in result){
-                 if(result[i].state == 0){
-                     modFiles.push(result[i].fileUri);
-                 }
-                 else if(result[i].state == 1){
-                     newFiles.push(result[i].fileUri);
-                 }
-                 else if(result[i].state == 2){
-                     delFiles.push(result[i].fileUri);
-                 }
-             };
-             var modFilesDiv = getDivString(modFiles);
-             var newFilesDiv =getDivString(newFiles);
-             var delFilesDiv = getDivString(delFiles);
-             res.render("showFileList",{fileCount: result.length,modFiles:modFilesDiv,newFiles:newFilesDiv,delFiles:delFilesDiv})
-         }
+    dao.getFileList(taskId,function(msg,result) {
+        if(msg ==="success"){
+            var modFiles = [],
+                newFiles = [],
+                delFiles = [];
+            for(var i in result){
+                if(result[i].state == 0){
+                    modFiles.push(result[i].fileUri);
+                }
+                else if(result[i].state == 1){
+                    newFiles.push(result[i].fileUri);
+                }
+                else if(result[i].state == 2){
+                    delFiles.push(result[i].fileUri);
+                }
+            };
+            var modFilesDiv = getDivString(modFiles);
+            var newFilesDiv = getDivString(newFiles);
+            var delFilesDiv = getDivString(delFiles);
+            res.render("showFileList",{fileCount: result.length,modFiles:modFilesDiv,newFiles:newFilesDiv,delFiles:delFilesDiv})
+        }
 
-     });
+    });
 });
 
 module.exports = router;

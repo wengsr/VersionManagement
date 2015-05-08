@@ -840,12 +840,6 @@ router.post('/findTask', function (req, res) {
         });
     });
 });
-//router.get('/findTask/:curPage', function(req, res) {
-//    topBtnClick(res, req, 'findTaskResult');
-//});
-//router.get('/findAllTask/:curPage', function(req, res) {
-//    topBtnClick(res, req, 'findTaskResult_noLink');
-//});
 /**
  * 查找所有变更单业务逻辑
  */
@@ -1297,15 +1291,16 @@ router.post('/submitFile', function(req, res) {
                 else{
                     var allFiles = scanFoldForUri(scanFold,scanFold).fileUris;//获取变更单中的文件名;
                     if((allFiles.length==0)||(allFiles.length > filesAndState.length) ){//变更单中new文件夹下的文件数是否和数据库中的一致
-                        console.log("变更单压缩包里需要直接放new目录，并且new与old的差异必须与申请文件清单一致，请核对后上传！！");
-                        jsonStr = '{"sucFlag":"err","message":"变更单压缩包里需要直接放new目录，并且new与old的差异必须与申请文件清单一致"}';
-                        var queryObj = url.parse(req.url, true).query;
-                        res.send(queryObj.callback + '(\'' + jsonStr + '\')');
                         dao.delNewAndOld(taskId,3,function(msg){
                             if(msg =="err"){
                                 console.log("delNewAndOld err:");
                             }
                         });
+                        console.log("变更单压缩包里需要直接放new目录，并且new与old的差异必须与申请文件清单一致，请核对后上传！！");
+                        jsonStr = '{"sucFlag":"err","message":"变更单压缩包里需要直接放new目录，并且new与old的差异必须与申请文件清单一致"}';
+                        var queryObj = url.parse(req.url, true).query;
+                        res.send(queryObj.callback + '(\'' + jsonStr + '\')');
+
                         return ;
                     }
                     for(var k in filesAndState){
@@ -1385,8 +1380,8 @@ router.post('/submitFile', function(req, res) {
                                          if ('success' == msg) {
                                              jsonStr = '{"sucFlag":"success","message":"【上传变更单】执行成功"}';
                                              var queryObj = url.parse(req.url, true).query;
-                                             res.send(queryObj.callback + '(\'' + jsonStr + '\')');
                                              sendEmailToNext(req, taskId, '', 4);
+                                             res.send(queryObj.callback + '(\'' + jsonStr + '\')');
                                          } else if ('err' == msg) {
                                              jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
                                              var queryObj = url.parse(req.url, true).query;

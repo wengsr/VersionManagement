@@ -122,7 +122,7 @@ Task.findTaskForBossByUserId = function(userId,startNum,callback){
             '   as max_turnandstepanduser on taskanduser.taskid = max_turnandstepanduser.taskid' +
             '   )as  newTask' +
             '   join processstep ps  on ps.processstepid = newTask.maxstep and newTask.projectId in (' +
-            '   select projectId from bosstoproject where userid = ? ) order by newTask.taskCode ';
+            '   select projectId from bosstoproject where userid = ? ) order by newTask.taskCode DESC ';
 
         var params = [userId];
         var params_count = [userId];
@@ -195,7 +195,7 @@ Task.findTaskByUserId = function(userId,callback){
             '        AND oTps.processStepId = taskTable.processStepId' +
             '        LEFT JOIN user oU ON oTps.dealer = oU.userId' +
             '        ) taskTable2' +
-            '        LEFT JOIN user oU2 ON taskTable2.creater = oU2.userId ORDER BY taskTable2.taskcode';
+            '        LEFT JOIN user oU2 ON taskTable2.creater = oU2.userId ORDER BY taskTable2.taskcode DESC';
         var params = [userId,userId,userId,userId];
         connection.query(sql, params, function (err, result) {
             if (err) {
@@ -673,7 +673,7 @@ Task.findTaskByTaskIdAndUser = function(taskId,dealer, callback){
             console.log('[CONN TASKS ERROR] - ', err.message);
             return callback(err);
         }
-        var sql = 'SELECT t.taskCode , t.taskname , t.processStepId,u.userName , u.realName ,u.email from tasks t ' +
+        var sql = 'SELECT t.taskcode , t.taskname , t.processStepId,u.userName , u.realName ,u.email from tasks t ' +
             '    JOIN taskprocessstep tps on tps.taskid =t.taskid' +
             '   JOIN user u ON u.userId = tps.dealer' +
             '   where  t.taskid = ? and u.username = ? and tps.processstepid = 5  ' +
@@ -1272,17 +1272,42 @@ Task.findTaskByParam = function(userId,projectId,state,processStepId,taskcode,ta
             params_count.push(projectId);
         }
         if(state!=''){
-            sql_count =    sql_count + " AND selectTable.state = ? ";
-            sql = sql + " AND selectTable.state = ? ";
-            params.push(state);
-            params_count.push(state);
+            if(state == '未完成'){
+                sql_count = sql_count + " AND selectTable.state != '上库完成'";
+                sql = sql + " AND selectTable.state  != '上库完成' ";
+            }
+            else{
+                sql_count = sql_count + " AND selectTable.state = ? ";
+                sql = sql + " AND selectTable.state = ? ";
+                params.push(state);
+                params_count.push(state);
+            }
         }
-        if(processStepId!=''){
-            sql_count =    sql_count + " AND selectTable.processStepId = ? ";
-            sql = sql + " AND selectTable.processStepId = ? ";
-            params.push(processStepId);
-            params_count.push(processStepId);
+        if(processStepId!='') {
+            if (processStepId == 99) {
+                sql_count = sql_count + " AND selectTable.processStepId < 7 ";
+                sql = sql + " AND selectTable.processStepId < 7 ";
+            }
+            else {
+                sql_count = sql_count + " AND selectTable.processStepId = ? ";
+                sql = sql + " AND selectTable.processStepId = ? ";
+                params.push(processStepId);
+                params_count.push(processStepId);
+            }
         }
+        //if(state!=''){
+        //    sql_count =    sql_count + " AND selectTable.state = ? ";
+        //    sql = sql + " AND selectTable.state = ? ";
+        //    params.push(state);
+        //    params_count.push(state);
+        //}
+        //if(processStepId!=''){
+        //
+        //    sql_count =    sql_count + " AND selectTable.processStepId = ? ";
+        //    sql = sql + " AND selectTable.processStepId = ? ";
+        //    params.push(processStepId);
+        //    params_count.push(processStepId);
+        //}
         if(startTime!=''){
             sql_count =    sql_count + " AND selectTable.execTime >  ? ";
             sql = sql + " AND selectTable.execTime >  ? ";
@@ -1296,11 +1321,11 @@ Task.findTaskByParam = function(userId,projectId,state,processStepId,taskcode,ta
             params_count.push(endTime);
         }
         if(startNum){
-            sql = sql + ' ORDER BY selectTable.taskcode limit ?,30 ';
+            sql = sql + ' ORDER BY selectTable.taskcode DESC limit ?,30 ';
             params.push(startNum+1);
         }
         else{
-            sql = sql + ' ORDER BY selectTable.taskcode limit 30 ';
+            sql = sql + ' ORDER BY selectTable.taskcode DESC limit 30 ';
         }
         connection.query(sql_count,params_count,function(err,count){
             if (err) {
@@ -1308,6 +1333,9 @@ Task.findTaskByParam = function(userId,projectId,state,processStepId,taskcode,ta
                 return callback(err,null);
             }
             else{
+                if (startNum > count[0].count){
+                    return  callback("err");
+                }
                 connection.query(sql, params, function (err, result) {
                     if (err) {
                         console.log('[QUERY TASKS ERROR] - ', err.message);
@@ -1423,11 +1451,11 @@ Task.findAllTaskByParamForBoss = function(userId,projectId,state,processStepId,t
             params.push(endTime);
         }
         if(startNum){
-            sql = sql + ' ORDER BY taskcode limit ?,30 ';
+            sql = sql + ' ORDER BY taskcode DESC limit ?,30 ';
             params.push(startNum+1);
         }
         else{
-            sql = sql + ' ORDER BY taskcode limit 30 ';
+            sql = sql + ' ORDER BY taskcode DESC limit 30 ';
         }
 
         connection.query(sql_count,params_count,function(err,count){
@@ -1436,6 +1464,9 @@ Task.findAllTaskByParamForBoss = function(userId,projectId,state,processStepId,t
                 return callback(err,null);
             }
             else{
+                if (startNum > count[0].count){
+                    return  callback("err");
+                }
                 connection.query(sql, params, function (err, result) {
                     if (err) {
                         console.log('[QUERY TASKS ERROR] - ', err.message);
@@ -1551,16 +1582,29 @@ Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode
             params_count.push(projectId);
         }
         if(state!=''){
-            sql_count = sql_count + " AND selectTable.state = ? ";
-            sql = sql + " AND selectTable.state = ? ";
-            params.push(state);
-            params_count.push(state);
+            if(state == '未完成'){
+                sql_count = sql_count + " AND selectTable.state != '上库完成'";
+                sql = sql + " AND selectTable.state  != '上库完成' ";
+            }
+            else{
+                sql_count = sql_count + " AND selectTable.state = ? ";
+                sql = sql + " AND selectTable.state = ? ";
+                params.push(state);
+                params_count.push(state);
+            }
+
         }
         if(processStepId!=''){
-            sql_count = sql_count + " AND selectTable.processStepId = ? ";
-            sql = sql + " AND selectTable.processStepId = ? ";
-            params.push(processStepId);
-            params_count.push(processStepId);
+            if(processStepId == 99){
+                sql_count = sql_count + " AND selectTable.processStepId < 7 ";
+                sql = sql + " AND selectTable.processStepId < 7 ";
+            }
+            else {
+                sql_count = sql_count + " AND selectTable.processStepId = ? ";
+                sql = sql + " AND selectTable.processStepId = ? ";
+                params.push(processStepId);
+                params_count.push(processStepId);
+            }
         }
         if(startTime!=''){
             sql_count = sql_count + " AND selectTable.execTime >  ? ";
@@ -1580,7 +1624,7 @@ Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode
             console.log("startNum",startNum);
         }
         else{
-            sql = sql + ' ORDER BY selectTable.taskcode  limit 30';
+            sql = sql + ' ORDER BY selectTable.taskcode DESC  limit 30';
         }
 
         connection.query(sql_count,params_count,function(err,count){
@@ -1589,6 +1633,9 @@ Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode
                 return callback(err,null);
             }
             else{
+                if (startNum > count[0].count){
+                    return  callback("err");
+                }
                 connection.query(sql, params, function (err, result) {
                     if (err) {
                         console.log('[QUERY TASKS ERROR] - ', err.message);

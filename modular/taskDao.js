@@ -323,6 +323,9 @@ exports.addTask = function (taskInfo,callback) {
                             month = '0' + month;
                         }
                         var day = newDate.getDate().toString();
+                        if(day<10){
+                            day = '0' + day;
+                        }
                         var nowDate = year + month + day;
                         if(taskCount<10000){
                             taskCount ='0'+taskCount;
@@ -727,6 +730,155 @@ exports.getFileList = function(taskId, callback){
             }
             connection.release();
             callback("success", result);
+        });
+    });
+}
+
+/**
+ * 获取变更文件历史
+ */
+exports.getAllFileHistory = function(curPage, callback){
+    pool.getConnection(function (err, connection){
+    //    var sql = "select files.* , tableCreater.realName from (" +
+    //        "   select f1.fileName,f1.fileUri,f1.state ,f1.taskid,tps.execTime from filelist f1 join taskprocessstep tps" +
+    //        "   on tps.taskid = f1.taskid  and  tps.processStepId = 7 and f1.taskid in (" +
+    //        "   select taskid from tasks where tasks.projectId  in (" +
+    //        "   select projectId from usertoproject where userId = ?" +
+    //        "   )" +
+    //        "   ) )as files JOIN  (" +
+    //        "   select t21.taskid, u21.realName from  tasks t21 join user  u21 on t21.creater = u21.userId  " +
+    //        "   ) as tableCreater  on files.taskid = tableCreater.taskid  order by execTime DESC  limit 30";
+        var sql_count ="select count(*  ) as count from (" +
+            "   select f1.fileName,f1.fileUri,f1.state ,f1.taskid,tps.execTime from filelist f1 join taskprocessstep tps" +
+            "   on tps.taskid = f1.taskid  and  tps.processStepId = 7 )as files";
+        var sql = "select files.* ,t11.taskcode , tableCreater.realName from (" +
+            "   select f1.fileId,f1.fileName,f1.fileUri,f1.state ,f1.taskid,tps.execTime from filelist f1 join taskprocessstep tps" +
+            "   on tps.taskid = f1.taskid  and  tps.processStepId = 7 )as files JOIN  (" +
+            "   select t21.taskid, u21.realName from  tasks t21 join user  u21 on t21.creater = u21.userId" +
+            "   ) as tableCreater  on files.taskid = tableCreater.taskid   join  tasks t11 on files.taskid =  t11.taskid  order by execTime DESC  ";
+        if(curPage ==1){
+            sql = sql + " limit 30";
+        }
+        else{
+            var startNum = (curPage -1) * 30 -1;
+            //console.log(startNum,":",curPage);
+            sql   = sql + " limit  ? , 30";
+        }
+        connection.query(sql_count,function(err,count){
+            if (err) {
+                console.log('[QUERY COUNT FILE ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            else{
+                if (startNum > count[0].count){
+                    return  callback("err");
+                }
+                connection.query(sql, startNum, function (err, result) {
+                    if (err) {
+                        console.log('[QUERY FILE ERROR] - ', err.message);
+                        return callback(err,null);
+                    }
+                    connection.release();
+                    callback('success',result, count[0].count);
+                });
+            }
+        });
+    });
+}
+/**
+ * 获取变更文件历史
+ */
+exports.getAFileHistory = function(fileId,curPage, callback){
+    pool.getConnection(function (err, connection){
+
+        var sql_count ="select count(*  ) as count from (" +
+            "   select f1.fileName,f1.fileUri,f1.state ,f1.taskid,tps.execTime from filelist f1 join taskprocessstep tps" +
+            "   on tps.taskid = f1.taskid  and  tps.processStepId = 7 )as files" +
+            "    where  fileUri = ( select fileUri from filelist f2 where f2.fileId = ?)";
+
+        var sql = "select file.* ,u1.realName from (" +
+            "   select *   from (" +
+            "   select t1.taskcode,f1.fileName,f1.fileUri,f1.state ,f1.taskid,tps.execTime from filelist f1 join taskprocessstep tps" +
+            "   on tps.taskid = f1.taskid  and  tps.processStepId = 7 join tasks t1 on t1.taskId = f1.taskid )as files" +
+            "   where  fileUri = ( select fileUri from filelist f2 where f2.fileId =?)" +
+            "   ) as file Join  tasks t2 on  t2.taskid = file.taskid  join user u1 on t2.creater = u1.userId order By execTime desc";
+        var sql_params = [fileId];
+        if(curPage ==1){
+            sql = sql + " limit 30";
+        }
+        else{
+            var startNum = (curPage -1) * 30 -1;
+            //console.log(startNum,":",curPage);
+            sql   = sql + " limit  ? , 30";
+            sql_params.push[startNum];
+        }
+        connection.query(sql_count,fileId,function(err,count){
+            if (err) {
+                console.log('[QUERY COUNT FILE ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            else{
+                if (startNum > count[0].count){
+                   return  callback("err");
+                }
+                connection.query(sql,sql_params, function (err, result) {
+                    if (err) {
+                        console.log('[QUERY FILE ERROR] - ', err.message);
+                        return callback(err,null);
+                    }
+                    connection.release();
+                    callback('success',result, count[0].count);
+                });
+            }
+        });
+    });
+}
+exports.getAFileHistoryWithFileUri = function(fileUri,curPage, callback){
+    pool.getConnection(function (err, connection){
+
+        var sql_count ="	SELECT count(*) as count from (" +
+            "   select files.*, t2.creater from (" +
+            "   select * from filelist f1 where fileUri = ? " +
+            "   ) as files JOIN tasks t2 where files.taskId = t2.taskId" +
+            "   ) as fileAndTask JOIN taskprocessstep tps3 on" +
+            "   tps3.taskId =fileAndTask.taskId and tps3.processstepId = 7 ";
+        var sql = "SELECT file3.*,u4.realName  from (" +
+            "   SELECT fileAndTask.* , tps3.execTime from (" +
+            "   select files.*, t2.creater , t2.taskcode from (" +
+            "   select * from filelist f1 where fileUri =?" +
+            "   ) as files JOIN tasks t2 where files.taskId = t2.taskId" +
+            "   ) as fileAndTask JOIN taskprocessstep tps3 on" +
+            "   tps3.taskId =fileAndTask.taskId and tps3.processstepId = 7" +
+            "   ) as file3 JOIN user u4 on u4.userId = file3.creater order by execTime";
+
+        var sql_params = [fileUri];
+        if(curPage ==1){
+            sql = sql + " limit 30";
+        }
+        else{
+            var startNum = (curPage -1) * 30 -1;
+            //console.log(startNum,":",curPage);
+            sql   = sql + " limit  ? , 30";
+            sql_params.push[startNum];
+        }
+        connection.query(sql_count,fileUri,function(err,count){
+            if (err) {
+                console.log('[QUERY COUNT FILE ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            else{
+                if (startNum > count[0].count){
+                   return  callback("err");
+                }
+                connection.query(sql,sql_params, function (err, result) {
+                    if (err) {
+                        console.log('[QUERY FILE ERROR] - ', err.message);
+                        return callback(err,null);
+                    }
+                    connection.release();
+                    callback('success',result, count[0].count);
+                });
+            }
         });
     });
 }

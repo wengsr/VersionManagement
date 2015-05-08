@@ -11,7 +11,7 @@ var task = require('./routes/task');
 var taskDialog = require('./routes/taskDialog');
 var leaderModel = require('./routes/leaderModel');
 var superModel = require('./routes/superModel');
-
+var adminModel = require('./routes/adminModel');
 var app = express();
 var session = require('express-session');
 var partials = require('express-partials');
@@ -108,6 +108,7 @@ app.use('/taskDialog', taskDialog);
 app.use('/file', file);
 app.use('/leaderModel', leaderModel);
 app.use('/superModel', superModel);
+app.use('/admin', adminModel);
 
 
 module.exports = app;

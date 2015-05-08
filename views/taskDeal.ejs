@@ -1,4 +1,34 @@
 <!--登录后的任务处理界面-->
+<% if(topBtnCheckTask=='findFileHistory'){%><!--版本管理员：查看变更文件历史-->
+   <%if(files === null){%>
+    <div style="margin-top: 100px">
+    <div class="col-sm-3"></div>
+    <div class="col-sm-6">
+            <span style="font-size:20pt; color: #cccccc;height:20px; line-height:20px; text-align:center; display:block;">
+                    sorry,没有找到文件的变更记录！
+            </span>
+    </div>
+    <div class="col-sm-3"></div>
+    </div>
+    <%}else {%>
+    <%include adminModel/filesHistory.ejs%>
+    <%}%>
+<% } %>
+<% if(topBtnCheckTask=='findAFileHistory'){%><!--版本管理员：查看变更文件历史-->
+    <%if(files === null){%>
+    <div style="margin-top: 100px">
+    <div class="col-sm-3"></div>
+    <div class="col-sm-6">
+            <span style="font-size:20pt; color: #cccccc;height:20px; line-height:20px; text-align:center; display:block;">
+                    sorry,没有找到文件的变更记录！
+            </span>
+    </div>
+    <div class="col-sm-3"></div>
+    </div>
+    <%}else {%>
+    <%include adminModel/aFileHistory.ejs%>
+    <%}%>
+<% } %>
 <% if(tasks){%><!--登录后的任务处理界面(有待处理的任务或自己有发起任务且未来走完流程)-->
     <% if(topBtnCheckTask=='btnTaskCreater'){%><!--我发起的变更单-->
         <%include taskDeal/taskCreater.ejs%>
@@ -21,7 +51,8 @@
 <% if(topBtnCheckTask=='allTaskForBoss'){%><!--领导：分页查询所有变更单-->
 <%include tasksForBoss.ejs%>
 <% } %>
-<% }else{ %><!--登录后的任务处理界面(处理任务为空)-->
+
+<% }else if(tasks === null){ %><!--登录后的任务处理界面(处理任务为空)-->
     <div style="margin-top: 100px">
         <div class="col-sm-3"></div>
         <div class="col-sm-6">

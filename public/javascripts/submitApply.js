@@ -127,6 +127,18 @@ function checkSubmit(fields){
     return flag;
 }
 
+function checkName(taskName){
+    taskName = taskName.trim();
+    taskName = taskName.match(/[\S]+/g).toString()
+    taskName = taskName.match(/^([\u4e00-\u9fa5]*[0-9A-Za-z]*)+[-][A-Z]+[-][0-9]+[-]([\u4e00-\u9fa5]*[0-9A-Za-z]*)+[-][0-9A-Za-z]+[-][0-9]+$/g);
+    if(taskName === null){
+        return false;
+    }
+    else {
+        return true;
+    }
+
+}
 function ajaxSubmit(params, url, subType){
     url = './' + url;
     $.ajax({
@@ -139,7 +151,7 @@ function ajaxSubmit(params, url, subType){
         success:function(data){
             var dataJson = $.parseJSON(data);
             var flag =  dataJson.sucFlag;
-            
+
             var id = dataJson.id;
             var tCode = dataJson.code;
             if('err'==flag){
@@ -188,11 +200,15 @@ jQuery(document).ready(function() {
     }
     $('#submitApply').click(function () {
         var check = checkSubmit(fields);
+        var nameFlag = checkName($("#inputTaskName").val());
+        if(!nameFlag){
+            showTipInfo('err', '请按要求填写变更单名称:NCRM开发变更单-省份简拼-日期-任务或bug号-姓名简拼-序号！');
+            return;
+        }
         var newFiles = $("#inputTaskNewList").val();
         var modFiles = $("#inputTaskModList").val();
         var delFiles = $("#delTaskList").val();
         var checkFile;
-        debugger
         checkFile = isFile(newFiles) && isFile(delFiles) && isFile(modFiles);
         if (!checkFile) {
             showTipInfo('err', '请检查文件路径是否正确！');
