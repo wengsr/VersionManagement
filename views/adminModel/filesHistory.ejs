@@ -1,0 +1,125 @@
+<!--<div class="row" style="margin-bottom: 10px;">-->
+    <!--<div class="col-lg-8" >-->
+        <!--<form action="/admin/aFileHistory/" id="searchFileHistory" class=" bs-component form-horizontal" method='post'>-->
+            <!--<label for="searchedFileUri"  class="col-lg-2 control-label" >查找文件变更记录</label>-->
+         <!--<div class="input-group">-->
+            <!--<input type="text" id="searchedFileUri" name="fileUri" class="form-control" placeholder="输入文件名">-->
+            <!--<span class="input-group-btn">-->
+                <!--<button id="searchFileHistory" class="btn btn-info" type="submit"><span class="glyphicon glyphicon-search"></span></button>-->
+            <!--</span>-->
+        <!--</div>-->
+        <!--</form>-->
+    <!--</div>-->
+<!--</div>-->
+
+
+<div id="taskDiv1" class="container-fluid">
+    <div class="panel panel-warning">
+        <div class="panel-heading">
+            <div class="row">
+                <span class="col-sm-2"><h4>文件变更历史</h4></span>
+            <div class="col-sm-offset-2 col-sm-8" >
+                <form action="/admin/aFileHistory/" id="searchFileHistory" class=" bs-component form-horizontal" method='post'>
+                    <div class="input-group">
+                        <input type="text" id="searchedFileUri" name="fileUri" class="form-control" placeholder="查找文件变更记录，如：/trunk/web/ReceiptWeb/src/main/java/com/al/crm/receipt/cash/view/cashBill.js">
+            <span class="input-group-btn">
+                <button id="searchFileHistory" class="btn btn-info" type="submit"><span class="glyphicon glyphicon-search"></span></button>
+            </span>
+                    </div>
+                </form>
+            </div>
+                </div>
+        </div>
+        <div class="panel-body table-responsive">
+            <table class="table">
+                <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>变更单名</th>
+                            <th>路径</th>
+                            <th>状态</th>
+                            <th>操作人</th>
+                            <th>时间</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <% var recCount=(curFilesPage-1)*30%>
+                        <% files.forEach(function(file,i){ var psId=file.processStepId%>
+                        <% recCount++;%>
+                        <tr id="myToBeDealTask">
+                            <td><%=recCount%></td>
+                            <td ><%=file.taskcode%></td>
+                            <td style="word-wrap: break-word;word-break:break-all"><a href ="/admin/aFileHistory/<%=file.fileId%>" id="<%=file.fileId%>"><%=file.fileUri%></a></td>
+                            <% if(file.state==0){%>
+                            <td>修改</td>
+                            <%}else if(file.state==1){%>
+                            <td>新增</td>
+                            <%}else if(file.state==2){%>
+                            <td>删除</td>
+                            <%}%>
+                            <td><%=file.realName%></td>
+                            <td><%=file.execTime%></td>
+                        </tr>
+                        <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+                <% if(taskCount){%>
+                <div class="panel-footer">共<%=taskCount%>条</div>
+                <% } %>
+                <div id="recCount" class="panel-footer" recCount="<%=recCount%>">共<%=(recCount%30)==0?30:(recCount%30)%>条</div>
+                <div style="float:right">
+                <nav  >
+                <%
+                var  minPage = curFilesPage-2>0?curFilesPage-2:1;
+                var maxPage = minPage + 4>totalFilesPage?totalFilesPage:minPage + 4;
+                minPage = maxPage-4<1?1:maxPage-4;1
+                %>
+                <ul class="pagination" id="pageUl" pageCount="<%=totalFilesPage%>" curPage="<%=curFilesPage%>"
+                minPage="<%=minPage%>",maxPage="<%=maxPage%>">
+
+                <%if(minPage!=1){%>
+                <li  id="pagePre">
+                <a href="/admin/findFileHistory/<%=parseInt(curFilesPage)-1%>" aria-label="Previous" >
+                <span aria-hidden="true">&laquo;</span>
+                </a>
+                </li>
+                <%}%>
+                <%for(var i = minPage;i<=maxPage;i++){ %>
+                <li  class="pageId"  value ="<%=i%>"><a href="/admin/findFileHistory/<%=i%>"><%=i%></a></li>
+                <%}%>
+                <%if(maxPage<totalFilesPage){%>
+                <li  id="pageNext">
+                <a href="/admin/findFileHistory/<%=parseInt(curFilesPage)+1%>" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+                </a>
+                </li>
+                <%}%>
+                </ul>
+                </nav>
+                </div>
+            </div>
+        </div>
+        <div id="noTaskNotice" style="margin-top: 100px">
+            <div class="col-sm-3"></div>
+            <div class="col-sm-6">
+            <span style="font-size:20pt; color: #cccccc;height:20px; line-height:20px; text-align:center; display:block;">
+                没有找到符合条件的文件
+            </span>
+            </div>
+            <div class="col-sm-3"></div>
+        </div>
+
+
+    </div>
+</div>
+
+
+</body>
+</html>
+
+
+<script>
+
+</script>
+

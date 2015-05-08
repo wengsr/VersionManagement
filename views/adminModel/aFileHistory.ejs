@@ -1,0 +1,101 @@
+
+<div id="taskDiv1" class="container-fluid">
+    <div class="panel panel-warning">
+        <!--<a  class="btn btn-primary" href= "<%=preUrl%>" style ="float:right">返回</a>-->
+        <button class="btn" id ="back" style ="float:right;background-color: #00B7FF;margin-top:5px">返回上一页</button>
+        <div class="panel-heading">文件变更历史</div>
+        <div class="panel-body table-responsive">
+            <table class="table">
+                <thead>
+                        <tr>
+
+                            <th>序号</th>
+                            <th>变更单名</th>
+                            <th>路径</th>
+                            <th>状态</th>
+                            <th>操作人</th>
+                            <th>时间</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <% var recCount=(curFilesPage-1)*30%>
+                        <% files.forEach(function(file,i){ var psId=file.processStepId%>
+                        <% recCount++;%>
+                        <tr id="myToBeDealTask">
+                            <td><%=recCount%></td>
+                            <td ><%=file.taskcode%></td>
+                            <td style="word-wrap: break-word;word-break:break-all"><%=file.fileUri%></td>
+                            <% if(file.state==0){%>
+                            <td>修改</td>
+                            <%}else if(file.state==1){%>
+                            <td>新增</td>
+                            <%}else if(file.state==2){%>
+                            <td>删除</td>
+                            <%}%>
+                            <td><%=file.realName%></td>
+                            <td><%=file.execTime%></td>
+                        </tr>
+                        <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+                <% if(taskCount){%>
+                <div class="panel-footer">共<%=taskCount%>条</div>
+                <% } %>
+                <div id="recCount" class="panel-footer" recCount="<%=recCount%>">共<%=(recCount%30)==0?30:(recCount%30)%>条</div>
+                <div style="float:right">
+                <nav  >
+                <%
+                var  minPage = curFilesPage-2>0?curFilesPage-2:1;
+                var maxPage = minPage + 4>totalFilesPage?totalFilesPage:minPage + 4;
+                minPage = maxPage-4<1?1:maxPage-4;1
+                %>
+                <ul class="pagination" id="pageUl" pageCount="<%=totalFilesPage%>" curPage="<%=curFilesPage%>"
+                minPage="<%=minPage%>",maxPage="<%=maxPage%>">
+
+                <%if(minPage!=1){%>
+                <li  id="pagePre">
+                <a href="/admin/aFileHistory/<%=fileId%>/<%=parseInt(curFilesPage)-1%>" aria-label="Previous" >
+                <span aria-hidden="true">&laquo;</span>
+                </a>
+                </li>
+                <%}%>
+                <%for(var i = minPage;i<=maxPage;i++){ %>
+                <li  class="pageId"  value ="<%=i%>"><a href="/admin/aFileHistory/<%=fileId%>/<%=i%>"  id ="<%=i%>"><%=i%></a></li>
+                <%}%>
+                <%if(maxPage<totalFilesPage){%>
+                <li  id="pageNext">
+                <a href="/admin/aFileHistory/<%=fileId%>/<%=parseInt(curFilesPage)+1%>" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+                </a>
+                </li>
+                <%}%>
+                </ul>
+                </nav>
+                </div>
+            </div>
+        </div>
+        <div id="noTaskNotice" style="margin-top: 100px">
+            <div class="col-sm-3"></div>
+            <div class="col-sm-6">
+            <span style="font-size:20pt; color: #cccccc;height:20px; line-height:20px; text-align:center; display:block;">
+                没有找到符合条件的文件
+            </span>
+            </div>
+            <div class="col-sm-3"></div>
+        </div>
+
+
+    </div>
+</div>
+
+
+</body>
+</html>
+
+
+<script>
+
+
+</script>
+
