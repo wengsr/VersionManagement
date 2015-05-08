@@ -200,7 +200,8 @@ router.post('/aFileHistory/', function(req, res) {
     getCookieUser(req, res);
     var userId = req.session.user.userId;
     var dao = require('../modular/taskDao');
-    var fileUri =req.body.fileUri;
+    var fileUri = req.body.fileUri;
+    fileUri = fileUri.match(/[\S]+/g).toString();
     //var curPage =req.params.pageNo ;
     var curPage =1 ;
     var totalFilesPage = 1;

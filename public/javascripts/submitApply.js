@@ -129,7 +129,7 @@ function checkSubmit(fields){
 
 function checkName(taskName){
     taskName = taskName.trim();
-    taskName = taskName.match(/[\S]+/g).toString()
+    taskName = taskName.match(/[\S]+/g).toString();
     taskName = taskName.match(/^([\u4e00-\u9fa5]*[0-9A-Za-z]*)+[-][A-Z]+[-][0-9]+[-]([\u4e00-\u9fa5]*[0-9A-Za-z]*)+[-][0-9A-Za-z]+[-][0-9]+$/g);
     if(taskName === null){
         return false;
@@ -137,7 +137,6 @@ function checkName(taskName){
     else {
         return true;
     }
-
 }
 function ajaxSubmit(params, url, subType){
     url = './' + url;

@@ -12,10 +12,8 @@
                     <%if(esd.processStepId==6){ count++;%>
                     &emsp;
                     <!-- 管理人员名按钮 -->
-                    <%if(count&&count%10==0){ %>
-                    <div style="clear:both;margin-bottom: 20px;"></div>
-                    <%}%>
-                    <div typeId="proAdminBtn" style="float: left;margin-left: 20px;">
+
+                    <div typeId="proAdminBtn" style="display:inline-block;margin-bottom:20px;margin-right: 15px;">
                     <%if(esd.userId==user.userId){%><!--判断是否为组长-->
                         <button type="button" class="btn btn-danger" typeId="proAdminBtn1"><%=esd.realName%>(组长)&nbsp;</button>
                     <%}else{%>
@@ -62,10 +60,8 @@
                 <%proAllUser.forEach(function(pau,i){count++; %>
                     &emsp;
                     <!-- 项目参与人名按钮 -->
-                <%if(count&&count%10==0){ %>
-                <div style="clear:both;margin-bottom: 20px;"></div>
-                <%}%>
-                    <div typeId="proUserBtn" style="float: left;margin-left: 20px;">
+
+                    <div typeId="proUserBtn" style="display:inline-block;margin-bottom:20px;margin-right: 15px;">
                         <%if(pau.userId==user.userId){%><!--判断是否为组长-->
                         <button type="button" class="btn btn-danger"><%=pau.realName%>(组长)&nbsp;</button>
                         <button typeId="xxUser" type="button" class="am-close am-close-spin am-icon-times"></button>
@@ -112,10 +108,8 @@
                 <%if(esd.processStepId==5){count++;%>
                 &emsp;
                 <!-- 走查人员名按钮 -->
-                <%if(count&&count%10==0){ %>
-                <div style="clear:both;margin-bottom: 20px;"></div>
-                <%}%>
-                <div typeId="proCheckBtn" style="float: left;margin-left: 20px;">
+
+                <div typeId="proCheckBtn" style="display:inline-block;margin-bottom:20px;margin-right:15px">
                     <%if(esd.userId==user.userId){%><!--判断是否为组长-->
                     <button type="button" class="btn btn-danger" typeId="proCheckBtn1"><%=esd.realName%>(组长)&nbsp;</button>
                     <%}else{%>
@@ -162,10 +156,8 @@
                 <%allBoss.forEach(function(boss,i){ count++;%>
                 &emsp;
                 <!-- 领导按钮 -->
-                <%if(count&&count%10==0){ %>
-                <div style="clear:both;margin-bottom: 20px;"></div>
-                <%}%>
-                <div typeId="proBossBtn" style="float: left;margin-left: 20px;">
+
+                <div typeId="proBossBtn" style="display:inline-block;margin-bottom:20px;;margin-right: 15px;">
                     <button type="button" class="btn btn-primary" typeId="proBossBtn1"><%=boss.realName%>&nbsp;</button>
                     <button typeId="xxBoss" type="button" class="am-close am-close-spin am-icon-times" data-toggle="modal" data-target="#proBoss<%=boss.userId%>"></button>
                 </div>
