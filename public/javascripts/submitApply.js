@@ -139,7 +139,7 @@ function checkName(taskName){
     }
 }
 function ajaxSubmit(params, url, subType){
-    url = './' + url;
+    url = '/' + url;
     $.ajax({
         data: params,
         url: url,

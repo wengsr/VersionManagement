@@ -436,9 +436,9 @@ LeaderModel.addProUser = function(userName, projectId, callback){
             addProStep2: "insert into processstepdealer (userId, processStepId, projectId)" +
                 "            values((select u.userId from user u where u.userName=?),2,?)",
             addProStep3: "insert into processstepdealer (userId, processStepId, projectId)" +
-                "            values((select u.userId from user u where u.userName=?),3,?)",
-            addProStep5: "insert into processstepdealer (userId, processStepId, projectId)" +
-                "            values((select u.userId from user u where u.userName=?),5,?)"
+                "            values((select u.userId from user u where u.userName=?),3,?)"
+            //addProStep5: "insert into processstepdealer (userId, processStepId, projectId)" +
+            //    "            values((select u.userId from user u where u.userName=?),5,?)"
         }
         var isUserExist_params = [userName,projectId];
         var addProToUser_params = [userName,projectId];

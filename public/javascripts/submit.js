@@ -10,7 +10,7 @@
  * @param subType
  */
 function ajaxSubmit(params, url, subType, fun){
-    url = './' + url;
+    url = '/' + url;
     $.ajax({
         data: params,
         url: url,

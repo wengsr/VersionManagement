@@ -20,7 +20,7 @@ function ajaxSubmit(params, url, subType){
         url: url,
         dataType: 'jsonp',
         cache: false,
-        timeout: 5000,
+        timeout: 60000,
         type: subType,
         success: function(data){
 
@@ -82,7 +82,6 @@ function submitForm_submitFile(){
 
 
 function fileUp(url){
-    debugger
     $('#fileupload').fileupload({
         url: url,
         dataType: 'json',
