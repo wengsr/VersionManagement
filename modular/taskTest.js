@@ -38,16 +38,19 @@ TaskTest.doTestPass = function(taskId,userId,callback){
         var sql= {
             updateTask: "update tasks set state='测试通过', processStepId = 9 where taskid=?",
             //updateDealer: 'update taskprocessstep set dealer =?,execTime = ? where taskId = ? and processStepId = 8'
+            updateDealer: 'update taskprocessstep set dealer = ? where turnNum =' +
+            '   (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)' +
+            '   and taskId =? and processStepId = 8',
             updateTPS:"insert into taskprocessstep (taskid, processStepId, turnNum, dealer,execTime) " +
             " values (?,9,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?,?)"
         };
 
         var updateTask_params = [taskId];
         var now = new Date().format("yyyy-MM-dd HH:mm:ss") ;
-        //var updateDealer_params = [userId,now,taskId];
+        var updateDealer_params = [userId,taskId,taskId];
         var updateTPS_params = [taskId,taskId,userId,now];
-        var sqlMember = ['updateTask', 'updateTPS'];
-        var sqlMember_params = [ updateTask_params, updateTPS_params];
+        var sqlMember = ['updateTask', 'updateDealer','updateTPS'];
+        var sqlMember_params = [ updateTask_params,updateDealer_params, updateTPS_params];
         var i = 0;
         async.eachSeries(sqlMember, function (item, callback_async) {
             trans.query(sql[item], sqlMember_params[i++],function (err_async, result) {
@@ -80,6 +83,9 @@ TaskTest.doTestUnPass = function(taskId, userId, noPassReason, callback) {
 
         var sql = {
             updateTask: "update tasks set state='测试不通过',processStepId = 9 where taskid=?",
+            updateDealer: 'update taskprocessstep set dealer = ? where turnNum =' +
+            '   (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)' +
+            '   and taskId =? and processStepId = 8',
             insertTestUnpass: "insert into testUnPass " +
             "            (taskId, turnNum, dealer, noPassReason)" +
             "            values(?, (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskProcessStep WHERE taskId=?) as maxNumTable)," +
@@ -90,11 +96,11 @@ TaskTest.doTestUnPass = function(taskId, userId, noPassReason, callback) {
         }
         var updateTask_params = [taskId];
         var now = new Date().format("yyyy-MM-dd HH:mm:ss");
-        //var updateDealer_params = [userId,now, taskId ];
+        var updateDealer_params = [userId,taskId, taskId ];
         var updateTPS_params = [taskId,taskId,userId,now ];
         var insertTestUnpass_params = [taskId, taskId, userId, noPassReason];
-        var sqlMember = ['updateTask','insertTestUnpass', 'updateTPS'];
-        var sqlMember_params = [updateTask_params,insertTestUnpass_params, updateTPS_params];
+        var sqlMember = ['updateTask',"updateDealer",'insertTestUnpass', 'updateTPS'];
+        var sqlMember_params = [updateTask_params,updateDealer_params,insertTestUnpass_params, updateTPS_params];
         var i = 0;
         async.eachSeries(sqlMember, function (item, callback_async) {
             trans.query(sql[item], sqlMember_params[i++], function (err_async, result) {

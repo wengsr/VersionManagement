@@ -1756,10 +1756,11 @@ Task.findHistory = function(taskId,callback){
         //    '        ORDER BY turnNum,processStepId,id';
        var sql = " SELECT t1.* ,t2.state" +
            "    FROM" +
-           "    (SELECT tps.*, u.realName, ta.fileName, ta.fileUri, cup.noPassReason FROM taskprocessstep tps" +
+           "    (SELECT tps.*, u.realName, ta.fileName, ta.fileUri, cup.noPassReason ,tup.noPassReason as noPassReason_test FROM taskprocessstep tps " +
            "    LEFT JOIN user u ON tps.dealer = u.userId" +
            "    LEFT JOIN taskattachment ta ON ta.taskId=tps.taskid AND ta.processStepId=tps.processStepId AND ta.turnNum=tps.turnNum" +
            "    LEFT JOIN checkunpass cup ON cup.taskId = tps.taskid AND cup.turnNum=tps.turnNum AND tps.processStepId=5" +
+           "    LEFT JOIN testunpass as tup ON tup.taskId = tps.taskid " +
            "    WHERE tps.taskid=?" +
            "    ) t1 JOIN (" +
            "    SELECT taskId ,state from tasks where taskId = ?) as t2 ON t1.taskid = t2.taskid" +

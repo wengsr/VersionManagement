@@ -142,12 +142,15 @@
                     </dl>
                 </li>
                 <%}%>
-                <%if((tHis.processStepId==8)&&(tHis.realName!=undefined)){%>
+                <%if((tHis.processStepId==8)){%>
                 <li>
                     <h3>测试</h3>
                     <dl>
                         <dt><%=tHis.realName%> &nbsp;&nbsp;&nbsp;&nbsp;<time style="display:inline;color:#d3d3d3;font-weight:normal">(<%=tHis.execTime%>)</time>
-                            <span>等待<%=tHis.realName%>进行测试</span>
+                            <span><%=tHis.realName== undefined ?'':tHis.realName +'接受了'%>测试任务</span>
+                            <%if(tHis.fileUri!=null){%>
+                            上传了测试报告：<a typeId="attaLink" href="<%=tHis.fileUri%>" style="color:#32B1EC"><%=tHis.fileName%></a><br/>
+                            <%}%>
                         </dt>
                     </dl>
                 </li>
@@ -158,6 +161,13 @@
                     <dl>
                         <dt><%=tHis.realName%> &nbsp;&nbsp;&nbsp;&nbsp;<time style="display:inline;color:#d3d3d3;font-weight:normal">(<%=tHis.execTime%>)</time>
                             <span><%=tHis.realName%>测试后，作出“<%=tHis.state%>”的判定</span>
+                            描述了不通过原因：<%if(tHis.noPassReason_test==null){%> 无<br/> <%}else{%>
+                            <%var n1 = tHis.noPassReason_test.length/20; var n2=tHis.noPassReason_test.length%20;%>
+                            <%if(n2!=0){n1 = Math.floor(n1)+1;}else{n1 = Math.floor(n1)}%>
+                            <%for(var jj=0; jj<n1; jj++){%>
+                            <%=tHis.noPassReason_test.substr(jj*20,20)%><br/>
+                            <%}%>
+                            <%}%>
                         </dt>
                     </dl>
                 </li>
