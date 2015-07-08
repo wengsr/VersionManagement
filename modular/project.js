@@ -125,6 +125,30 @@ Project.findProsByUserIdForApplyTaskBtn = function(userId,callback){
         });
     });
 }
+
+/**
+ * 根据测试人员ID找用户属于哪些项目
+ * @param userId
+ * @param callback
+ */
+Project.findTestProsByUserIdForMenuBtn = function(userId,callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN USERTOPROJECT ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'select * from testertoproject where userId=?';
+        var params = [userId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY USERTOPROJECT ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',result);
+        });
+    });
+}
 /**
  *查找当前领导有 哪些项目权限
  * @param userId

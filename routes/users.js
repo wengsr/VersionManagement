@@ -9,6 +9,7 @@ var Menu = require('../modular/menu');
 var Task = require('../modular/task');
 var url = require('url');
 var dao = require("../modular/taskDao");
+var TaskTest = require("../modular/taskTest");
 
 /**
  * 查找当前用户所能显示的菜单
@@ -28,6 +29,30 @@ var findMenu = function(userId,req,callback){
  */
 var findTask = function(userId,req,callback){
     Task.findTaskByUserId(userId,function(msg,tasks){
+        if('success'!=msg){
+            req.session.error = "查找变更单信息时发生错误,请记录并联系管理员";
+            return null;
+        }
+        callback(tasks);
+    });
+}
+/**
+ * 查找当前测试人员所能操作的变更单
+ */
+var findTaskForTester = function(userId,req,callback){
+    TaskTest.findTaskByTesterId(userId,function(msg,tasks){
+        if('success'!=msg){
+            req.session.error = "查找变更单信息时发生错误,请记录并联系管理员";
+            return null;
+        }
+        callback(tasks);
+    });
+}
+/**
+ * 查找当前测试主管所能操作的变更单
+ */
+var findTaskForPM = function(userId,req,callback){
+    TaskTest.findTaskByPMId(userId,function(msg,tasks){
         if('success'!=msg){
             req.session.error = "查找变更单信息时发生错误,请记录并联系管理员";
             return null;
@@ -145,6 +170,86 @@ var getDivString  = function(files){
     }
     return  "<ol>"+filesString+"</ol>";
 }
+
+/**
+ * 测试人员Tester登录
+ * @param user
+ * @param req
+ * @param res
+ */
+var findInfoForTester = function( user,req,res){
+    User.findTesterProjectId(user.userId,function(msg,projectIds){
+        if('success'!=msg){
+            req.session.error = "查找用户所拥有的工程权限时发生错误,请记录并联系管理员";
+            return null;
+        }
+        user.projectId = projectIds;
+        user.isTester = true;
+        user.isLeader = false;
+        user.isAmin = false;
+        user.isPM = false;
+        saveCookieAndSession(req,res,user);//记录到session，登录
+        findMenu(user.userId,req,function(menus){//查找菜单
+            if(menus.length>0){
+                req.session.menus = menus;
+                findTaskForTester(user.userId,req,function(tasks){//查找当前用户能操作的变更单
+                    if(tasks.length>0){
+                        req.session.tasks = tasks;
+                        req.session.taskCount = tasks.length;
+                        res.redirect("/");
+                    }else{
+                        req.session.tasks = null;
+                        req.session.taskCount = null;
+                        return res.redirect("/");
+                    }
+                });
+            }else{
+                req.session.menus = null;
+                res.redirect("/");
+            }
+        });
+    });
+}
+/**
+ * 测试主管登录
+ * @param user
+ * @param req
+ * @param res
+ */
+var findInfoForPM = function( user,req,res){
+    User.findTesterProjectId(user.userId,function(msg,projectIds){
+        if('success'!=msg){
+            req.session.error = "查找用户所拥有的工程权限时发生错误,请记录并联系管理员";
+            return null;
+        }
+        user.projectId = projectIds;
+        user.isTester = false;
+        user.isLeader = false;
+        user.isAmin = false;
+        user.isPM = true;
+        saveCookieAndSession(req,res,user);//记录到session，登录
+        findMenu(user.userId,req,function(menus){//查找菜单
+            if(menus.length>0){
+                req.session.menus = menus;
+                findTaskForPM(user.userId,req,function(tasks){//查找当前用户能操作的变更单
+                    if(tasks.length>0){
+                        req.session.tasks = tasks;
+                        req.session.tasks = null;
+                        req.session.taskCount = tasks.length;
+                        res.redirect("/");
+                    }else{
+                        req.session.tasks = null;
+                        req.session.taskCount = null;
+                        return res.redirect("/");
+                    }
+                });
+            }else{
+                req.session.menus = null;
+                res.redirect("/");
+            }
+        });
+    });
+}
 /**
  * 根据获取到的user信息去登录
  * @param user
@@ -188,6 +293,15 @@ var findInfoForLogin = function(user,req,res){
                 }
             });
         });
+        return;
+    }
+   //测试人员登录
+    if(user.permissionId == 6){
+        findInfoForPM(user,req,res);
+        return;
+    }
+    if(user.permissionId == 7){
+        findInfoForTester(user,req,res);
         return;
     }
     //查找当前登录用户有哪些工程的权限
@@ -452,6 +566,28 @@ router.post('/getProCheckUser', function(req, res) {
     });
 });
 
+/**
+ * 获取当前变更单所在项目的所有测试人员的用户名
+ */
+router.post('/getProTester', function(req, res) {
+    var taskId = req.body['taskId'];
+    User.getProTester(taskId, function(msg,results){
+        if('success' == msg){
+            var queryObj = url.parse(req.url,true).query;
+            var jsonStr = "[";
+            results.forEach(function(result){
+                var uName = result.userName;
+                var uRealName = result.realName;
+                if(null==uRealName)uRealName='';
+                var userObj = '{ "userName": "' + uName + '", "realName": "' + uRealName + '" },';
+                jsonStr = jsonStr + userObj;
+            });
+            jsonStr = jsonStr + "]";
+            jsonStr = jsonStr.replace(",]","]");
+            res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+        }
+    });
+});
 
 /**
  * 跳转到修改用户资料页面

@@ -142,7 +142,26 @@
                     </dl>
                 </li>
                 <%}%>
-
+                <%if((tHis.processStepId==8)&&(tHis.realName!=undefined)){%>
+                <li>
+                    <h3>测试</h3>
+                    <dl>
+                        <dt><%=tHis.realName%> &nbsp;&nbsp;&nbsp;&nbsp;<time style="display:inline;color:#d3d3d3;font-weight:normal">(<%=tHis.execTime%>)</time>
+                            <span>等待<%=tHis.realName%>进行测试</span>
+                        </dt>
+                    </dl>
+                </li>
+                <%}%>
+                <%if(tHis.processStepId==9){%>
+                <li>
+                    <h3>测试完成</h3>
+                    <dl>
+                        <dt><%=tHis.realName%> &nbsp;&nbsp;&nbsp;&nbsp;<time style="display:inline;color:#d3d3d3;font-weight:normal">(<%=tHis.execTime%>)</time>
+                            <span><%=tHis.realName%>测试后，作出“<%=tHis.state%>”的判定</span>
+                        </dt>
+                    </dl>
+                </li>
+                <%}%>
                 <%}%>
                 <%});%>
             </ul>

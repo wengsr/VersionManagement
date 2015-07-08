@@ -7,6 +7,30 @@ var Task = require('../modular/task');
 var taskDao = require('../modular/taskDao');
 var TaskAtta = require('../modular/taskAtta');
 
+var showFileList = function( taskId){
+    taskDao.getFileList(taskId,function(msg,result) {
+        if(msg ==="success"){
+            var modFiles = [],
+                newFiles = [],
+                delFiles = [];
+            for(var i in result){
+                if(result[i].state == 0){
+                    modFiles.push(result[i].fileUri);
+                }
+                else if(result[i].state == 1){
+                    newFiles.push(result[i].fileUri);
+                }
+                else if(result[i].state == 2){
+                    delFiles.push(result[i].fileUri);
+                }
+            };
+            var modFilesDiv = getDivString(modFiles);
+            var newFilesDiv = getDivString(newFiles);
+            var delFilesDiv = getDivString(delFiles);
+            res.render("showFileList",{fileCount: result.length,modFiles:modFilesDiv,newFiles:newFilesDiv,delFiles:delFilesDiv})
+        }
+    });
+}
 /**
  * 根据变更单ID找到变更单记录
  * @param taskId
@@ -113,10 +137,17 @@ var openTask = function(stepName, req, res, callback){
         return res.redirect("/");
     }
     var userId = req.session.user.userId;    //当前登录用户的ID
+    var userName = req.session.user.userName;    //当前登录用户的ID
     var taskId = req.params.taskId;          //变更单记录ID
     var taskCreater = req.params.taskCreater;//这条变更单记录创建者的ID
     var dealerName = req.params.dealerName;  //该步骤的处理者
     var createName = req.params.createName;  //这条变更单的发起者
+    //测试环节
+    //if((stepName == "testing" && stepName == "tested"    )&&(userName != dealerName) ){
+    //    var taskId = req.params.taskId ;
+    //    showFileList(taskId);
+    //}
+
     if(userId==taskCreater){
         //对当前登录用户是这条变更单的creater的处理
         Task.findTaskForCreater(userId,taskId,stepName,function(msg,task){
@@ -187,7 +218,7 @@ var openTask = function(stepName, req, res, callback){
                                         "fileUri": '#'
                                     });
                                 }
-                                if (stepName == 'submit' || stepName == 'check') {
+                                if (stepName == 'submit' || stepName == 'check'||stepName === "testing") {
                                     findAttaByTaskIdAndStepId(req, taskId, '5', function (reportAtta) {//找到走查环节上传的走查报告
                                         if (undefined == reportAtta) {
                                             reportAtta = new TaskAtta({
@@ -198,8 +229,33 @@ var openTask = function(stepName, req, res, callback){
                                                 "fileUri": '#'
                                             });
                                         }
-                                        res.render(stepName, {task: t, addFileList: addFileList, modifyFileList: modifyFileList, delFileList: delFileList, attaFile: atta, reportAtta: reportAtta
-                                        });
+                                        if(stepName=="testing") {
+                                            findAttaByTaskIdAndStepId(req, taskId, '7', function (testReportAtta) {//找到走查环节上传的走查报告
+                                                console.log("testReportAtta",testReportAtta);
+                                                if (undefined == testReportAtta) {
+                                                    testReportAtta = new TaskAtta({
+                                                        "attachmentId": '',
+                                                        "taskId": '',
+                                                        "processStepId": '',
+                                                        "fileName": '未找到附件',
+                                                        "fileUri": '#'
+                                                    });
+                                                }
+                                                //打开测试界面
+                                                res.render(stepName, {
+                                                    task: t,
+                                                    addFileList: addFileList,
+                                                    modifyFileList: modifyFileList,
+                                                    delFileList: delFileList,
+                                                    attaFile: atta,
+                                                    reportAtta: reportAtta,
+                                                    testReportAtta: testReportAtta
+                                                });
+                                            });
+                                        }
+                                        else{
+                                            res.render(stepName,{task:t, addFileList:addFileList, modifyFileList:modifyFileList, delFileList:delFileList, attaFile:atta, reportAtta:reportAtta});
+                                        }
                                     });
                                 } else {
                                     res.render(stepName, {
@@ -235,7 +291,6 @@ var openTask = function(stepName, req, res, callback){
                                 });
                             }
                             res.render(stepName,{task:t, addFileList:addFileList, modifyFileList:modifyFileList, delFileList:delFileList, oldAtta:oldAtta});
-
                         });
                     }
                     findFileListByTaskId(req, taskId, function(addFileList,modifyFileList,delFileList){
@@ -259,6 +314,7 @@ var openTask = function(stepName, req, res, callback){
                                         "fileUri": '#'
                                     });
                                 }
+
                                 res.render('taskInfo',{task:t, addFileList:addFileList, modifyFileList:modifyFileList, delFileList:delFileList, attaFile:atta, reportAtta:reportAtta});
                             });
                         });
@@ -284,7 +340,6 @@ var openTask = function(stepName, req, res, callback){
                             });
                         }
                         res.render(stepName,{task:t, addFileList:addFileList, modifyFileList:modifyFileList, delFileList:delFileList, oldAtta:oldAtta});
-
                     });
                 }
                 findAttaByTaskIdAndStepId(req, taskId, "3",function(atta){//找出变更单发起者上传的附件
@@ -297,7 +352,7 @@ var openTask = function(stepName, req, res, callback){
                             "fileUri":'#'
                         });
                     }
-                    if(stepName=='submit' || stepName=='check'){
+                    if(stepName=='submit' || stepName=='check'||stepName=="testing"){
                         findAttaByTaskIdAndStepId(req, taskId, '5',function(reportAtta) {//找到走查环节上传的走查报告
                             if (undefined == reportAtta) {
                                 reportAtta = new TaskAtta({
@@ -308,9 +363,26 @@ var openTask = function(stepName, req, res, callback){
                                     "fileUri": '#'
                                 });
                             }
-                            res.render(stepName,{task:t, addFileList:addFileList, modifyFileList:modifyFileList, delFileList:delFileList, attaFile:atta, reportAtta:reportAtta});
+                            if(stepName=="testing"){
+                                findAttaByTaskIdAndStepId(req, taskId, '8',function(testReportAtta) {//找到走查环节上传的走查报告
+                                    if (undefined == testReportAtta) {
+                                        testReportAtta = new TaskAtta({
+                                            "attachmentId": '',
+                                            "taskId": '',
+                                            "processStepId": '',
+                                            "fileName": '未找到附件',
+                                            "fileUri": '#'
+                                        });
+                                    }
+                                    res.render(stepName,{task:t, addFileList:addFileList, modifyFileList:modifyFileList, delFileList:delFileList, attaFile:atta, reportAtta:reportAtta,testReportAtta:testReportAtta});
+                                });
+                            }
+                            else{
+                                res.render(stepName,{task:t, addFileList:addFileList, modifyFileList:modifyFileList, delFileList:delFileList, attaFile:atta, reportAtta:reportAtta});
+                            }
                         });
-                    }else{
+                    }
+                    else{
                         res.render(stepName,{task:t, addFileList:addFileList, modifyFileList:modifyFileList, delFileList:delFileList, attaFile:atta});
                     }
                 });
@@ -361,6 +433,12 @@ router.get('/submit/:taskId/:taskCreater/:dealerName/:createName', function(req,
     openTask('submit',req,res);
 });
 
+/**
+ * 上库完成后，打开的界面，版本管理员，打开文件列表界面，测试人员打开测试界面
+ */
+router.get('/testing/:taskId/:taskCreater/:dealerName/:createName', function(req, res) {
+    openTask('testing',req,res);
+});
 router.get('/errModal', function(req, res) {
     res.render('errModal.ejs');
 });

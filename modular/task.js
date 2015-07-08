@@ -1131,18 +1131,22 @@ Task.submitComplete = function(taskId, userId, callback){
 
         var sql= {
             selectDealer:"select * from tasks where taskid=? and processStepId=7",
-            updateTask: "update tasks set state='上库完成',processStepId=7 where taskid=?",
+            updateTask: "update tasks set state='上库完成',processStepId=8 where taskid=?",
             updateFileList: "update filelist set commit=1 where taskId=?",
             updateTPS:"insert into taskprocessstep (taskid, processStepId, turnNum, dealer,execTime) " +
-                " values (?,7,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?,?)"
+                " values (?,7,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?,?)",
+            //测试环节
+            updateTPS2:"insert into taskprocessstep (taskid, processStepId, turnNum,dealer,execTime) " +
+            " values (?,8,?,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?)"
         }
         var selectDealer_params = [taskId];
         var updateTask_params = [taskId];
         var updateFileList_params = [taskId];
         var now = new Date().format("yyyy-MM-dd HH:mm:ss") ;
         var updateTPS_params = [taskId,taskId,userId,now];
-        var sqlMember = ['selectDealer', 'updateTask', 'updateFileList', 'updateTPS'];
-        var sqlMember_params = [selectDealer_params, updateTask_params, updateFileList_params, updateTPS_params];
+        var updateTPS2_params = [taskId,taskId,userId,now];
+        var sqlMember = ['selectDealer', 'updateTask', 'updateFileList', 'updateTPS','updateTPS2'];
+        var sqlMember_params = [selectDealer_params, updateTask_params, updateFileList_params, updateTPS_params,updateTPS2_params];
         var i = 0;
         async.eachSeries(sqlMember, function (item, callback_async) {
             trans.query(sql[item], sqlMember_params[i++],function (err_async, result) {
@@ -1155,7 +1159,7 @@ Task.submitComplete = function(taskId, userId, callback){
                     trans.rollback();
                     return callback('err',err_async);
                 }
-                if(item == 'updateTPS' && !err_async){//最后一条sql语句执行没有错就返回成功
+                if(item == 'updateTPS2' && !err_async){//最后一条sql语句执行没有错就返回成功
                     trans.commit();
                     return callback('success');
                 }
@@ -1645,6 +1649,7 @@ Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode
                     callback('success',result, count[0].count);
                 });
             }
+
         });
     });
 }
@@ -1743,13 +1748,24 @@ Task.findHistory = function(taskId,callback){
             console.log('[CONN TASKS ERROR] - ', err.message);
             return callback(err);
         }
-        var sql = 'SELECT tps.*, u.realName, ta.fileName, ta.fileUri, cup.noPassReason FROM taskprocessstep tps ' +
-            '        LEFT JOIN user u ON tps.dealer = u.userId' +
-            '        LEFT JOIN taskattachment ta ON ta.taskId=tps.taskid AND ta.processStepId=tps.processStepId AND ta.turnNum=tps.turnNum' +
-            '        LEFT JOIN checkunpass cup ON cup.taskId = tps.taskid AND cup.turnNum=tps.turnNum AND tps.processStepId=5' +
-            '        WHERE tps.taskid=?' +
-            '        ORDER BY turnNum,processStepId,id';
-        var params = [taskId];
+        //var sql = 'SELECT tps.*, u.realName, ta.fileName, ta.fileUri, cup.noPassReason FROM taskprocessstep tps ' +
+        //    '        LEFT JOIN user u ON tps.dealer = u.userId' +
+        //    '        LEFT JOIN taskattachment ta ON ta.taskId=tps.taskid AND ta.processStepId=tps.processStepId AND ta.turnNum=tps.turnNum' +
+        //    '        LEFT JOIN checkunpass cup ON cup.taskId = tps.taskid AND cup.turnNum=tps.turnNum AND tps.processStepId=5' +
+        //    '        WHERE tps.taskid=?' +
+        //    '        ORDER BY turnNum,processStepId,id';
+       var sql = " SELECT t1.* ,t2.state" +
+           "    FROM" +
+           "    (SELECT tps.*, u.realName, ta.fileName, ta.fileUri, cup.noPassReason FROM taskprocessstep tps" +
+           "    LEFT JOIN user u ON tps.dealer = u.userId" +
+           "    LEFT JOIN taskattachment ta ON ta.taskId=tps.taskid AND ta.processStepId=tps.processStepId AND ta.turnNum=tps.turnNum" +
+           "    LEFT JOIN checkunpass cup ON cup.taskId = tps.taskid AND cup.turnNum=tps.turnNum AND tps.processStepId=5" +
+           "    WHERE tps.taskid=?" +
+           "    ) t1 JOIN (" +
+           "    SELECT taskId ,state from tasks where taskId = ?) as t2 ON t1.taskid = t2.taskid" +
+           "    ORDER BY turnNum,processStepId,id";
+
+        var params = [taskId,taskId];
         connection.query(sql, params, function (err, results) {
             if (err) {
                 console.log('[QUERY TASKS ERROR] - ', err.message);
@@ -1782,6 +1798,33 @@ Task.autoComp = function(taskId,callback){
             }
             connection.release();
             callback('success',null);
+        });
+    });
+}
+
+/**
+ * 根据id查询变更单信息和PM
+ * @param taskId
+ * @param callback
+ */
+Task.findTaskAndPMByTaskId = function(taskId,callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN TASKS ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'SELECT t.taskcode , t.taskname , t.processStepId , u.userName , u.realName ,u.email  FROM tasks t ' +
+            '     JOIN project p  ON t.projectId=p.projectId ' +
+            '     JOIN user u  ON p.PM=u.userId' +
+            '     where taskid = ?';
+        var params = [taskId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY TASKS ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',result[0]);
         });
     });
 }

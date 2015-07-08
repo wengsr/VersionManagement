@@ -9,6 +9,7 @@ var TaskAtta = require('../modular/taskAtta');
 var UPLOAD_FOLDER = './attachment';
 var CHECK_REPORT_UPLOAD_FOLDER = '/check_report/';
 var CHECK_REPORT_UPLOAD_FOLDER2 = '/newAndOld/';
+var CHECK_REPORT_UPLOAD_FOLDER3 = '/test_report/';
 
 /**
  * 文件上传成功失败信息返回
@@ -165,5 +166,12 @@ router.post('/submitFile', function(req, res) {
     fileUp(req, res, CHECK_REPORT_UPLOAD_FOLDER2);
 });
 
+
+/**
+ * 测试报告上传
+ */
+router.post('/unpassTesting', function(req, res) {
+    fileUp(req, res, CHECK_REPORT_UPLOAD_FOLDER3);
+});
 
 module.exports = router;

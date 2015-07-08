@@ -22,10 +22,13 @@
                     <% recCount++;%>
                     <tr id="myToBeDealTask">
                         <td><%=recCount%></td>
-                        <%if((task.dealerName==user.realName)||(task.processStepId==7)){%>
+                        <%if( (task.processStepId >6)&&(user.isAdmin)){%>
+                        <td><a id="task_<%=task.taskid%>" createName="<%=task.createrName%>" dealerName="<%=task.dealerName%>" forFiles="ForFiles"   step="taskProcessStepId_<%=task.processStepId%>" taskid="<%=task.taskid%>" taskcreater="<%=task.creater%>"><%=task.taskcode%></a></td>
+                        <td><a id="task_<%=task.taskid%>" createName="<%=task.createrName%>" dealerName="<%=task.dealerName%>" forFiles2="ForFiles"  step="2taskProcessStepId_<%=task.processStepId%>" taskid="<%=task.taskid%>" taskcreater="<%=task.creater%>"><%=task.taskname%></a></td>
+                        <%} else if((task.dealerName==user.realName)){%>
                             <td><a id="task_<%=task.taskid%>" createName="<%=task.createrName%>" dealerName="<%=task.dealerName%>" step="taskProcessStepId_<%=task.processStepId%>" taskid="<%=task.taskid%>" taskcreater="<%=task.creater%>"><%=task.taskcode%></a></td>
                             <td><a id="task_<%=task.taskid%>" createName="<%=task.createrName%>" dealerName="<%=task.dealerName%>" step="2taskProcessStepId_<%=task.processStepId%>" taskid="<%=task.taskid%>" taskcreater="<%=task.creater%>"><%=task.taskname%></a></td>
-                        <%}else{%>
+                        <%} else{%>
                             <td><%=task.taskcode%></td>
                             <td><%=task.taskname%></td>
                         <%}%>

@@ -4,6 +4,7 @@
 var express = require('express');
 var router = express.Router();
 var Task = require('../modular/task');
+var TaskTest = require('../modular/taskTest');
 var Project = require('../modular/project');
 /**
  * 从cookie中获取user给session，如果session中user为空，就返回主页
@@ -107,12 +108,27 @@ var findTaskForBoss = function(userId,startNum,req,callback){
  * @param callback
  */
 var findProsByUserIdForApplyTaskBtn = function(userId,req,callback){
-    Project.findProsByUserIdForApplyTaskBtn(userId,function(msg,tasks){
+    Project.findProsByUserIdForApplyTaskBtn(userId,function(msg,projects){
         if('success'!=msg){
             req.session.error = "查找用户所属项目时发生错误,请记录并联系管理员";
             return null;
         }
-        callback(tasks);
+        callback(projects);
+    });
+}
+/**
+ * 查找测试人员，用于显示“查找变更单”按钮等
+ * @param userId
+ * @param req
+ * @param callback
+ */
+var findProsByTesterIdForMenuBtn = function(userId,req,callback){
+    Project.findTestProsByUserIdForMenuBtn(userId,function(msg,projects){
+        if('success'!=msg){
+            req.session.error = "查找用户所属项目时发生错误,请记录并联系管理员";
+            return null;
+        }
+        callback(projects);
     });
 }
 /**
@@ -130,7 +146,32 @@ var findProsByUserIdForBoss = function(userId,req,callback){
         callback(tasks);
     });
 }
-
+/**
+ * 查找测试主管所能查看的变更单
+ */
+var getTaskInfoForPM = function(userId,startNum,req,callback){
+    TaskTest.findTaskByPMId_P(userId,startNum,function(msg,tasks,count){
+        if('success'!=msg){
+            req.session.error = "查找变更单信息时发生错误,请记录并联系管理员";
+            return null;
+        }
+        var pageCount =  parseInt((count-1)/30 +1);
+        callback(tasks,pageCount);
+    });
+}
+/**
+ * 查找测试人员所能查看的变更单
+ */
+var getTaskInfoForTester = function(userId,startNum,req,callback){
+    TaskTest.findTaskByTesterId_P(userId,startNum,function(msg,tasks,count){
+        if('success'!=msg){
+            req.session.error = "查找变更单信息时发生错误,请记录并联系管理员";
+            return null;
+        }
+        var pageCount =  parseInt((count-1)/30 +1);
+        callback(tasks,pageCount);
+    });
+}
 /**
  * 首页导航栏“查看”按钮下的按钮点击
  * @param res
@@ -240,7 +281,87 @@ var topBtnClick = function(res, req, btnName){
         });
         return ;
     }
-    //查找当前用户处理的变更单
+    //查找当前用户处理的变更
+    //测试主管
+    if(req.session.user.isPM&&( btnName=='btnToBeDeal'||btnName=='')){
+        getTaskInfoForPM(userId,startNum,req,function(tasks,pageCount){
+            findProsByTesterIdForMenuBtn(userId, req, function (userPros){
+                if (tasks.length > 0) {
+                    req.session.tasks = tasks;
+                    req.session.taskCount = tasks.length;
+                    req.session.curDealPage = curPage;
+                    console.log("user:",req.session.user);
+                    return res.render('index', {
+                        title: 'AILK-CRM版本管理系统',
+                        user: req.session.user,
+                        menus: req.session.menus,
+                        tasks: req.session.tasks,
+                        taskCount: req.session.taskCount,
+                        topBtnCheckTask: btnName,
+                        userPros: userPros ,
+                        totalDealPage: pageCount,
+                        curDealPage:curPage
+                    });
+                } else {
+                    req.session.tasks = null;
+                    req.session.taskCount = null;
+                    req.session.curDealPage = null;
+                    return res.render('index', {
+                        title: 'AILK-CRM版本管理系统',
+                        user: req.session.user,
+                        menus: req.session.menus,
+                        tasks: req.session.tasks,
+                        taskCount: req.session.taskCount,
+                        topBtnCheckTask: btnName,
+                        userPros: userPros,
+                        totalDealPage: pageCount,
+                        curDealPage:curPage
+                    });
+                }
+            });
+        });
+        return ;
+    }
+    //测试人员
+    if(req.session.user.isTester&&( btnName=='btnToBeDeal'||btnName=='')){
+        getTaskInfoForTester(userId,startNum,req,function(tasks,pageCount){
+            findProsByTesterIdForMenuBtn(userId, req, function (userPros){
+                if (tasks.length > 0) {
+                    req.session.tasks = tasks;
+                    req.session.taskCount = tasks.length;
+                    req.session.curDealPage = curPage;
+                    console.log("user:",req.session.user);
+                    return res.render('index', {
+                        title: 'AILK-CRM版本管理系统',
+                        user: req.session.user,
+                        menus: req.session.menus,
+                        tasks: req.session.tasks,
+                        taskCount: req.session.taskCount,
+                        topBtnCheckTask: btnName,
+                        userPros: userPros ,
+                        totalDealPage: pageCount,
+                        curDealPage:curPage
+                    });
+                } else {
+                    req.session.tasks = null;
+                    req.session.taskCount = null;
+                    req.session.curDealPage = null;
+                    return res.render('index', {
+                        title: 'AILK-CRM版本管理系统',
+                        user: req.session.user,
+                        menus: req.session.menus,
+                        tasks: req.session.tasks,
+                        taskCount: req.session.taskCount,
+                        topBtnCheckTask: btnName,
+                        userPros: userPros,
+                        totalDealPage: pageCount,
+                        curDealPage:curPage
+                    });
+                }
+            });
+        });
+        return ;
+    }
     if(btnName=='btnToBeDeal'||btnName=='') {
         findDealTask(userId,startNum, req, function (tasks,pageCount) {
             findProsByUserIdForApplyTaskBtn(userId, req, function (userPros) {

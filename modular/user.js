@@ -152,6 +152,39 @@ User.findUserProjectId = function(userId,callback){
         });
     });
 }
+
+/**
+ * 查询当前测试人员可以操作哪些工程（查出的是projectId）
+ * @param name
+ * @param pwd
+ * @param callback
+ */
+User.findTesterProjectId = function(userId,callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN USER ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = "SELECT DISTINCT projectId FROM testertoproject where userId = ?";
+        var params = [userId];
+        connection.query(sql, params, function (err, results) {
+            if (err) {
+                console.log('[QUERY USER ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            var projectIds;
+            results.forEach(function(result){
+                if(undefined == projectIds){
+                    projectIds = result.projectId;
+                }else{
+                    projectIds = projectIds + ',' + result.projectId;
+                }
+            });
+            callback('success',projectIds);
+        });
+    });
+}
 /**
  * 查询当前领导可以查看哪些工程（查出的是projectId）
  * @param name
@@ -325,6 +358,34 @@ User.getProUser = function(taskId, callback){
 }
 
 /**
+ * 获取当前项目的所测试人员
+ * @param callback
+ */
+User.getProTester = function(taskId, callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN USER ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql ='select u.userName,u.realName from testertoproject utp' +
+            '        JOIN user u ON utp.userId = u.userId' +
+            '        JOIN tasks t ON t.projectId = utp.projectId' +
+            '        AND t.taskId = ?';
+        var params = [taskId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.err('[QUERY TESTER ERROR] - ', err.message);
+                return callback(err,null);
+            }
+
+            connection.release();
+            //console.log("getProCheckUser:",result);
+            callback('success',result);
+        });
+    });
+}
+
+/**
  * 获取当前项目的所有走查人员
  * @param callback
  */
@@ -351,7 +412,6 @@ User.getProCheckUser = function(taskId, callback){
         });
     });
 }
-
 
 /**
  * 修改用户的登录密码
@@ -473,9 +533,6 @@ User.findSys = function(callback){
     });
 }
 
-
-module.exports = User;
-
 User.prototype.save = function save(user,callback){
     pool.getConnection(function(err, connection){
         if(err){
@@ -494,6 +551,60 @@ User.prototype.save = function save(user,callback){
         });
     });
 }
+/**
+ * 查询测试人员有哪些工程的测试主管的权限
+ * @param userId
+ * @param callback
+ */
+User.findTestProjectForFindAllTask = function(userId,callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN USER ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'SELECT * FROM project where PM = ?';
+        var params = [userId];
+        connection.query(sql, params, function (err, results) {
+            if (err) {
+                console.log('[QUERY USER ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',results);
+        });
+    });
+}
+/**
+ * 查询测试人员有哪些工程的权限
+ * @param userId
+ * @param callback
+ */
+User.findTestProjectForFindAllTask = function(userId,callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN USER ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = ' SELECT * FROM project p' +
+        '        where p.projectId IN' +
+        '        (' +
+        '            SELECT distinct projectId from testertoproject where userId = ?' +
+        '        )';
+        var params = [userId];
+        connection.query(sql, params, function (err, results) {
+            if (err) {
+                console.log('[QUERY USER ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',results);
+        });
+    });
+}
+
+
+module.exports = User;
+
 
 
 

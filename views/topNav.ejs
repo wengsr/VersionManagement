@@ -20,23 +20,55 @@
                 <a class="btn  btn-info btn-sm" btnname="btnFindAllTasksForBoss" btnurl="" href="#" id="btnFindAllTasksForBoss" style = "color:white;margin-top:9px; "> 查找变更单 </a>
             </ul>
             <%}%>
+
+            <!--<%if(user&&(user.isPM||user.isTester)){ %>-->
+            <!--&lt;!&ndash;测试人员导航菜单&ndash;&gt;-->
+            <!--<ul id="navMenu" class="nav navbar-nav">-->
+                <!--<li class="dropdown">-->
+                    <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">操作<span class="caret"></span></a>-->
+                    <!--<ul class="dropdown-menu" role="menu">-->
+                        <!--<%if(user.permissionId < 5){%>-->
+                        <!--<li><a class="menuBtn" btnname="btnFindTasks" btnurl="" href="#" id="btnFindTasks"> 查找变更单 </a></li>-->
+                        <!--<%}%>-->
+                        <!--<%if(user && user.isPM){ %>-->
+                        <!--<li><a class="menuBtn" btnname="btnFindAllTasks" btnurl="" href="#" id="btnFindAllTasks"> 查找所有变更单 </a></li>-->
+                        <!--<% } %>-->
+                    <!--</ul>-->
+                <!--</li>-->
+                <!--<li class="dropdown">-->
+                    <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">视图<span class="caret"></span></a>-->
+                    <!--<ul class="dropdown-menu" role="menu">-->
+                        <!--<li><a class="menuBtn" btnname="btnToBeDeal" btnurl="/btnToBeDeal" href="/btnToBeDeal" id="btnToBeDeal"> 待处理的变更单 </a></li>-->
+                    <!--</ul>-->
+                <!--</li>-->
+            <!--</ul>-->
+            <!--<%}%> -->
             <%if(userPros && userPros.length>0){%>
                 <ul id="navMenu" class="nav navbar-nav">
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">操作<span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
+                            <%if(!(user.permissionId >5)){%>
                             <li><a class="menuBtn" btnname="btnSubmitApply" btnurl="" href="#" id="btnSubmitApply"> 申请变更单 </a></li>
                             <li><a class="menuBtn" btnname="btnFindTasks" btnurl="" href="#" id="btnFindTasks"> 查找变更单 </a></li>
+                            <%}%>
                             <%if(user && (user.isAdmin)){ %>
                             <li><a class="menuBtn" btnname="btnFindAllTasks" btnurl="" href="#" id="btnFindAllTasks"> 查找所有变更单 </a></li>
                             <li><a class="menuBtn" btnname="btnFileHistory" btnurl="" href="/admin/findFileHistory" methods="post" id="btnFileHistory"> 查看文件历史记录 </a></li>
+                            <% } %>
+                            <%if(user && ((user.isPM)||user.isTester)){ %>
+                            <li><a class="menuBtn" btnname="btnFindTestTasks" btnurl="" href="#" id="btnFindTestTasks"> 查找测试变更单 </a></li>                            <% } %>
+                            <%if(user && (user.isPM)){ %>
+                            <li><a class="menuBtn" btnname="btnFindAllTestTasks" btnurl="" href="#" id="btnFindAllTestTasks"> 查找所有测试变更单 </a></li>
                             <% } %>
                         </ul>
                     </li>
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">视图<span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
+                            <%if(!(user.permissionId >5)){%>
                             <li><a class="menuBtn" btnname="btnTaskCreater" btnurl="/btnTaskCreater" href="/btnTaskCreater" id="btnTaskCreater"> 我发起的变更单 </a></li>
+                            <%}%>
                             <li><a class="menuBtn" btnname="btnToBeDeal" btnurl="/btnToBeDeal" href="/btnToBeDeal" id="btnToBeDeal"> 待处理的变更单 </a></li>
                         </ul>
                     </li>
@@ -56,16 +88,6 @@
                 </ul>
             <%}%>
             <% } %>
-            <!--根据变更单号查询变更单信息-->
-            <!--<form class="navbar-form navbar-left" role="search">-->
-                <!--<div class="input-group">-->
-                    <!--<input type="text" class="form-control" placeholder="输入变更单号搜索">-->
-                    <!--<span class="input-group-btn">-->
-                        <!--<button class="btn btn-default" type="button">搜索</button>-->
-                    <!--</span>-->
-                <!--</div>-->
-            <!--</form>-->
-
 
             <ul class="nav navbar-nav navbar-right">
                 <%if(!user){ %>

@@ -2,7 +2,7 @@
 <link rel="stylesheet" type="text/css" href="/stylesheets/bootstrap-clockpicker.min.css">
 <link rel="stylesheet" href="/stylesheets/bootstrap-datetimepicker.min.css">
 <!--变更单处理--“查找变更单”模态窗口-->
-<form action="/task/findTask" id="formAddTask" class=" bs-component form-horizontal" method='post'>
+<form action="/taskTest/findTestTasks" id="formAddTask" class=" bs-component form-horizontal" method='post'>
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
         <h4 class="modal-title" id="myLargeModalLabel">查找变更单</h4>
@@ -29,20 +29,11 @@
                         <div class="col-sm-4">
                             <select class="form-control" name="taskState">
                                 <option value="" selected >--请选择--</option>
-                                <option value="未完成" >未上库完成</option>
-                                <option value="申请完成" >申请完成</option>
-                                <option value="旧文件已提取" >旧文件已提取</option>
-                                <option value="变更文件已提交" >变更文件已提交</option>
-                                <option value="已安排走查" >已安排走查</option>
-                                <option value="走查通过" >走查通过</option>
-                                <option value="走查不通过" >走查不通过</option>
-                                <option value="正在上库" >正在上库</option>
                                 <option value="上库完成" >上库完成</option>
                                 <option value="测试通过" >测试通过</option>
                                 <option value="测试不通过" >测试不通过</option>
                             </select>
                         </div>
-
                     </div>
 
                     <div class="form-group">
@@ -55,11 +46,6 @@
                         <div class="col-sm-4">
                             <select class="form-control" name="taskStep">
                                 <option value="" selected >--请选择--</option>
-                                <option value="99" >未上库</option>
-                                <option value="3" >提取&上传变更文件</option>
-                                <option value="4" >安排走查</option>
-                                <option value="5" >走查</option>
-                                <option value="6" >上库</option>
                                 <option value="8" >测试</option>
                                 <option value="9" >测试完成</option>
                             </select>

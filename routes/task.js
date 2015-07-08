@@ -362,7 +362,7 @@ var sendEmailToNext = function(req,taskId,dealer, stepId,content){
             //console.log("email success");
         });
     }
-    else if(stepId == 3||stepId == 7){
+    else if(stepId == 3){
         //给变更单的发起人发送邮件
         Task.findTaskAndEmailByTaskId(taskId,function(msg, result_taskId) {
             if(msg == 'err'){
@@ -377,6 +377,43 @@ var sendEmailToNext = function(req,taskId,dealer, stepId,content){
             Email.sendMailToDealer(taskcode, taskname, userName, processStepId, userEmail);
         });
         }
+    else if(stepId == 7){
+        //给变更单的发起人发送邮件
+        Task.findTaskAndPMByTaskId(taskId,function(msg, result_taskId) {
+            if(msg == 'err'){
+                console.log('[checkUnpass sendEmail Err]');
+                return ;
+            }
+            var taskcode = result_taskId.taskcode;
+            var taskname = result_taskId.taskname;
+            var userEmail = result_taskId.email;
+            var userName = result_taskId.realName;
+            var processStepId = stepId;
+            Email.sendMailToDealer(taskcode, taskname, userName, processStepId, userEmail);
+        });
+    }
+
+}
+
+var sendEmailToCreaterSubmit = function(req,taskId,dealer, stepId,isPass) {
+    Task.findTaskAndEmailByTaskId(taskId,function(msg, result_taskId) {
+        if(msg == 'err'){
+            console.log('[checkUnpass sendEmail Err]');
+            return ;
+        }
+        var taskcode = result_taskId.taskcode;
+        var taskname = result_taskId.taskname;
+        var userEmail = result_taskId.email;
+        var userName = result_taskId.realName;
+        var processStepId = stepId;
+        var content = '';
+        if(stepId ==7)
+        {
+            content = "已经上库完成";
+        }
+
+        Email.sendMailToCreaterSubmit(taskcode, taskname, userName, userEmail,content);
+    });
 }
 
 /**
@@ -391,12 +428,13 @@ var findHistory = function(taskId,req,callback){
             return null;
         }
         result.forEach(function(task,i){
-             task.execTime = task.execTime.format("yyyy-MM-dd HH:mm:ss");
+            if(task.execTime){
+                task.execTime = task.execTime.format("yyyy-MM-dd HH:mm:ss");
+            }
         });
         callback(result);
     });
 }
-
 
 
 /**
@@ -635,6 +673,7 @@ router.post('/submitComplete', function(req, res) {
             jsonStr = '{"sucFlag":"success","message":"【上库完成】执行成功"}';
             //判断其他变更单的文件占用情况并发邮件
             sendEmailToNext(req,taskId,'',7);
+            sendEmailToCreaterSubmit(req,taskId,'',7);
             findUnUsedTaskAndFileUri(taskId,req,function(fileLists){
 //                var tempTaskId = '';
 //                var tempFileUriStr = '';
@@ -735,7 +774,6 @@ router.get('/findAllTaskPage', function(req, res) {
         }
         res.render('findAllTask',{projects:projects});
     });
-
 });
 /**
  * 领导查找所有变更单页面展示

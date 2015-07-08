@@ -17,6 +17,7 @@ var session = require('express-session');
 var partials = require('express-partials');
 //var multiparty=require('connect-multiparty');
 var file = require('./routes/file');
+var taskTest = require('./routes/taskTest');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -109,6 +110,7 @@ app.use('/file', file);
 app.use('/leaderModel', leaderModel);
 app.use('/superModel', superModel);
 app.use('/admin', adminModel);
+app.use('/taskTest', taskTest);
 
 
 module.exports = app;

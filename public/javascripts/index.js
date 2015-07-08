@@ -92,11 +92,11 @@ function regTaskLink(){
     }
 }
 /**
- * 注册点击变更单后根据当前所处环节弹出的对话框
+ * 查看已上库的变更单的文件清单
  */
 function regTaskFileList() {
-    var stepId = "[step=taskProcessStepId_7]";
-    var stepId2 = "[step=2taskProcessStepId_7]";
+    var stepId = "[forFiles=ForFiles]";
+    //var stepId2 = "[step=2taskProcessStepId_9]";
     var url = '/users/showFileList',
         stepName = 'btnSubmit';
     $(stepId).each(function(){
@@ -111,19 +111,27 @@ function regTaskFileList() {
         showModelDialog(taskTagId, realUrl, btnForm);
         //showModelDialog(taskTagId2, realUrl, btnForm);
     });
-    //$(stepId2).each(function(){
-    //    $(this).attr('step',stepName);
-    //    var taskTagId = $(this).attr('id');
-    //    //var taskTagId2 = $(this).attr('id2');
-    //    var taskId = $(this).attr('taskid');
-    //    //var taskCreater = $(this).attr('taskcreater');
-    //    //var dealerName = $(this).attr('dealerName');
-    //    var createName = $(this).attr('createName');
-    //    var realUrl = url + "/" + taskId + "/"+ createName;
-    //    btnForm = stepName.replace('btn','form');
-    //    showModelDialog(taskTagId, realUrl, btnForm);
-    //    //showModelDialog(taskTagId2, realUrl, btnForm);
-    //});
+}
+/**
+ * 测试环节
+ */
+function regTaskTestDialog() {
+    var stepId = "[step=taskProcessStepId_8]";
+    //var url = '/users/showFileList',
+    var url = '/taskDialog/testing',
+        stepName = 'testing';
+    $(stepId).each(function(){
+        $(this).attr('step',stepName);
+        var taskTagId = $(this).attr('id');
+        var taskId = $(this).attr('taskid');
+        var taskCreater = $(this).attr('taskcreater');
+        var dealerName = $(this).attr('dealerName');
+        var createName = $(this).attr('createName');
+        var realUrl = url + "/" + taskId + "/"+taskCreater + "/" + dealerName + "/" + createName;
+        btnForm = stepName.replace('btn','form');
+        showModelDialog(taskTagId, realUrl, btnForm);
+        //showModelDialog(taskTagId2, realUrl, btnForm);
+    });
 }
 
 /**
@@ -153,10 +161,13 @@ jQuery(document).ready(function() {
     showModelDialog("btnFindTasks","/task/findTaskPage",'formFindTasks');
     //点击“查找所有变更单”打开模态窗口
     showModelDialog("btnFindAllTasks","/task/findAllTaskPage",'formFindAllTasks');
+    //测试主管“查找所有与测试相关的变更单”
+    showModelDialog("btnFindAllTestTasks","/taskTest/findAllTestTasksPage",'formFindAllTestTasks');
+    showModelDialog("btnFindTestTasks","/taskTest/findTestTasksPage",'formFindTestTasks');
     showModelDialog("btnFindAllTasksForBoss","/task/findAllTasksForBossPage",'formAllTasksForBoss');
-
     regTaskLink();
     regTaskFileList();
+    regTaskTestDialog();
     //隐藏页面上方提示条
     setTimeout(function(){$('#errTip').slideUp(1000);setTimeout(function(){$('#errTip').remove()},2000)},2000);
     setTimeout(function(){$('#successTip').slideUp(1000);setTimeout(function(){$('#successTip').remove()},2000)},1000);
@@ -186,8 +197,6 @@ jQuery(document).ready(function() {
 
 
     });
-
-
 
 
   $("[deleteName=deleteTask]").each (function ()
