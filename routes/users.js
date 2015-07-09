@@ -296,14 +296,16 @@ var findInfoForLogin = function(user,req,res){
         return;
     }
    //测试人员登录
-    if(user.permissionId == 6){
-        findInfoForPM(user,req,res);
-        return;
-    }
-    if(user.permissionId == 7){
-        findInfoForTester(user,req,res);
-        return;
-    }
+   if(user.permissionId == 6){
+        //findInfoForPM(user,req,res);
+        //return;
+       user.isPM = true;
+   }
+   if(user.permissionId == 7){
+        //findInfoForTester(user,req,res);
+        //return;
+       user.isTester = true;
+   }
     //查找当前登录用户有哪些工程的权限
     User.findUserProjectId(user.userId,function(msg,projectIds){
         if('success'!=msg){
@@ -311,7 +313,6 @@ var findInfoForLogin = function(user,req,res){
             return null;
         }
         user.projectId = projectIds;
-
         findProIdForLeader(user.userId,req,function(leaderProIds){//当前用户对哪些项目有“组长权限”
             findProIdForAdmin(user.userId,req,function(adminProIds){//当前用户对哪些项目有“版本管理员权限”
                 if(leaderProIds.length>0){user.isLeader = true;}else{user.isLeader = false;}//是否有领导权限，用于显示“领导模式”按钮

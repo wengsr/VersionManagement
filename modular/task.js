@@ -1136,15 +1136,18 @@ Task.submitComplete = function(taskId, userId, callback){
             updateTPS:"insert into taskprocessstep (taskid, processStepId, turnNum, dealer,execTime) " +
                 " values (?,7,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?,?)",
             //测试环节
-            updateTPS2:"insert into taskprocessstep (taskid, processStepId, turnNum,dealer,execTime) " +
-            " values (?,8,?,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?)"
+            //updateTPS2:"insert into taskprocessstep (taskid, processStepId,dealer,turnNum,execTime) " +
+            //" values (?,8,?,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?)"
+            updateTPS2:"insert into taskprocessstep (taskid, processStepId,dealer,turnNum,execTime) " +
+            "values (?,8,(select PM from project  where projectId =(select projectId from tasks where taskId = ?)) ," +
+            "(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?)"
         }
         var selectDealer_params = [taskId];
         var updateTask_params = [taskId];
         var updateFileList_params = [taskId];
         var now = new Date().format("yyyy-MM-dd HH:mm:ss") ;
         var updateTPS_params = [taskId,taskId,userId,now];
-        var updateTPS2_params = [taskId,taskId,userId,now];
+        var updateTPS2_params = [taskId,taskId,taskId,now];
         var sqlMember = ['selectDealer', 'updateTask', 'updateFileList', 'updateTPS','updateTPS2'];
         var sqlMember_params = [selectDealer_params, updateTask_params, updateFileList_params, updateTPS_params,updateTPS2_params];
         var i = 0;

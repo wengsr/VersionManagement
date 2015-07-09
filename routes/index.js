@@ -21,6 +21,17 @@ var getCookieUser = function(req, res){
         return res.redirect("/");
     }
 }
+
+/**
+ * 保存信息到cookie和session中
+ */
+var saveCookieAndSession = function(req,res,user){
+    req.session.user = user;
+    req.session.success = "登录成功";
+    var minute = 1000*60*60;   //maxAge的单位为毫秒,这里设置为60分钟
+    res.cookie('user', user, {maxAge: minute}, {httpOnly: true});//设置到cookie中
+}
+
 /**
  * 判断前一次查找的条件是否存在
  * @param req
@@ -181,6 +192,7 @@ var getTaskInfoForTester = function(userId,startNum,req,callback){
  */
 var topBtnClick = function(res, req, btnName){
     var curPage =  req.params.curPage;
+    var userPros = [] ;
     if(curPage ==undefined || curPage ==''){
         curPage = 1;
     }
@@ -205,6 +217,12 @@ var topBtnClick = function(res, req, btnName){
     }
     var userId = req.session.user.userId;
     //领导界面
+    //if(user.permissionId == 6){
+    //    user.isPM = true;
+    //}
+    //if(user.permissionId == 7){
+    //    user.isTester = true;
+    //}
     if(req.session.user.isBoss){
         //return res.redirect('/leaderModel/leader');
         var cookieUser = req.cookies.user;
@@ -283,120 +301,133 @@ var topBtnClick = function(res, req, btnName){
     }
     //查找当前用户处理的变更
     //测试主管
-    if(req.session.user.isPM&&( btnName=='btnToBeDeal'||btnName=='')){
-        getTaskInfoForPM(userId,startNum,req,function(tasks,pageCount){
-            findProsByTesterIdForMenuBtn(userId, req, function (userPros){
-                if (tasks.length > 0) {
-                    req.session.tasks = tasks;
-                    req.session.taskCount = tasks.length;
-                    req.session.curDealPage = curPage;
-                    console.log("user:",req.session.user);
-                    return res.render('index', {
-                        title: 'AILK-CRM版本管理系统',
-                        user: req.session.user,
-                        menus: req.session.menus,
-                        tasks: req.session.tasks,
-                        taskCount: req.session.taskCount,
-                        topBtnCheckTask: btnName,
-                        userPros: userPros ,
-                        totalDealPage: pageCount,
-                        curDealPage:curPage
-                    });
-                } else {
-                    req.session.tasks = null;
-                    req.session.taskCount = null;
-                    req.session.curDealPage = null;
-                    return res.render('index', {
-                        title: 'AILK-CRM版本管理系统',
-                        user: req.session.user,
-                        menus: req.session.menus,
-                        tasks: req.session.tasks,
-                        taskCount: req.session.taskCount,
-                        topBtnCheckTask: btnName,
-                        userPros: userPros,
-                        totalDealPage: pageCount,
-                        curDealPage:curPage
-                    });
-                }
-            });
-        });
-        return ;
-    }
+    //if(req.session.user.isPM&&( btnName=='btnToBeDeal'||btnName=='')){
+    //    getTaskInfoForPM(userId,startNum,req,function(tasks,pageCount){
+    //        findProsByTesterIdForMenuBtn(userId, req, function (userPros){
+    //            if (tasks.length > 0) {
+    //                req.session.tasks = tasks;
+    //                req.session.taskCount = tasks.length;
+    //                req.session.curDealPage = curPage;
+    //                console.log("user:",req.session.user);
+    //                return res.render('index', {
+    //                    title: 'AILK-CRM版本管理系统',
+    //                    user: req.session.user,
+    //                    menus: req.session.menus,
+    //                    tasks: req.session.tasks,
+    //                    taskCount: req.session.taskCount,
+    //                    topBtnCheckTask: btnName,
+    //                    userPros: userPros ,
+    //                    totalDealPage: pageCount,
+    //                    curDealPage:curPage
+    //                });
+    //            } else {
+    //                req.session.tasks = null;
+    //                req.session.taskCount = null;
+    //                req.session.curDealPage = null;
+    //                return res.render('index', {
+    //                    title: 'AILK-CRM版本管理系统',
+    //                    user: req.session.user,
+    //                    menus: req.session.menus,
+    //                    tasks: req.session.tasks,
+    //                    taskCount: req.session.taskCount,
+    //                    topBtnCheckTask: btnName,
+    //                    userPros: userPros,
+    //                    totalDealPage: pageCount,
+    //                    curDealPage:curPage
+    //                });
+    //            }
+    //        });
+    //    });
+    //    //return ;
+    //}
     //测试人员
-    if(req.session.user.isTester&&( btnName=='btnToBeDeal'||btnName=='')){
-        getTaskInfoForTester(userId,startNum,req,function(tasks,pageCount){
-            findProsByTesterIdForMenuBtn(userId, req, function (userPros){
-                if (tasks.length > 0) {
-                    req.session.tasks = tasks;
-                    req.session.taskCount = tasks.length;
-                    req.session.curDealPage = curPage;
-                    console.log("user:",req.session.user);
-                    return res.render('index', {
-                        title: 'AILK-CRM版本管理系统',
-                        user: req.session.user,
-                        menus: req.session.menus,
-                        tasks: req.session.tasks,
-                        taskCount: req.session.taskCount,
-                        topBtnCheckTask: btnName,
-                        userPros: userPros ,
-                        totalDealPage: pageCount,
-                        curDealPage:curPage
-                    });
-                } else {
-                    req.session.tasks = null;
-                    req.session.taskCount = null;
-                    req.session.curDealPage = null;
-                    return res.render('index', {
-                        title: 'AILK-CRM版本管理系统',
-                        user: req.session.user,
-                        menus: req.session.menus,
-                        tasks: req.session.tasks,
-                        taskCount: req.session.taskCount,
-                        topBtnCheckTask: btnName,
-                        userPros: userPros,
-                        totalDealPage: pageCount,
-                        curDealPage:curPage
-                    });
-                }
-            });
-        });
-        return ;
-    }
+    //if(req.session.user.isTester&&( btnName=='btnToBeDeal'||btnName=='')){
+    //    getTaskInfoForTester(userId,startNum,req,function(tasks,pageCount){
+    //        findProsByTesterIdForMenuBtn(userId, req, function (userPros){
+    //            if (tasks.length > 0) {
+    //                req.session.tasks = tasks;
+    //                req.session.taskCount = tasks.length;
+    //                req.session.curDealPage = curPage;
+    //                console.log("user:",req.session.user);
+    //                return res.render('index', {
+    //                    title: 'AILK-CRM版本管理系统',
+    //                    user: req.session.user,
+    //                    menus: req.session.menus,
+    //                    tasks: req.session.tasks,
+    //                    taskCount: req.session.taskCount,
+    //                    topBtnCheckTask: btnName,
+    //                    userPros: userPros ,
+    //                    totalDealPage: pageCount,
+    //                    curDealPage:curPage
+    //                });
+    //            } else {
+    //                req.session.tasks = null;
+    //                req.session.taskCount = null;
+    //                req.session.curDealPage = null;
+    //                return res.render('index', {
+    //                    title: 'AILK-CRM版本管理系统',
+    //                    user: req.session.user,
+    //                    menus: req.session.menus,
+    //                    tasks: req.session.tasks,
+    //                    taskCount: req.session.taskCount,
+    //                    topBtnCheckTask: btnName,
+    //                    userPros: userPros,
+    //                    totalDealPage: pageCount,
+    //                    curDealPage:curPage
+    //                });
+    //            }
+    //        });
+    //    });
+    //    return ;
+    //}
+    //if((req.session.user.isPM||req.session.user.isTester)&&( btnName=='btnToBeDeal'||btnName=='')){
+    //
+    //}
     if(btnName=='btnToBeDeal'||btnName=='') {
         findDealTask(userId,startNum, req, function (tasks,pageCount) {
-            findProsByUserIdForApplyTaskBtn(userId, req, function (userPros) {
-                if (tasks.length > 0) {
-                    req.session.tasks = tasks;
-                    req.session.taskCount = tasks.length;
-                    req.session.curDealPage = curPage;
-                    return res.render('index', {
-                        title: 'AILK-CRM版本管理系统',
-                        user: req.session.user,
-                        menus: req.session.menus,
-                        tasks: req.session.tasks,
-                        taskCount: req.session.taskCount,
-                        topBtnCheckTask: btnName,
-                        userPros: userPros ,
-                        totalDealPage: pageCount,
-                        curDealPage:curPage
-                    });
-                } else {
-                    req.session.tasks = null;
-                    req.session.taskCount = null;
-                    req.session.curDealPage = null;
-                    return res.render('index', {
-                        title: 'AILK-CRM版本管理系统',
-                        user: req.session.user,
-                        menus: req.session.menus,
-                        tasks: req.session.tasks,
-                        taskCount: req.session.taskCount,
-                        topBtnCheckTask: btnName,
-                        userPros: userPros,
-                        totalDealPage: pageCount,
-                        curDealPage:curPage
-                    });
-                }
+            findProsByTesterIdForMenuBtn(userId, req, function (testPros){
+                findProsByUserIdForApplyTaskBtn(userId, req, function (userPros) {
+                    //查找开发人员，组长，版本管理员的所属项目
+                    if(userPros.length>0){
+                        var userTmp = cookieUser;
+                        userTmp.isDev = true;
+                        saveCookieAndSession(req,res,userTmp);
+                    }
+                    userPros = userPros.concat(testPros);
+                    if (tasks.length > 0) {
+                        req.session.tasks = tasks;
+                        req.session.taskCount = tasks.length;
+                        req.session.curDealPage = curPage;
+                        return res.render('index', {
+                            title: 'AILK-CRM版本管理系统',
+                            user: req.session.user,
+                            menus: req.session.menus,
+                            tasks: req.session.tasks,
+                            taskCount: req.session.taskCount,
+                            topBtnCheckTask: btnName,
+                            userPros: userPros ,
+                            totalDealPage: pageCount,
+                            curDealPage:curPage
+                        });
+                    } else {
+                        req.session.tasks = null;
+                        req.session.taskCount = null;
+                        req.session.curDealPage = null;
+                        return res.render('index', {
+                            title: 'AILK-CRM版本管理系统',
+                            user: req.session.user,
+                            menus: req.session.menus,
+                            tasks: req.session.tasks,
+                            taskCount: req.session.taskCount,
+                            topBtnCheckTask: btnName,
+                            userPros: userPros,
+                            totalDealPage: pageCount,
+                            curDealPage:curPage
+                        });
+                    }
+                });
             });
+
         });
     }
     ////查找当前用户创建的变更单

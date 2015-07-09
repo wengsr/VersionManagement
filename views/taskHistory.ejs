@@ -146,7 +146,7 @@
                 <li>
                     <h3>测试</h3>
                     <dl>
-                        <dt><%=tHis.realName%> &nbsp;&nbsp;&nbsp;&nbsp;<time style="display:inline;color:#d3d3d3;font-weight:normal">(<%=tHis.execTime%>)</time>
+                        <dt><%=tHis.realName==undefined?"":tHis.realName%> &nbsp;&nbsp;&nbsp;&nbsp;<time style="display:inline;color:#d3d3d3;font-weight:normal">(<%=tHis.execTime%>)</time>
                             <span><%=tHis.realName== undefined ?'':tHis.realName +'接受了'%>测试任务</span>
                             <%if(tHis.fileUri!=null){%>
                             上传了测试报告：<a typeId="attaLink" href="<%=tHis.fileUri%>" style="color:#32B1EC"><%=tHis.fileName%></a><br/>
@@ -159,7 +159,7 @@
                 <li>
                     <h3>测试完成</h3>
                     <dl>
-                        <dt><%=tHis.realName%> &nbsp;&nbsp;&nbsp;&nbsp;<time style="display:inline;color:#d3d3d3;font-weight:normal">(<%=tHis.execTime%>)</time>
+                        <dt><%=(tHis.realName==null)?"":tHis.realName%> &nbsp;&nbsp;&nbsp;&nbsp;<time style="display:inline;color:#d3d3d3;font-weight:normal">(<%=tHis.execTime%>)</time>
                             <span><%=tHis.realName%>测试后，作出“<%=tHis.state%>”的判定</span>
                             描述了不通过原因：<%if(tHis.noPassReason_test==null){%> 无<br/> <%}else{%>
                             <%var n1 = tHis.noPassReason_test.length/20; var n2=tHis.noPassReason_test.length%20;%>
@@ -177,8 +177,6 @@
             </ul>
         </div>
         <%}%>
-
-
 
 
 
