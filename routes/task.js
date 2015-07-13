@@ -384,6 +384,9 @@ var sendEmailToNext = function(req,taskId,dealer, stepId,content){
                 console.log('[checkUnpass sendEmail Err]');
                 return ;
             }
+            if(result_taskId == undefined){
+                return;
+            }
             var taskcode = result_taskId.taskcode;
             var taskname = result_taskId.taskname;
             var userEmail = result_taskId.email;
@@ -1338,7 +1341,6 @@ router.post('/submitFile', function(req, res) {
                         jsonStr = '{"sucFlag":"err","message":"变更单压缩包里需要直接放new目录，并且new与old的差异必须与申请文件清单一致"}';
                         var queryObj = url.parse(req.url, true).query;
                         res.send(queryObj.callback + '(\'' + jsonStr + '\')');
-
                         return ;
                     }
                     for(var k in filesAndState){

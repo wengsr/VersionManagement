@@ -54,7 +54,7 @@ function fileUploadBtnLoading(btnId,tipString){
  * @param subType
  */
 function ajaxSubmit_extract(params, url, subType){
-    url = './' + url;
+    url = '/' + url;
     $.ajax({
         data: params,
         url: url,
@@ -74,7 +74,7 @@ function ajaxSubmit_extract(params, url, subType){
                     $("#alertInfo").text("  出错文件: "+ errFile);
                 }
                 //提取文件成功后返回
-                if (url == './task/extractFile') {
+                if (url == '/task/extractFile') {
                     $('#btnExtractFile').button('reset');
                     $("#btnModify").show();
                     $("#btnModCancel").hide();
@@ -86,7 +86,7 @@ function ajaxSubmit_extract(params, url, subType){
                 }
             }else if('success'==flag) {
                 $("#divAlert").hide();
-                if (url == './task/extractFile') {
+                if (url == '/task/extractFile') {
                     if (dataJson.userFlag) {
                         //alert(dataJson.user);
                         $("#divAlert").show();

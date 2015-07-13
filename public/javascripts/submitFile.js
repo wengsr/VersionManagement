@@ -14,7 +14,7 @@ function fileUploadBtnLoading(btnId,tipString){
  * @param subType
  */
 function ajaxSubmit(params, url, subType){
-    url = './' + url;
+    url = '/' + url;
     $.ajax({
         data: params,
         url: url,
@@ -28,7 +28,7 @@ function ajaxSubmit(params, url, subType){
             var flag =  dataJson.sucFlag;
             if('err'==flag){
                 showTipInfo('err',dataJson.message);
-                if (url == './task/submitFile') {
+                if (url == '/task/submitFile') {
                     $('#btnSelectReport').show();
                     //$('#uploadInfo').hide();
                     $('#btnSubmitFile').button('reset');

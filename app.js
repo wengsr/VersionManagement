@@ -18,6 +18,9 @@ var partials = require('express-partials');
 //var multiparty=require('connect-multiparty');
 var file = require('./routes/file');
 var taskTest = require('./routes/taskTest');
+var  excel = require("./routes/excel");
+
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -111,6 +114,6 @@ app.use('/leaderModel', leaderModel);
 app.use('/superModel', superModel);
 app.use('/admin', adminModel);
 app.use('/taskTest', taskTest);
-
+app.use("/excel",excel);
 
 module.exports = app;
