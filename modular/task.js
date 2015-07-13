@@ -1133,8 +1133,9 @@ Task.submitComplete = function(taskId, userId, callback){
             selectDealer:"select * from tasks where taskid=? and processStepId=7",
             updateTask: "update tasks set state='上库完成',processStepId=8 where taskid=?",
             updateFileList: "update filelist set commit=1 where taskId=?",
-            updateTPS:"insert into taskprocessstep (taskid, processStepId, turnNum, dealer,execTime) " +
-                " values (?,7,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?,?)",
+            updateTPS:"insert into taskprocessstep (taskid, processStepId, turnNum, dealer,execTime,isAuto) " +
+                " values (?,7,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?,?," +
+            "   (SELECT isAuto from (select * from taskprocessstep where taskId =? and processstepId = 6) as tps ))",
             //测试环节
             //updateTPS2:"insert into taskprocessstep (taskid, processStepId,dealer,turnNum,execTime) " +
             //" values (?,8,?,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?)"
@@ -1146,7 +1147,7 @@ Task.submitComplete = function(taskId, userId, callback){
         var updateTask_params = [taskId];
         var updateFileList_params = [taskId];
         var now = new Date().format("yyyy-MM-dd HH:mm:ss") ;
-        var updateTPS_params = [taskId,taskId,userId,now];
+        var updateTPS_params = [taskId,taskId,userId,now,taskId];
         var updateTPS2_params = [taskId,taskId,taskId,now];
         var sqlMember = ['selectDealer', 'updateTask', 'updateFileList', 'updateTPS','updateTPS2'];
         var sqlMember_params = [selectDealer_params, updateTask_params, updateFileList_params, updateTPS_params,updateTPS2_params];
@@ -1794,14 +1795,22 @@ Task.autoComp = function(taskId,callback){
             return callback(err);
         }
         var sql = "UPDATE tasks SET state='自动上库完成' WHERE taskid = ?";
+        var upateAutoSql = "update taskprocessstep set isAuto = 1 where taskId = ? and processstepId =6";
         var params = [taskId];
+        var upateAuto_params = [taskId];
         connection.query(sql, params, function (err, result) {
             if (err) {
-                console.log('[QUERY TASKS ERROR] - ', err.message);
+                console.log('[UPDATE TASKS ERROR] - ', err.message);
                 return callback('err',err);
             }
-            connection.release();
-            callback('success',null);
+            connection.query(upateAutoSql, upateAuto_params, function (err, result) {
+                if (err) {
+                    console.log('update taskprocessstep ERROR] - ', err.message);
+                    return callback('err',err);
+                }
+                connection.release();
+                callback('success',null);
+            });
         });
     });
 }
