@@ -95,6 +95,7 @@ function submitForm_testUnPass(){
     if(testReportHref=='#'){
         $('#diaInfoTip').hide();//隐藏已选择文件提示
         $('#fulAvatar').val('');//清楚已选择的文件
+
         showTipInfo('err','不通过前请先上传测试报告');
         return;
     }
@@ -106,13 +107,19 @@ function submitForm_testUnPass(){
         showTipInfo('err','请填写不通过原因');
         return;
     }
+    var noPassType = $('#unPassType').val();
+    if(noPassType==''){
+        $('#diaInfoTip').hide();//隐藏已选择文件提示
+        showTipInfo('err','请填写不通过类型');
+        return;
+    }
     //2.走查不通过逻辑
     var test_params={
         nextDealer: $('#testPerson').val(),
         taskId: $('#taskId').val(),
-        noPassReason: $('#noPassReason').val()
+        noPassReason: $('#noPassReason').val(),
+        unPassType : $('#unPassType').val()
     };
-    debugger
     var test_url='taskTest/testUnPass';
     ajaxSubmit(test_params, test_url, 'post');
 }
@@ -178,8 +185,8 @@ function bindClick_btnUploadFile(){
         }
 
         var extName = fulAvatarVal.substring(fulAvatarVal.lastIndexOf('.'),fulAvatarVal.length).toLowerCase();
-        if(extName != '.rar' && extName != '.xls'){
-            showTipInfo('err','只支持rar和xls文件');
+        if(extName != '.rar' && extName != '.xls'&&extName != '.zip' && extName != '.doc'&& extName != '.xlsx'){
+            showTipInfo('err','只支持doc,zip,rar,xlsx和xls文件');
             return false;
         }
 

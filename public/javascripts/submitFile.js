@@ -130,9 +130,16 @@ function bindClick_btnUploadFile(){
             showTipInfo('err','请选择要上传的文件');
             return false;
         }
+        var fileName = fulAvatarVal.substring(fulAvatarVal.lastIndexOf("\\")+1,fulAvatarVal.lastIndexOf('.'));
+        var taskName = $("#taskName").text();
         var extName = fulAvatarVal.substring(fulAvatarVal.lastIndexOf('.'),fulAvatarVal.length).toLowerCase();
         if(extName != '.rar'&& extName != '.zip'){
             showTipInfo('err','只支持rar,zip文件');
+            return false;
+        }
+        //限定变更单名和附件名要一致
+        if(taskName != fileName){
+            showTipInfo('err','变更单名和上传的附件名要一致');
             return false;
         }
         //submitForm_submitFile();

@@ -34,7 +34,7 @@ function ajaxSubmit(params, url, subType, fun){
                 }else if('complete'==fun){              //上库完成
                     $('#btnSubmitComplete').hide();
                     $('#btnAutoSubmit').hide();
-                    window.open("http://192.168.1.22:8082/jenkins/");
+                    //window.open("http://192.168.1.22:8082/jenkins/");
                 }
             }
         },

@@ -3,6 +3,8 @@
  */
 var nodemailer = require('nodemailer');
 
+var alink = "内网请访问 "+"http://192.168.1.135:8888</div>" +
+    "   <div>外网请访问 http://www.mobconnection.com:8888</div>";
 var transporter = nodemailer.createTransport({
     service: 'AliYun',          //'AsinInfo',
     secureConnection: true,     // use SSL
@@ -25,7 +27,7 @@ exports.sendMailToCreater = function(taskcode, taskname, creater, content, userE
             '&emsp;&emsp;您好！您申请的变更单【变更单名称】:“'+taskname+'”   (变更单号：'+taskcode+')有以下文件被占用。' +
             '现在占用已解除，可以提取。请及时提取并上传变更单。<br/><br/></b>' +
             '<div><b>'+content+'</b><br/></div>'
-        mailOptions.html = sendContent;
+        mailOptions.html = sendContent+alink;
         mailOptions.to = userEmail;
 
         transporter.sendMail(mailOptions, function(error, info){
@@ -51,7 +53,7 @@ exports.sendMailToDealer = function(taskcode, taskname, creater, processStepId, 
             '<br/> &emsp;&emsp; ' +
          '<br/><br/></b> ' ;
         mailOptions.subject= '【版本管理系统】有新的变更单需要测试';
-        mailOptions.html = sendContent;
+        mailOptions.html = sendContent+alink;
     }
     if(processStepId==5){
         sendContent = '<b>亲爱的'+creater+'：<br/>' +
@@ -71,7 +73,7 @@ exports.sendMailToDealer = function(taskcode, taskname, creater, processStepId, 
         '等着你来哦！<br/><br/></b>' ;
         mailOptions.subject= '【版本管理系统】有新的任务需要安排走查';
     }
-    mailOptions.html = sendContent;
+    mailOptions.html = sendContent+alink;
     mailOptions.to = userEmail;
     transporter.sendMail(mailOptions, function(error, info){
         if(error){
@@ -88,7 +90,7 @@ exports.sendMailToCreaterTest =function(taskcode, taskname, userName, userEmail,
         '&emsp;&emsp;您好！您申请的变更单【变更单名称】:“'+taskname+'”   (变更单号：'+taskcode+')' +
         '<br/><br/></b>' +
         '<div><b>'+content+'</b><br/></div>';
-    mailOptions.html = sendContent;
+    mailOptions.html = sendContent+alink;
     mailOptions.to = userEmail;
     mailOptions.subject= '【版本管理系统】变更单'+content;
     transporter.sendMail(mailOptions, function(error, info){
@@ -104,7 +106,7 @@ exports.sendMailToCreaterSubmit =function(taskcode, taskname, userName, userEmai
         '&emsp;&emsp;您好！您申请的变更单【变更单名称】:“'+taskname+'”   (变更单号：'+taskcode+')' +
         '<br/><br/></b>' +
         '<div><b>'+content+'</b><br/></div>';
-    mailOptions.html = sendContent;
+    mailOptions.html = sendContent+alink;
     mailOptions.to = userEmail;
     mailOptions.subject= '【版本管理系统】变更单'+content;
     transporter.sendMail(mailOptions, function(error, info){

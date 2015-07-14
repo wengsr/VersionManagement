@@ -97,6 +97,9 @@ function fileUp(req, res, secFolder){
             case 'application/msword':
                 extName = 'doc';
                 break;
+            case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+                extName = 'xlsx';
+                break;
         }
 
         if(extName==''){

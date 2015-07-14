@@ -253,9 +253,10 @@ router.post('/testUnPass', function(req, res) {
     var taskId = req.body['taskId'];
     var creater = req.body['creater'];
     var noPassReason =  req.body['noPassReason'];
+    var noPassType = req.body['unPassType'];
     var dealer = req.session.user.userId;
     var jsonStr;
-    TaskTest.doTestUnPass(taskId,dealer,noPassReason,function(msg,result){
+    TaskTest.doTestUnPass(taskId,dealer,noPassReason,noPassType,function(msg,result){
         if('success' == msg){
             jsonStr = '{"sucFlag":"success","message":"【测试不通过】执行成功"}';
             sendEmailToCreaterTest(req,taskId,creater,'8',false);//发送邮件
@@ -304,7 +305,7 @@ router.post('/findAllTestTasks', function (req, res) {
 
     //Task.findAllTaskByParam(userId,projectId,state,processStepId,taskCode,taskname,createrName,startTime,endTime,0,function(msg,tasks,count){
     TaskTest.findAllTestTaskByParam(conds,0,function(msg,tasks,count){
-        console.log("find All Test Tasks:",tasks)
+        //console.log("find All Test Tasks:",tasks)
         findProsByTesterIdForMenuBtn(userId,req,function(userPros){
             if('success'!=msg){
                 req.session.error = "模糊查询所有变更单时发生错误,请记录并联系管理员";

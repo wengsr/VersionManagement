@@ -75,7 +75,7 @@ TaskTest.doTestPass = function(taskId,userId,callback){
  * @param taskId
  * @param callback
  */
-TaskTest.doTestUnPass = function(taskId, userId, noPassReason, callback) {
+TaskTest.doTestUnPass = function(taskId, userId, noPassReason,noPassType, callback) {
     pool.getConnection(function (err, connection) {
         //开启事务
         queues(connection);
@@ -87,9 +87,9 @@ TaskTest.doTestUnPass = function(taskId, userId, noPassReason, callback) {
             '   (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)' +
             '   and taskId =? and processStepId = 8',
             insertTestUnpass: "insert into testUnPass " +
-            "            (taskId, turnNum, dealer, noPassReason)" +
+            "            (taskId, turnNum, dealer, noPassReason,unPassTypeId)" +
             "            values(?, (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskProcessStep WHERE taskId=?) as maxNumTable)," +
-            "           ?,?)",
+            "           ?,?,?)",
             //updateDealer: 'update taskprocessstep set dealer =?,execTime = ? where taskId = ? and processStepId = 8',
             updateTPS:"insert into taskprocessstep (taskid, processStepId, turnNum, dealer,execTime) " +
             " values (?,9,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?,?)"
@@ -98,7 +98,7 @@ TaskTest.doTestUnPass = function(taskId, userId, noPassReason, callback) {
         var now = new Date().format("yyyy-MM-dd HH:mm:ss");
         var updateDealer_params = [userId,taskId, taskId ];
         var updateTPS_params = [taskId,taskId,userId,now ];
-        var insertTestUnpass_params = [taskId, taskId, userId, noPassReason];
+        var insertTestUnpass_params = [taskId, taskId, userId, noPassReason,noPassType];
         var sqlMember = ['updateTask',"updateDealer",'insertTestUnpass', 'updateTPS'];
         var sqlMember_params = [updateTask_params,updateDealer_params,insertTestUnpass_params, updateTPS_params];
         var i = 0;
@@ -702,7 +702,7 @@ TaskTest.findTestTaskByParam = function(searchConds,startNum,callback){
         if(startNum) {
             sql = sql + ' ORDER BY selectTable.taskcode  limit ?,30';
             params.push(startNum+1);
-            console.log("startNum",startNum);
+            //console.log("startNum",startNum);
         }
         else{
             sql = sql + ' ORDER BY selectTable.taskcode DESC  limit 30';

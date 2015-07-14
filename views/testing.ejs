@@ -49,29 +49,46 @@
                             <textarea class="form-control" id="modifyTaskList" rows="3" disabled="disabled"><%=modifyFileList==undefined?'':modifyFileList%></textarea>
                         </div>
                     </div>
+                    <%
+                    if(addFileList!=undefined){
+                    %>
                     <div class="form-group">
                         <label for="addTaskList" class="col-sm-2 control-label">新增文件清单</label>
                         <div class="col-sm-10" style="margin-top:6px">
                             <textarea class="form-control" id="addTaskList" rows="3" disabled="disabled"><%=addFileList==undefined?'':addFileList%></textarea>
                         </div>
                     </div>
-
+                    <%}%>
+                    <%
+                      if(delFileList!=undefined){
+                      %>
                     <div class="form-group">
                         <label for="delTaskList" class="col-sm-2 control-label">删除文件清单</label>
                         <div class="col-sm-10" style="margin-top:6px">
                             <textarea class="form-control" id="delTaskList" rows="3" disabled="disabled"><%=delFileList==undefined?'':delFileList%></textarea>
                         </div>
                     </div>
-
-                    <div class="form-group" id="unPassReasonDiv">
+                    <%}%>
+                    <div id="unPassReasonDiv">
+                    <div class="form-group" >
                         <label for="noPassReason" class="col-sm-2 control-label">简述不通过原因(不通过时填写)</label>
                         <div class="col-sm-10" style="margin-top:6px">
                             <input class="form-control" maxlength="100" type="text" id="noPassReason" name="noPassReason" placeholder="请填写不通过原因，如走查通过则不需要填写(100字以内)"/>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label for="unPassType" class="col-sm-2 control-label">类型</label>
+                        <div class ="col-sm-2">
+                            <select class="form-control" name="unPassType" id="unPassType">
+                                <option value="" selected >--请选择--</option>
+                                <option value="1"  >未提供文档</option>
+                                <option value="2" >功能测试不通过</option>
+                            </select>
+                        </div>
+                    </div>
+                      </div>
 
                     <div class="form-group">
-
                         <label for="inputTaskList" class="col-sm-2 control-label">已上传的测试报告</label>
                         <div class="col-sm-3" style="margin-top:8px">
                             <span><a id="a_reportAtta" href="<%=testReportAtta==undefined?'#':testReportAtta.fileUri%>"><%=testReportAtta==undefined?'':testReportAtta.fileName%></a></span>
