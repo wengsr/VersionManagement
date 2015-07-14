@@ -445,9 +445,9 @@ LeaderModel.addProUser = function(userName, projectId, callback){
         var addProStep1_Params = [userName, projectId];
         var addProStep2_Params = [userName, projectId];
         var addProStep3_Params = [userName, projectId];
-        var addProStep5_Params = [userName, projectId];
-        var sqlMember = ['isUserExist', 'addProToUser', 'addProStep1', 'addProStep2', 'addProStep3', 'addProStep5'];
-        var sqlMember_params = [isUserExist_params, addProToUser_params, addProStep1_Params, addProStep2_Params, addProStep3_Params, addProStep5_Params];
+        //var addProStep5_Params = [userName, projectId];
+        var sqlMember = ['isUserExist', 'addProToUser', 'addProStep1', 'addProStep2', 'addProStep3'];
+        var sqlMember_params = [isUserExist_params, addProToUser_params, addProStep1_Params, addProStep2_Params, addProStep3_Params];
         var i = 0;
         async.eachSeries(sqlMember, function (item, callback_async) {
             trans.query(sql[item], sqlMember_params[i++],function (err_async, result) {
@@ -460,7 +460,7 @@ LeaderModel.addProUser = function(userName, projectId, callback){
                     trans.rollback();
                     return callback('err',err_async);
                 }
-                if(item == 'addProStep5' && !err_async){//最后一条sql语句执行没有错就返回成功
+                if(item == 'addProStep3' && !err_async){//最后一条sql语句执行没有错就返回成功
                     trans.commit();
                     return callback('success');
                 }
