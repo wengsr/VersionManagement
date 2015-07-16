@@ -4,10 +4,10 @@
 <link rel="stylesheet" href="/stylesheets/bootstrap-datetimepicker.min.css">
 <link rel="stylesheet" type="text/css" href="/stylesheets/bootstrap-clockpicker.min.css">
 <!--<link rel="stylesheet" href="/resources/demos/style.css">-->
-<form action="/excel/exportXls" id="formExportXls" class=" bs-component form-horizontal" method='post'>
+<form action="/excel/exportCountXls" id="formExportCountXls" class=" bs-component form-horizontal" method='post'>
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
-        <h4 class="modal-title" id="myLargeModalLabel">导出变更单信息</h4>
+        <h4 class="modal-title" id="myLargeModalLabel">统计变更单通过率</h4>
     </div>
     <div  class="modal-body">
         <div class="container-fluid">
@@ -32,7 +32,6 @@
                             <input type="text" class="form-control" name="createrName" id="createrName" placeholder="请填写发起者的真实姓名  (如：张三)">
                         </div>
                     </div>
-
 
                     <div class="form-group">
                         <label for="beginDate" class="col-sm-2 control-label">开始时间</label>
@@ -72,7 +71,7 @@
             </span>
         </div>
         <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-        <button type="submit" id ="btnExportXls" class="btn btn-primary" >导出变更单</button>
+        <button type="submit" id ="btnExportCountXls" class="btn btn-primary" >导出</button>
     </div>
 </form>
 <!--<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>-->

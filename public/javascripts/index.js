@@ -166,6 +166,7 @@ jQuery(document).ready(function() {
     showModelDialog("btnFindTestTasks","/taskTest/findTestTasksPage",'formFindTestTasks');
     showModelDialog("btnFindAllTasksForBoss","/task/findAllTasksForBossPage",'formAllTasksForBoss');
     showModelDialog("btnExportTasks","/excel/exportTasks",'formExportXls');
+    showModelDialog("btnExportCountTasks","/excel/exportCountTasks",'formCountXls');
     regTaskLink();
     regTaskFileList();
     regTaskTestDialog();

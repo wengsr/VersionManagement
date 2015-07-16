@@ -57,7 +57,6 @@
                             <%}%>
                             <%if(user && user.isAdmin){%>
                             <li><a class="menuBtn" btnname="btnFileHistory" btnurl="" href="/admin/findFileHistory" methods="post" id="btnFileHistory"> 查看文件历史记录 </a></li>
-                            <li><a class="menuBtn" btnname="excelTesl" btnurl=""   id="btnExportTasks"> 导出变更单 </a></li>
                             <% } %>
                             <%if(user && ((user.isPM)||user.isTester)){ %>
                             <li><a class="menuBtn" btnname="btnFindTestTasks" btnurl="" href="#" id="btnFindTestTasks"> 查找测试变更单 </a></li>                            <% } %>
@@ -66,6 +65,7 @@
                             <% } %>
                         </ul>
                     </li>
+
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">视图<span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
@@ -75,6 +75,16 @@
                             <li><a class="menuBtn" btnname="btnToBeDeal" btnurl="/btnToBeDeal" href="/btnToBeDeal" id="btnToBeDeal"> 待处理的变更单 </a></li>
                         </ul>
                     </li>
+                    <%if(user && (user.isAdmin||user.isAdmin)){ %>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">文件导出<span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a class="menuBtn" btnname="excelels" btnurl=""   id="btnExportTasks"> 导出变更单 </a></li>
+                            <li><a class="menuBtn" btnname="excelels" btnurl=""   id="btnExportCountTasks"> 统计变更单测试情况 </a></li>
+                        </ul>
+                    </li>
+                    <%}%>
+
 
                     <!--&lt;!&ndash;用户特有的菜单按钮&ndash;&gt;-->
                     <!--<%if(menus&&menus!=null){ var secFlag=false; var thirdFlag=false;%>-->

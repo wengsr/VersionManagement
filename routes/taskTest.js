@@ -204,6 +204,59 @@ var getSearchConds = function(req){
     };
     return searchConds;
 }
+
+/**
+ * 找出用户所管理的所有项目
+ * @param req
+ * @param res
+ * @param callback
+ */
+var findProjectByPMId = function(currProjectId, req, res, callback){
+    var cookieUser = req.cookies.user;
+    if(cookieUser){
+        req.session.user = cookieUser;
+    }else{
+        return res.redirect("/");
+    }
+    var userId = req.session.user.userId;
+    Project.findProjectByPMId(currProjectId, userId, function(msg,results){
+        if(msg!='success'){
+            req.session.error = "查找当前用户管理的所有项目信息时发生错误,请记录并联系管理员";
+            return res.redirect("/");
+        }
+        callback(results);
+    });
+}
+
+/**
+ * 展现变更单测试情况统计的页面
+ */
+var showTestedCountPage = function(currProjectId, req, res, whichPage){
+    var projects;//当前用户所管理的所有项目
+    var fileListCount;//文件清单统计数
+    findProjectByPMId(currProjectId, req, res, function(results){//找出所有项目的ID
+        projects = results;
+        var firstProjectId;//页面上要统计的项目ID
+        if(!currProjectId){firstProjectId = projects[0].projectId;}
+        else{firstProjectId=currProjectId;}
+        findFileListCount(firstProjectId, req, res, function(leaderModel){//统计文件清单数
+            fileListCount = leaderModel;
+            findTaskStateCount(firstProjectId, req, res, function(taskCount){//统计变更单数
+                findCreateTaskCount(firstProjectId, req, res, function(createrTaskCount){//统计开发人员发起的变更单数
+                    res.render('index_leader',{
+                        title:"领导管理模式",
+                        projects:projects,                  //当前用户的所有项目
+                        fileListCount:fileListCount,        //文件清单统计数
+                        taskCount:taskCount,                //变更单统计数
+                        createrTaskCount:createrTaskCount,  //开发人员发起的变更单数
+                        whichPage:whichPage   ,              //显示哪一个页面
+                        isBoss:req.session.user.isBoss
+                    });
+                });
+            });
+        });
+    });
+}
 /**
  * “走查转给其它测试人员的业务实现”业务实现
  */
@@ -439,4 +492,20 @@ router.get('/findAllTestTasksPage', function(req, res) {
         res.render('testModel/findAllTestTask',{projects:projects});
     });
 });
+
+/**
+ * 跳转至查看测试情况汇总的页面（测试主管）
+ */
+//router.get('/taskTestedCount', function(req, res) {
+//    var cookieUser = req.cookies.user;
+//    if(cookieUser){
+//        req.session.user = cookieUser;
+//    }else{
+//        return res.redirect("/");
+//    }
+//    if(!req.session.user||!req.session.user.isPM){
+//        return res.redirect("/");
+//    }
+//    showTestedCountPage(null, req, res, "chartsPage");
+//});
 module.exports = router;

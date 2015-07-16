@@ -84,7 +84,6 @@ function fileUp(req, res, secFolder){
 
         var extName = '';  //后缀名
         switch (files.fulAvatar.type) {
-
             case 'application/x-zip-compressed':
                 extName = 'zip';
                 break;

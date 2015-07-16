@@ -173,5 +173,33 @@ Project.findProsByUserIdForBoss = function(userId,callback){
     });
 }
 
+/**
+ *查找当前测试主管有 哪些项目权限
+ * @param userId
+ * @param callback
+ */
+Project.findProjectByPMId = function(userId,callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN PROJECT ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql;
+        var params;
+        if(!currProjectId){
+            sql = 'select * from project where PM=?';
+            params = [userId];
+        }
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY PROJECT ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',result);
+        });
+    });
+}
+
 
 module.exports = Project;

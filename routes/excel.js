@@ -41,7 +41,7 @@ var User = require('../modular/user');
 var url = require('url');
 /*导出表的的列属性*/
 var exlCols = [{
-    caption:'省份',
+    caption:'项目',
     captionStyleIndex: 1,
     type:'string',
     beforeCellWrite:function(row, cellData){
@@ -82,6 +82,40 @@ var exlCols = [{
     width:20
 }];
 
+
+/*统计测试情况的列属性*/
+var exlColsForCount = [{
+    caption:'变更单数量',
+    captionStyleIndex: 1,
+    type:'number',
+    width:15
+}, {
+    caption:'回退',
+    captionStyleIndex: 1,
+    type:'number',
+    width:15
+},{
+    caption:'测试通过',
+    captionStyleIndex: 1,
+    type:'number',
+    width:15
+},{
+    caption:'测试不通过',
+    captionStyleIndex: 1,
+    type:'number',
+    width:15
+},{
+    caption:'没有测试',
+    captionStyleIndex: 1,
+    type:'number',
+    width:15
+},{
+    caption:'等待测试',
+    captionStyleIndex: 1,
+    type:'number',
+    width:15
+}];
+
 /**
  * 由后台返回的数据得到表格的每行数据
  *@param result 原始数据，后台返回
@@ -105,6 +139,28 @@ var getRows = function(sqlResult){
     }
     //console.log("rows:",rows);
     return rows;
+}
+/**
+ * 统计变更单状态_由后台返回的数据得到表格的每行数据
+ *@param result 原始数据，后台返回
+ */
+
+var getRowsForCount = function(sqlResult){
+    var row = [];
+    var total = sqlResult[1];
+    var count = 0;
+    for(var p in sqlResult) {
+        if(p!= 1){
+          count += sqlResult[p];
+        }
+        row.push(sqlResult[p]);
+    }
+    //console.log("rows:",rows);
+    if(total!=undefined){
+        row.push(total-count);
+    }
+    //console.log(row);
+    return [row];
 }
 /**
  * 生成导出文件的文件名
@@ -137,7 +193,9 @@ var getParams = function(req){
      params.endTime = params.endDate? params.endDate+' '+params.endTime+":00" : '';
     return params;
 }
-
+/**
+ * 按要求导出变更单
+ */
 router.post("/exportXls", function(req, res) {
     Tool.getCookieUser(req, res);
     var params = getParams(req);
@@ -174,4 +232,40 @@ router.get("/exportTasks", function(req, res) {
         res.render('export/exportTasks',{projects:projects});
     });
 });
+
+/**
+ * 按要求统计变更单的通过率
+ */
+router.post("/exportCountXls", function(req, res) {
+    Tool.getCookieUser(req, res);
+    var params = getParams(req);
+    var conf = {};
+    TaskXls.countTasks(params, function (msg, result) {
+        if ('success' != msg) {
+            req.session.error = "查找变更单历史数据时发生错误,请记录并联系管理员";
+            return null;
+        }
+        conf.cols = exlColsForCount;
+        conf.rows = getRowsForCount(result);
+        var result = nodeExcel.execute(conf);
+        var exlName = getExlName(params)+"_taskCount.xlsx";
+        console.log("exlName",exlName);
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats');
+        res.setHeader("Content-Disposition", "attachment; filename=" +exlName );
+        res.end(result, 'binary');
+    });
+});
+
+router.get("/exportCountTasks", function(req, res) {
+    Tool.getCookieUser(req, res);
+    var userId = req.session.user.userId;
+    User.findUserProjectForFindAllTask(userId,function(msg,projects){
+        if('success'!=msg){
+            req.session.error = "查找用户能操作的项目时发生错误,请记录并联系管理员";
+            return null;
+        }
+        res.render('export/exportCountTasks',{projects:projects});
+    });
+});
+
  module.exports = router;
