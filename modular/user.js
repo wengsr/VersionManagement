@@ -266,7 +266,7 @@ User.findUserProjectForFindAllTask = function(userId,callback){
             '        (' +
             '            SELECT distinct psd.projectId' +
             '        FROM processstepdealer psd' +
-            '        WHERE psd.processStepId IN (4,6) AND psd.userId=?' +
+            '        WHERE psd.processStepId IN (4,6,8) AND psd.userId=?' +
             '        )';
         var params = [userId];
         connection.query(sql, params, function (err, results) {
