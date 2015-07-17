@@ -3,8 +3,8 @@
  */
 var nodemailer = require('nodemailer');
 
-var alink = "内网请访问 "+"http://192.168.1.135:8888</div>" +
-    "   <div>外网请访问 http://www.mobconnection.com:8888</div>";
+var alink = "<div>内网请访问"+" <a href=http://192.168.1.135:8888>http://192.168.1.135:8888</a></div>" +
+    "   <div>外网请访问 "+"<a href=www.mobconnection.com:8888>http://www.mobconnection.com:8888</a></div>";
 var transporter = nodemailer.createTransport({
     service: 'AliYun',          //'AsinInfo',
     secureConnection: true,     // use SSL
@@ -117,6 +117,5 @@ exports.sendMailToCreaterSubmit =function(taskcode, taskname, userName, userEmai
         }
     });
 };
-
 //module.exports = sendMailToCreater;
 //module.exports = sendMailToDealer;
