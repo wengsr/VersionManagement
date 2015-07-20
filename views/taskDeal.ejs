@@ -40,13 +40,16 @@
         <%include taskDeal/findTaskResult.ejs%>
     <% } %>
     <% if(topBtnCheckTask=='findTaskResult_noLink'){%><!--模糊查询所有变更单-->
-<%include taskDeal/findTaskResult_noLink.ejs%>
-<% } %>
+    <%include taskDeal/findTaskResult_noLink.ejs%>
+    <% } %>
 <% if(topBtnCheckTask=='findTaskResultForBoss'){%><!--所有变更单&ndash;&gt;-->
 <%include tasksForBoss.ejs%>
 <% } %>
 <% if(topBtnCheckTask=='findAllTaskResultForBoss'){%><!--领导：分页查询所有变更单-->
 <%include taskDeal/findTaskResultForBoss.ejs%>
+<% } %>
+<% if(topBtnCheckTask=='findTaskResult_tester'){%><!--领导：分页查询所有变更单-->
+<%include testModel/findAllTasksForTester.ejs%>
 <% } %>
 <% if(topBtnCheckTask=='allTaskForBoss'){%><!--领导：分页查询所有变更单-->
 <%include tasksForBoss.ejs%>
@@ -63,7 +66,7 @@
                     没有找到符合条件的变更单
                 <%}%>
             </span>
-        </div>
+    </div>
         <div class="col-sm-3"></div>
     </div>
 <% }%>

@@ -176,7 +176,11 @@ var sendEmailToNext = function(req,taskId,dealer, stepId,content){
         });
     }
 }
+var getSearchCondsForPaging  = function(req){
+        var searchConds = req.session.findAllTaskConds;
+        return searchConds;
 
+}
 var getSearchConds = function(req){
     var userId = req.session.user.userId;
     var projectId = req.body.projectName;
@@ -204,6 +208,8 @@ var getSearchConds = function(req){
         endDate:endDate,
         endTime: endTime
     };
+    req.session.findAllTaskConds = searchConds;
+    //console.log( " req.session.findAllTaskConds:",req.session.findAllTaskConds);
     return searchConds;
 }
 /**
@@ -284,6 +290,23 @@ function pageParam(sqlResult){
     return params ;
 
 }
+
+/**
+ * 判断前一次查找的条件是否存在
+ * @param req
+ * @param res
+ * @returns {*}
+ */
+var isSearchCondsExits= function(req, res){
+    var searchConds = req.session.finAllTaskConds;
+    if(searchConds){
+        return true;
+    }
+    if(!searchConds || 'undefined'==searchConds){
+        return res.redirect("/");
+    }
+}
+
 /**
  * “走查转给其它测试人员的业务实现”业务实现
  */
@@ -357,8 +380,7 @@ router.post('/findAllTestTasks', function (req, res) {
     getCookieUser(req, res);
     var conds  = getSearchConds(req);
     var userId = req.session.user.userId;
-
-    req.session.finAllTaskConds = conds;
+    //req.session.finAllTaskConds = conds;
 
     //Task.findAllTaskByParam(userId,projectId,state,processStepId,taskCode,taskname,createrName,startTime,endTime,0,function(msg,tasks,count){
     TaskTest.findAllTestTaskByParam(conds,0,function(msg,tasks,count){
@@ -379,7 +401,7 @@ router.post('/findAllTestTasks', function (req, res) {
                     menus:req.session.menus,
                     tasks:req.session.tasks,
                     taskCount:req.session.taskCount,
-                    topBtnCheckTask:'findTaskResult_noLink',
+                    topBtnCheckTask:'findTaskResult_tester',
                     userPros:userPros,
                     totalFindAllPage: pageCount,
                     curFindAllPage:1
@@ -393,7 +415,60 @@ router.post('/findAllTestTasks', function (req, res) {
                     menus:req.session.menus,
                     tasks:req.session.tasks,
                     taskCount:req.session.taskCount,
-                    topBtnCheckTask:'findTaskResult_noLink',
+                    topBtnCheckTask:'findTaskResult_tester',
+                    userPros:userPros,
+                    totalFindAllPage:0,
+                    curFindAllPage:0
+                });
+            }
+            //res.render('findTaskResult',{projects:projects});
+        });
+    });
+});
+
+router.get('/findAllTestTasks/:curPage', function (req, res) {
+    getCookieUser(req, res);
+    var conds  = getSearchCondsForPaging(req);
+    var userId = req.session.user.userId;
+    var curPage = req.params.curPage;
+    var startNum = (curPage-1)*30 -1;
+    if(startNum< 0){
+        startNum = 0;
+    }
+    //Task.findAllTaskByParam(userId,projectId,state,processStepId,taskCode,taskname,createrName,startTime,endTime,0,function(msg,tasks,count){
+    TaskTest.findAllTestTaskByParam(conds,startNum,function(msg,tasks,count){
+        //console.log("find All Test Tasks:",tasks)
+        findProsByTesterIdForMenuBtn(userId,req,function(userPros){
+            if('success'!=msg){
+                req.session.error = "模糊查询所有变更单时发生错误,请记录并联系管理员";
+                return null;
+            }
+            //console.log(tasks,'dddddd',count);
+            if(tasks.length>0){
+                var pageCount = parseInt((count-1)/30) + 1;
+                req.session.tasks = tasks;
+                req.session.taskCount = tasks.length;
+                return res.render('index', {
+                    title: 'AILK-CRM版本管理系统',
+                    user:req.session.user,
+                    menus:req.session.menus,
+                    tasks:req.session.tasks,
+                    taskCount:req.session.taskCount,
+                    topBtnCheckTask:'findTaskResult_tester',
+                    userPros:userPros,
+                    totalFindAllPage: pageCount,
+                    curFindAllPage:curPage
+                });
+            }else{
+                req.session.tasks = null;
+                req.session.taskCount = null;
+                return res.render('index', {
+                    title: 'AILK-CRM版本管理系统',
+                    user:req.session.user,
+                    menus:req.session.menus,
+                    tasks:req.session.tasks,
+                    taskCount:req.session.taskCount,
+                    topBtnCheckTask:'findTaskResult_tester',
                     userPros:userPros,
                     totalFindAllPage:0,
                     curFindAllPage:0

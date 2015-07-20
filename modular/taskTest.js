@@ -456,6 +456,7 @@ TaskTest.findAllTestTaskByParam = function(searchConds,startNum,callback){
     taskcode = "%" + searchConds.taskCode + "%";
     taskname = "%" + searchConds.taskname + "%";
     createrName = "%" + searchConds.createrName + "%";
+    //console.log("taskTest:",searchConds);
     pool.getConnection(function(err, connection){
         if(err){
             console.log('[CONN TASKS ERROR] - ', err.message);
@@ -480,7 +481,7 @@ TaskTest.findAllTestTaskByParam = function(searchConds,startNum,callback){
             "        JOIN processstepdealer psd ON psd.projectId = t.projectId" +
             "        JOIN processstep ps ON ps.processStepId = t.processStepId" +
             "        AND t.projectId IN (" +
-            "           SELECT projectId FROM project where PM =  ?" +
+            "           SELECT projectId from testertoproject where  userid =   ?" +
             "        )" +
             "        ) taskTable" +
             "        JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid" +
@@ -519,7 +520,7 @@ TaskTest.findAllTestTaskByParam = function(searchConds,startNum,callback){
             "        JOIN processstepdealer psd ON psd.projectId = t.projectId" +
             "        JOIN processstep ps ON ps.processStepId = t.processStepId" +
             "        AND t.projectId IN (" +
-            "           SELECT projectId FROM project where PM =  ?" +
+            "           SELECT projectId from testertoproject where  userid = ?" +
             "        )" +
             "        ) taskTable" +
             "        JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid" +

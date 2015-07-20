@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/stylesheets/bootstrap.min.css">
+    <!--<link rel="stylesheet" href="/stylesheets/amazeui.min.css">-->
+    <link rel="stylesheet" href="/stylesheets/amazeui.flat.min.css">
+    <link rel="stylesheet" href="/stylesheets/application.css">
+    <link rel="stylesheet" href="/stylesheets/dashboard.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        .createrTopTen>tr>td>span {margin-left: 30px}
+    </style>
+</head>
+<body>
+<div class="container">
+<div class="col-sm-8" >
+        <div id="stateChart" style="height:400px; margin-top:-50px; margin-right: -70px;"></div>
+    </div>
+</div>
+</body>
+<!--&lt;!&ndash; jQuery文件。务必在bootstrap.min.js 之前引入 &ndash;&gt;-->
+<!--<script src="/javascripts/jquery.min.js"></script>-->
+<!--&lt;!&ndash; 最新的 Bootstrap 核心 JavaScript 文件 &ndash;&gt;-->
+<!--<script src="/javascripts/bootstrap.min.js"></script>-->
+<script src="http://libs.baidu.com/jquery/1.10.2/jquery.min.js"></script>
+<script src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+
+<!-- 首页流程展示效果需要引入的JS -->
+<script src="/javascripts/bootstrap-tooltip.js"></script>
+<script src="/javascripts/bootstrap-popover.js"></script>
+<!--<script src="/javascripts/index.js"></script>-->
+
+
+<script>
+
+        var data = <%- JSON.stringify(params) %>;
+
+
+
+</script>
+
+<script src="/javascripts/charts-all.js"></script><!--统计图表JS-->
+<script src="/javascripts/testChartsPage.js"></script><!--页面对应的JS-->
+
+</html>
