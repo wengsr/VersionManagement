@@ -22,7 +22,7 @@ function getSqlStrForCount(sql,params,param){
         param.push(params.endTime);
     }
     sql +=  '   order by execTime desc';
-    console.log(sql,"param:",param);
+    //console.log(sql,"param:",param);
     return {sql:sql,params:param};
 }
 

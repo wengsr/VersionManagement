@@ -80,9 +80,33 @@ function ajaxSubmit(params, url, subType,submitflag){
 function submitForm_testPass(){
     var test_params={
         taskId: $('#taskId').val(),
-        creater:$("#creater").val()
+        creater:$("#creater").val(),
+        reason:$("#reason").val()
     };
     var test_url='taskTest/testPass';
+    ajaxSubmit(test_params, test_url, 'post');
+}
+
+/**
+ * 提交表单信息_不测试
+ */
+function submitForm_noTest(){
+
+    //2.验证走查不通过原因是否填写
+    var reason = $('#reason').val();
+    if(reason==''){
+        $('#diaInfoTip').hide();//隐藏已选择文件提示
+        $('#fulAvatar').val('');//清楚已选择的文件
+        showTipInfo('err','请填写不进行测试说明');
+        return;
+    }
+
+    //2.走查不通过逻辑
+    var test_params={
+        taskId: $('#taskId').val(),
+        reason: $('#reason').val()
+    };
+    var test_url='taskTest/noTest';
     ajaxSubmit(test_params, test_url, 'post');
 }
 
@@ -99,12 +123,12 @@ function submitForm_testUnPass(){
         showTipInfo('err','不通过前请先上传测试报告');
         return;
     }
-    //2.验证走查不通过原因是否填写
-    var noPassReason = $('#noPassReason').val();
+    //2.验证测试不通过原因是否填写
+    var noPassReason = $('#reason').val();
     if(noPassReason==''){
         $('#diaInfoTip').hide();//隐藏已选择文件提示
         $('#fulAvatar').val('');//清楚已选择的文件
-        showTipInfo('err','请填写不通过原因');
+        showTipInfo('err','请填写说明，简述不通过原因');
         return;
     }
     var noPassType = $('#unPassType').val();
@@ -113,17 +137,16 @@ function submitForm_testUnPass(){
         showTipInfo('err','请填写不通过类型');
         return;
     }
-    //2.走查不通过逻辑
+    //2.测试不通过逻辑
     var test_params={
         nextDealer: $('#testPerson').val(),
         taskId: $('#taskId').val(),
-        noPassReason: $('#noPassReason').val(),
+        noPassReason: $('#reason').val(),
         unPassType : $('#unPassType').val()
     };
     var test_url='taskTest/testUnPass';
     ajaxSubmit(test_params, test_url, 'post');
 }
-
 /**
  * 指定其他人测试
  */
@@ -320,6 +343,9 @@ jQuery(document).ready(function() {
     //文件上传重复选择时文件名太长bug解决
     $('#fulAvatar').click(function(){
         $('#fulAvatar').val('');
+    });
+    $('#btnNoTest').click(function(){
+        submitForm_noTest();
     });
     getAllTesterName();
 

@@ -6,6 +6,7 @@ var pool = require('../util/connPool.js').getPool();
 var async = require('async');// 加载async 支持顺序执行
 var queues = require('mysql-queues');// 加载mysql-queues 支持事务
 var file = require("../modular/task");
+var State = require("./taskState");
 function TaskTest(task){
     this.taskid = task.taskid
     this.taskcode = task.taskcode
@@ -29,7 +30,7 @@ function TaskTest(task){
  * @param taskId
  * @param callback
  */
-TaskTest.doTestPass = function(taskId,userId,callback){
+TaskTest.doTestPass = function(taskId,userId,reason,callback){
     pool.getConnection(function (err, connection) {
         //开启事务
         queues(connection);
@@ -52,13 +53,22 @@ TaskTest.doTestPass = function(taskId,userId,callback){
         var sqlMember = ['updateTask', 'updateDealer','updateTPS'];
         var sqlMember_params = [ updateTask_params,updateDealer_params, updateTPS_params];
         var i = 0;
+        var lastSql = "updateTPS";
+        if(reason!=""){
+            sql.insertReason = "insert into taskprocessreason(taskid,processStepId,reason) values(?,?,?) ";
+            sqlMember.push("insertReason");
+            var insertReason_params = [taskId,8,reason];
+            sqlMember_params.push(insertReason_params);
+            lastSql = "insertReason";
+        }
         async.eachSeries(sqlMember, function (item, callback_async) {
             trans.query(sql[item], sqlMember_params[i++],function (err_async, result) {
                 if(err_async){
+                    console.error("doTestPass ERR:",err_async);
                     trans.rollback();
                     return callback('err',err_async);
                 }
-                if(item == 'updateTPS' && !err_async){//最后一条sql语句执行没有错就返回成功
+                if(item == lastSql && !err_async){//最后一条sql语句执行没有错就返回成功
                     trans.commit();
                     return callback('success');
                 }
@@ -102,6 +112,14 @@ TaskTest.doTestUnPass = function(taskId, userId, noPassReason,noPassType, callba
         var sqlMember = ['updateTask',"updateDealer",'insertTestUnpass', 'updateTPS'];
         var sqlMember_params = [updateTask_params,updateDealer_params,insertTestUnpass_params, updateTPS_params];
         var i = 0;
+        var lastSql = "updateTPS";
+        if(noPassReason!=""){
+            sql.insertReason = "insert into taskprocessreason(taskid,processStepId,reason，typeId) values(?,?,?,?) ";
+            sqlMember.push("insertReason");
+            var insertReason_params = [taskId,8,noPassReason,noPassType];
+            sqlMember_params.push(insertReason_params);
+            lastSql = "insertReason";
+        }
         async.eachSeries(sqlMember, function (item, callback_async) {
             trans.query(sql[item], sqlMember_params[i++], function (err_async, result) {
                 if (err_async) {
@@ -109,7 +127,7 @@ TaskTest.doTestUnPass = function(taskId, userId, noPassReason,noPassType, callba
                     trans.rollback();
                     return callback('err', err_async);
                 }
-                if (item == 'updateTPS' && !err_async) {//最后一条sql语句执行没有错就返回成功
+                if (item == lastSql  && !err_async) {//最后一条sql语句执行没有错就返回成功
                     trans.commit();
                     return callback('success');
                 }
@@ -727,6 +745,65 @@ TaskTest.findTestTaskByParam = function(searchConds,startNum,callback){
                 });
             }
         });
+    });
+}
+
+/**
+ * 测试人员没有做测试，变更单进入下一环节
+ * @param taskId
+ * @param callback
+ */
+TaskTest.noTest = function(taskId,userId,reason,callback){
+    pool.getConnection(function (err, connection) {
+        //开启事务
+        queues(connection);
+        var trans = connection.startTransaction();
+        var state = new State();
+        //console.log(state);
+        var state ="'"+ state.noTest+"'";
+        var sql= {
+            updateTask: "update tasks set state="+state+", processStepId = 9 where taskid=?",
+            //updateDealer: 'update taskprocessstep set dealer =?,execTime = ? where taskId = ? and processStepId = 8'
+            updateDealer: 'update taskprocessstep set dealer = ? where turnNum =' +
+            '   (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)' +
+            '   and taskId =? and processStepId = 8',
+            updateTPS:"insert into taskprocessstep (taskid, processStepId, turnNum, dealer,execTime) " +
+            " values (?,9,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?,?)"
+        };
+        var updateTask_params = [taskId];
+        var now = new Date().format("yyyy-MM-dd HH:mm:ss") ;
+        var updateDealer_params = [userId,taskId,taskId];
+        var updateTPS_params = [taskId,taskId,userId,now];
+        var sqlMember = ['updateTask', 'updateDealer','updateTPS'];
+        var sqlMember_params = [ updateTask_params,updateDealer_params, updateTPS_params];
+        var i = 0;
+        var lastSql = "updateTPS";
+        if(reason!=""){
+            sql.insertReason = "insert into taskprocessreason(taskid,processStepId,reason) values(?,?,?) ";
+            sqlMember.push("insertReason");
+            var insertReason_params = [taskId,8,reason];
+            sqlMember_params.push(insertReason_params);
+            lastSql = "insertReason";
+        }
+        //console.log("sql:",sql);
+        //console.log(sqlMember_params)
+        async.eachSeries(sqlMember, function (item, callback_async) {
+            trans.query(sql[item], sqlMember_params[i++],function (err_async, result) {
+                if(err_async){
+                    trans.rollback();
+                    console.log("NO TEST ERR:",err_async);
+                    console.log("NO TEST ERR:",item,"  ",sqlMember_params[i]);
+                    return callback('err',err_async);
+                }
+                if(item == lastSql && !err_async){//最后一条sql语句执行没有错就返回成功
+                    trans.commit();
+                    return callback('success');
+                }
+                callback_async(err_async, result);
+            });
+        });
+        trans.execute();//提交事务
+        connection.release();
     });
 }
 

@@ -186,10 +186,8 @@ Project.findProjectByPMId = function(userId,callback){
         }
         var sql;
         var params;
-        if(!currProjectId){
             sql = 'select * from project where PM=?';
             params = [userId];
-        }
         connection.query(sql, params, function (err, result) {
             if (err) {
                 console.log('[QUERY PROJECT ERROR] - ', err.message);

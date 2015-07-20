@@ -75,7 +75,7 @@
                             <li><a class="menuBtn" btnname="btnToBeDeal" btnurl="/btnToBeDeal" href="/btnToBeDeal" id="btnToBeDeal"> 待处理的变更单 </a></li>
                         </ul>
                     </li>
-                    <%if(user && (user.isAdmin||user.isAdmin)){ %>
+                    <%if(user && (user.isPM||user.isAdmin)){ %>
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">文件导出<span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
@@ -120,6 +120,14 @@
                 <% } %>
             </ul>
 
+            <%if(user && (user.isPM||user.isAdmin)){ %>
+            <ul class="nav navbar-nav navbar-right">
+                <!--<button type="button" class="btn btn-default navbar-btn">-->
+                <!--<li class="dropdown"><a href="/leaderModel/leader">立即变身领导模式</a></li>-->
+                <!--<a style="margin-top:9px;" class="btn btn-danger btn-sm" href="/taskTest/taskTestedCount" role="button">测试情况汇总</a>-->
+                <!--</button>-->
+            </ul>
+            <%}%>
             <%if(user && user.isLeader){ %>
                 <ul class="nav navbar-nav navbar-right">
                     <!--<button type="button" class="btn btn-default navbar-btn">-->

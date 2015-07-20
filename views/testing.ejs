@@ -16,10 +16,14 @@
 
                     <div class="form-group">
                         <label for="taskName" class="col-sm-2 control-label">变更单号</label>
-                        <div class="col-sm-10" style="margin-top:6px">
+                        <div class="col-sm-8" style="margin-top:6px">
                             <span id="taskCode"><%=task.taskcode%></span>
                         </div>
+                        <div class="col-sm-2" style="margin-top:6px">
+                            <button id="btnNoTest" type="button" class=" btn btn-danger" style="float:right">暂不测试</button>
+                        </div>
                     </div>
+
                     <div class="form-group">
                         <label for="inputTaskName" class="col-sm-2 control-label">变更单名</label>
                         <div class="col-sm-10" style="margin-top:6px">
@@ -70,23 +74,27 @@
                     </div>
                     <%}%>
                     <div id="unPassReasonDiv">
-                    <div class="form-group" >
-                        <label for="noPassReason" class="col-sm-2 control-label">简述不通过原因(不通过时填写)</label>
-                        <div class="col-sm-10" style="margin-top:6px">
-                            <input class="form-control" maxlength="100" type="text" id="noPassReason" name="noPassReason" placeholder="请填写不通过原因，如走查通过则不需要填写(100字以内)"/>
+
+                        <div class="form-group">
+                            <label for="unPassType" class="col-sm-2 control-label">不通过类型</label>
+                            <div class ="col-sm-3">
+                                <select class="form-control" name="unPassType" id="unPassType">
+                                    <option value="" selected >--请选择--</option>
+                                    <option value="1"  >未提供文档</option>
+                                    <option value="2" >功能测试不通过</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="unPassType" class="col-sm-2 control-label">类型</label>
-                        <div class ="col-sm-2">
-                            <select class="form-control" name="unPassType" id="unPassType">
-                                <option value="" selected >--请选择--</option>
-                                <option value="1"  >未提供文档</option>
-                                <option value="2" >功能测试不通过</option>
-                            </select>
+
+                        <div class="form-group" >
+                            <!--<label for="noPassReason" class="col-sm-2 control-label">说明</label>-->
+                            <label for="reason" class="col-sm-2 control-label">说明</label>
+                            <div class="col-sm-10" style="margin-top:6px">
+                                <input class="form-control" maxlength="100" type="text" id="reason" name="reason" placeholder="请填写相应说明，不通过时必须填写(100字以内)"/>
+                            </div>
                         </div>
+
                     </div>
-                      </div>
 
                     <div class="form-group">
                         <label for="inputTaskList" class="col-sm-2 control-label">已上传的测试报告</label>

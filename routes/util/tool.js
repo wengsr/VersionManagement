@@ -20,4 +20,15 @@ exports.getCookieUser = function(req, res){
     }
 }
 
+/**
+ * 显示响应界面
+ * @param res
+ * @param page
+ * @param params
+ */
+exports.showPage = function(res,page, params){
+   return res.render(page,params);
+}
+
+
 

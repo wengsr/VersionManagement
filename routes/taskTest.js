@@ -23,6 +23,8 @@ var Project = require('../modular/project');
 var OLD_FOLDER = './old';                       //系统自动提取的文件存放路径
 var NEW_OLD_FOLDER = './attachment/newAndOld';  //开发人员上传的新旧附件
 var SCAN_PATH;
+var taskXls = require("../modular/taskXls");
+var tool = require("./util/tool");
 
 /**
  * 查找测试人员，用于显示“申请变更单”和“查找变更单”按钮等
@@ -204,6 +206,23 @@ var getSearchConds = function(req){
     };
     return searchConds;
 }
+/**
+ /**
+ * 获取参数
+ */
+var getParams = function(req){
+    var params = req.body;
+    params.startTime = params.startDate ? params.startDate+' '+params.startTime+":00" : '';
+    params.endTime = params.endDate? params.endDate+' '+params.endTime+":00" : '';
+    userId = req.session.user.userId;
+    params.projectId = "";
+    params.createrName = "";
+    params.endTime = "";
+    params.startTime = "";
+    //startTime = startDate ? startDate+' '+startTime+":00" : '';
+    //endTime = endDate? endDate+' '+endTime+":59" : '';
+    return params;
+}
 
 /**
  * 找出用户所管理的所有项目
@@ -219,7 +238,7 @@ var findProjectByPMId = function(currProjectId, req, res, callback){
         return res.redirect("/");
     }
     var userId = req.session.user.userId;
-    Project.findProjectByPMId(currProjectId, userId, function(msg,results){
+    Project.findProjectByPMId(userId, function(msg,results){
         if(msg!='success'){
             req.session.error = "查找当前用户管理的所有项目信息时发生错误,请记录并联系管理员";
             return res.redirect("/");
@@ -234,28 +253,36 @@ var findProjectByPMId = function(currProjectId, req, res, callback){
 var showTestedCountPage = function(currProjectId, req, res, whichPage){
     var projects;//当前用户所管理的所有项目
     var fileListCount;//文件清单统计数
-    findProjectByPMId(currProjectId, req, res, function(results){//找出所有项目的ID
+    findProjectByPMId(currProjectId, req, res, function(results) {//找出所有项目的ID
         projects = results;
         var firstProjectId;//页面上要统计的项目ID
-        if(!currProjectId){firstProjectId = projects[0].projectId;}
-        else{firstProjectId=currProjectId;}
-        findFileListCount(firstProjectId, req, res, function(leaderModel){//统计文件清单数
-            fileListCount = leaderModel;
-            findTaskStateCount(firstProjectId, req, res, function(taskCount){//统计变更单数
-                findCreateTaskCount(firstProjectId, req, res, function(createrTaskCount){//统计开发人员发起的变更单数
-                    res.render('index_leader',{
-                        title:"领导管理模式",
-                        projects:projects,                  //当前用户的所有项目
-                        fileListCount:fileListCount,        //文件清单统计数
-                        taskCount:taskCount,                //变更单统计数
-                        createrTaskCount:createrTaskCount,  //开发人员发起的变更单数
-                        whichPage:whichPage   ,              //显示哪一个页面
-                        isBoss:req.session.user.isBoss
-                    });
-                });
-            });
+        if (!currProjectId) {
+            firstProjectId = projects[0].projectId;
+        }
+        else {
+            firstProjectId = currProjectId;
+        }
+        console.log("req:", req.body);
+        var params = getParams(req);
+        taskXls.countTasks(params,function (msg,result) {//统计文件清单数
+            var params = pageParam(result);
+            console.log(params);
+          tool.showPage(res,"testModel/testChart",{title:"测试情况汇总",params:params});
         });
     });
+}
+
+function pageParam(sqlResult){
+    var params = {};
+    //console.log("sqlResult",sqlResult);
+    params.totalTasks =sqlResult[1];
+    params.backTasks =sqlResult[2];
+    params.passTasks =sqlResult[3];
+    params.unPassTasks =sqlResult[4];
+    params.noTestedTasks =sqlResult[5];
+    params.testingTasks = sqlResult[1]-sqlResult[2]-sqlResult[3]-sqlResult[4];
+    return params ;
+
 }
 /**
  * “走查转给其它测试人员的业务实现”业务实现
@@ -284,9 +311,11 @@ router.post('/testPass', function(req, res) {
     getCookieUser(req, res);
     var taskId = req.body['taskId'];
     var creater = req.body['creater'];
+    var reason =  req.body['reason'];
+    console.log("testPass:",reason);
     var dealer = req.session.user.userId;
     var jsonStr;
-    TaskTest.doTestPass(taskId,dealer,function(msg,result){
+    TaskTest.doTestPass(taskId,dealer,reason,function(msg,result){
         if('success' == msg){
             jsonStr = '{"sucFlag":"success","message":"【测试通过】执行成功"}';
             sendEmailToCreaterTest(req,taskId,creater,'8',true);//发送邮件
@@ -328,31 +357,6 @@ router.post('/findAllTestTasks', function (req, res) {
     getCookieUser(req, res);
     var conds  = getSearchConds(req);
     var userId = req.session.user.userId;
-    //var projectId = req.body.projectName;
-    //var state = req.body.taskState;
-    //var processStepId = req.body.taskStep;
-    //var taskCode = req.body.taskCode;
-    //var taskname = req.body.taskName;
-    //var createrName = req.body.taskCreater;
-    //var startDate = req.body.startDate;
-    //var startTime = req.body.startTime;
-    //var endDate = req.body.endDate;
-    //var endTime = req.body.endTime;
-    //startTime = startDate ? startDate+' '+startTime+":00" : '';
-    //endTime = endDate? endDate+' '+endTime+":59" : '';
-    //var searchConds = {
-    //    userId:userId,
-    //    projectId:projectId,
-    //    state:state,
-    //    processStepId:processStepId,
-    //    taskname:taskname,
-    //    taskCode:taskCode,
-    //    createrName :createrName,
-    //    startDate:startDate,
-    //    startTime :startTime,
-    //    endDate:endDate,
-    //    endTime: endTime
-    //};
 
     req.session.finAllTaskConds = conds;
 
@@ -496,16 +500,37 @@ router.get('/findAllTestTasksPage', function(req, res) {
 /**
  * 跳转至查看测试情况汇总的页面（测试主管）
  */
-//router.get('/taskTestedCount', function(req, res) {
-//    var cookieUser = req.cookies.user;
-//    if(cookieUser){
-//        req.session.user = cookieUser;
-//    }else{
-//        return res.redirect("/");
-//    }
-//    if(!req.session.user||!req.session.user.isPM){
-//        return res.redirect("/");
-//    }
-//    showTestedCountPage(null, req, res, "chartsPage");
-//});
+router.get('/taskTestedCount', function(req, res) {
+    var cookieUser = req.cookies.user;
+    if(cookieUser){
+        req.session.user = cookieUser;
+    }else{
+        return res.redirect("/");
+    }
+    if(!req.session.user||!req.session.user.isPM){
+        return res.redirect("/");
+    }
+    showTestedCountPage(null, req, res, "chartsPage");
+});
+
+/**
+ * “测试通过”业务实现
+ */
+router.post('/noTest', function(req, res) {
+    getCookieUser(req, res);
+    var taskId = req.body['taskId'];
+    var reason = req.body['reason'];
+    var dealer = req.session.user.userId;
+    var jsonStr;
+    TaskTest.noTest(taskId,dealer,reason,function(msg){
+        if('success' == msg){
+            jsonStr = '{"sucFlag":"success","message":"【暂不测试】执行成功"}';
+            //sendEmailToCreaterTest(req,taskId,creater,'8',true);//发送邮件
+        }else{
+            jsonStr = '{"sucFlag":"err","message":"【暂不测试】支持出错"}';
+        }
+        var queryObj = url.parse(req.url,true).query;
+        res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+    });
+});
 module.exports = router;
