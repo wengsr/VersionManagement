@@ -60,7 +60,7 @@
                             <% } %>
                             <%if(user && ((user.isPM)||user.isTester)){ %>
                             <li><a class="menuBtn" btnname="btnFindTestTasks" btnurl="" href="#" id="btnFindTestTasks"> 查找测试变更单 </a></li>                            <% } %>
-                            <%if(user && (user.isPM)){ %>
+                            <%if(user && (user.isPM||user.isTester)){ %>
                             <li><a class="menuBtn" btnname="btnFindAllTestTasks" btnurl="" href="#" id="btnFindAllTestTasks"> 查找所有测试变更单 </a></li>
                             <% } %>
                         </ul>

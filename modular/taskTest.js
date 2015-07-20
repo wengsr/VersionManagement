@@ -476,7 +476,7 @@ TaskTest.findAllTestTaskByParam = function(searchConds,startNum,callback){
             "            SELECT DISTINCT" +
             "        t.*, ps.processStepName AS stepName" +
             "        FROM" +
-            "        ( select * from tasks where processStepid > 7 and processStepid < 10) as t" +
+            "        tasks t" +
             "        JOIN processstepdealer psd ON psd.projectId = t.projectId" +
             "        JOIN processstep ps ON ps.processStepId = t.processStepId" +
             "        AND t.projectId IN (" +
@@ -515,7 +515,7 @@ TaskTest.findAllTestTaskByParam = function(searchConds,startNum,callback){
             "            SELECT DISTINCT" +
             "        t.*, ps.processStepName AS stepName" +
             "        FROM" +
-            "        ( select * from tasks where processStepid > 7 and processStepid < 10) as t" +
+            "         tasks t" +
             "        JOIN processstepdealer psd ON psd.projectId = t.projectId" +
             "        JOIN processstep ps ON ps.processStepId = t.processStepId" +
             "        AND t.projectId IN (" +
