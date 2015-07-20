@@ -62,6 +62,7 @@ function ajaxSubmit(params, url, subType,submitflag){
                 $('#btnToSubmit').hide();
                 $('#submit_TestReport').hide();
                 $('#btnPassTest').hide();
+                $('#btnNoTest').hide();
                 $('#btnUnPassTest').hide();
                 $('#btnAssignTest').hide();
                 $('#btnSelectReport').hide();
@@ -223,6 +224,7 @@ function bindClick_btnUploadFile(){
         $('#submit_TestReport').hide();
         $('#btnPassTest').hide();
         $('#btnAssignTest').hide();
+        $('#btnNoTest').hide();
         $('#btnUnPassTest').hide();
         $('#assignTestDiv').show();
         $('#btnReturn').show();
@@ -238,6 +240,7 @@ function bindClick_btnUploadFile(){
         $('#submit_TestReport').show();
         $('#btnPassTest').show();
         $('#btnAssignTest').show();
+        $('#btnNoTest').show();
         $('#btnUnPassTest').show();
         $('#assignTestDiv').hide();
         $('#btnReturn').hide();

@@ -19,9 +19,7 @@
                         <div class="col-sm-8" style="margin-top:6px">
                             <span id="taskCode"><%=task.taskcode%></span>
                         </div>
-                        <div class="col-sm-2" style="margin-top:6px">
-                            <button id="btnNoTest" type="button" class=" btn btn-danger" style="float:right">暂不测试</button>
-                        </div>
+
                     </div>
 
                     <div class="form-group">
@@ -96,7 +94,7 @@
 
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group"  >
                         <label for="inputTaskList" class="col-sm-2 control-label">已上传的测试报告</label>
                         <div class="col-sm-3" style="margin-top:8px">
                             <span><a id="a_reportAtta" href="<%=testReportAtta==undefined?'#':testReportAtta.fileUri%>"><%=testReportAtta==undefined?'':testReportAtta.fileName%></a></span>
@@ -127,7 +125,9 @@
                             </div>
                         </div>
                     </div>
-
+                    <div class="col-sm-push-10 col-sm-2" style="margin-top:6px">
+                        <button id="btnNoTest" type="button" class=" btn btn-danger" style="float:right">暂不测试</button>
+                    </div>
                 </div>
             </div>
         </div>
