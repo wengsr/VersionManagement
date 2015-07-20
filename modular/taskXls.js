@@ -37,7 +37,7 @@ exports.getTaskList = function(params,callback){
             '   as t  ' +
             '   JOIN taskprocessstep tps ' +
             '   JOIN User u ON t.taskid =tps.taskid and tps.processStepId = 7 and u.userId = tps.dealer ' +
-            '   and   taskName LIKE ?';
+            '   and   creater LIKE ?';
         var param = [];
         var  createrName = "%" + params.createrName + "%";
         param.push(createrName);
@@ -78,19 +78,19 @@ exports.countTasks = function(params,callback){
 
         var sql= {
              countTask:"select count(1) as count FROM tasks t JOIN taskprocessstep tps  ON  tps.taskid = t.taskid AND tps.processStepId = 7" +
-             " and  taskName LIKE ?",
+             " JOIN `user` u ON u.userId = creater  AND u.realName LIKE ?",
             //统计回退次数
             countTask1: "select count(1) as count FROM tasks t JOIN taskprocessstep tps  ON  tps.taskid = t.taskid AND tps.processStepId = 7" +
-                        "   and turnNum>0 and  taskName LIKE ?",
+                        "   and turnNum>0 JOIN `user` u ON u.userId = creater  AND u.realName LIKE ?",
             //统计测试通过
             countTask2: "select count(1) as count FROM tasks t JOIN taskprocessstep tps  ON  tps.taskid = t.taskid AND tps.processStepId = 7 " +
-                         "   and state ='测试通过' and  taskName LIKE ?",
+                         "   and state ='测试通过' JOIN `user` u ON u.userId = creater  AND u.realName  LIKE ?",
             //统计测试不通过
             countTask3: "select count(1) as count FROM tasks t JOIN taskprocessstep tps  ON  tps.taskid = t.taskid AND tps.processStepId = 7 " +
-                        "   and state ='测试不通过' and  taskName LIKE ?",
+                        "   and state ='测试不通过' JOIN `user` u ON u.userId = creater  AND u.realName   LIKE ?",
             //统计没有测试
             countTask4: "select count(1) as count FROM tasks t JOIN taskprocessstep tps  ON  tps.taskid = t.taskid AND tps.processStepId = 7 " +
-                          "   and state ='没有测试' and  taskName LIKE ?"
+                          "   and state ='没有测试'   JOIN `user` u ON u.userId = creater  AND u.realName  LIKE ?"
         }
         var  createrName = "%" + params.createrName + "%";
         var countTask_params = [];
