@@ -1523,7 +1523,6 @@ router.post('/extractFile', function(req, res) {
                                 }
                                 else if(msg = "success"){
                                     var option = result_svn;
-                                    console.log("svn  options;",option);
                                     svn = new Svn(option);
                                     /*提取文件*/
                                     var checkFlag = svn.checkout(localDir, versionDir, fileList, function (err, flag, data,file) {

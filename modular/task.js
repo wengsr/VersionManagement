@@ -691,7 +691,7 @@ Task.findTaskByTaskIdAndUser = function(taskId,dealer, callback){
         });
     });
 }
-/**
+ /**
  * 根据taskid 查询变更单信息
  * @param taskId
  * @param callback
@@ -711,6 +711,36 @@ Task.findTaskByTaskId = function(taskId, callback){
                 return callback(err,null);
             }
             connection.release();
+            return  callback('success',result[0]);
+        });
+    });
+}
+/**
+ * 根据taskid userID查询变更单信息
+ * @param taskId
+ * @param callback
+ */
+Task.findTaskByTaskIdAndUserId = function(taskId,dealer, callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN TASKS ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'SELECT t.taskcode , t.taskname , t.processStepId,u.userName , u.realName ,u.email from tasks t ' +
+            '    JOIN taskprocessstep tps on tps.taskid =t.taskid' +
+            '   JOIN user u ON u.userId = tps.dealer' +
+            '   where  t.taskid = ? and u.username = ? and tps.processstepid = 8  ' +
+            '  AND tps.turnNum =' +
+            '  (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)' ;
+        //var sql =' user ON user.userName = ?';
+        var params = [taskId,dealer,taskId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY TASKS ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            console.log(result);
             return  callback('success',result[0]);
         });
     });

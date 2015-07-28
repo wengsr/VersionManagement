@@ -160,7 +160,7 @@ var sendEmailToNext = function(req,taskId,dealer, stepId,content){
             //console.log("email success");
         });
     }
-    else if(stepId == 3||stepId == 7||stepId == 8){
+    else if(stepId == 3||stepId == 7){
         //给变更单的发起人发送邮件
         Task.findTaskAndEmailByTaskId(taskId,function(msg, result_taskId) {
             if(msg == 'err'){
@@ -174,6 +174,21 @@ var sendEmailToNext = function(req,taskId,dealer, stepId,content){
             var processStepId = stepId;
             Email.sendMailToDealer(taskcode, taskname, userName, processStepId, userEmail);
         });
+    }
+    else if(stepId == 8){
+    Task.findTaskByTaskIdAndUserId(taskId, dealer, function (msg, result) {
+        if ('success' != msg) {
+            req.session.error = "发送邮件时查找变更单信息发生错误,请记录并联系管理员";
+            return null;
+        }
+        var taskcode = result.taskcode;
+        var taskname = result.taskname;
+        var dealer = result.realName;
+        var userEmail = result.email;
+        var processStepId = result.processStepId;
+        Email.sendMailToDealer(taskcode, taskname, dealer, processStepId, userEmail);
+        //console.log("email success");
+    });
     }
 }
 var getSearchCondsForPaging  = function(req){

@@ -554,6 +554,12 @@ TaskTest.findAllTestTaskByParam = function(searchConds,startNum,callback){
             params.push(searchConds.projectId);
             params_count.push(searchConds.projectId);
         }
+        if(searchConds.processStepId!=''){
+            sql_count = sql_count + " AND selectTable.processStepId = ? ";
+            sql = sql + " AND selectTable.processStepId = ? ";
+            params.push(searchConds.processStepId);
+            params_count.push(searchConds.processStepId);
+        }
         if(searchConds.startTime!=''){
             sql_count = sql_count + " AND selectTable.execTime >  ? ";
             sql = sql + " AND selectTable.execTime >  ? ";
@@ -566,6 +572,7 @@ TaskTest.findAllTestTaskByParam = function(searchConds,startNum,callback){
             params.push(searchConds.endTime);
             params_count.push(searchConds.endTime);
         }
+
         if(startNum) {
             sql = sql + ' ORDER BY selectTable.taskcode  limit ?,30';
             params.push(startNum+1);
@@ -705,6 +712,12 @@ TaskTest.findTestTaskByParam = function(searchConds,startNum,callback){
             sql = sql + " AND selectTable.projectId = ? ";
             params.push(searchConds.projectId);
             params_count.push(searchConds.projectId);
+        }
+        if(searchConds.processStepId!=''){
+            sql_count = sql_count + " AND selectTable.processStepId = ? ";
+            sql = sql + " AND selectTable.processStepId = ? ";
+            params.push(searchConds.processStepId);
+            params_count.push(searchConds.processStepId);
         }
         if(searchConds.startTime!=''){
             sql_count = sql_count + " AND selectTable.execTime >  ? ";
