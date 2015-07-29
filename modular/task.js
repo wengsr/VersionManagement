@@ -1872,4 +1872,30 @@ Task.findTaskAndPMByTaskId = function(taskId,callback){
     });
 }
 
+/**
+ * 根据id查询变更单信息和DB
+ * @param taskId
+ * @param callback
+ */
+Task.findTaskAndDBById = function(taskId,callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN TASKS ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'SELECT t.taskcode , t.taskname , t.processStepId , u.userName , u.realName ,u.email  FROM tasks t ' +
+            '     JOIN DBToProject dtp  ON t.projectId=dtp.projectId ' +
+            '     JOIN user u  ON dtp.DB=u.userId' +
+            '     where taskid = ?';
+        var params = [taskId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY TASKS ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',result[0]);
+        });
+    });
+}
 module.exports = Task;

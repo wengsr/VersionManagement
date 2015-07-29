@@ -295,6 +295,36 @@ var sendEmail = function(req,taskId, content){
 }
 
 /**
+ * 当附件中存在数据变更时，将数据变更单发给特定的人员
+ * @param content
+ */
+var sendEmailForSqlAttachmentToDB = function(req,taskId, content,attachment){
+    Task.findTaskAndDBById(taskId,function(msg,result){
+        if('success'!=msg){
+            req.session.error = "发送邮件时查找变更单信息发生错误,请记录并联系管理员";
+            return null;
+        }
+        var taskcode = result.taskcode;
+        var taskname = result.taskname;
+        var DBName = result.realName;
+        var userEmail = result.email;
+        Email.sendSqlAttaToPM(taskcode, taskname, DBName, userEmail,content,attachment);
+        console.log("email success");
+    });
+}
+
+/**
+ * 当附件中存在数据变更时，将数据变更单发给特定的人员
+ * @param content
+ */
+var sendSqlAttachmentToDB = function(req,taskId, path){
+    var sqlAttachmet = getSqlAttachment(path);
+    sqlAttachmet = sqlAttachmet.files;
+    var attachContent ="有数据变更单需要安排执行。";
+    sendEmailForSqlAttachmentToDB(req,taskId,attachContent,sqlAttachmet);
+}
+
+/**
  * 给指定人员发邮件
  * @param content
  */
@@ -1316,7 +1346,7 @@ router.post('/submitFile', function(req, res) {
                 modAndDelete = [];
             var tempFold = "./temp/newAndOld/"+taskCode +'/';
         var scanFold =tempFold +"new/";
-        console.log(scanFold);
+        //console.log(scanFold);
         if(fs.existsSync(tempFold)){
                 deleteFolderRecursive(tempFold);
             }
@@ -1715,6 +1745,29 @@ function scanFolder(path){
         'files': fileList,
         'folders': folderList
     }
+}/**
+ * 获取path目录下的配置变更单
+ * @param path
+ * @returns {{files: Array, folders: Array}}
+ */
+function getSqlAttachment(path){
+    var fileList = [],
+        folderList = [],
+        files = fs.readdirSync(path);
+    files.forEach(function(item) {
+        var tmpPath = path + '/' + item;
+        var  stats = fs.statSync(tmpPath);
+        var isSql = item.match(/([\u4e00-\u9fa5]|[\x00-\xff])*(配置变更单|模型变更单|数据变更单)([\u4e00-\u9fa5]|[\x00-\xff])*[.txt|.sql|.xlsx]$/g);
+        //console.log(isSql);
+        if ((isSql)&&(!(stats.isDirectory()))) {
+            fileList.push(item);
+        }
+    });
+    //console.log("fileList:",fileList);
+    //console.log("folderList:",folderList);
+    return {
+        'files': fileList
+    }
 }
 /**
  * 获取path目录下的不包含rootParentPath文件路径
@@ -1999,6 +2052,8 @@ router.post('/autoUpload', function(req,res) {
             copy(svnFolder+'/extractRarFolder/new', localDir);
             //2.4比较新旧文件以及文件夹差异
             var compResult = compFolder(svnFolder+'/oldSvnDown', svnFolder+'/extractRarFolder/new');
+            //发送数据变更单给相应人员
+            sendSqlAttachmentToDB(req,taskId,svnFolder+'/extractRarFolder/');
             if('same' != compResult.msg){
                 return returnJsonMsg(req, res, "err", "旧文件或文件夹在new文件夹中不存在，请手动上库！涉及文件：" + compResult.diff);
             }
@@ -2034,7 +2089,7 @@ router.post('/autoUpload', function(req,res) {
                             //                uploadToDB(req, taskId, sysUser.userId, function(isSucToDB){//记录上库成功信息到数据库中
                             //                    if(!isSucToDB){
                             //                       return returnJsonMsg(req, res, "err", "代码更新SVN成功。记录数据库过程出错，请联系系统管理员！");
-                            //                    }
+            //                    }
                             //                    returnJsonMsg(req, res, "success", "自动上库成功,请上SVN库确认无误后点击【上库完成】");
                             //                });
                         });
