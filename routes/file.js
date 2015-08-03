@@ -176,4 +176,10 @@ router.post('/unpassTesting', function(req, res) {
     fileUp(req, res, CHECK_REPORT_UPLOAD_FOLDER3);
 });
 
+/**
+ * 测试不通过时，测试人员重发测试报告
+ */
+router.post('/testReportByCreater', function(req, res) {
+    fileUp(req, res, CHECK_REPORT_UPLOAD_FOLDER3);
+});
 module.exports = router;

@@ -1,8 +1,5 @@
 /**
- * Created by Administrator on 2015/7/1.
- */
-/**
- * Created by wangfeng on 2015/02/09 0000.
+ * Created by lijuanzhang  on 2015/7/1.
  */
 
 /**
@@ -93,7 +90,7 @@ function submitForm_testPass(){
  */
 function submitForm_noTest(){
 
-    //2.验证走查不通过原因是否填写
+    //2.验证测试不通过原因是否填写
     var reason = $('#reason').val();
     if(reason==''){
         $('#diaInfoTip').hide();//隐藏已选择文件提示
@@ -102,7 +99,7 @@ function submitForm_noTest(){
         return;
     }
 
-    //2.走查不通过逻辑
+    //2.测试不通过逻辑
     var test_params={
         taskId: $('#taskId').val(),
         reason: $('#reason').val()
@@ -248,7 +245,7 @@ function bindClick_btnUploadFile(){
     });
 }
 /**
- * 处理走查人员下拉列表
+ * 处理测试人员下拉列表
  */
 function dealSelectUl(){
 //    $("#selectUl").find("tbody").each(function(){
@@ -269,9 +266,9 @@ function fileUpReturn(){
         var reportAttaName = $(window.frames["ifm_fileUpRe"].document).find("#reportAttaName").val();
         var reportAttaUri = $(window.frames["ifm_fileUpRe"].document).find("#reportAttaUri").val();
         if("true"==isUpSuccess){
-            //1.隐藏“选择走查报告”按钮
+            //1.隐藏“选择测试报告”按钮
             $('#btnSelectReport').hide();
-            //2.隐藏“上传走查报告”按钮，并显示“走查通过”、“走查不通过”按钮
+            //2.隐藏“上传测试报告”按钮，并显示“测试通过”、“测试不通过”按钮
             $('#submit_TestReport').hide();
             //3.把已上传报告的名称和下载链接显示在页面上
             $('#a_reportAtta').attr('href',reportAttaUri);//设置附件a标签的链接
@@ -316,7 +313,7 @@ function getAllTesterName(){
 }
 jQuery(document).ready(function() {
     showOldFile();
-    //隐藏文件上传时用于替代走查通过or不通过的按钮
+    //隐藏文件上传时用于替代测试通过or不通过的按钮
     $('#btnUnPassCheck2').hide();
     //隐藏文件路径信息提示条
     $('#assignTestDiv').hide();
@@ -335,7 +332,7 @@ jQuery(document).ready(function() {
         $('#btnAssignTest').hide();
         submitForm_testPass();
     });
-    //走查不通过
+    //测试不通过
     $('#btnUnPassTest').click(function(){
         submitForm_testUnPass();
     });

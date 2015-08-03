@@ -7,6 +7,14 @@ var async = require('async');// 加载async 支持顺序执行
 var queues = require('mysql-queues');// 加载mysql-queues 支持事务
 var file = require("../modular/task");
 var State = require("./taskState");
+var taskSql = require("./sqlStatement/taskSql");
+var TaskSql = new taskSql();
+var processStepSql = require("./sqlStatement/processStepSql");
+var ProcessStepSql = new processStepSql();
+var pSReason = require("./sqlStatement/processStepReason");
+var PSReason = new pSReason();
+var bugSql = require("./sqlStatement/bugSql");
+var BugSql = new bugSql();
 function TaskTest(task){
     this.taskid = task.taskid
     this.taskcode = task.taskcode
@@ -18,7 +26,6 @@ function TaskTest(task){
     this.taskDesc = task.taskDesc
     this.modifiedFileList = task.modifiedFileList
     this.newFileList = task.newFileList
-
     this.createrName = task.createrName
     this.stepName = task.stepName
     this.dealerName = task.dealerName
@@ -807,6 +814,106 @@ TaskTest.noTest = function(taskId,userId,reason,callback){
                     trans.rollback();
                     console.log("NO TEST ERR:",err_async);
                     console.log("NO TEST ERR:",item,"  ",sqlMember_params[i]);
+                    return callback('err',err_async);
+                }
+                if(item == lastSql && !err_async){//最后一条sql语句执行没有错就返回成功
+                    trans.commit();
+                    return callback('success');
+                }
+                callback_async(err_async, result);
+            });
+        });
+        trans.execute();//提交事务
+        connection.release();
+    });
+}
+
+/**
+ * 测试不通过，开发人员请求重新测试
+ * @param taskId
+ * @param callback
+ */
+TaskTest.reTest = function(taskId,dealer,reason,callback){
+    pool.getConnection(function (err, connection) {
+        //开启事务
+        queues(connection);
+        var trans = connection.startTransaction();
+        var state = new State();
+        var state =state.reqReTest;
+        var sql= {
+            updateTask: TaskSql.updateTask,
+            updateTPS: ProcessStepSql.updateTPS,
+            insertTPS:ProcessStepSql.insertTPS_TB
+        };
+        var updateTask_params =[state,8,taskId];
+        var now = new Date().format("yyyy-MM-dd HH:mm:ss") ;
+        //var updateDealer_params = [userId,taskId,taskId];
+        var updateTPS_params = [now,taskId,10,taskId,taskId];
+        var insertTPS_params = [taskId,8,taskId,taskId,dealer,now];
+        var sqlMember = ['updateTask', 'updateTPS','insertTPS'];
+        var sqlMember_params = [ updateTask_params,updateTPS_params, insertTPS_params];
+        var i = 0;
+        var lastSql = "insertTPS";
+        if(reason!=""){
+            sql.insertReason = PSReason.insertReason;
+            sqlMember.push("insertReason");
+            var insertReason_params = [taskId,8,reason,taskId,taskId];
+            sqlMember_params.push(insertReason_params);
+            lastSql = "insertReason";
+        }
+        async.eachSeries(sqlMember, function (item, callback_async) {
+            trans.query(sql[item], sqlMember_params[i++],function (err_async, result) {
+                if(err_async){
+                    trans.rollback();
+                    console.log("RETEST ERR:",err_async);
+                    console.log("RETEST ERR:",item,"  ",sqlMember_params[i-1]);
+                    return callback('err',err_async);
+                }
+                if(item == lastSql && !err_async){//最后一条sql语句执行没有错就返回成功
+                    trans.commit();
+                    return callback('success');
+                }
+                callback_async(err_async, result);
+            });
+        });
+        trans.execute();//提交事务
+        connection.release();
+    });
+}
+
+/**
+ * 测试不通过，开发人员填写变更单号
+ * @param taskId
+ * @param callback
+ */
+TaskTest.newTaskName = function(taskId,creater,dealer,taskName,callback){
+    pool.getConnection(function (err, connection) {
+        //开启事务
+        queues(connection);
+        var trans = connection.startTransaction();
+        var sql= {
+            updateTask: TaskSql.updateTask,
+            updateTPS: ProcessStepSql.updateTPS,
+            insertTPS:ProcessStepSql.insertTPS_T,
+            insertBug:BugSql.insertBug
+        };
+        var state = new State();
+        var state =state.comfirmed;
+        var updateTask_params =[state,11,taskId];
+        var now = new Date().format("yyyy-MM-dd HH:mm:ss") ;
+        var updateTPS_params = [now,taskId,10,taskId,taskId];
+        var insertTPS_params = [taskId,11,taskId,taskId,dealer,now];
+        var  insertBug_params = [taskName,creater,dealer,taskId,];
+        var sqlMember = ['updateTask', 'updateTPS','insertTPS','insertBug'];
+        var sqlMember_params = [ updateTask_params,updateTPS_params, insertTPS_params,insertBug_params];
+        var i = 0;
+        var lastSql = "insertBug";
+        async.eachSeries(sqlMember, function (item, callback_async) {
+            trans.query(sql[item], sqlMember_params[i++],function (err_async, result) {
+                if(err_async){
+                    trans.rollback();
+                    console.log("RETEST ERR:",err_async);
+                    console.log("RETEST ERR:",item,"  ",sqlMember_params[i-1]);
                     return callback('err',err_async);
                 }
                 if(item == lastSql && !err_async){//最后一条sql语句执行没有错就返回成功

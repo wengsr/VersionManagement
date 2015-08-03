@@ -15,6 +15,6 @@ var TaskState = function(){
     this.noTest = "没有测试";
     this.reqReTest ="请求重测";
     this.comfirming="等待开发确认";
-    this.comfirmed ="BUG确认";
+    this.comfirmed ="已确认为bug";
 }
 module.exports = TaskState;

@@ -623,4 +623,48 @@ router.post('/noTest', function(req, res) {
         res.send(queryObj.callback+'(\'' + jsonStr + '\')');
     });
 });
+
+/**
+ * “请求重新测试”业务实现
+ */
+router.post('/reTest', function(req, res) {
+    getCookieUser(req, res);
+    var taskId = req.body['taskId'];
+    var preDealer = req.body['preDealer'];
+    var reason =  req.body['reason'];
+    var dealer = req.session.user.userId;
+    var jsonStr;
+    TaskTest.reTest(taskId,preDealer,reason,function(msg,result){
+        if('success' == msg){
+            jsonStr = '{"sucFlag":"success","message":"【请求重测】执行成功"}';
+            //sendEmailToCreaterTest(req,taskId,preDealer,'8',true);//发送邮件
+        }else{
+            jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
+        }
+        var queryObj = url.parse(req.url,true).query;
+        res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+    });
+});
+
+/**
+ * 测试不通过，新建变更单名”业务实现
+ */
+router.post('/newTaskName', function(req, res) {
+    getCookieUser(req, res);
+    var taskId = req.body['taskId'];
+    var tester = req.body['preDealer'];
+    var taskName =  req.body['taskName'];
+    var creater = req.session.user.userId;
+    var jsonStr;
+    TaskTest.newTaskName(taskId,creater,tester,taskName,function(msg,result){
+        if('success' == msg){
+            jsonStr = '{"sucFlag":"success","message":"【新变更单名填写】执行成功"}';
+        }else{
+            jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
+        }
+        var queryObj = url.parse(req.url,true).query;
+        res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+    });
+});
+
 module.exports = router;

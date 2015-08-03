@@ -76,6 +76,21 @@ var findAttaByTaskIdAndStepId = function(req, taskId, processStepId, callback){
 }
 
 /**
+ * 测试不通过，等待开发人员确认，查询测试报告和不通过原因
+ * @param taskId
+ * @param processStepId
+ * @param callback
+ */
+var findtaskInfoForComfirming = function(req, taskId, processStepId, callback){
+    TaskAtta.findtaskInfoForComfirming(taskId, processStepId, function(msg,result){
+        if('success'!=msg){
+            req.session.error = "查找变更单附件时发生错误,请记录并联系管理员";
+            return null;
+        }
+        callback(result);
+    })
+}
+/**
  * 找到上一个环节的不通过的走查报告
  * @param req
  * @param taskId
@@ -218,7 +233,7 @@ var openTask = function(stepName, req, res, callback){
                                         "fileUri": '#'
                                     });
                                 }
-                                if (stepName == 'submit' || stepName == 'check'||stepName === "testing") {
+                                if (stepName == 'submit' || stepName == 'check'||stepName === "testing"||stepName=="comfirming") {
                                     findAttaByTaskIdAndStepId(req, taskId, '5', function (reportAtta) {//找到走查环节上传的走查报告
                                         if (undefined == reportAtta) {
                                             reportAtta = new TaskAtta({
@@ -229,8 +244,8 @@ var openTask = function(stepName, req, res, callback){
                                                 "fileUri": '#'
                                             });
                                         }
-                                        if(stepName=="testing") {
-                                            findAttaByTaskIdAndStepId(req, taskId, '7', function (testReportAtta) {//找到走查环节上传的走查报告
+                                        if(stepName=="testing"||stepName=="comfirming") {
+                                            findAttaByTaskIdAndStepId(req, taskId, '8', function (testReportAtta) {//找到测试环节上传的测试报告
                                                 console.log("testReportAtta",testReportAtta);
                                                 if (undefined == testReportAtta) {
                                                     testReportAtta = new TaskAtta({
@@ -241,16 +256,53 @@ var openTask = function(stepName, req, res, callback){
                                                         "fileUri": '#'
                                                     });
                                                 }
+                                                if(stepName=="comfirming") {
+                                                    findtaskInfoForComfirming(req, taskId, 10, function(comfirm_result) {//找到测试环节上传的测试报告
+                                                        if (undefined == comfirm_result.newTestReport) {
+                                                            newTestReport = new TaskAtta({
+                                                                "attachmentId": '',
+                                                                "taskId": '',
+                                                                "processStepId": '',
+                                                                "fileName": '未找到附件',
+                                                                "fileUri": '#'
+                                                            });
+                                                        }
+                                                        else{
+                                                            newTestReport =  comfirm_result.newTestReport;
+                                                        }
+                                                        var testType=comfirm_result.testType,
+                                                            preDealer=comfirm_result.preDealer,
+                                                            noPassReason=comfirm_result.noPassReason;
+                                                        //打开开发确认界面
+                                                        res.render(stepName, {
+                                                            task: t,
+                                                            addFileList: addFileList,
+                                                            modifyFileList: modifyFileList,
+                                                            delFileList: delFileList,
+                                                            attaFile: atta,
+                                                            testType:testType,
+                                                            preDealer:preDealer,
+                                                            noPassReason:noPassReason,
+                                                            reportAtta: reportAtta,
+                                                            newTestReport:newTestReport,
+                                                            testReportAtta:testReportAtta
+                                                        });
+                                                    });
+                                                    return;
+                                                }
                                                 //打开测试界面
-                                                res.render(stepName, {
-                                                    task: t,
-                                                    addFileList: addFileList,
-                                                    modifyFileList: modifyFileList,
-                                                    delFileList: delFileList,
-                                                    attaFile: atta,
-                                                    reportAtta: reportAtta,
-                                                    testReportAtta: testReportAtta
-                                                });
+                                                else{
+                                                    res.render(stepName, {
+                                                        task: t,
+                                                        addFileList: addFileList,
+                                                        modifyFileList: modifyFileList,
+                                                        delFileList: delFileList,
+                                                        attaFile: atta,
+                                                        reportAtta: reportAtta,
+                                                        testReportAtta: testReportAtta
+                                                    });
+                                                }
+
                                             });
                                         }
                                         else{
@@ -438,6 +490,12 @@ router.get('/submit/:taskId/:taskCreater/:dealerName/:createName', function(req,
  */
 router.get('/testing/:taskId/:taskCreater/:dealerName/:createName', function(req, res) {
     openTask('testing',req,res);
+});
+/**
+ * 上库完成后，打开的界面，版本管理员，打开文件列表界面，测试人员打开测试界面
+ */
+router.get('/comfirming/:taskId/:taskCreater/:dealerName/:createName', function(req, res) {
+    openTask('comfirming',req,res);
 });
 router.get('/errModal', function(req, res) {
     res.render('errModal.ejs');

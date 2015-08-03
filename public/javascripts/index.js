@@ -133,7 +133,27 @@ function regTaskTestDialog() {
         //showModelDialog(taskTagId2, realUrl, btnForm);
     });
 }
-
+/**
+ * 测试环节
+ */
+function regTaskComfirminDialog() {
+    var stepId = "[step=taskProcessStepId_10]";
+    //var url = '/users/showFileList',
+    var url = '/taskDialog/comfirming',
+        stepName = 'testing';
+    $(stepId).each(function(){
+        $(this).attr('step',stepName);
+        var taskTagId = $(this).attr('id');
+        var taskId = $(this).attr('taskid');
+        var taskCreater = $(this).attr('taskcreater');
+        var dealerName = $(this).attr('dealerName');
+        var createName = $(this).attr('createName');
+        var realUrl = url + "/" + taskId + "/"+taskCreater + "/" + dealerName + "/" + createName;
+        btnForm = stepName.replace('btn','form');
+        showModelDialog(taskTagId, realUrl, btnForm);
+        //showModelDialog(taskTagId2, realUrl, btnForm);
+    });
+}
 /**
  * 记录当前被选中的taskid
  * @param taskId
@@ -170,6 +190,7 @@ jQuery(document).ready(function() {
     regTaskLink();
     regTaskFileList();
     regTaskTestDialog();
+    regTaskComfirminDialog();
     //隐藏页面上方提示条
     setTimeout(function(){$('#errTip').slideUp(1000);setTimeout(function(){$('#errTip').remove()},2000)},2000);
     setTimeout(function(){$('#successTip').slideUp(1000);setTimeout(function(){$('#successTip').remove()},2000)},1000);
