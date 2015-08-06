@@ -12,6 +12,10 @@ var TaskSql = function(){
     "   on tup.unPassTypeId = upt.unPassTypeId" +
     "   AND tup.taskId = ? and" +
     "   tup.testNum = ( SELECT max(testNum) from testunpass where taskId = ?)";
+
+    this.testNameUsed ="select * from tasks t" +
+    "   where  t.taskName = ? and t.processStepId < 7";
+    var testNameUsed_params = "[taskName]";
 }
 
 module.exports = TaskSql;

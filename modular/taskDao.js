@@ -202,6 +202,8 @@ function deleteFile(conn, params, i, callback){
 }
 var pool = require('../util/connPool.js').getPool();
 var queues = require('mysql-queues');
+var bugSql = require("./sqlStatement/bugSql");
+var BugSql = new  bugSql();
 //const DEBUG = true;
 var async = require('async');
 exports.searchProject = function( taskInfo , callback){
@@ -246,6 +248,140 @@ exports.searchModFiles= function(params, callback){
             connection.release();
             callback("success", result);
         });
+    });
+};
+exports.addBugTask = function (taskInfo,callback) {
+    console.log("taskInfo:",taskInfo);
+    pool.getConnection(function (err, connection) {
+        if(err){
+            return callback("err");
+        }
+        queues(connection);
+        var trans = connection.startTransaction();
+        var sql= {
+            searchTaskName:'select * from tasks t' +
+            '   JOIN taskprocessstep psd3 ON t.taskId = psd3.taskid and psd3.processStepId =(' +
+            '   select MAX(processStepId) as maxStep from taskprocessstep tps1 where   tps1.turnNum = (' +
+            '   SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep tps where tps.taskid in (' +
+            '   select taskId from tasks where taskName = ?)) as maxTurnTable)' +
+            '   and tps1.taskid in' +
+            '   ( select taskId from tasks where taskname = ?))' +
+            '   and t.taskName = ? and psd3.processStepId < 7',
+            countTask: 'UPDATE  project set taskCount = taskCount + 1 where projectId= ?',
+            selectProject :' SELECT * FROM project where projectName = ?',
+            userAddSql : 'INSERT INTO tasks(taskCode, taskName, creater, state, processStepId, projectId, taskDesc) VALUES(?,?,?,?,?,?,?)',
+            addTaskProcess : ' INSERT INTO taskProcessStep(taskId, processStepId, dealer,turnNum,execTime) VALUES(?,?,?,?,?)',
+            addFiles: 'INSERT INTO fileList(taskId,fileName,state,commit,fileUri) VALUES(?,?,?,?)',
+            updateBug:BugSql.updateBugs
+        };
+        var searchTaskName_params = [taskInfo.name, taskInfo.name, taskInfo.name];
+        var addTaskProcess_params = [1, 2];
+        var project, taskCount, projectName, taskCode;
+        var projectId = [taskInfo.projectId];
+        var countTask_params = [taskInfo.projectId];
+        var userAddSql_params=[];
+        var addTaskPro_params = [];
+        var addFiles_params =[];
+        var updateBug_params = [];
+        var userId = taskInfo.tasker;
+        //var task = ['countTask', 'selectProject', 'us、erAddSql','addTaskProcess', 'addFiles' ];
+        //var task = ['countTask', 'selectProject', 'userAddSql','addTaskProcess' ];
+        var task = ['searchTaskName','countTask', 'selectProject', 'userAddSql',"updateBug",'addTaskProcess' ];
+        //var task_params = [projectId, projectId, userAddSql_params,addTaskPro_params, addFiles_params];
+        //var task_params = [projectId, projectId, userAddSql_params,addTaskPro_params];
+        var task_params = [searchTaskName_params, projectId, projectId, userAddSql_params,updateBug_params,addTaskPro_params,];
+        var taskId,projectUri;
+        var newFiles, modFiles,delFiles;
+        var newUri=[];
+        var modUri=[];
+        var  delUri=[];
+        var i= 0;
+        async.eachSeries(task, function (item, callback_async) {
+            trans.query(sql[item], task_params[i],function (err, result) {
+                if(err) {
+                    console.log(item+" result:", err.message);
+                    callback("err");
+                    trans.rollback();
+                    return ;
+                }
+                i++;
+                if(item =='searchTaskName') {
+                    if (result.length > 0) {
+                        var testTaskName = true;
+                        callback("err", testTaskName);
+                        trans.rollback();
+                        return;
+                    }
+                }
+                if (item == 'selectProject') {
+                    if (result.length > 0) {
+                        project = result;
+                        var taskCount = project[0].taskCount;
+                        projectName = project[0].projectName;
+                        var count =project[0].taskCount;
+                        var newDate = new Date();
+                        var year = newDate.getFullYear().toString() ;
+                        var month = (newDate.getMonth() + 1).toString();
+                        if(month<10){
+                            month = '0' + month;
+                        }
+                        var day = newDate.getDate().toString();
+                        if(day<10){
+                            day = '0' + day;
+                        }
+                        var nowDate = year + month + day;
+                        if(taskCount<10000){
+                            taskCount ='0'+taskCount;
+                            while(taskCount.lenth<4){
+                                taskCount ='0'+taskCount;
+                            }
+
+                        }
+                        taskCode = project[0].projectName +'_'+nowDate+'_'+taskCount;
+                        projectUri = project[0].projectUri;
+                        task_params[3] = [taskCode, taskInfo.name, taskInfo.tasker, taskInfo.state, "2",
+                            result[0].projectId, taskInfo.desc];
+                    }
+                }
+                else if (item == 'userAddSql') {
+                    console.log("userAddSql:", result);
+                    taskId = result.insertId;
+                    var now = new Date().format("yyyy-MM-dd HH:mm:ss");
+                    task_params[5] = [taskId, '2', userId, 0,now];//taskPrecessStep turnNum 默认为0：
+                    task_params[4]=[taskId,taskInfo.bugId];
+                    //插入多条的file数据
+                    //获取文件完整的uri；
+                    if(taskInfo.newFiles!=""){
+                        newUri = getFilesUri(taskInfo.newFiles);
+                        newFiles = getFilesName(newUri);
+                    }
+                    if(taskInfo.modFiles!='') {
+                        modUri = getFilesUri(taskInfo.modFiles);
+                        modFiles = getFilesName(modUri);
+                    }
+                    if(taskInfo.delFiles!='') {
+                        delUri = getFilesUri(taskInfo.delFiles);
+                        delFiles = getFilesName(delUri);
+                    }
+                }
+                else if(item =='addTaskProcess') {
+                    //插入新增文件，修改文件，删除文件
+                    addFiles_params = addFilesParam(addFiles_params, taskId, newFiles, newUri, 1);
+                    addFiles_params = addFilesParam(addFiles_params, taskId, modFiles, modUri, 0);
+                    addFiles_params = addFilesParam(addFiles_params, taskId, delFiles, delUri, 2);
+                    //console.log("addFiles_params:", addFiles_params);
+                    insertFile(trans, addFiles_params, 0, function(msg){
+                        if(msg =='success'){
+                            callback("success",taskId,taskCode);
+                        }
+                    });
+                }
+                //console.log(result);
+                callback_async(err, result);
+            });
+        });
+        trans.execute();
+        connection.release();
     });
 };
 exports.addTask = function (taskInfo,callback) {
@@ -879,6 +1015,23 @@ exports.getAFileHistoryWithFileUri = function(fileUri,curPage, callback){
                     callback('success',result, count[0].count);
                 });
             }
+        });
+    });
+}
+
+exports.searchAllBugs = function(userId, callback){
+    pool.getConnection(function (err, connection){
+        var sql = "SELECT b.* ,p.projectName, p.projectUri FROM `bugs` b JOIN project p" +
+            "    on p.projectId = b.projectId  and b.creater  =?  and newTask < 0 ";
+
+        var sql_params = [userId];
+        connection.query(sql,sql_params,function(err,result){
+            if (err) {
+                console.log('[QUERY FIND BUGS  ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',result);
         });
     });
 }

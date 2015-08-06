@@ -43,6 +43,14 @@ var processStepSql = function(){
     '   AND testNum =' +
     '   (SELECT maxTestNum from (SELECT MAX(testNum) as maxTestNum FROM taskprocessstep where taskId=? ) as maxTestNumTable)）';;
     var assignTPS_params = "[dealer,now,taskId,processStepId,taskId,taskId]";
+
+    this.selectTestNum = "select max(testNum) from taskprocessstep where taskid =?";
+    var selectTestNum_params = "[taskId]";
+//测试环节，查找前一轮开发人员确认环节的说明。
+   this.selectPreTestReason ="select reason from taskprocessreason tpr where tpr.taskid= ?" +
+   "    and tpr.testNum = (SELECT max(testNum) from taskprocessstep where taskid= ?) -1" +
+   "    and tpr.processStepId = ?";
+   var selectPreTestReason_params ="[taskId,taskId,processStepId]";
 }
 
 module.exports = processStepSql;

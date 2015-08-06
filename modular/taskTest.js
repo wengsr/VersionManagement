@@ -15,6 +15,8 @@ var pSReason = require("./sqlStatement/processStepReason");
 var PSReason = new pSReason();
 var bugSql = require("./sqlStatement/bugSql");
 var BugSql = new bugSql();
+var taskAttaSql = require("./sqlStatement/taskAttaSql");
+var TaskAttaSql = new taskAttaSql();
 function TaskTest(task){
     this.taskid = task.taskid
     this.taskcode = task.taskcode
@@ -33,7 +35,7 @@ function TaskTest(task){
 }
 
 /**
- * 走查通过
+ * 测试通过
  * @param taskId
  * @param callback
  */
@@ -48,15 +50,18 @@ TaskTest.doTestPass = function(taskId,userId,reason,callback){
             //updateDealer: 'update taskprocessstep set dealer =?,execTime = ? where taskId = ? and processStepId = 8'
             updateDealer: 'update taskprocessstep set dealer = ? where turnNum =' +
             '   (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)' +
+            '  and testNum =' +
+            '   (SELECT maxTestNum from (SELECT MAX(testNum) as maxTestNum FROM taskprocessstep where taskId=?) as maxTestNumTable)' +
             '   and taskId =? and processStepId = 8',
-            updateTPS:"insert into taskprocessstep (taskid, processStepId, turnNum, dealer,execTime) " +
-            " values (?,9,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?,?)"
+            updateTPS:"insert into taskprocessstep (taskid, processStepId, turnNum,testNum, dealer,execTime) " +
+            " values (?,9,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?)," +
+            " (SELECT MAX(testNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?,?)"
         };
 
         var updateTask_params = [taskId];
         var now = new Date().format("yyyy-MM-dd HH:mm:ss") ;
-        var updateDealer_params = [userId,taskId,taskId];
-        var updateTPS_params = [taskId,taskId,userId,now];
+        var updateDealer_params = [userId,taskId,taskId,taskId];
+        var updateTPS_params = [taskId,taskId,taskId,userId,now];
         var sqlMember = ['updateTask', 'updateDealer','updateTPS'];
         var sqlMember_params = [ updateTask_params,updateDealer_params, updateTPS_params];
         var i = 0;
@@ -99,23 +104,27 @@ TaskTest.doTestUnPass = function(taskId, userId, noPassReason,noPassType, callba
         var trans = connection.startTransaction();
 
         var sql = {
-            updateTask: "update tasks set state='测试不通过',processStepId = 9 where taskid=?",
+            updateTask: "update tasks set state='测试不通过',processStepId =10 where taskid=?",
             updateDealer: 'update taskprocessstep set dealer = ? where turnNum =' +
             '   (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)' +
+            '  and  (SELECT maxTestNum from (SELECT MAX(testNum) as maxTestNum FROM taskprocessstep where taskId=?) as maxTestNumTable)' +
             '   and taskId =? and processStepId = 8',
             insertTestUnpass: "insert into testUnPass " +
-            "            (taskId, turnNum, dealer, noPassReason,unPassTypeId)" +
+            "            (taskId, turnNum,testNum, dealer, noPassReason,unPassTypeId)" +
             "            values(?, (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskProcessStep WHERE taskId=?) as maxNumTable)," +
+            "             (SELECT maxTestNum from (SELECT MAX(testNum) as maxTestNum FROM taskProcessStep WHERE taskId=?) as maxTestNumTable)," +
             "           ?,?,?)",
             //updateDealer: 'update taskprocessstep set dealer =?,execTime = ? where taskId = ? and processStepId = 8',
-            updateTPS:"insert into taskprocessstep (taskid, processStepId, turnNum, dealer,execTime) " +
-            " values (?,9,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?,?)"
+            updateTPS:"insert into taskprocessstep (taskid, processStepId, turnNum, testNum,dealer,execTime) " +
+            " values (?,10,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?)," +
+            "   (SELECT MAX(testNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?)," +
+            "(SELECT creater FROM `tasks` where taskid = ?),?)"
         }
         var updateTask_params = [taskId];
         var now = new Date().format("yyyy-MM-dd HH:mm:ss");
-        var updateDealer_params = [userId,taskId, taskId ];
-        var updateTPS_params = [taskId,taskId,userId,now ];
-        var insertTestUnpass_params = [taskId, taskId, userId, noPassReason,noPassType];
+        var updateDealer_params = [userId,taskId,taskId, taskId ];
+        var updateTPS_params = [taskId,taskId,taskId,taskId,now ];
+        var insertTestUnpass_params = [taskId, taskId,taskId, userId, noPassReason,noPassType];
         var sqlMember = ['updateTask',"updateDealer",'insertTestUnpass', 'updateTPS'];
         var sqlMember_params = [updateTask_params,updateDealer_params,insertTestUnpass_params, updateTPS_params];
         var i = 0;
@@ -158,6 +167,8 @@ TaskTest.assignToOther = function(taskId,dealer,callback){
             selectUser: "select userId from user where userName=?",
             updateDealer: 'update taskprocessstep set dealer = ?, execTime = ? where turnNum =' +
             '   (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)' +
+            '  and testNum =' +
+            '   (SELECT maxTestNum from (SELECT MAX(testNum) as maxTestNum FROM taskprocessstep where taskId=?) as maxNumTable)' +
             '   and taskId =? and processStepId = 8'
         }
         var selectUser_params = [dealer];
@@ -178,7 +189,7 @@ TaskTest.assignToOther = function(taskId,dealer,callback){
             }
             else {
                 //console.log("selectUser:", result);
-                updateDealer_params = [result[0].userId,now, taskId, taskId];
+                updateDealer_params = [result[0].userId,now, taskId,taskId, taskId];
                 connection.query(sql['updateDealer'], updateDealer_params, function (err_update, result_update) {
                     if (err_update) {
                         //console.log("Assigncheck err:", err_update);
@@ -222,10 +233,12 @@ TaskTest.findTaskByTesterId = function(userId,callback){
             '   JOIN processstep ps1 ON ps1.processStepId = t1.processStepId' +
             '   JOIN taskprocessstep tps1 ON tps1.taskId = t1.taskid' +
             '   AND tps1.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps1 where maxtps1.taskId = t1.taskid)' +
+            '   AND tps1.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps2 where maxtps1.taskId = t1.taskid)' +
             '   AND tps1.processStepId = t1.processStepId   ' +
             '   ) taskTable' +
             '   JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid' +
             '   AND oTps.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps2 where maxtps2.taskId = taskTable.taskid)' +
+            '   AND oTps.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps2 where maxtps2.taskId = taskTable.taskid)' +
             '   AND oTps.processStepId = taskTable.processStepId and oTps.dealer = ?' +
             '   LEFT JOIN user oU ON oTps.dealer = oU.userId' +
             '   ) taskTable2' +
@@ -270,10 +283,12 @@ TaskTest.findTaskByPMId = function(userId,callback){
             '   JOIN processstep ps1 ON ps1.processStepId = t1.processStepId' +
             '   JOIN taskprocessstep tps1 ON tps1.taskId = t1.taskid' +
             '   AND tps1.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps1 where maxtps1.taskId = t1.taskid)' +
+            '   AND tps1.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps2 where maxtps1.taskId = t1.taskid)' +
             '   AND tps1.processStepId = t1.processStepId   ' +
             '   ) taskTable' +
             '   JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid' +
             '   AND oTps.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps2 where maxtps2.taskId = taskTable.taskid)' +
+            '   AND oTps.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps3 where maxtps3.taskId = taskTable.taskid)' +
             '   AND oTps.processStepId = taskTable.processStepId and  (dealer = ? or dealer is NULL)' +
             '   LEFT JOIN user oU ON oTps.dealer = oU.userId' +
             '   ) taskTable2' +
@@ -316,10 +331,12 @@ TaskTest.findTaskByPMId_P = function(userId,startNum,callback){
             '   JOIN processstep ps1 ON ps1.processStepId = t1.processStepId' +
             '   JOIN taskprocessstep tps1 ON tps1.taskId = t1.taskid' +
             '   AND tps1.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps1 where maxtps1.taskId = t1.taskid)' +
+            '   AND tps1.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps2 where maxtps2.taskId = t1.taskid)' +
             '   AND tps1.processStepId = t1.processStepId   ' +
             '   ) taskTable' +
             '   JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid' +
             '   AND oTps.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps2 where maxtps2.taskId = taskTable.taskid)' +
+            '   AND oTps.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps3 where maxtps3.taskId = taskTable.taskid)' +
             '   AND oTps.processStepId = taskTable.processStepId and  (dealer = ? or dealer is NULL)' +
             '   LEFT JOIN user oU ON oTps.dealer = oU.userId' +
             '   ) taskTable2';
@@ -340,10 +357,12 @@ TaskTest.findTaskByPMId_P = function(userId,startNum,callback){
             '   JOIN processstep ps1 ON ps1.processStepId = t1.processStepId' +
             '   JOIN taskprocessstep tps1 ON tps1.taskId = t1.taskid' +
             '   AND tps1.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps1 where maxtps1.taskId = t1.taskid)' +
+            '   AND tps1.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps2 where maxtps2.taskId = t1.taskid)' +
             '   AND tps1.processStepId = t1.processStepId   ' +
             '   ) taskTable' +
             '   JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid' +
             '   AND oTps.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps2 where maxtps2.taskId = taskTable.taskid)' +
+            '   AND oTps.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps3 where maxtps3.taskId = taskTable.taskid)' +
             '   AND oTps.processStepId = taskTable.processStepId and  (dealer = ? or dealer is NULL)' +
             '   LEFT JOIN user oU ON oTps.dealer = oU.userId' +
             '   ) taskTable2' +
@@ -398,10 +417,12 @@ TaskTest.findTaskByTesterId_P = function(userId,startNum,callback){
             '   JOIN processstep ps1 ON ps1.processStepId = t1.processStepId' +
             '   JOIN taskprocessstep tps1 ON tps1.taskId = t1.taskid' +
             '   AND tps1.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps1 where maxtps1.taskId = t1.taskid)' +
+            '   AND tps1.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps2 where maxtps2.taskId = t1.taskid)' +
             '   AND tps1.processStepId = t1.processStepId   ' +
             '   ) taskTable' +
             '   JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid' +
             '   AND oTps.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps2 where maxtps2.taskId = taskTable.taskid)' +
+            '   AND oTps.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps3 where maxtps3.taskId = taskTable.taskid)' +
             '   AND oTps.processStepId = taskTable.processStepId and  (dealer = ? )' +
             '   LEFT JOIN user oU ON oTps.dealer = oU.userId' +
             '   ) taskTable2';
@@ -422,10 +443,12 @@ TaskTest.findTaskByTesterId_P = function(userId,startNum,callback){
             '   JOIN processstep ps1 ON ps1.processStepId = t1.processStepId' +
             '   JOIN taskprocessstep tps1 ON tps1.taskId = t1.taskid' +
             '   AND tps1.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps1 where maxtps1.taskId = t1.taskid)' +
+            '   AND tps1.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps2 where maxtps2.taskId = t1.taskid)' +
             '   AND tps1.processStepId = t1.processStepId   ' +
             '   ) taskTable' +
             '   JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid' +
             '   AND oTps.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps2 where maxtps2.taskId = taskTable.taskid)' +
+            '   AND oTps.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps3 where maxtps3.taskId = taskTable.taskid)' +
             '   AND oTps.processStepId = taskTable.processStepId and  (dealer = ? )' +
             '   LEFT JOIN user oU ON oTps.dealer = oU.userId' +
             '   ) taskTable2' +
@@ -499,6 +522,13 @@ TaskTest.findAllTestTaskByParam = function(searchConds,startNum,callback){
             "        taskprocessstep maxtps2" +
             "        WHERE" +
             "        maxtps2.taskId = taskTable.taskid" +
+            "        )      AND oTps.testNum IN (" +
+            "            SELECT" +
+            "        MAX(testNum)" +
+            "        FROM" +
+            "        taskprocessstep maxtps3" +
+            "        WHERE" +
+            "        maxtps3.taskId = taskTable.taskid" +
             "        )        AND oTps.processStepId = taskTable.processStepId" +
             "        LEFT JOIN USER oU ON oTps.dealer = oU.userId" +
             "        ) taskTable2" +
@@ -538,6 +568,13 @@ TaskTest.findAllTestTaskByParam = function(searchConds,startNum,callback){
             "        taskprocessstep maxtps2" +
             "        WHERE" +
             "        maxtps2.taskId = taskTable.taskid" +
+            "        )      AND oTps.testNum IN (" +
+            "            SELECT" +
+            "        MAX(testNum)" +
+            "        FROM" +
+            "        taskprocessstep maxtps3" +
+            "        WHERE" +
+            "        maxtps3.taskId = taskTable.taskid" +
             "        )        AND oTps.processStepId = taskTable.processStepId" +
             "        LEFT JOIN USER oU ON oTps.dealer = oU.userId" +
             "        ) taskTable2" +
@@ -656,6 +693,13 @@ TaskTest.findTestTaskByParam = function(searchConds,startNum,callback){
             "        taskprocessstep maxtps2" +
             "        WHERE" +
             "        maxtps2.taskId = taskTable.taskid" +
+            "        )       AND oTps.testNum IN (" +
+            "            SELECT" +
+            "        MAX(testNum)" +
+            "        FROM" +
+            "        taskprocessstep maxtps3" +
+            "        WHERE" +
+            "        maxtps3.taskId = taskTable.taskid" +
             "        )        AND oTps.processStepId = taskTable.processStepId" +
             "        AND oTps.dealer = ?" +
             "        LEFT JOIN USER oU ON oTps.dealer = oU.userId" +
@@ -696,6 +740,13 @@ TaskTest.findTestTaskByParam = function(searchConds,startNum,callback){
             "        taskprocessstep maxtps2" +
             "        WHERE" +
             "        maxtps2.taskId = taskTable.taskid" +
+            "        )     AND oTps.testNum IN (" +
+            "            SELECT" +
+            "        MAX(testNum)" +
+            "        FROM" +
+            "        taskprocessstep maxtps3" +
+            "        WHERE" +
+            "        maxtps3.taskId = taskTable.taskid" +
             "        )        AND oTps.processStepId = taskTable.processStepId" +
             "        AND oTps.dealer = ?" +
             "        LEFT JOIN USER oU ON oTps.dealer = oU.userId" +
@@ -787,14 +838,17 @@ TaskTest.noTest = function(taskId,userId,reason,callback){
             //updateDealer: 'update taskprocessstep set dealer =?,execTime = ? where taskId = ? and processStepId = 8'
             updateDealer: 'update taskprocessstep set dealer = ? where turnNum =' +
             '   (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)' +
+            '   and testNum =' +
+            '   (SELECT maxTestNum from (SELECT MAX(testNum) as maxTestNum FROM taskprocessstep where taskId=?) as maxNumTable)' +
             '   and taskId =? and processStepId = 8',
             updateTPS:"insert into taskprocessstep (taskid, processStepId, turnNum, dealer,execTime) " +
-            " values (?,9,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?,?)"
+            " values (?,9,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?)," +
+            "   (SELECT MAX(testNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?,?)"
         };
         var updateTask_params = [taskId];
         var now = new Date().format("yyyy-MM-dd HH:mm:ss") ;
-        var updateDealer_params = [userId,taskId,taskId];
-        var updateTPS_params = [taskId,taskId,userId,now];
+        var updateDealer_params = [userId,taskId,taskId,taskId];
+        var updateTPS_params = [taskId,taskId,taskId,userId,now];
         var sqlMember = ['updateTask', 'updateDealer','updateTPS'];
         var sqlMember_params = [ updateTask_params,updateDealer_params, updateTPS_params];
         var i = 0;
@@ -855,9 +909,9 @@ TaskTest.reTest = function(taskId,dealer,reason,callback){
         var i = 0;
         var lastSql = "insertTPS";
         if(reason!=""){
-            sql.insertReason = PSReason.insertReason;
+            sql.insertReason = PSReason.insertReason_b;
             sqlMember.push("insertReason");
-            var insertReason_params = [taskId,8,reason,taskId,taskId];
+            var insertReason_params = [taskId,10,reason,taskId,taskId];
             sqlMember_params.push(insertReason_params);
             lastSql = "insertReason";
         }
@@ -903,7 +957,7 @@ TaskTest.newTaskName = function(taskId,creater,dealer,taskName,callback){
         var now = new Date().format("yyyy-MM-dd HH:mm:ss") ;
         var updateTPS_params = [now,taskId,10,taskId,taskId];
         var insertTPS_params = [taskId,11,taskId,taskId,dealer,now];
-        var  insertBug_params = [taskName,creater,dealer,taskId,];
+        var  insertBug_params = [taskName,creater,dealer,taskId,taskId];
         var sqlMember = ['updateTask', 'updateTPS','insertTPS','insertBug'];
         var sqlMember_params = [ updateTask_params,updateTPS_params, insertTPS_params,insertBug_params];
         var i = 0;
@@ -925,6 +979,66 @@ TaskTest.newTaskName = function(taskId,creater,dealer,taskName,callback){
         });
         trans.execute();//提交事务
         connection.release();
+    });
+}
+/**
+ * 测试不通过，开发人员填写变更单号
+ * @param taskId
+ * @param callback
+ */
+TaskTest.findPreTestInfo = function(taskId,callback){
+    pool.getConnection(function (err, connection) {
+        //开启事务
+          var selectPreTestAtt=TaskAttaSql.selectPreTestAtt,
+            selectPreTestReason=ProcessStepSql.selectPreTestReason
+
+        var selectPreTestAtt_params = [taskId,taskId,10];
+        var selectPreTestReason_params =[taskId,taskId,10];
+        connection.query(selectPreTestAtt,selectPreTestReason_params,function(err,preTestAtta){
+            if (err) {
+                console.log('[QUERY COUNT TASKS ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            else{
+                connection.query(selectPreTestReason, selectPreTestReason_params, function (err, preTestReason) {
+                    if (err) {
+                        console.log('[QUERY TASKS ERROR] - ', err.message);
+                        return callback(err,null);
+                    }
+                    //console.log("preTestReason",preTestReason);
+                    connection.release();
+                    return callback('success',{preTestAtta:preTestAtta[0],preTestReason:preTestReason[0]});
+                });
+            }
+        });
+        //connection.release();
+    });
+}
+/**
+ * 测试变更单是否已经被占用
+ * @param taskId
+ * @param callback
+ */
+TaskTest.testNameUsed = function(taskName,callback){
+    pool.getConnection(function (err, connection) {
+        //开启事务
+        var testNameUsed=TaskSql.testNameUsed;
+        var testNameUsed_params = [taskName];
+        connection.query(testNameUsed,testNameUsed_params,function(err,result){
+            if (err) {
+                console.log('[QUERY COUNT TASKS ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            var isUsed ;
+            if(result.length>0){
+                isUsed = true;
+            }
+            else{
+                isUsed = false;
+            }
+            return callback('success',isUsed);
+        });
     });
 }
 

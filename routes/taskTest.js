@@ -86,6 +86,9 @@ var sendEmailToCreaterTest = function(req,taskId,dealer, stepId,isPass) {
                 content += "不通过";
             }
         }
+        else if(stepId = 10){
+            content = "存在bug，新的变更单名称是："+isPass;
+        }
 
         Email.sendMailToCreaterTest(taskcode, taskname, userName, userEmail,content);
     });
@@ -176,7 +179,7 @@ var sendEmailToNext = function(req,taskId,dealer, stepId,content){
         });
     }
     else if(stepId == 8){
-    Task.findTaskByTaskIdAndUserId(taskId, dealer, function (msg, result) {
+    Task.findTaskByTaskIdAndUserId_psi(taskId, dealer, stepId,function (msg, result) {
         if ('success' != msg) {
             req.session.error = "发送邮件时查找变更单信息发生错误,请记录并联系管理员";
             return null;
@@ -185,10 +188,25 @@ var sendEmailToNext = function(req,taskId,dealer, stepId,content){
         var taskname = result.taskname;
         var dealer = result.realName;
         var userEmail = result.email;
-        var processStepId = result.processStepId;
+        var processStepId = stepId;
         Email.sendMailToDealer(taskcode, taskname, dealer, processStepId, userEmail);
         //console.log("email success");
     });
+    }
+    else if(stepId == 10){
+        Task.findTaskByTaskIdAndUserId(taskId, dealer, function (msg, result) {
+            if ('success' != msg) {
+                req.session.error = "发送邮件时查找变更单信息发生错误,请记录并联系管理员";
+                return null;
+            }
+            var taskcode = result.taskcode;
+            var taskname = result.taskname;
+            var dealer = result.realName;
+            var userEmail = result.email;
+            var processStepId = 10;
+            Email.sendMailToDealer(taskcode, taskname, dealer, processStepId, userEmail);
+            //console.log("email success");
+        });
     }
 }
 var getSearchCondsForPaging  = function(req){
@@ -320,6 +338,36 @@ var isSearchCondsExits= function(req, res){
     if(!searchConds || 'undefined'==searchConds){
         return res.redirect("/");
     }
+}
+   /**
+    * 去除变更单名的空白字符
+    */
+    function checkName(req,res,taskName) {
+       taskName = taskName.trim();
+       //taskName = taskName.match(/^([\u4e00-\u9fa5]*[0-9A-Za-z]*)+[-][A-Z]+[-][0-9]+[-]([\u4e00-\u9fa5]*[0-9A-Za-z]*)+[-|_][0-9A-Za-z]+[-|_][0-9]+$/g);
+       taskName = taskName.match(/^([\u4e00-\u9fa5]|[0-9A-Za-z.])+[-][A-Z]+[-][0-9]+[-]([\u4e00-\u9fa5]|[0-9A-Za-z.])+[-|_][0-9A-Za-z]+[-|_][0-9]+$/g);
+       if (taskName === null) {
+           jsonStr = '{"sucFlag":"err","message":"请按要求填写变更单名称:NCRM开发变更单-省份简拼-日期-任务或bug号-姓名简拼-序号"}';
+           var queryObj = url.parse(req.url,true).query;
+           res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+           return null;
+       }
+       return taskName;
+   }
+/**
+ * 创建新的变更单名
+ */
+var newTaskName = function(req,res,taskId,creater,tester,taskName){
+    TaskTest.newTaskName(taskId,creater,tester,taskName,function(msg,result){
+        if('success' == msg){
+            jsonStr = '{"sucFlag":"success","message":"【新变更单名填写】执行成功"}';
+            sendEmailToCreaterTest(req,taskId,creater,'10',taskName)
+        }else{
+            jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
+        }
+        var queryObj = url.parse(req.url,true).query;
+        res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+    });
 }
 
 /**
@@ -637,7 +685,7 @@ router.post('/reTest', function(req, res) {
     TaskTest.reTest(taskId,preDealer,reason,function(msg,result){
         if('success' == msg){
             jsonStr = '{"sucFlag":"success","message":"【请求重测】执行成功"}';
-            //sendEmailToCreaterTest(req,taskId,preDealer,'8',true);//发送邮件
+            sendEmailToNext(req,taskId,preDealer,'10',true);//发送邮件
         }else{
             jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
         }
@@ -655,16 +703,26 @@ router.post('/newTaskName', function(req, res) {
     var tester = req.body['preDealer'];
     var taskName =  req.body['taskName'];
     var creater = req.session.user.userId;
+    var taskName = checkName(req,res,taskName);
     var jsonStr;
-    TaskTest.newTaskName(taskId,creater,tester,taskName,function(msg,result){
-        if('success' == msg){
-            jsonStr = '{"sucFlag":"success","message":"【新变更单名填写】执行成功"}';
-        }else{
-            jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
+    TaskTest.testNameUsed(taskName,function(name_msg,isUsed){
+        if(("success"==name_msg)&&(!isUsed)){
+            //console.log(isUsed);
+            newTaskName(req,res,taskId,creater,tester,taskName);
         }
-        var queryObj = url.parse(req.url,true).query;
-        res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+        else if(("success"==name_msg)&&(isUsed)){
+            jsonStr = '{"sucFlag":"err","message":"该变更单名称已被占用，请重新填写"}';
+            var queryObj = url.parse(req.url,true).query;
+            res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+        }
+        else{
+            jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
+            var queryObj = url.parse(req.url,true).query;
+            res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+        }
+
     });
+
 });
 
 module.exports = router;

@@ -408,8 +408,9 @@ var sendEmailToNext = function(req,taskId,dealer, stepId,content){
         });
         }
     else if(stepId == 7){
-        //给变更单的发起人发送邮件
-        Task.findTaskAndPMByTaskId(taskId,function(msg, result_taskId) {
+        //下一环节的
+        //Task.findTaskAndPMByTaskId(taskId,function(msg, result_taskId) {
+        Task.findTaskByTaskId_psi(taskId,8,function(msg, result_taskId) {
             if(msg == 'err'){
                 console.log('[checkUnpass sendEmail Err]');
                 return ;
@@ -534,8 +535,60 @@ router.get('/addTaskPage', function(req, res) {
     });
 
 });
+//申请修复bug的变更单
+router.get('/addBugTaskPage', function(req, res) {
+    getCookieUser(req, res);
+    var allProject ;
+    dao.searchAllBugs(req.session.user.userId,function(msg,result){
+        if(msg == "success"){
+            allProject = result;
+            res.render('submitBugsApply',{bugs:result})
+        }
+        else{
+            alert("查找bug名称失败，请联系管理员");
+        }
+    });
 
+});
 
+router.post('/addBugTask', function (req, res) {
+    getCookieUser(req, res);
+    var message ="";//返回的结果提示信息；
+    var taskName = req.body.taskName;
+    //var tasker = req.body.inputTasker;
+    var tasker = req.session.user.userId;
+    var taskState = '申请完成';//申请时，状态默认为；1,提交申请
+    var taskProject = req.body.taskProject;
+    var taskDetails = req.body.taskDetails;
+    var taskNewFiles = req.body.taskNewFiles;
+    var taskModFiles = req.body.taskModFiles;
+    var taskDelFiles = req.body.taskDelFiles;
+    var bugId = req.body.bugId;
+    taskName = taskName.trim();
+    var dao = require('../modular/taskDao');
+    var projectUri ;
+    var flag = false;
+    dao.addBugTask({name: taskName, tasker: tasker ,state: taskState,projectId:taskProject,desc:taskDetails,newFiles:taskNewFiles,
+        modFiles:taskModFiles,delFiles:taskDelFiles,bugId:bugId}, function (msg,taskId,taskCode) {
+        var queryObj = url.parse(req.url,true).query;
+        var jsonStr;
+        if('success' == msg){
+            jsonStr = '{"sucFlag":"success","message":"【提交申请】申请成功！","id":"'+taskId+'","code":"'+taskCode+'"}';
+            //jsonStr = '{"sucFlag":"success","message":"【提交申请】申请成功！"}';
+        }
+        else{
+            console.log("申请失败");
+            if(taskId ) {//出错时，传回来的要么是undefined 或是变更单重名的情况；
+                var message = "变更单名："+ taskName+" 已被占用!";
+                jsonStr = '{"sucFlag":"err","message":"'+message+'"}';
+            }
+            else {
+                jsonStr = '{"sucFlag":"err","message":"【提交申请】申请失败！"}';
+            }
+        }
+        res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+    });
+});
 router.post('/addTask', function (req, res) {
     getCookieUser(req, res);
     var message ="";//返回的结果提示信息；
@@ -553,10 +606,8 @@ router.post('/addTask', function (req, res) {
     //taskNewFiles = fileStrChange(taskNewFiles);
      taskName = taskName.trim();
     var dao = require('../modular/taskDao');
-
     var projectUri ;
     var flag = false;
-
     dao.addTask({name: taskName, tasker: tasker ,state: taskState,projectId:taskProject,desc:taskDetails,newFiles:taskNewFiles,
         modFiles:taskModFiles,delFiles:taskDelFiles}, function (msg,taskId,taskCode) {
         var queryObj = url.parse(req.url,true).query;
@@ -706,7 +757,6 @@ router.post('/submitComplete', function(req, res) {
             jsonStr = '{"sucFlag":"success","message":"【上库完成】执行成功"}';
             //判断其他变更单的文件占用情况并发邮件
             sendEmailToNext(req,taskId,'',7);
-            sendEmailToCreaterSubmit(req,taskId,'',7);
             findUnUsedTaskAndFileUri(taskId,req,function(fileLists){
 //                var tempTaskId = '';
 //                var tempFileUriStr = '';
@@ -768,6 +818,7 @@ router.post('/submitComplete', function(req, res) {
 //                }
 
             });
+            sendEmailToCreaterSubmit(req,taskId,'',7);
         }else{
             jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
         }
@@ -821,7 +872,6 @@ router.get('/findAllTasksForBossPage', function(req, res) {
             }
         res.render('findAllTasksForBoss',{projects:projects});
     });
-
 });
 
 router.get('/findTask', function (req, res) {
@@ -1488,7 +1538,7 @@ router.post('/extractFile', function(req, res) {
         var queryObj = url.parse(req.url, true).query;
         if (msg == "success") {
             if(result ==''||result=== undefined){
-                message = " 该项目( "+rojectId +") 为:"+ projectUri ;
+                message = " 该项目( "+projectId +") 为:"+ projectUri ;
                 console.log(message);
                 return returnJsonMsg(req, res, "err", "查找项目路径出错，请重试!");
             }
@@ -1646,13 +1696,17 @@ router.get('/history/:taskId', function(req, res) {
     var taskId = req.params.taskId;
     findHistory(taskId,req,function(taskHis) {//找到变更单历史记录数据
         var maxTurnNum=0;//找出最大的turnNum(即提交了几轮)
+        var maxTestNum = 0;
         taskHis.forEach(function(his,item){
             if(his.turnNum>0){
                 maxTurnNum = his.turnNum;
             }
+            if(his.testNum >0){
+                maxTestNum = his.testNum;
+            }
         });
 
-        res.render('taskHistory',{title:'变更单历史', taskHis:taskHis, maxTurnNum:maxTurnNum});
+        res.render('taskHistory',{title:'变更单历史', taskHis:taskHis, maxTurnNum:maxTurnNum,maxTestNum:maxTestNum});
     });
 });
 
@@ -1757,7 +1811,8 @@ function getSqlAttachment(path){
     files.forEach(function(item) {
         var tmpPath = path + '/' + item;
         var  stats = fs.statSync(tmpPath);
-        var isSql = item.match(/([\u4e00-\u9fa5]|[\x00-\xff])*(配置变更单|模型变更单|数据变更单)([\u4e00-\u9fa5]|[\x00-\xff])*[.txt|.sql|.xlsx]$/g);
+        //var isSql = item.match(/([\u4e00-\u9fa5]|[\x00-\xff])*(配置变更单|模型变更单|数据变更单)([\u4e00-\u9fa5]|[\x00-\xff])*[.txt|.sql|.xlsx]$/g);
+        var isSql = item.match(/((\S*.sql)$|(\S*(配置变更单|模型变更单|数据变更单)([\u4e00-\u9fa5]|[\x00-\xff])*[.txt|.sql])$)/g);
         //console.log(isSql);
         if ((isSql)&&(!(stats.isDirectory()))) {
             fileList.push(item);

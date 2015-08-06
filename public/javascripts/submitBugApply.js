@@ -1,4 +1,7 @@
-var fields =['#inputTaskName', '#inputTaskDesc', '#project','#inputTaskNewList','#inputTaskModList','#delTaskList'];
+/**
+ * Created by Administrator on 2015/8/5.
+ */
+var fields =['#inputTaskName', '#inputTaskDesc','#inputTaskNewList','#inputTaskModList','#delTaskList'];
 var storageNames=['inputTaskName', 'inputTaskDesc', 'project','inputTaskNewList','inputTaskModList','delTaskList'];
 var dynFileds = [ '#inputTaskDesc', '#inputTaskNewList','#inputTaskModList','#delTaskList'];
 var dynDivs = [ '#divTaskDesc', '#divTaskNewList','#divTaskModList','#divDelTaskList'];
@@ -39,10 +42,10 @@ function recoverTask(field){
 function  deleteStrorage(field){
     debugger
     if(window.sessionStorage){
-    //    for(var i in field)
-    //        if(sessionStorage.field[i]) {
-    //            sessionStorage.removeItem(field[i])
-    //        }
+        //    for(var i in field)
+        //        if(sessionStorage.field[i]) {
+        //            sessionStorage.removeItem(field[i])
+        //        }
         sessionStorage.clear();
     }
 
@@ -79,7 +82,7 @@ function animationShr(area){
 }
 function dynInputFocus(inputName){
     $(inputName).focus(function() {
-        
+
         setTimeout(function() {
             animationExt(inputName);
         },300);
@@ -87,10 +90,10 @@ function dynInputFocus(inputName){
 
 }
 function dynInputBlur(inputName){
-        $(inputName).blur(function () {
-            setTimeout(function(){
-                animationShr(inputName)},200);
-            });
+    $(inputName).blur(function () {
+        setTimeout(function(){
+            animationShr(inputName)},200);
+    });
 }
 
 function disableInput(){
@@ -105,7 +108,7 @@ function disableInput(){
 function checkSubmit(fields){
     var flag = true;
     $.each(fields,function(i,n){
-        if(i<3) {
+        if(i<2) {
             if ($(fields[i]).val() == '') {
                 flag = false;
                 debugger
@@ -163,7 +166,7 @@ function ajaxSubmit(params, url, subType){
                 $('#oldAtta').show();
                 $('#btnModify').show();
                 $('#btnSADelete').show();
-                $('#submitApply').hide();
+                $('#submitBugApply').hide();
                 $('#taskId').val(id);
                 $('#taskCode').text(tCode);
                 //$('#divModelDialog').modal('hide');
@@ -198,7 +201,7 @@ jQuery(document).ready(function() {
     for (var i in dynFileds) {
         dynInputFocus(dynFileds[i])
     }
-    $('#submitApply').click(function () {
+    $('#submitBugApply').click(function () {
         var check = checkSubmit(fields);
         var nameFlag = checkName($("#inputTaskName").val());
         if(!nameFlag){
@@ -219,13 +222,14 @@ jQuery(document).ready(function() {
                 taskName: $("#inputTaskName").val(),
                 // tasker : $(#inputTasker).val();
                 taskState: "申请通过",//提交申请
-                taskProject: $("#project").val(),
+                taskProject:$("#project").text(),
+                bugId:$("#inputTaskName").find("option:selected").attr("bugId"),
                 taskDetails: $("#inputTaskDesc").val(),
                 taskNewFiles: $("#inputTaskNewList").val(),
                 taskModFiles: $("#inputTaskModList").val(),
                 taskDelFiles: $("#delTaskList").val()
             };
-            url = 'task/addTask';
+            url = 'task/addBugTask';
             ajaxSubmit(params, url, 'post');
             //showTipInfo('success', '任务已申请，且文件提取成功！');
         }
@@ -233,23 +237,24 @@ jQuery(document).ready(function() {
             showTipInfo('err', '请填写必填项！');
         }
     });
-    $("#project").change(function () {
-        $("#taskProjectUri").text($("#project").find("option:selected").attr("projectUri"));
-        $("#taskProject").val($("#project").find("option:selected").val());
+    $("#inputTaskName").change(function () {
+        $("#taskProjectUri").text($("#inputTaskName").find("option:selected").attr("projectUri"));
+        //$("#project").val($("#inputTaskName").find("option:selected").attr("projectId"));
+        $("#project").text($("#inputTaskName").find("option:selected").attr("projectName"));
 
     });
     $('#closeModel').click(function () {
         location.reload();
     });
-    $('#divModelDialog').on('hide.bs.modal', function (e) {
-        if (storageFlag) {
-            storageTask(storageNames);
-        }
-        else {
-            deleteStrorage(storageNames);
-        }
-    });
-    $('#divModelDialog').on('shown.bs.modal', function (e) {
-        recoverTask(storageNames);
-    });
+    //$('#divModelDialog').on('hide.bs.modal', function (e) {
+    //    if (storageFlag) {
+    //        storageTask(storageNames);
+    //    }
+    //    else {
+    //        deleteStrorage(storageNames);
+    //    }
+    //});
+    //$('#divModelDialog').on('shown.bs.modal', function (e) {
+    //    recoverTask(storageNames);
+    //});
 })

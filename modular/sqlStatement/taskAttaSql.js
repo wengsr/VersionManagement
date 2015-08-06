@@ -8,6 +8,10 @@ var AttaSql = function(){
     "   on tup.unPassTypeId = upt.unPassTypeId" +
     "   AND tup.taskId = ? and" +
     "   tup.testNum = ( SELECT max(testNum) from testunpass where taskId = ?)";
+
+    this.selectPreTestAtt ="select * from taskattachment ta where ta.testNum = " +
+    " (select max(testNum) from taskprocessstep where taskid = ?)-1 and ta.taskid=? and ta.processStepId=?"
+    var selectPreTestAtt_params = "[taskId,taskId,processStepId]";
 }
 module.exports = AttaSql;
 //var sql = new AttaSql();

@@ -41,6 +41,12 @@ exports.sendMailToCreater = function(taskcode, taskname, creater, content, userE
 exports.sendMailToDealer = function(taskcode, taskname, creater, processStepId, userEmail){
     var taskType;
     var sendContent;
+    if(processStepId == 10){//走查不通过，通知开发人员
+        sendContent = '<b>亲爱的'+creater+'：<br/>' +
+        '&emsp;&emsp;变更单：【变更单名称】:“'+taskname+'”   (变更单号：'+taskcode+')' +
+        '要求重新测试，赶紧去看看吧！<br/><br/></b>' ;
+        mailOptions.subject= '【版本管理系统】变跟单开发人员请求重测';
+    }
     if(processStepId == 3){//走查不通过，通知开发人员
         sendContent = '<b>亲爱的'+creater+'：<br/>' +
             '&emsp;&emsp;你的变更单没有通过走查：【变更单名称】:“'+taskname+'”   (变更单号：'+taskcode+')' +

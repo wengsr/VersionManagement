@@ -182,6 +182,7 @@ Task.findTaskByUserId = function(userId,callback){
             '        JOIN processstep ps1 ON ps1.processStepId = t1.processStepId' +
             '        JOIN taskprocessstep tps1 ON tps1.taskId = t1.taskid' +
             '        AND tps1.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps1 where maxtps1.taskId = t1.taskid)' +
+            '        AND tps1.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps2 where maxtps2.taskId = t1.taskid)' +
             '        AND tps1.processStepId = t1.processStepId' +
             '        AND (tps1.dealer is NULL AND tps1.processStepId in (2,6)' +
             '        OR' +
@@ -192,6 +193,7 @@ Task.findTaskByUserId = function(userId,callback){
             '        ) taskTable' +
             '        JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid' +
             '        AND oTps.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps2 where maxtps2.taskId = taskTable.taskid)' +
+            '        AND oTps.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps3 where maxtps3.taskId = taskTable.taskid)' +
             '        AND oTps.processStepId = taskTable.processStepId' +
             '        LEFT JOIN user oU ON oTps.dealer = oU.userId' +
             '        ) taskTable2' +
@@ -220,7 +222,7 @@ Task.findDealTaskByUserId = function(userId,startNum,callback){
             return callback(err);
         }
         var  sql_Count='SELECT count( oU2.realName) as count from' +
-            '   (' +
+        '   (' +
             '   SELECT taskTable.*, oU.realName as dealerName from' +
             '   (' +
             '   SELECT DISTINCT t1.*,ps1.processStepName as stepName, 2 as taskType' +
@@ -232,6 +234,7 @@ Task.findDealTaskByUserId = function(userId,startNum,callback){
             '   JOIN processstep ps1 ON ps1.processStepId = t1.processStepId' +
             '   JOIN taskprocessstep tps1 ON tps1.taskId = t1.taskid' +
             '   AND tps1.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps1 where maxtps1.taskId = t1.taskid)' +
+            '   AND tps1.testNum =(SELECT MAX(testNum) from taskprocessstep maxtps2 where maxtps2.taskId = t1.taskid)' +
             '   AND tps1.processStepId = t1.processStepId' +
             '   AND (tps1.dealer is NULL AND tps1.processStepId in (2,6)' +
             '   OR' +
@@ -241,6 +244,7 @@ Task.findDealTaskByUserId = function(userId,startNum,callback){
             '   )) taskTable' +
             '   JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid' +
             '   AND oTps.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps2 where maxtps2.taskId = taskTable.taskid)' +
+            '   AND oTps.testNum =(SELECT MAX(testNum) from taskprocessstep maxtps3 where maxtps3.taskId = taskTable.taskid)' +
             '   AND oTps.processStepId = taskTable.processStepId' +
             '   LEFT JOIN user oU ON oTps.dealer = oU.userId' +
             '   ) taskTable2' +
@@ -260,6 +264,7 @@ Task.findDealTaskByUserId = function(userId,startNum,callback){
             '   JOIN processstep ps1 ON ps1.processStepId = t1.processStepId' +
             '   JOIN taskprocessstep tps1 ON tps1.taskId = t1.taskid' +
             '   AND tps1.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps1 where maxtps1.taskId = t1.taskid)' +
+            '   AND tps1.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps2 where maxtps2.taskId = t1.taskid)' +
             '   AND tps1.processStepId = t1.processStepId' +
             '   AND (tps1.dealer is NULL AND tps1.processStepId in (2,6)' +
             '   OR' +
@@ -270,6 +275,7 @@ Task.findDealTaskByUserId = function(userId,startNum,callback){
             '   ) taskTable' +
             '   JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid' +
             '   AND oTps.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps2 where maxtps2.taskId = taskTable.taskid)' +
+            '   AND oTps.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps3 where maxtps3.taskId = taskTable.taskid)' +
             '   AND oTps.processStepId = taskTable.processStepId' +
             '   LEFT JOIN user oU ON oTps.dealer = oU.userId' +
             '   ) taskTable2' +
@@ -290,6 +296,7 @@ Task.findDealTaskByUserId = function(userId,startNum,callback){
             '   JOIN processstep ps1 ON ps1.processStepId = t1.processStepId' +
             '   JOIN taskprocessstep tps1 ON tps1.taskId = t1.taskid' +
             '   AND tps1.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps1 where maxtps1.taskId = t1.taskid)' +
+            '   AND tps1.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps2 where maxtps2.taskId = t1.taskid)' +
             '   AND tps1.processStepId = t1.processStepId' +
             '   AND (tps1.dealer is NULL AND tps1.processStepId in (2,6)' +
             '   OR' +
@@ -300,6 +307,7 @@ Task.findDealTaskByUserId = function(userId,startNum,callback){
             '   ) taskTable' +
             '   JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid' +
             '   AND oTps.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps2 where maxtps2.taskId = taskTable.taskid)' +
+            '   AND oTps.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps3 where maxtps3.taskId = taskTable.taskid)' +
             '   AND oTps.processStepId = taskTable.processStepId' +
             '   LEFT JOIN user oU ON oTps.dealer = oU.userId' +
             '   ) taskTable2' +
@@ -320,6 +328,7 @@ Task.findDealTaskByUserId = function(userId,startNum,callback){
         '   JOIN processstep ps1 ON ps1.processStepId = t1.processStepId' +
         '   JOIN taskprocessstep tps1 ON tps1.taskId = t1.taskid' +
         '   AND tps1.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps1 where maxtps1.taskId = t1.taskid)' +
+        '   AND tps1.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps2 where maxtps2.taskId = t1.taskid)' +
         '   AND tps1.processStepId = t1.processStepId' +
         '   AND (tps1.dealer is NULL AND tps1.processStepId in (2,6)' +
         '   OR' +
@@ -330,6 +339,7 @@ Task.findDealTaskByUserId = function(userId,startNum,callback){
         '   ) taskTable' +
         '   JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid' +
         '   AND oTps.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps2 where maxtps2.taskId = taskTable.taskid)' +
+        '   AND oTps.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps3 where maxtps3.taskId = taskTable.taskid)' +
         '   AND oTps.processStepId = taskTable.processStepId' +
         '   LEFT JOIN user oU ON oTps.dealer = oU.userId' +
         '   ) taskTable2' +
@@ -384,6 +394,7 @@ Task.findCreateTaskByUserId = function(userId,startNum,callback){
             '   ) taskTable' +
             '   JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid' +
             '   AND oTps.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps2 where maxtps2.taskId = taskTable.taskid)' +
+            '   AND oTps.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps3 where maxtps3.taskId = taskTable.taskid)' +
             '   AND oTps.processStepId = taskTable.processStepId' +
             '   LEFT JOIN user oU ON oTps.dealer = oU.userId' +
             '   ) taskTable2' +
@@ -400,6 +411,7 @@ Task.findCreateTaskByUserId = function(userId,startNum,callback){
             "   ) taskTable" +
             "   JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid" +
             "   AND oTps.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps2 where maxtps2.taskId = taskTable.taskid)" +
+            "   AND oTps.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps3 where maxtps3.taskId = taskTable.taskid)" +
             "   AND oTps.processStepId = taskTable.processStepId" +
             "   LEFT JOIN user oU ON oTps.dealer = oU.userId" +
             "   ) taskTable2" +
@@ -417,6 +429,7 @@ Task.findCreateTaskByUserId = function(userId,startNum,callback){
             "   ) taskTable" +
             "   JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid" +
             "   AND oTps.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps2 where maxtps2.taskId = taskTable.taskid)" +
+            "   AND oTps.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps3 where maxtps3.taskId = taskTable.taskid)" +
             "   AND oTps.processStepId = taskTable.processStepId" +
             "   LEFT JOIN user oU ON oTps.dealer = oU.userId" +
             "   ) taskTable4" +
@@ -434,6 +447,7 @@ Task.findCreateTaskByUserId = function(userId,startNum,callback){
             "   ) taskTable" +
             "   JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid" +
             "   AND oTps.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps2 where maxtps2.taskId = taskTable.taskid)" +
+            "   AND oTps.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps3 where maxtps3.taskId = taskTable.taskid)" +
             "   AND oTps.processStepId = taskTable.processStepId" +
             "   LEFT JOIN user oU ON oTps.dealer = oU.userId" +
             "   ) taskTable2" +
@@ -497,6 +511,7 @@ Task.findTaskByUserIdCount = function(userId,callback){
             '        JOIN processstep ps1 ON ps1.processStepId = t1.processStepId' +
             '        JOIN taskprocessstep tps1 ON tps1.taskId = t1.taskid' +
             '        AND tps1.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps1 where maxtps1.taskId = t1.taskid)' +
+            '        AND tps1.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps2 where maxtps2.taskId = t1.taskid)' +
             '        AND tps1.processStepId = t1.processStepId' +
             '        AND (tps1.dealer is NULL AND tps1.processStepId in (2,6)' +
             '        OR' +
@@ -507,6 +522,7 @@ Task.findTaskByUserIdCount = function(userId,callback){
             '        ) taskTable' +
             '        JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid' +
             '        AND oTps.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps2 where maxtps2.taskId = taskTable.taskid)' +
+            '        AND oTps.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps3 where maxtps3.taskId = taskTable.taskid)' +
             '        AND oTps.processStepId = taskTable.processStepId' +
             '        LEFT JOIN user oU ON oTps.dealer = oU.userId' +
             '        ) taskTable2' +
@@ -569,8 +585,9 @@ Task.findTaskForCreater = function(userId,taskId,taskStepName,callback){
             '        AND tps.processStepId=?' +         //这里要区分5和6
             '        AND tps.dealer=? or tps.dealer is null' +
             '        AND turnNum IN (SELECT MAX(turnNum) FROM taskprocessstep where taskId=?)' +
+            '        AND testNum IN (SELECT MAX(testNum) FROM taskprocessstep where taskId=?)' +
             '        ) AND t1.taskid = ?  ORDER BY t1.taskcode';
-        var params = [userId,taskId, userId,taskId,taskId,stepId,userId,taskId,taskId];
+        var params = [userId,taskId, userId,taskId,taskId,stepId,userId,taskId,taskId,taskId];
         connection.query(sql, params, function (err, result) {
             if (err) {
                 console.log('[QUERY TASKS ERROR] - ', err.message);
@@ -678,9 +695,11 @@ Task.findTaskByTaskIdAndUser = function(taskId,dealer, callback){
             '   JOIN user u ON u.userId = tps.dealer' +
             '   where  t.taskid = ? and u.username = ? and tps.processstepid = 5  ' +
             '  AND tps.turnNum =' +
-            '  (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)' ;
+            '  (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)'
+            '  AND tps.testNum =' +
+            '  (SELECT maxTestNum from (SELECT MAX(testNum) as maxTestNum FROM taskprocessstep where taskId=?) as maxTestNumTable)';
         //var sql =' user ON user.userName = ?';
-        var params = [taskId,dealer,taskId];
+        var params = [taskId,dealer,taskId,taskId];
         connection.query(sql, params, function (err, result) {
             if (err) {
                 console.log('[QUERY TASKS ERROR] - ', err.message);
@@ -715,6 +734,38 @@ Task.findTaskByTaskId = function(taskId, callback){
         });
     });
 }
+
+/**
+ * 根据taskid userID查询变更单信息
+ * @param taskId
+ * @param callback
+ */
+Task.findTaskByTaskIdAndUserId_psi = function(taskId,dealer, processStepId ,callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN TASKS ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'SELECT t.taskcode , t.taskname , t.processStepId,u.userName , u.realName ,u.email from tasks t ' +
+            '    JOIN taskprocessstep tps on tps.taskid =t.taskid' +
+            '   JOIN user u ON u.userId = tps.dealer' +
+            '   where  t.taskid = ? and u.userName = ? and tps.processstepid = ?  ' +
+            '  AND tps.turnNum =' +
+            '  (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)' +
+            '  AND tps.testNum =' +
+            '  (SELECT maxTestNum from (SELECT MAX(testNum) as maxTestNum FROM taskprocessstep where taskId=?) as maxNumTable)' ;
+        //var sql =' user ON user.userName = ?';
+        var params = [taskId,dealer,processStepId,taskId,taskId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY TASKS ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            return  callback('success',result[0]);
+        });
+    });
+}
 /**
  * 根据taskid userID查询变更单信息
  * @param taskId
@@ -729,11 +780,45 @@ Task.findTaskByTaskIdAndUserId = function(taskId,dealer, callback){
         var sql = 'SELECT t.taskcode , t.taskname , t.processStepId,u.userName , u.realName ,u.email from tasks t ' +
             '    JOIN taskprocessstep tps on tps.taskid =t.taskid' +
             '   JOIN user u ON u.userId = tps.dealer' +
-            '   where  t.taskid = ? and u.username = ? and tps.processstepid = 8  ' +
+            '   where  t.taskid = ? and u.userid = ? and tps.processstepid = 8  ' +
             '  AND tps.turnNum =' +
-            '  (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)' ;
+            '  (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)' +
+            '  AND tps.testNum =' +
+            '  (SELECT maxTestNum from (SELECT MAX(testNum) as maxTestNum FROM taskprocessstep where taskId=?) as maxNumTable)' ;
         //var sql =' user ON user.userName = ?';
-        var params = [taskId,dealer,taskId];
+        var params = [taskId,dealer,taskId,taskId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY TASKS ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            return  callback('success',result[0]);
+        });
+    });
+}
+
+/**
+ * 根据taskid 查询变更单信息当前的处理人和变更单信息
+ * @param taskId
+ * @param callback
+ */
+Task.findTaskByTaskId_psi = function(taskId, processStepId ,callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN TASKS ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = 'SELECT t.taskcode , t.taskname , t.processStepId,u.userName , u.realName ,u.email from tasks t ' +
+            '    JOIN taskprocessstep tps on tps.taskid =t.taskid' +
+            '   JOIN user u ON u.userId = tps.dealer' +
+            '   where  t.taskid = ?  and tps.processstepid = ?  ' +
+            '  AND tps.turnNum =' +
+            '  (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)' +
+            '  AND tps.testNum =' +
+            '  (SELECT maxTestNum from (SELECT MAX(testNum) as maxTestNum FROM taskprocessstep where taskId=?) as maxNumTable)' ;
+        //var sql =' user ON user.userName = ?';
+        var params = [taskId,processStepId,taskId,taskId];
         connection.query(sql, params, function (err, result) {
             if (err) {
                 console.log('[QUERY TASKS ERROR] - ', err.message);
@@ -745,6 +830,8 @@ Task.findTaskByTaskIdAndUserId = function(taskId,dealer, callback){
         });
     });
 }
+
+/**
 /**
  * g根据processStepId ,projectId查询所有的配置管理员
  * @param taskId
@@ -1170,7 +1257,10 @@ Task.submitComplete = function(taskId, userId, callback){
             //updateTPS2:"insert into taskprocessstep (taskid, processStepId,dealer,turnNum,execTime) " +
             //" values (?,8,?,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?)"
             updateTPS2:"insert into taskprocessstep (taskid, processStepId,dealer,turnNum,execTime) " +
-            "values (?,8,(select PM from project  where projectId =(select projectId from tasks where taskId = ?)) ," +
+            "values (?,8," +
+        "   (select * from  (select tester as dealer from bugs where newTask = ?" +
+        "   union" +
+            "   select PM as dealer from project  where projectId =(select projectId from tasks where taskId = ?) ) as dealerTable limit 1)," +
             "(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?)"
         }
         var selectDealer_params = [taskId];
@@ -1178,7 +1268,7 @@ Task.submitComplete = function(taskId, userId, callback){
         var updateFileList_params = [taskId];
         var now = new Date().format("yyyy-MM-dd HH:mm:ss") ;
         var updateTPS_params = [taskId,taskId,userId,now,taskId];
-        var updateTPS2_params = [taskId,taskId,taskId,now];
+        var updateTPS2_params = [taskId,taskId,taskId,taskId,now];
         var sqlMember = ['selectDealer', 'updateTask', 'updateFileList', 'updateTPS','updateTPS2'];
         var sqlMember_params = [selectDealer_params, updateTask_params, updateFileList_params, updateTPS_params,updateTPS2_params];
         var i = 0;
@@ -1190,6 +1280,7 @@ Task.submitComplete = function(taskId, userId, callback){
                     return callback('err','该变更单已经上库完成,无需重复操作');
                 }
                 if(err_async){
+                    console.log("submitComplete",sql[item],"  ",sqlMember_params[i-1]);
                     trans.rollback();
                     return callback('err',err_async);
                 }
@@ -1241,6 +1332,7 @@ Task.findTaskByParam = function(userId,projectId,state,processStepId,taskcode,ta
         "        JOIN processstep ps1 ON ps1.processStepId = t1.processStepId" +
         "        JOIN taskprocessstep tps1 ON tps1.taskId = t1.taskid" +
         "        AND tps1.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps1 where maxtps1.taskId = t1.taskid)" +
+        "        AND tps1.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps2 where maxtps2.taskId = t1.taskid)" +
         "        AND tps1.processStepId = t1.processStepId" +
         "        AND (tps1.dealer is NULL AND tps1.processStepId in (2,6)" +
         "        OR" +
@@ -1251,6 +1343,7 @@ Task.findTaskByParam = function(userId,projectId,state,processStepId,taskcode,ta
         "        ) taskTable" +
         "        JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid" +
         "        AND oTps.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps2 where maxtps2.taskId = taskTable.taskid)" +
+        "        AND oTps.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps3 where maxtps3.taskId = taskTable.taskid)" +
         "        AND oTps.processStepId = taskTable.processStepId" +
         "        LEFT JOIN user oU ON oTps.dealer = oU.userId" +
         "        ) taskTable2" +
@@ -1281,6 +1374,7 @@ Task.findTaskByParam = function(userId,projectId,state,processStepId,taskcode,ta
             "        JOIN processstep ps1 ON ps1.processStepId = t1.processStepId" +
             "        JOIN taskprocessstep tps1 ON tps1.taskId = t1.taskid" +
             "        AND tps1.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps1 where maxtps1.taskId = t1.taskid)" +
+            "        AND tps1.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps2 where maxtps2.taskId = t1.taskid)" +
             "        AND tps1.processStepId = t1.processStepId" +
             "        AND (tps1.dealer is NULL AND tps1.processStepId in (2,6)" +
             "        OR" +
@@ -1291,6 +1385,7 @@ Task.findTaskByParam = function(userId,projectId,state,processStepId,taskcode,ta
             "        ) taskTable" +
             "        JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid" +
             "        AND oTps.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps2 where maxtps2.taskId = taskTable.taskid)" +
+            "        AND oTps.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps3 where maxtps3.taskId = taskTable.taskid)" +
             "        AND oTps.processStepId = taskTable.processStepId" +
             "        LEFT JOIN user oU ON oTps.dealer = oU.userId" +
             "        ) taskTable2" +
@@ -1562,7 +1657,16 @@ Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode
             "        taskprocessstep maxtps2" +
             "        WHERE" +
             "        maxtps2.taskId = taskTable.taskid" +
-            "        )        AND oTps.processStepId = taskTable.processStepId" +
+            "        )      " +
+            "       AND oTps.testNum IN (" +
+            "            SELECT" +
+            "        MAX(testNum)" +
+           "        FROM" +
+            "        taskprocessstep maxtps3" +
+             "        WHERE" +
+            "        maxtps3.taskId = taskTable.taskid" +
+            "        )        " +
+            "        AND oTps.processStepId = taskTable.processStepId" +
             "        LEFT JOIN USER oU ON oTps.dealer = oU.userId" +
             "        ) taskTable2" +
             "        LEFT JOIN USER oU2 ON taskTable2.creater = oU2.userId" +
@@ -1594,14 +1698,9 @@ Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode
             "        )" +
             "        ) taskTable" +
             "        JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid" +
-            "        AND oTps.turnNum IN (" +
-            "            SELECT" +
-            "        MAX(turnNum)" +
-            "        FROM" +
-            "        taskprocessstep maxtps2" +
-            "        WHERE" +
-            "        maxtps2.taskId = taskTable.taskid" +
-            "        )        AND oTps.processStepId = taskTable.processStepId" +
+            "        AND oTps.turnNum IN ( SELECT   MAX(turnNum)     FROM    taskprocessstep maxtps2   WHERE    maxtps2.taskId = taskTable.taskid   )  " +
+            "        AND oTps.testNum IN ( SELECT   MAX(testNum)     FROM    taskprocessstep maxtps3   WHERE    maxtps3.taskId = taskTable.taskid   )  " +
+            "        AND oTps.processStepId = taskTable.processStepId" +
             "        LEFT JOIN USER oU ON oTps.dealer = oU.userId" +
             "        ) taskTable2" +
             "        LEFT JOIN USER oU2 ON taskTable2.creater = oU2.userId" +
@@ -1788,17 +1887,35 @@ Task.findHistory = function(taskId,callback){
         //    '        LEFT JOIN checkunpass cup ON cup.taskId = tps.taskid AND cup.turnNum=tps.turnNum AND tps.processStepId=5' +
         //    '        WHERE tps.taskid=?' +
         //    '        ORDER BY turnNum,processStepId,id';
-       var sql = " SELECT t1.* ,t2.state" +
-           "    FROM" +
-           "    (SELECT tps.*, u.realName, ta.fileName, ta.fileUri, cup.noPassReason ,tup.noPassReason as noPassReason_test FROM taskprocessstep tps " +
+        //包含taskprocessreason；
+       var sql="SELECT t1.* ,t2.state" +
+           "    FROM  " +
+           "    (SELECT tps.*, u.realName, ta.fileName, ta.fileUri, cup.noPassReason ,tup.noPassReason as noPassReason_test,tpr.reason FROM taskprocessstep tps" +
            "    LEFT JOIN user u ON tps.dealer = u.userId" +
            "    LEFT JOIN taskattachment ta ON ta.taskId=tps.taskid AND ta.processStepId=tps.processStepId AND ta.turnNum=tps.turnNum" +
-           "    LEFT JOIN checkunpass cup ON cup.taskId = tps.taskid AND cup.turnNum=tps.turnNum AND tps.processStepId=5" +
-           "    LEFT JOIN testunpass as tup ON tup.taskId = tps.taskid " +
+           "    AND ta.testNum=tps.testNum" +
+           "    LEFT JOIN checkunpass cup ON cup.taskId = tps.taskid AND cup.turnNum=tps.turnNum" +
+           "    LEFT JOIN testunpass as tup ON tup.taskId = tps.taskid" +
+           "    And tup.testNum=tps.testNum AND tps.processStepId=8" +
+           "    LEFT JOIN taskprocessreason tpr  ON tpr.taskId = tps.taskid" +
+           "    And tpr.testNum=tps.testNum and tpr.turnNum = tps.turnNum AND tpr.processStepId=tps.processStepId" +
            "    WHERE tps.taskid=?" +
            "    ) t1 JOIN (" +
            "    SELECT taskId ,state from tasks where taskId = ?) as t2 ON t1.taskid = t2.taskid" +
-           "    ORDER BY turnNum,processStepId,id";
+           "    ORDER BY turnNum,testNum,processStepId,id" ;
+       //var sql = " SELECT t1.* ,t2.state" +
+       //    "    FROM" +
+       //    "    (SELECT tps.*, u.realName, ta.fileName, ta.fileUri, cup.noPassReason ,tup.noPassReason as noPassReason_test FROM taskprocessstep tps " +
+       //    "    LEFT JOIN user u ON tps.dealer = u.userId" +
+       //    "    LEFT JOIN taskattachment ta ON ta.taskId=tps.taskid AND ta.processStepId=tps.processStepId AND ta.turnNum=tps.turnNum " +
+       //    "    AND ta.testNum=tps.testNum" +
+       //    "    LEFT JOIN checkunpass cup ON cup.taskId = tps.taskid AND cup.turnNum=tps.turnNum " +
+       //    "    LEFT JOIN testunpass as tup ON tup.taskId = tps.taskid " +
+       //    "    And tup.testNum=tps.testNum AND tps.processStepId=8" +
+       //    "    WHERE tps.taskid=?" +
+       //    "    ) t1 JOIN (" +
+       //    "    SELECT taskId ,state from tasks where taskId = ?) as t2 ON t1.taskid = t2.taskid" +
+       //    "    ORDER BY turnNum,testNum,processStepId,id";
 
         var params = [taskId,taskId];
         connection.query(sql, params, function (err, results) {

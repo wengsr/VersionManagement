@@ -177,6 +177,7 @@ function dealZeroTask(){
 jQuery(document).ready(function() {
     //点击“申请变更单”打开模态窗口
     showModelDialog("btnSubmitApply","/task/addTaskPage",'formAddTask');
+    showModelDialog("btnSubmitBug","/task/addBugTaskPage",'formAddTask');
     //点击“查找变更单”打开模态窗口
     showModelDialog("btnFindTasks","/task/findTaskPage",'formFindTasks');
     //点击“查找所有变更单”打开模态窗口
@@ -210,7 +211,6 @@ jQuery(document).ready(function() {
         var clickTaskId = $(this).attr('taskId');//点击了哪个变更单的查看历史按钮
         var taskHistoryUrl = '/task/history/' + clickTaskId;
 //        console.info('###########' + clickTask);
-
         $('#divModel').load(taskHistoryUrl,function(){
 //            $('#btnSubmit').click(function () {
 //                $(findFormName).submit();

@@ -96,7 +96,9 @@ function checkAtta(){
  */
 function checkNewTask(){
     var newName = $("#newTask").val();
-         newName  =  newName.match(/^([\u4e00-\u9fa5]*[0-9A-Za-z]*)+[-][A-Z]+[-][0-9]+[-]([\u4e00-\u9fa5]*[0-9A-Za-z]*)+[-|_][0-9A-Za-z]+[-|_][0-9]+$/g);
+    newName = newName.trim();
+    //newName  =  newName.match(/^([\u4e00-\u9fa5]*[0-9A-Za-z]*)+[-][A-Z]+[-][0-9]+[-]([\u4e00-\u9fa5]*[0-9A-Za-z]*)+[-|_][0-9A-Za-z]+[-|_][0-9]+$/g);
+    newName  =  newName.match(/^([\u4e00-\u9fa5]|[0-9A-Za-z.])+[-][A-Z]+[-][0-9]+[-]([\u4e00-\u9fa5]|[0-9A-Za-z.]|)+[-|_][0-9A-Za-z]+[-|_][0-9]+$/g);
     if(newName === null){
         showTipInfo('err', '请按要求填写变更单名称:NCRM开发变更单-省份简拼-日期-任务或bug号-姓名简拼-序号！');
         return false;
@@ -144,6 +146,7 @@ function ajaxSubmit(params, url, subType){
                 showTipInfo('err',dataJson.message);
             }else if('success'==flag){
                 $("#btnReturn").hide();
+                $("#newTask").attr("disabled","disabled");
                 showTipInfo('success',dataJson.message);
             }
         },
@@ -176,6 +179,7 @@ function submitForm_newTask(){
         preDealer:$("#preDealer").val(),
         taskName: $('#newTask').val()
     };
+
     var test_url='taskTest/newTaskName';
     ajaxSubmit(test_params, test_url, 'post');
 }

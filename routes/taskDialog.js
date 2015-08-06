@@ -6,6 +6,7 @@ var router = express.Router();
 var Task = require('../modular/task');
 var taskDao = require('../modular/taskDao');
 var TaskAtta = require('../modular/taskAtta');
+var TaskTest = require('../modular/taskTest');
 
 var showFileList = function( taskId){
     taskDao.getFileList(taskId,function(msg,result) {
@@ -138,7 +139,22 @@ var findUploadedAtta = function(req, taskId, callback){
     })
 }
 
+/**
+ * 原来上一轮确认开发确认提交的信息
+ * @param req
+ * @param taskId
+ * @param callback
+ */
+var findPreTestInfo = function(req, taskId, callback){
+    TaskTest.findPreTestInfo(taskId, function(msg,result){
+        if('success'!=msg){
+            req.session.error = "查找发生错误,请记录并联系管理员";
+            return null;
+        }
+      return   callback(result);
 
+    })
+}
 /**
  * 点击变更单后打开的模态窗口
  * @param taskId
@@ -246,7 +262,7 @@ var openTask = function(stepName, req, res, callback){
                                         }
                                         if(stepName=="testing"||stepName=="comfirming") {
                                             findAttaByTaskIdAndStepId(req, taskId, '8', function (testReportAtta) {//找到测试环节上传的测试报告
-                                                console.log("testReportAtta",testReportAtta);
+                                                //console.log("testReportAtta",testReportAtta);
                                                 if (undefined == testReportAtta) {
                                                     testReportAtta = new TaskAtta({
                                                         "attachmentId": '',
@@ -291,16 +307,21 @@ var openTask = function(stepName, req, res, callback){
                                                     return;
                                                 }
                                                 //打开测试界面
-                                                else{
-                                                    res.render(stepName, {
-                                                        task: t,
-                                                        addFileList: addFileList,
-                                                        modifyFileList: modifyFileList,
-                                                        delFileList: delFileList,
-                                                        attaFile: atta,
-                                                        reportAtta: reportAtta,
-                                                        testReportAtta: testReportAtta
+                                                else if(stepName=="testing"){
+                                                    findPreTestInfo(req,taskId,function(preTestInfo){
+                                                        res.render(stepName, {
+                                                            task: t,
+                                                            addFileList: addFileList,
+                                                            modifyFileList: modifyFileList,
+                                                            delFileList: delFileList,
+                                                            attaFile: atta,
+                                                            reportAtta: reportAtta,
+                                                            testReportAtta: testReportAtta,
+                                                            preTestAtta:preTestInfo.preTestAtta,
+                                                            preTestReason:preTestInfo.preTestReason.reason
+                                                        });
                                                     });
+
                                                 }
 
                                             });
@@ -426,7 +447,20 @@ var openTask = function(stepName, req, res, callback){
                                             "fileUri": '#'
                                         });
                                     }
-                                    res.render(stepName,{task:t, addFileList:addFileList, modifyFileList:modifyFileList, delFileList:delFileList, attaFile:atta, reportAtta:reportAtta,testReportAtta:testReportAtta});
+                                    findPreTestInfo(req,taskId,function(preTestInfo){
+                                        res.render(stepName, {
+                                            task: t,
+                                            addFileList: addFileList,
+                                            modifyFileList: modifyFileList,
+                                            delFileList: delFileList,
+                                            attaFile: atta,
+                                            reportAtta: reportAtta,
+                                            testReportAtta: testReportAtta,
+                                            preTestAtta:preTestInfo.preTestAtta,
+                                            preTestReason:preTestInfo.preTestReason
+                                        });
+                                    });
+                                    //res.render(stepName,{task:t, addFileList:addFileList, modifyFileList:modifyFileList, delFileList:delFileList, attaFile:atta, reportAtta:reportAtta,testReportAtta:testReportAtta});
                                 });
                             }
                             else{
