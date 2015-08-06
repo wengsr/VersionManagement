@@ -76,7 +76,7 @@
                             <!--<label for="noPassReason" class="col-sm-2 control-label">说明</label>-->
                             <label for="reason" class="col-sm-2 control-label">请求重测原因</label>
                             <div class="col-sm-10" style="margin-top:6px">
-                                <span class="form-control"  type="text"><%=preTestReason.reason%></span>
+                                <span class="form-control" ><%=preTestReason.reason%></span>
                             </div>
                         </div>
                     <%}%>
@@ -84,7 +84,7 @@
                     <div class="form-group"  >
                         <label for="inputTaskList" class="col-sm-2 control-label">开发人员重测报告</label>
                         <div class="col-sm-10" style="margin-top:8px">
-                            <span><a id="a_reportAtta" href="<%=preTestAtta==undefined?'#':preTestAtta.fileUri%>"><%=preTestAtta==undefined?'':preTestAtta.fileName%></a></span>
+                            <span><a id="a_preTestAtta" href="<%=preTestAtta==undefined?'#':preTestAtta.fileUri%>"><%=preTestAtta==undefined?'':preTestAtta.fileName%></a></span>
                         </div>
                     </div>
                <% }%>

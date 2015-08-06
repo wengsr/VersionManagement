@@ -28,8 +28,8 @@ TaskAtta.findAttaByTaskIdAndStepId = function(taskId, processStepId, callback){
             return callback(err);
         }
         var sql = 'SELECT * FROM taskattachment where taskid = ? and processStepId=? ' +
-            ' AND turnNum = (SELECT MAX(turnNum) FROM taskprocessstep where taskId=?' +
-            'AND testNum = (SELECT MAX(testNum) FROM taskprocessstep where taskId=?))';
+            ' AND turnNum = (SELECT MAX(turnNum) FROM taskprocessstep where taskId=?)' +
+            'AND testNum = (SELECT MAX(testNum) FROM taskprocessstep where taskId=?)';
         var params = [taskId,processStepId,taskId,taskId];
         connection.query(sql, params, function (err, result) {
             if (err) {

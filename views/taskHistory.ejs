@@ -177,18 +177,43 @@
                     </dl>
                 </li>
                 <%}%>
-                <%if((tHis.processStepId==10)&&(tHis.testNum==k)){%>
+                <%if((tHis.processStepId==10)&&(tHis.testNum==k)&&(tHis.testNum<maxTestNum)){%>
                 <li>
                     <h3>开发确认</h3>
                     <dl>
                         <dt><%=(tHis.realName==null)?"":tHis.realName%> &nbsp;&nbsp;&nbsp;&nbsp;<time style="display:inline;color:#d3d3d3;font-weight:normal">(<%=tHis.execTime%>)</time>
-                            <span><%=tHis.realName%>开发查看后，请求重测</span>
+                            <span><%=tHis.realName%>测试不通过,开发查看后，请求重测</span>
                             说明：<%if(tHis.reason==null){%> 无<br/> <%}else{%>
                             <%var n1 = tHis.reason.length/20; var n2=tHis.reason.length%20;%>
                             <%if(n2!=0){n1 = Math.floor(n1)+1;}else{n1 = Math.floor(n1)}%>
                             <%for(var jj=0; jj<n1; jj++){%>
                             <%=tHis.reason.substr(jj*20,20)%><br/>
                             <%}%>
+                            <%}%>
+                        </dt>
+                    </dl>
+                </li>
+                <%}%>
+                <%if((tHis.processStepId==10)&&(tHis.testNum==k)&&(tHis.testNum==maxTestNum)){%>
+                <li>
+                    <h3>开发确认</h3>
+                    <dl>
+                        <dt><%=(tHis.realName==null)?"":tHis.realName%> &nbsp;&nbsp;&nbsp;&nbsp;<time style="display:inline;color:#d3d3d3;font-weight:normal">(<%=tHis.execTime%>)</time>
+                            <%if(tHis.state =="已确认为bug"){%>
+                            <span>测试不通过,开发查看后，确认为bug，填写了新的变更名</span>
+                            <!--说明：<%if(tHis.reason==null){%> 无<br/> <%}else{%>-->
+                            <!--<%var n1 = tHis.reason.length/20; var n2=tHis.reason.length%20;%>-->
+                            <!--<%if(n2!=0){n1 = Math.floor(n1)+1;}else{n1 = Math.floor(n1)}%>-->
+                            <!--<%for(var jj=0; jj<n1; jj++){%>-->
+                            <!--<%=tHis.reason.substr(jj*20,20)%><br/>-->
+                            <%}%>
+                            <%}%>
+                            <%}%>
+                            <%if(tHis.state =="测试不通过"){%>
+                            <span>测试不通过,等待开发确认</span>
+                            <%}%>
+                            <%if(tHis.state =="请求重测"){%>
+                            <span>测试不通过，开发查看后，请求重新测试</span>
                             <%}%>
                         </dt>
                     </dl>
