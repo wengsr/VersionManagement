@@ -1538,7 +1538,7 @@ router.post('/extractFile', function(req, res) {
         var queryObj = url.parse(req.url, true).query;
         if (msg == "success") {
             if(result ==''||result=== undefined){
-                message = " 该项目( "+projectId +") 为:"+ projectUri ;
+                message = " 该项目( "+taskProject +") 为:"+ projectUri ;
                 console.log(message);
                 return returnJsonMsg(req, res, "err", "查找项目路径出错，请重试!");
             }
