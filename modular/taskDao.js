@@ -268,7 +268,7 @@ exports.addBugTask = function (taskInfo,callback) {
             '   ( select taskId from tasks where taskname = ?))' +
             '   and t.taskName = ? and psd3.processStepId < 7',
             countTask: 'UPDATE  project set taskCount = taskCount + 1 where projectId= ?',
-            selectProject :' SELECT * FROM project where projectName = ?',
+            selectProject :' SELECT * FROM project where projectId = ?',
             userAddSql : 'INSERT INTO tasks(taskCode, taskName, creater, state, processStepId, projectId, taskDesc) VALUES(?,?,?,?,?,?,?)',
             addTaskProcess : ' INSERT INTO taskProcessStep(taskId, processStepId, dealer,turnNum,execTime) VALUES(?,?,?,?,?)',
             addFiles: 'INSERT INTO fileList(taskId,fileName,state,commit,fileUri) VALUES(?,?,?,?)',
@@ -299,6 +299,7 @@ exports.addBugTask = function (taskInfo,callback) {
         async.eachSeries(task, function (item, callback_async) {
             trans.query(sql[item], task_params[i],function (err, result) {
                 if(err) {
+                    console.log(sql[item]+" params:",task_params[i-1]);
                     console.log(item+" result:", err.message);
                     callback("err");
                     trans.rollback();

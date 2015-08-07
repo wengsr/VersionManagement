@@ -19,23 +19,23 @@ function storageTask(field) {
         }
     }
 }
-/**
- *填写变更单时，恢复之前未提交的变更单信息
- * @param field 需要保存的值
- */
-function recoverTask(field){
-    if(window.sessionStorage){
-        for(var i in field) {
-            if (sessionStorage.length > 0) {
-                if (sessionStorage.getItem(field[i])) {
-                    $(fields[i]).val(sessionStorage.getItem(field[i]));
-                }
-            }
-        }
-        $("#taskProject").val($("#project").find("option:selected").val());
-        $("#taskProjectUri").text($("#project").find("option:selected").attr("projectUri"));
-    }
-}
+///**
+// *填写变更单时，恢复之前未提交的变更单信息
+// * @param field 需要保存的值
+// */
+//function recoverTask(field){
+//    if(window.sessionStorage){
+//        for(var i in field) {
+//            if (sessionStorage.length > 0) {
+//                if (sessionStorage.getItem(field[i])) {
+//                    $(fields[i]).val(sessionStorage.getItem(field[i]));
+//                }
+//            }
+//        }
+//        $("#taskProject").val($("#project").find("option:selected").val());
+//        $("#taskProjectUri").text($("#project").find("option:selected").attr("projectUri"));
+//    }
+//}
 /**
  *变跟单提交成功时，删除已保存的信息
  */
@@ -222,7 +222,7 @@ jQuery(document).ready(function() {
                 taskName: $("#inputTaskName").val(),
                 // tasker : $(#inputTasker).val();
                 taskState: "申请通过",//提交申请
-                taskProject:$("#project").text(),
+                taskProject:$("#taskProject").val(),
                 bugId:$("#inputTaskName").find("option:selected").attr("bugId"),
                 taskDetails: $("#inputTaskDesc").val(),
                 taskNewFiles: $("#inputTaskNewList").val(),
@@ -239,7 +239,7 @@ jQuery(document).ready(function() {
     });
     $("#inputTaskName").change(function () {
         $("#taskProjectUri").text($("#inputTaskName").find("option:selected").attr("projectUri"));
-        //$("#project").val($("#inputTaskName").find("option:selected").attr("projectId"));
+        $("#taskProject").val($("#inputTaskName").find("option:selected").attr("projectId"));
         $("#project").text($("#inputTaskName").find("option:selected").attr("projectName"));
 
     });
