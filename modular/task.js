@@ -567,27 +567,38 @@ Task.findTaskForCreater = function(userId,taskId,taskStepName,callback){
 //            '        JOIN tasks t ON t.projectId = psd.projectId' +
 //            '        AND psd.userId = ?' +
 //            '        AND t.taskid = ? AND psd.processStepId not in (5,6) ) AND t1.taskid = ?';
+//        var sql = 'SELECT t1.* FROM tasks t1' +
+//            '       WHERE t1.processStepId IN' +
+//            '        (' +
+//            '            SELECT DISTINCT psd.processStepId FROM processstepdealer psd' +
+//            '        JOIN tasks t ON t.projectId = psd.projectId' +
+//            '        AND psd.userId = ?' +
+//            '        AND t.taskid = ?' +
+//            '        AND psd.processStepId not in (5,6)' +
+//            '        union' +
+//            '        select DISTINCT tps.processStepId from taskprocessstep tps' +
+//            '        JOIN processstepdealer psd1 ON psd1.processStepId = tps.processStepId' +
+//            '        JOIN tasks t1 ON t1.projectId = psd1.projectId' +
+//            '        AND psd1.userId = ?' +
+//            '        AND t1.taskid=?' +
+//            '        AND tps.taskid=?' +
+//            '        AND tps.processStepId=?' +         //这里要区分5和6
+//            '        AND tps.dealer=? or tps.dealer is null' +
+//            '        AND turnNum IN (SELECT MAX(turnNum) FROM taskprocessstep where taskId=?)' +
+//            '        AND testNum IN (SELECT MAX(testNum) FROM taskprocessstep where taskId=?)' +
+//            '        ) AND t1.taskid = ?  ORDER BY t1.taskcode';
+//        var params = [userId,taskId, userId,taskId,taskId,stepId,userId,taskId,taskId,taskId];
+        //判断当前的用户是否为改变更单的处理人：1.Tasks.dealer = userId ,2.tasks.dealer = null and has permission
         var sql = 'SELECT t1.* FROM tasks t1' +
-            '       WHERE t1.processStepId IN' +
-            '        (' +
-            '            SELECT DISTINCT psd.processStepId FROM processstepdealer psd' +
-            '        JOIN tasks t ON t.projectId = psd.projectId' +
-            '        AND psd.userId = ?' +
-            '        AND t.taskid = ?' +
-            '        AND psd.processStepId not in (5,6)' +
-            '        union' +
-            '        select DISTINCT tps.processStepId from taskprocessstep tps' +
-            '        JOIN processstepdealer psd1 ON psd1.processStepId = tps.processStepId' +
-            '        JOIN tasks t1 ON t1.projectId = psd1.projectId' +
-            '        AND psd1.userId = ?' +
-            '        AND t1.taskid=?' +
-            '        AND tps.taskid=?' +
-            '        AND tps.processStepId=?' +         //这里要区分5和6
-            '        AND tps.dealer=? or tps.dealer is null' +
-            '        AND turnNum IN (SELECT MAX(turnNum) FROM taskprocessstep where taskId=?)' +
-            '        AND testNum IN (SELECT MAX(testNum) FROM taskprocessstep where taskId=?)' +
-            '        ) AND t1.taskid = ?  ORDER BY t1.taskcode';
-        var params = [userId,taskId, userId,taskId,taskId,stepId,userId,taskId,taskId,taskId];
+            '   JOIN taskprocessstep tps   on tps.taskId = t1.taskId and t1.processStepId = tps.processStepId and t1.taskId = ?  and' +
+            '   (' +
+            '   tps.dealer = ? or  ( tps.dealer is null and tps.processStepId in' +
+            '   (' +
+            '   select processstepId from processstepdealer psd2 where psd2.projectId =' +
+            '   (  select projectId from tasks t2 where taskId = ? )  and psd2.userId = ?)' +
+            '   )' +
+            '   )';
+        var params = [taskId, userId,taskId,userId];
         connection.query(sql, params, function (err, result) {
             if (err) {
                 console.log('[QUERY TASKS ERROR] - ', err.message);
