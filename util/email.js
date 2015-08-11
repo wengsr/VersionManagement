@@ -23,20 +23,20 @@ var mailOptions = {
 };
 
 exports.sendMailToCreater = function(taskcode, taskname, creater, content, userEmail){
-        var sendContent = '<b>开发人员_'+creater+'：<br/>' +
-            '&emsp;&emsp;您好！您申请的变更单【变更单名称】:“'+taskname+'”   (变更单号：'+taskcode+')有以下文件被占用。' +
-            '现在占用已解除，可以提取。请及时提取并上传变更单。<br/><br/></b>' +
-            '<div><b>'+content+'</b><br/></div>'
-        mailOptions.html = sendContent+alink;
-        mailOptions.to = userEmail;
+    var sendContent = '<b>开发人员_'+creater+'：<br/>' +
+        '&emsp;&emsp;您好！您申请的变更单【变更单名称】:“'+taskname+'”   (变更单号：'+taskcode+')有以下文件被占用。' +
+        '现在占用已解除，可以提取。请及时提取并上传变更单。<br/><br/></b>' +
+        '<div><b>'+content+'</b><br/></div>'
+    mailOptions.html = sendContent+alink;
+    mailOptions.to = userEmail;
 
-        transporter.sendMail(mailOptions, function(error, info){
-            if(error){
-                console.log(error);
-            }else{
-                console.log('Message sent: ' + info.response);
-            }
-        });
+    transporter.sendMail(mailOptions, function(error, info){
+        if(error){
+            console.log(error);
+        }else{
+            console.log('Message sent: ' + info.response);
+        }
+    });
 }
 exports.sendMailToDealer = function(taskcode, taskname, creater, processStepId, userEmail){
     var taskType;
@@ -49,15 +49,15 @@ exports.sendMailToDealer = function(taskcode, taskname, creater, processStepId, 
     }
     if(processStepId == 3){//走查不通过，通知开发人员
         sendContent = '<b>亲爱的'+creater+'：<br/>' +
-            '&emsp;&emsp;你的变更单没有通过走查：【变更单名称】:“'+taskname+'”   (变更单号：'+taskcode+')' +
-            '赶紧去看看吧！<br/><br/></b>' ;
+        '&emsp;&emsp;你的变更单没有通过走查：【变更单名称】:“'+taskname+'”   (变更单号：'+taskcode+')' +
+        '赶紧去看看吧！<br/><br/></b>' ;
         mailOptions.subject= '【版本管理系统】变跟单走查不通过';
     }
     if(processStepId == 7|| processStepId == 8){
-         sendContent = '<b>亲爱的'+creater+'：<br/>' +
-            '&emsp;&emsp;有新的变更单需要测试：【变更单名称】:“'+taskname+'”   (变更单号：'+taskcode+') 。' +
-            '<br/> &emsp;&emsp; ' +
-         '<br/><br/></b> ' ;
+        sendContent = '<b>亲爱的'+creater+'：<br/>' +
+        '&emsp;&emsp;有新的变更单需要测试：【变更单名称】:“'+taskname+'”   (变更单号：'+taskcode+') 。' +
+        '<br/> &emsp;&emsp; ' +
+        '<br/><br/></b> ' ;
         mailOptions.subject= '【版本管理系统】有新的变更单需要测试';
         mailOptions.html = sendContent+alink;
     }
@@ -68,9 +68,9 @@ exports.sendMailToDealer = function(taskcode, taskname, creater, processStepId, 
         mailOptions.subject= '【版本管理系统】有新的走查任务';
     }
     else if(processStepId==6){
-         sendContent = '<b>亲爱的'+creater+'：<br/>' +
-            '&emsp;&emsp;有新的上库任务需要处理：【变更单名称】:“'+taskname+'”   (变更单号：'+taskcode+')。' +
-            '等着你来哦！<br/><br/></b>' ;
+        sendContent = '<b>亲爱的'+creater+'：<br/>' +
+        '&emsp;&emsp;有新的上库任务需要处理：【变更单名称】:“'+taskname+'”   (变更单号：'+taskcode+')。' +
+        '等着你来哦！<br/><br/></b>' ;
         mailOptions.subject= '【版本管理系统】有新的上库任务';
     }
     else if(processStepId == 4){
@@ -134,22 +134,22 @@ exports.sendSqlAttaToPM =function(taskcode, taskname, userName, userEmail,conten
     mailOptions.subject= '【版本管理系统】'+content;
     var files = [];
     attachment.forEach(function(file){
-            var fileName = file.substring(file.lastIndexOf("/")+1,file.length);
-            fileName = fileName.replace(/[\u4e00-\u9fa5]/g,"");
-            var attach ={
-                path : file,
-                filename:"DB_"+fileName
-                };
-            files.push(attach);
+        var fileName = file.substring(file.lastIndexOf("/")+1,file.length);
+        fileName = fileName.replace(/[\u4e00-\u9fa5]/g,"");
+        var attach ={
+            path : file,
+            filename:"DB_"+fileName
+        };
+        files.push(attach);
     });
     if(files.length>0){
         mailOptions.attachments=files;
-        console.log("attachmen files:",mailOptions.attachments);
+        console.log("attachmen files : ",mailOptions.attachments);
         transporter.sendMail(mailOptions, function(error, info){
             if(error){
                 console.log(error);
             }else{
-                console.log('Message sent sendSqlAttaToPM : ' + info.response);
+                console.log('Message sent endSqlAttaToPM : ' + info.response);
             }
         });
     }
