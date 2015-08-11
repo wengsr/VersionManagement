@@ -149,7 +149,7 @@ exports.sendSqlAttaToPM =function(taskcode, taskname, userName, userEmail,conten
             if(error){
                 console.log(error);
             }else{
-                console.log('Message sent: ' + info.response);
+                console.log('Message sent sendSqlAttaToPM : ' + info.response);
             }
         });
     }
