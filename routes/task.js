@@ -304,6 +304,10 @@ var sendEmailForSqlAttachmentToDB = function(req,taskId, content,attachment){
             req.session.error = "发送邮件时查找变更单信息发生错误,请记录并联系管理员";
             return null;
         }
+        if(result==null){
+            console.log("无需发数据变更单送变更单");
+            return ;
+        }
         var taskcode = result.taskcode;
         var taskname = result.taskname;
         var DBName = result.realName;
