@@ -1816,7 +1816,8 @@ function getSqlAttachment(path){
         var tmpPath = path + '/' + item;
         var  stats = fs.statSync(tmpPath);
         //var isSql = item.match(/([\u4e00-\u9fa5]|[\x00-\xff])*(配置变更单|模型变更单|数据变更单)([\u4e00-\u9fa5]|[\x00-\xff])*[.txt|.sql|.xlsx]$/g);
-        var isSql = item.match(/((\S*.sql)$|(\S*(配置变更单|模型变更单|数据变更单)([\u4e00-\u9fa5]|[\x00-\xff])*[.txt|.sql])$)/g);
+        //var isSql = item.match(/((\S*.sql)$|(\S*(配置变更单|模型变更单|数据变更单)([\u4e00-\u9fa5]|[\x00-\xff])*[.txt|.sql])$)/g);
+        var isSql = item.match(/((\S*.sql)$|(\S*(配置变更单|模型变更单|数据变更单)([\u4e00-\u9fa5]|[\x00-\xff])+(.txt)$|(.sql)$))/g);
         //console.log(isSql);
         if ((isSql)&&(!(stats.isDirectory()))) {
             fileList.push(item);

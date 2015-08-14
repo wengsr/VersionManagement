@@ -23,13 +23,13 @@ var mailOptions = {
 };
 
 exports.sendMailToCreater = function(taskcode, taskname, creater, content, userEmail){
+    mailOptions.attachments="";
     var sendContent = '<b>开发人员_'+creater+'：<br/>' +
         '&emsp;&emsp;您好！您申请的变更单【变更单名称】:“'+taskname+'”   (变更单号：'+taskcode+')有以下文件被占用。' +
         '现在占用已解除，可以提取。请及时提取并上传变更单。<br/><br/></b>' +
         '<div><b>'+content+'</b><br/></div>'
     mailOptions.html = sendContent+alink;
     mailOptions.to = userEmail;
-
     transporter.sendMail(mailOptions, function(error, info){
         if(error){
             console.log(error);
@@ -41,6 +41,7 @@ exports.sendMailToCreater = function(taskcode, taskname, creater, content, userE
 exports.sendMailToDealer = function(taskcode, taskname, creater, processStepId, userEmail){
     var taskType;
     var sendContent;
+    mailOptions.attachments="";
     if(processStepId == 10){//走查不通过，通知开发人员
         sendContent = '<b>亲爱的'+creater+'：<br/>' +
         '&emsp;&emsp;变更单：【变更单名称】:“'+taskname+'”   (变更单号：'+taskcode+')' +
@@ -99,6 +100,7 @@ exports.sendMailToCreaterTest =function(taskcode, taskname, userName, userEmail,
     mailOptions.html = sendContent+alink;
     mailOptions.to = userEmail;
     mailOptions.subject= '【版本管理系统】变更单'+content;
+    mailOptions.attachments="";
     transporter.sendMail(mailOptions, function(error, info){
         if(error){
             console.log(error);
@@ -115,6 +117,7 @@ exports.sendMailToCreaterSubmit =function(taskcode, taskname, userName, userEmai
     mailOptions.html = sendContent+alink;
     mailOptions.to = userEmail;
     mailOptions.subject= '【版本管理系统】变更单'+content;
+    mailOptions.attachments="";
     transporter.sendMail(mailOptions, function(error, info){
         if(error){
             console.log(error);
@@ -148,8 +151,10 @@ exports.sendSqlAttaToPM =function(taskcode, taskname, userName, userEmail,conten
         transporter.sendMail(mailOptions, function(error, info){
             if(error){
                 console.log(error);
+                mailOptions.attachments="";
             }else{
                 console.log('Message sent endSqlAttaToPM : ' + info.response);
+                mailOptions.attachments="";
             }
         });
     }
