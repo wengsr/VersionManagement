@@ -1820,7 +1820,7 @@ function getSqlAttachment(path){
         var isSql = item.match(/((\S*.sql)$|(\S*(配置变更单|模型变更单|数据变更单)([\u4e00-\u9fa5]|[\x00-\xff])+(.txt)$|(.sql)$))/g);
         //console.log(isSql);
         if ((isSql)&&(!(stats.isDirectory()))) {
-            fileList.push(item);
+            fileList.push(path+"/"+item);
         }
     });
     //console.log("fileList:",fileList);
