@@ -19,6 +19,7 @@ var partials = require('express-partials');
 var file = require('./routes/file');
 var taskTest = require('./routes/taskTest');
 var  excel = require("./routes/excel");
+var  svn = require("./routes/svn");
 
 
 
@@ -115,5 +116,6 @@ app.use('/superModel', superModel);
 app.use('/admin', adminModel);
 app.use('/taskTest', taskTest);
 app.use("/excel",excel);
+app.use("/svn",svn);
 
 module.exports = app;

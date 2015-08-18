@@ -2,6 +2,10 @@ var express = require('express');
 var router = express.Router();
 var Task = require('../modular/task');
 var Project = require('../modular/project');
+var Attachment = require('../modular/taskAtta');
+var AttaSql = require("../modular/sqlStatement/taskAttaSql");
+var process = require("process");
+var dao = require("../modular/taskDao")
 /**
  * 查找用户所属项目，用于显示“申请变更单”和“查找变更单”按钮
  * @param userId
@@ -252,4 +256,177 @@ router.post('/aFileHistory/', function(req, res) {
         });
     });
 });
+//查看待上传变更单附件
+router.get('/findAttaHistory/', function(req, res) {
+    getCookieUser(req, res);
+    var userId = req.session.user.userId;
+    //var dao = require('../modular/taskDao');
+    //var curPage =typeof(req.param.pageNo)===undefined ?1:req.param.pageNo ;
+    var curPage =1 ;
+    var totalAttaPage = 1;
+    var startNum = (curPage-1)*30 -1;
+    if(startNum< 0){
+        startNum = 0;
+    }
+    Attachment.getNeedCommit(userId,startNum, function (msg, count,attachemts) {
+      findProsByUserIdForApplyTaskBtn(userId,req,function(userPros){
+            if('success'!=msg){
+                req.session.error = "模糊查询所有变更单时发生错误,请记录并联系管理员";
+                return null;
+            }
+            //if(attachemts.length>0){
+                var pageCount = parseInt((count-1)/30) + 1;
+                req.session.attachemts = attachemts;
+                req.session.attachemtsCount = attachemts.length;
+                console.log("find Attachment;",pageCount,"   ",curPage,"   ",count,"  ",attachemts.length);
+                return res.render('index', {
+                    title: 'AILK-CRM版本管理系统',
+                    user:req.session.user,
+                    menus:req.session.menus,
+                    attas:req.session.attachemts,
+                    attasCount:req.session.attachemtsCount,
+                    topBtnCheckTask:'findAttachments',
+                    userPros:userPros,
+                    totalFindAttaPage: pageCount,
+                    curFindAttaPage:curPage
+                });
+            //}else{
+            //    var pageCount = 0;
+            //    req.session.tasks = null;
+            //    req.session.taskCount = null;
+            //    return res.render('index', {
+            //        title: 'AILK-CRM版本管理系统',
+            //        user:req.session.user,
+            //        menus:req.session.menus,
+            //        tasks:req.session.tasks,
+            //        taskCount:req.session.taskCount,
+            //        topBtnCheckTask:'findTaskResult_noLink',
+            //        userPros:userPros,
+            //        totalFindAllPage: pageCount,
+            //        curFindAllPage:curPage
+            //    });
+            //}
+            //res.render('findTaskResult',{projects:projects});
+        });
+    });
+});
+router.post('/findAttaHistory/', function(req, res) {
+    getCookieUser(req, res);
+    var userId = req.session.user.userId;
+    //var dao = require('../modular/taskDao');
+    //var curPage =typeof(req.param.pageNo)===undefined ?1:req.param.pageNo ;
+    var curPage =1 ;
+    var totalAttaPage = 1;
+    var startNum = (curPage-1)*30 -1;
+    if(startNum< 0){
+        startNum = 0;
+    }
+    Attachment.getNeedCommit(userId,startNum, function (msg, count,attachemts) {
+        findProsByUserIdForApplyTaskBtn(userId,req,function(userPros){
+            if('success'!=msg){
+                req.session.error = "模糊查询所有变更单时发生错误,请记录并联系管理员";
+                return null;
+            }
+            //if(attachemts.length>0){
+            var pageCount = parseInt((count-1)/30) + 1;
+            req.session.attachemts = attachemts;
+            req.session.attachemtsCount = attachemts.length;
+            console.log("find Attachment;",pageCount,"   ",curPage,"   ",count,"  ",attachemts.length);
+            return res.render('index', {
+                title: 'AILK-CRM版本管理系统',
+                user:req.session.user,
+                menus:req.session.menus,
+                attas:req.session.attachemts,
+                attasCount:req.session.attachemtsCount,
+                topBtnCheckTask:'findAttachments',
+                userPros:userPros,
+                totalFindAttaPage: pageCount,
+                curFindAttaPage:curPage
+            });
+            //}else{
+            //    var pageCount = 0;
+            //    req.session.tasks = null;
+            //    req.session.taskCount = null;
+            //    return res.render('index', {
+            //        title: 'AILK-CRM版本管理系统',
+            //        user:req.session.user,
+            //        menus:req.session.menus,
+            //        tasks:req.session.tasks,
+            //        taskCount:req.session.taskCount,
+            //        topBtnCheckTask:'findTaskResult_noLink',
+            //        userPros:userPros,
+            //        totalFindAllPage: pageCount,
+            //        curFindAllPage:curPage
+            //    });
+            //}
+            //res.render('findTaskResult',{projects:projects});
+        });
+    });
+});
+router.get('/findAttaHistory/:curPage', function(req, res) {
+    getCookieUser(req, res);
+    var userId = req.session.user.userId;
+    var curPage = req.params.curPage;
+    var totalAttaPage = 1;
+    var startNum = (curPage-1)*30;
+    if(startNum< 0){
+        startNum = 0;
+    }
+    Attachment.getNeedCommit(userId,startNum, function (msg, count,attachemts) {
+        findProsByUserIdForApplyTaskBtn(userId,req,function(userPros){
+            if('success'!=msg){
+                req.session.error = "模糊查询所有变更单时发生错误,请记录并联系管理员";
+                return null;
+            }
+            //if(attachemts.length>0){
+            var pageCount = parseInt((count-1)/30) + 1;
+            req.session.attachemts = attachemts;
+            req.session.attachemtsCount = attachemts.length;
+            //console.log("find Attachment;",pageCount,"   ",curPage,"   ",count,"  ",attachemts.length);
+            return res.render('index', {
+                title: 'AILK-CRM版本管理系统',
+                user:req.session.user,
+                menus:req.session.menus,
+                attas:req.session.attachemts,
+                attasCount:req.session.attachemtsCount,
+                topBtnCheckTask:'findAttachments',
+                userPros:userPros,
+                totalFindAttaPage: pageCount,
+                curFindAttaPage:curPage
+            });
+            //}else{
+            //    var pageCount = 0;
+            //    req.session.tasks = null;
+            //    req.session.taskCount = null;
+            //    return res.render('index', {
+            //        title: 'AILK-CRM版本管理系统',
+            //        user:req.session.user,
+            //        menus:req.session.menus,
+            //        tasks:req.session.tasks,
+            //        taskCount:req.session.taskCount,
+            //        topBtnCheckTask:'findTaskResult_noLink',
+            //        userPros:userPros,
+            //        totalFindAllPage: pageCount,
+            //        curFindAllPage:curPage
+            //    });
+            //}
+            //res.render('findTaskResult',{projects:projects});
+        });
+    });
+});
+//打开上传附件至svn的页面
+router.get('/commitChangeRarPage/:attachmentId', function(req, res) {
+    getCookieUser(req, res);
+    var userId = req.session.user.userId;
+    var attachmentId = req.params.attachmentId;
+    Attachment.findAttachmentInfo(attachmentId, function (msg,attachments) {
+        return res.render('adminModel/attachCommit.ejs', {attachment:attachments});
+    });
+});
+//router.post('/copyRar', function(req, res) {
+//    getCookieUser(req, res);
+//    var userId = req.session.user.userId;
+//    var attachmentId = req.params.attachmentId;
+//
+//});
 module.exports = router;

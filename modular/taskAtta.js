@@ -132,5 +132,123 @@ TaskAtta.findtaskInfoForComfirming = function(taskId, processStepId, callback){
     });
 }
 
+/**
+ *查找待上传至svn的变更单附件，
+ * @param taskId
+ * @param processStepId
+ * @param fileName
+ * @param fileUri
+ * @param callback
+ */
+TaskAtta.getNeedCommit = function(userId,startNum, callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN ATTACHMENT ERROR] - ', err.message);
+            return callback(err);
+        }
+
+        var sql_count = AttaSql.findNeedCommitAttCount;
+        var findNeedCommitAtt = AttaSql.findNeedCommitAtt;
+        var count_params = [3,3,userId];
+        var params = [3,3,userId];
+        if(startNum){
+            findNeedCommitAtt += "  limit ?,30";
+            params.push(startNum);
+        }
+        else{
+            findNeedCommitAtt += "  limit 30";
+        }
+        connection.query(sql_count,count_params, function (err, count) {
+            if (err) {
+                console.log('[QUERY findNeedCommitAtt ERROR] - ', err.message);
+                return callback('err',err);
+            }
+            connection.query(findNeedCommitAtt, params, function(err, attas) {
+                if (err) {
+                    console.log('[QUERY findNeedCommitAtt ERROR] - ', err.message);
+                    return callback('err', err);
+                }
+                //console.log("result_testType：",result_testType);
+                connection.release();
+                callback('success', count[0].count,attas);
+            });
+        });
+    });
+}
+
+/**
+ *查找变更单信息，
+ * @param taskId
+ * @param processStepId
+ * @param fileName
+ * @param fileUri
+ * @param callback
+ */
+TaskAtta.findAttachmentInfo = function(attachmentId, callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN ATTACHMENT ERROR] - ', err.message);
+            return callback(err);
+        }
+
+        var sql = AttaSql.findAttachmentInfo;
+        var findNeedCommitAtt = AttaSql.findNeedCommitAtt;
+        var params = [attachmentId];
+        connection.query(sql,params, function (err, result) {
+            if (err) {
+                console.log('[QUERY findNeedCommitAtt ERROR] - ', err.message);
+                return callback('err',err);
+            }
+            callback('success', result[0]);
+        });
+    });
+}
+
+/**
+ *查找变更单信息和需上传的svn地址，
+ * @param taskId
+ * @param processStepId
+ * @param fileName
+ * @param fileUri
+ * @param callback
+ */
+TaskAtta.searchAttaAndSvn = function(attachmentId,svnId, callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN ATTACHMENT ERROR] - ', err.message);
+            return callback(err);
+        }
+
+        var sql = AttaSql.searchAttaAndSvn;
+        var params = [attachmentId,svnId];
+        connection.query(sql,params, function (err, result) {
+            if (err) {
+                console.log('[QUERY searchAttaAndSvn ERROR] - ', err.message);
+                return callback('err',err);
+            }
+            callback('success', result[0]);
+        });
+    });
+}
+TaskAtta.searchAttaAndSvn2 = function(attachmentId,svnId, callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN ATTACHMENT ERROR] - ', err.message);
+            return callback(err);
+        }
+
+        var sql = AttaSql.searchAttaAndSvn;
+        var params = [attachmentId,svnId];
+        connection.query(sql,params, function (err, result) {
+            if (err) {
+                console.log('[QUERY searchAttaAndSvn ERROR] - ', err.message);
+                return callback('err',err);
+            }
+            callback('success', result[0]);
+        });
+    });
+}
+
+
 
 module.exports = TaskAtta;

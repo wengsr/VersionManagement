@@ -841,7 +841,7 @@ TaskTest.noTest = function(taskId,userId,reason,callback){
             '   and testNum =' +
             '   (SELECT maxTestNum from (SELECT MAX(testNum) as maxTestNum FROM taskprocessstep where taskId=?) as maxNumTable)' +
             '   and taskId =? and processStepId = 8',
-            updateTPS:"insert into taskprocessstep (taskid, processStepId, turnNum, dealer,execTime) " +
+            updateTPS:"insert into taskprocessstep (taskid, processStepId, turnNum, testNum,dealer,execTime) " +
             " values (?,9,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?)," +
             "   (SELECT MAX(testNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?,?)"
         };

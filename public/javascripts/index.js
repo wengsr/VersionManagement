@@ -238,7 +238,14 @@ jQuery(document).ready(function() {
             }
         ]];
         $(this).smartMenu(imageMenuData, {name: 'myMenu'});
+    });
 
+    $("[attachment =attachment]").each(function(){
+        //debugger
+            var attachmentDom = $(this).attr("id");
+            var attachmentId = $(this).attr("attachmentId");
+            var realUrl ="/admin/commitChangeRarPage/"+attachmentId;
+            showModelDialog(attachmentDom, realUrl,"formCommitRar" );
     });
 });
 

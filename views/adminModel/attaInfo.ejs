@@ -1,0 +1,79 @@
+<!--查询附件结果-->
+<div id="AttaDiv" class="container-fluid">
+    <div class="panel panel-warning">
+        <div class="panel-heading">查询到的变更单附件</div>
+        <div class="panel-body table-responsive">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>变更单名</th>
+                    <th>数据变更单</th>
+                    <th>申请人</th>
+                    <th>状态</th>
+                    <th>上传附件</th>
+                </tr>
+                </thead>
+                <tbody>
+                <% var recCount=(curFindAttaPage-1)*30%>
+                <% attas.forEach(function(atta,i){ var psId=atta.processStepId%>
+                <% recCount++;%>
+                <tr id="myToBeDealTask">
+                    <td><%=recCount%></td>
+                    <td><a id="attach_<%=atta.attachmentId%>" attachment ="attachment" attachmentId="<%=atta.attachmentId%>"  attaUri = "<%=atta.fileUri%>" ><%=atta.fileName%></a></td>
+                    <td>无</td>
+                    <td><%=atta.realName%></td>
+                    <td>未上传至svn</td>
+                    <td><a  id ="attachCommit_"<%=atta.attachmentId%> attaId ="<%=atta.attachmentId%>" >上传</a></td>
+                </tr>
+                <% }); %>
+                </tbody>
+            </table>
+        </div>
+        <!--<% if(attasCount){%>-->
+        <!--<div class="panel-footer">共<%=attasCount%>条</div>-->
+        <!--<% } %>-->
+        <div id="recCount" class="panel-footer" recCount="<%=recCount%>">共<%=(recCount%30)==0?30:(recCount%30)%>条</div>
+        <div style="float:right">
+            <nav  >
+                <%
+                var  minPage = curFindAttaPage-2>0?curFindAttaPage-2:1;
+                var maxPage = minPage + 4>totalFindAttaPage?totalFindAttaPage:minPage + 4;
+                minPage = maxPage-4<1?1:maxPage-4;
+                //                          var maxPage =curFindAttaPage+2>totalDealPage?totalDealPage:curFindAttaPage+2;
+                %>
+                <ul class="pagination" id="pageUl" pageCount="<%=totalFindAttaPage%>" curPage="<%=curFindAttaPage%>"
+                    minPage="<%=minPage%>",maxPage="<%=maxPage%>">
+
+                    <%if(minPage!=1){%>
+                    <li  id="pagePre">
+                        <a href="/task/findTask/<%=parseInt(curFindAttaPage)-1%>" aria-label="Previous" >
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <%}%>
+                    <%for(var i = minPage;i<=maxPage;i++){ %>
+                    <li  class="pageId"  value ="<%=i%>"><a href="/admin/findAttaHistory/<%=i%>"><%=i%></a></li>
+                    <%}%>
+                    <%if(maxPage<totalFindAttaPage){%>
+                    <li  id="pageNext">
+                        <a href="/admin/findAttaHistory/<%=parseInt(curFindAttaPage)+1%>" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <%}%>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+<div id="noTaskNotice" style="margin-top: 100px">
+    <div class="col-sm-3"></div>
+    <div class="col-sm-6">
+            <span style="font-size:20pt; color: #cccccc;height:20px; line-height:20px; text-align:center; display:block;">
+                没有找到符合条件的变更单
+            </span>
+    </div>
+    <div class="col-sm-3"></div>
+</div>
+
