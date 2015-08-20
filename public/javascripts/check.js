@@ -30,11 +30,19 @@ function ajaxSubmit(params, url, subType,submitflag){
         url: url,
         dataType: 'jsonp',
         cache: false,
-        timeout: 5000,
+        timeout: 50000,
         type: subType,
         success: function(data){
             var dataJson = $.parseJSON(data);
             var flag =  dataJson.sucFlag;
+            if("cmp" == submitflag){
+                if('err'==flag){
+                    showTipInfo('err',dataJson.message);
+                }else if('success'==flag){
+                    showTipInfo('success',dataJson.message);
+                }
+                return
+            }
             if('showUser'==submitflag) {
                 //展示出所有用户
                 showSelectCheckUser(dataJson);
@@ -110,6 +118,17 @@ function submitForm_unPass(){
     var planCheck_url='task/checkUnPass';
     ajaxSubmit(planCheck_params, planCheck_url, 'post');
 }
+/**
+ * 比对old文件夹
+ */
+function submitForm_compareOld(){
+    var params={
+        taskId: $('#taskId').val()
+    };
+    var planCompare_url='file/compareOld';
+    ajaxSubmit(params, planCompare_url, 'post',"cmp");
+}
+
 
 /**
 * 提交表单信息
@@ -318,6 +337,10 @@ jQuery(document).ready(function() {
     //走查不通过
     $('#btnUnPassCheck, #btnUnPassCheck2').click(function(){
         submitForm_unPass();
+    });
+    //比对旧文件
+    $('#btnCompareOld').click(function(){
+        submitForm_compareOld();
     });
     //点击关闭按钮时刷新页面
     $('#btnCloseModel').click(function(){

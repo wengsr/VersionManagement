@@ -10,7 +10,6 @@
  * @param subType
  */
 function copyRar_ajaxsubmit(params, url, subType){
-    debugger
     url = '/' + url;
     $.ajax({
         data: params,
@@ -23,14 +22,13 @@ function copyRar_ajaxsubmit(params, url, subType){
             var dataJson = $.parseJSON(data);
             var flag =  dataJson.sucFlag;
             console.log(flag);
-            debugger
             if('err'==flag){
-                $("#btnCopyRar").hide();
-                alert("copy err:"+dataJson.message);
+                $("#btnCopyRar").show();
+                showTipInfo('err',dataJson.message);
             }else if('success'==flag) {
                 $("#btnCopyRar").hide();
                 $("#btnCommitRar").show();
-                alert("copy success");
+                 showTipInfo('success',dataJson.message);
                 }
             },
         error: function(jqXHR, textStatus, errorThrown){
@@ -39,7 +37,6 @@ function copyRar_ajaxsubmit(params, url, subType){
     });
 }
 function commitRar_ajaxsubmit(params, url, subType){
-    debugger
     url = '/' + url;
     $.ajax({
         data: params,
@@ -52,14 +49,13 @@ function commitRar_ajaxsubmit(params, url, subType){
             var dataJson = $.parseJSON(data);
             var flag =  dataJson.sucFlag;
             console.log(flag);
-            debugger
             if('err'==flag){
-                $("#btnCopyRar").hide();
-                alert("commit err:"+ dataJson.message);
-            }else if('success'==flag) {
                 $("#btnCopyRar").show();
+                $("#btnCommitRar").show();
+                showTipInfo('err',dataJson.message);
+            }else if('success'==flag) {
                 $("#btnCommitRar").hide();
-                alert("commit success");
+                showTipInfo('success',dataJson.message);
             }
         },
         error: function(jqXHR, textStatus, errorThrown){
@@ -69,20 +65,22 @@ function commitRar_ajaxsubmit(params, url, subType){
 }
 jQuery(document).ready(function() {
     $("#btnCommitRar").click(function(){
+        $('#btnCopyRar').hide();
         var params = {
             attachmentId:$("#attachmentId").attr("attachmentId")
         };
         var url="svn/commitChangeRar";
-        copyRar_ajaxsubmit(params,url,"post");
+       commitRar_ajaxsubmit(params,url,"post");
     });
     $('#btnCloseModel').click(function(){
         location.reload();
     });
     $('#btnCopyRar').click(function(){
+        $('#btnCopyRar').hide();
         var params = {
             attachmentId:$("#attachmentId").attr("attachmentId")
         };
-        var url="svn/copyRar"
+        var url="svn/copyRar";
         copyRar_ajaxsubmit(params,url,"post");
     });
 

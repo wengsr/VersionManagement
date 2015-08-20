@@ -37,6 +37,8 @@ var AttaSql = function(){
     this.searchAttaAndSvn = "select ta.* ,sl.svnUri from taskattachment ta  join svnlocation sl on ta.attachmentId = ? and sl.id= ? ";
     var  searchAttaAndSvn_params ="[attachmentId,svnId]";
 
+    this.insertAttaCommit = "insert into attachmentCommit(attachmentId , attaType, commitType) value( ?, 0,0)";
+    var insertAttaCommit_params = "[attachementId]";
 }
 module.exports = AttaSql;
 //var sql = new AttaSql();

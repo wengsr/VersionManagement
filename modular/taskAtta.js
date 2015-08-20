@@ -230,6 +230,7 @@ TaskAtta.searchAttaAndSvn = function(attachmentId,svnId, callback){
         });
     });
 }
+
 TaskAtta.searchAttaAndSvn2 = function(attachmentId,svnId, callback){
     pool.getConnection(function(err, connection){
         if(err){
@@ -239,6 +240,29 @@ TaskAtta.searchAttaAndSvn2 = function(attachmentId,svnId, callback){
 
         var sql = AttaSql.searchAttaAndSvn;
         var params = [attachmentId,svnId];
+        connection.query(sql,params, function (err, result) {
+            if (err) {
+                console.log('[QUERY searchAttaAndSvn ERROR] - ', err.message);
+                return callback('err',err);
+            }
+            callback('success', result[0]);
+        });
+    });
+}
+/**
+ *上传变更单后，写入数据库
+ * @param taskId
+ * @param callback
+ */
+TaskAtta.commitRar = function(attachmentId, callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN ATTACHMENT ERROR] - ', err.message);
+            return callback(err);
+        }
+
+        var sql = AttaSql.insertAttaCommit;
+        var params = [attachmentId];
         connection.query(sql,params, function (err, result) {
             if (err) {
                 console.log('[QUERY searchAttaAndSvn ERROR] - ', err.message);

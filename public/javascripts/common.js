@@ -93,7 +93,7 @@ function isFile(str){
         }
         var tmp;
         //tmp = str[i].match(/[[\/a-zA-Z0-9_]+\/]+[a-zA-Z0-9_]+[.][a-zA-Z0-9_]+/g);
-        tmp = str[i].match(/[\/]?([a-zA-Z0-9_\/])*[a-zA-Z0-9_\-.]+([.][a-zA-Z0-9_]+)+/g);//合法路径的正则表达式
+        tmp = str[i].match(/[\/]?([a-zA-Z0-9_\-\/])*[a-zA-Z0-9_\-.]+([.][a-zA-Z0-9_]+)+/g);//合法路径的正则表达式
         if(  tmp==null){
             $('#alertInfo').text("出错文件："+str[i]);//返回出错的文件名
             $('#divAlert').show();

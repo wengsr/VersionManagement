@@ -21,7 +21,7 @@ function getFilesUri(str){
         var tmp;
         //tmp = str[i].match(/[\/a-zA-Z0-9_\/]+[.a-zA-Z0-9_]+/g);
         //tmp = str[i].match(/[\/]?([a-zA-Z0-9_\/])*[a-zA-Z0-9_\-]+([.][a-zA-Z0-9_]+)+/g);
-        var tmp = str[i].match(/[\/]?([a-zA-Z0-9])+([a-zA-Z0-9_\/.])*[a-zA-Z0-9_\-]+([.][a-zA-Z0-9_]+)+/g);
+        var tmp = str[i].match(/[\/]?([a-zA-Z0-9])+([a-zA-Z0-9_\-\/.])*[a-zA-Z0-9_\-]+([.][a-zA-Z0-9_]+)+/g);
         if(  tmp!=null){
             str[i] = tmp.toString();
             if(str[i][0]!='/'){
@@ -206,6 +206,8 @@ var bugSql = require("./sqlStatement/bugSql");
 var BugSql = new  bugSql();
 //const DEBUG = true;
 var async = require('async');
+var taskSql = require("./sqlStatement/taskSql");
+var TaskSql = new taskSql();
 exports.searchProject = function( taskInfo , callback){
     pool.getConnection(function (err, connection) {
         var sql = "SELECT * FROM project where projectId = ?";
@@ -1033,6 +1035,21 @@ exports.searchAllBugs = function(userId, callback){
             }
             connection.release();
             callback('success',result);
+        });
+    });
+}
+
+exports.searchTaskFiles = function(taskId,callback){
+    pool.getConnection(function(err,connection){
+        var sql = TaskSql.findFiles;
+        var params = [taskId];
+        connection.query(sql,params,function(err,result){
+            if(err){
+                console.error("SEARCHTASKFILES ERR!!!",err);
+                return callback("err");
+            }
+            return callback("success",result);
+
         });
     });
 }

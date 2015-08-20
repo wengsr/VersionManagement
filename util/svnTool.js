@@ -317,11 +317,9 @@ Svn.prototype.svnExists = function(filePath,versionDir,svnMessage,callback){
 Svn.prototype.commitChangeRar = function(filePath,oldPath,fileName,newName,versionDir,svnMsg,callback){
     var localFile = filePath +fileName;
     var that = this;
-    if(!fs.existsSync(oldPath+fileName)){
-        console.log(oldPath+fileName,"不存在！！");
-        return;
+    if(!fs.existsSync(filePath+newName)){
+        fs.renameSync(filePath+fileName,filePath+newName);
     }
-    fs.renameSync(filePath+fileName,filePath+newName);
     that.commitRar(filePath,fileName,newName,svnMsg,function(com_msg,data){
         if(com_msg =="success"){
             console.log("commit "+ newName + "successful."+data);
@@ -329,7 +327,7 @@ Svn.prototype.commitChangeRar = function(filePath,oldPath,fileName,newName,versi
         }
         else{
             console.error("commit "+ newName + "  err."+data);
-            return callback("err");
+            return callback("err","提交变更单至svn 出错！");
         }
     });
 }

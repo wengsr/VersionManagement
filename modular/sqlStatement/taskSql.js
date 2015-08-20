@@ -16,6 +16,10 @@ var TaskSql = function(){
     this.testNameUsed ="select * from tasks t" +
     "   where  t.taskName = ? and t.processStepId < 7";
     var testNameUsed_params = "[taskName]";
+
+    this.findFiles = "select t.taskCode ,fl.fileUri  from tasks t join filelist  fl " +
+    "   on t.taskid = ? and t.taskid = fl.taskid and fl.state = 0 "
+    var findFiles_params = "[taskId]"
 }
 
 module.exports = TaskSql;

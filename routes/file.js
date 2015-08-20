@@ -10,6 +10,15 @@ var UPLOAD_FOLDER = './attachment';
 var CHECK_REPORT_UPLOAD_FOLDER = '/check_report/';
 var CHECK_REPORT_UPLOAD_FOLDER2 = '/newAndOld/';
 var CHECK_REPORT_UPLOAD_FOLDER3 = '/test_report/';
+var TaskDao = require("../modular/taskDao");
+var process = require('process');
+var OLDDIR =process.cwd()+"/temp/newAndOld/";
+var SVNOLDDIR =process.cwd()+ "/old/";
+var CMPOld = "/old2/";
+var Compare = require("./util/compare.js");
+var url = require('url');
+var CmdExc = require('../util/cmdExcTool');
+
 
 /**
  * 文件上传成功失败信息返回
@@ -181,5 +190,84 @@ router.post('/unpassTesting', function(req, res) {
  */
 router.post('/testReportByCreater', function(req, res) {
     fileUp(req, res, CHECK_REPORT_UPLOAD_FOLDER3);
+});
+
+/**
+ * 比对旧文件
+ */
+var compareOld = function(taskId,oldDir,oldDir2,excPath,callback){
+    TaskDao.searchTaskFiles(taskId,function(msg,result){
+       if(msg == "err"){
+            return callback("err","查找文件信息出错，请联系管理员！");
+       }
+         if(msg=="success"){
+            if(result.length>0){//存在old.zip ，即有修改文件和压缩文件
+                var cmpPath = oldDir +result[0].taskCode +"/old/";//"./temp/newAndOld/old/"
+                var cmpPath2 = oldDir + result[0].taskCode +excPath;//"./temp/newAndOld/taskCode/old2/"
+                var svnOldPath = oldDir2 + result[0].taskCode +"/old.zip";//"./old/taskCode/old.zip"
+                if(!(fs.existsSync(cmpPath))){
+                    console.error("File Path is not exists ")
+                    return callback("err","文件路径不存在！请联系管理员");
+                }
+                if(!(fs.existsSync(svnOldPath))){
+                    console.error(" old.zip  is not exists ")
+                    return callback("err","old.zip 不存在！");
+                }
+                if(!fs.existsSync(cmpPath2)){//首次比对解压从svn提取的old.zip
+                    fs.mkdirSync(cmpPath2);
+                    CmdExc.extractRar(svnOldPath,cmpPath2,function(flag){
+                        console.log("cmpPath2:",svnOldPath,"   ",cmpPath2);
+                        if(flag ==="false"){
+                            console.log("extractRar:解压失败");
+                            console.error("extractRar：FAIL ")
+                            return   callback("err","解压失败");
+                        }
+                        else{//解压成功
+                            Compare.compareDir(cmpPath,cmpPath2,function(msg_cmp){
+                                var massage ;
+                                if(msg_cmp == "same"){
+                                    massage = "一致";
+                                }
+                                else if(msg_cmp == "diff"){
+                                    console.error("diff: files is different, please compare manually !")
+                                    massage = "文件不一致,请手工比对确认";
+                                }
+                                return  callback("success",massage);
+                            });
+                        }
+                    });//解压变更单
+                }
+                else {//非首次比对，无需解压
+                    Compare.compareDir(cmpPath,cmpPath2,function(msg_cmp){
+                        console.log("compareFile:",cmpPath,"  ",cmpPath2);
+                        var massage ;
+                        if(msg_cmp == "same"){
+                            massage = "一致";
+                        }
+                        else if(msg_cmp == "diff"){
+                            console.error("diff: files is different, please compare manually ")
+                            massage = "文件不一致,请手工比对确认";
+                        }
+                        return  callback("success",massage);
+                    });
+                }//非首次比对，无需解压
+            }
+            else {//不存在old.zip:即没有修改文件和删除文件
+                return  callback("success","一致");
+            }
+        }
+    });
+}
+/**
+ * 比对旧文件
+ */
+router.post('/compareOld', function(req, res) {
+    var taskId = req.body.taskId;
+    compareOld(taskId,OLDDIR,SVNOLDDIR,CMPOld,function(msg,result){
+        var queryObj = url.parse(req.url,true).query;
+        var jsonStr;
+        jsonStr = '{"sucFlag":"'+msg+'","message":"【文件比对】结果：'+result+'"}';
+        return  res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+    });
 });
 module.exports = router;

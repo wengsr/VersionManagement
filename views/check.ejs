@@ -76,11 +76,11 @@
                         <!--</div>-->
 
                         <label for="inputTaskList" class="col-sm-2 control-label">已上传的走查报告</label>
-                        <div class="col-sm-3" style="margin-top:8px">
+                        <div class="col-sm-5" style="margin-top:8px">
                             <span><a id="a_reportAtta" href="<%=reportAtta.fileUri%>"><%=reportAtta.fileName%></a></span>
                         </div>
                         <%if(!reportAtta.attachmentId){%>
-                        <div id="btnSelectReport"  class="col-sm-7" style="width: 90px;margin-left: -56px;">
+                        <div id="btnSelectReport"  class="col-sm-3" style="width: 90px;margin-left: -56px;">
                             <span class="btn btn-success fileinput-button">
                                 <i class="glyphicon glyphicon-plus"></i>
                                 <span>选择报告</span>
@@ -88,7 +88,12 @@
                             </span>
                         </div>
                         <%}%>
+                        <div id="btnCompareDiv"  class="col-sm-2 " style="float:right">
+                            <button id = "btnCompareOld"  type="button" class="btn btn-primary">比对旧文件</button>
+                        </div>
+                        <div id="compareTxt" style="color: #dddddd;; float:right">（自动比对变更单的old和系统中提取的old）</div>
                     </div>
+
                     <div class="form-group" id="assignCheckDiv">
                         <label for="inputTaskList" class="col-sm-2 control-label">指定走查人员</label>
                         <div class="col-sm-3">

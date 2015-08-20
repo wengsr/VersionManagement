@@ -22,7 +22,7 @@ function getFilesUri(str){
         var tmp;
         //tmp = str[i].match(/[\/a-zA-Z0-9_\/]+[.a-zA-Z0-9_]+/g);
         //tmp = str[i].match(/[\/]?([a-zA-Z0-9_\/])*[a-zA-Z0-9_\-]+([.][a-zA-Z0-9_]+)+/g);
-        var tmp = str[i].match(/[\/]?([a-zA-Z0-9])+([a-zA-Z0-9_\/.])*[a-zA-Z0-9_\-]+([.][a-zA-Z0-9_]+)+/g);
+        var tmp = str[i].match(/[\/]?([a-zA-Z0-9])+([a-zA-Z0-9_\-\/.])*[a-zA-Z0-9_\-]+([.][a-zA-Z0-9_]+)+/g);
         if(  tmp!=null){
             str[i] = tmp.toString();
             if(str[i][0]!='/'){
@@ -1550,6 +1550,13 @@ router.post('/extractFile', function(req, res) {
             if (oldFiles.length == 0) {
                message = "【提取旧文件】没有文件需要提取";
                 dao.extractFile(taskId,userId,3,undefined,undefined,function (msg, result) {
+                    var localDir = process.cwd() + '/old/'+taskCode+'/';
+                    while(localDir.indexOf('\\')!=-1) {
+                        localDir = localDir.replace('\\', '/');
+                    }
+                    if (!fs.existsSync(localDir)) {
+                        fs.mkdir(localDir);
+                    }
                     if ('success' == msg) {
                         var userFlag = false;
                         jsonStr = '{"sucFlag":"success","message":"【提取文件】执行成功，没有文件需要提取"}';
