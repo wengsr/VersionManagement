@@ -38,11 +38,12 @@ Svn.prototype.propget = function(params,callback) {
     this.client.propget(params, function (err, data) {
         if (err) {
             console.log("no exist:", data);
-            return callback("err");
             console.log('propget: err');
+            return callback("err");
+
         }
         console.log('propget:success');
-        callback("success");
+       return   callback("success");
     });
 }
 /**
@@ -87,7 +88,6 @@ Svn.prototype.checkout = function (localDir, versionDir, fileList, callback) {
                 });
             };
             checkoutProcess(fileList);
-
         }
     });
 };
@@ -134,11 +134,19 @@ Svn.prototype.autoUpload = function(taskName, localDir, delFileList, callback) {
             console.log('删除本地SVN文件成功');
             //3.修改(包括新增)
             client.addLocal(function (modifyErr, modifyData) {
-                if (modifyErr) return callback('err', modifyErr);
+                if (modifyErr){
+                    console.log("文件增加失败！",addErr);
+                    return callback('err', modifyErr);
+                }
                 console.log('修改本地SVN文件成功');
                 //4.提交变动到SVN服务器
                 client.commit(['【版本管理系统】--自动上库:' + taskName, './'], function (uploadErr, uploadData) {
-                    if (uploadErr) return callback('err', uploadErr);
+                    if (uploadErr) {
+                        if(uploadErr.errorString&&(uploadErr.errorString.indexOf("svn: E175002")!=-1)&&(uploadErr.errorString.indexOf("svn: E175002")!=-1)) {
+                            console.log("errorString mkcol:",true);
+                        }
+                        return callback('err', uploadErr);
+                    }
                     console.log('文件提交SVN服务器成功!');
                     return callback('success', uploadData);
                 });
@@ -210,16 +218,16 @@ var process = require("process");
 Svn.prototype.mkdir = function( localDir, fileName,svnUri, message,callback) {
     this.client.option('cwd', localDir);
     var client   = this.client;
-    console.log("committing svnUri ",svnUri);
-    console.log("committing localDir ",localDir);
-    console.log("committing file ",fileName);
-    console.log("msg :",message);
+    //console.log("committing svnUri ",svnUri);
+    //console.log("committing localDir ",localDir);
+    //console.log("committing file ",fileName);
+    //console.log("msg :",message);
     client.mkdir(['【版本管理系统】--自动创建:' + message, svnUri+fileName], function (uploadErr, uploadData) {
         if(uploadErr){
             console.log("mkdir err:",uploadData);
             return callback('err',uploadErr);
         }
-        console.log('文件提交SVN服务器成功!');
+        console.log('上传变更单附件：创建svn文件夹成功!');
         return callback('success',uploadData);
     });
 
@@ -275,20 +283,17 @@ Svn.prototype.svnExists = function(filePath,versionDir,svnMessage,callback){
     if(!fs.existsSync(filePath)) {
         var that = this;
         var newPath = getLastPath(filePath);
-        //var versionDir = "http://192.168.1.22:8000/svn/hxbss/testVersion/a/";
-        console.log("parent:", newPath.parentPath, "lastPath:", newPath.lastPath);
         that.mkdir(newPath.parentPath,newPath.lastPath,versionDir,newPath.lastPath+svnMessage,function(msg,data){
             if(msg =="success") {
                 console.log("mkdir " + newPath.lastPath + "successful." + data);
                 //console.log("mkdir direction:", path.relative('./', 'E:/VersionManagement_server/bin/attachment/'));
                 that.checkout(process.cwd()+"/attachment/changeRar/"+newPath.lastPath, versionDir+newPath.lastPath, [], function (err, data) {
-                    console.log("checkout:",filePath,"   ",versionDir+newPath.lastPath);
                     if (!!err) {
-                        console.log("取文件失败" + err);
+                        console.log("提取变更单文件夹至本地失败" + err);
                         return  callback("err",data);
                     }
                     else {
-                        console.log("取文件成功" + data);
+                        console.log("提取变更单文件夹至本地成功" + data);
                         return  callback("success");
                     }
                 });

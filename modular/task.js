@@ -1465,11 +1465,11 @@ Task.findTaskByParam = function(userId,projectId,state,processStepId,taskcode,ta
             params_count.push(endTime);
         }
         if(startNum){
-            sql = sql + ' ORDER BY selectTable.taskcode DESC limit ?,30 ';
+            sql = sql + ' ORDER BY selectTable.execTime DESC limit ?,30 ';
             params.push(startNum+1);
         }
         else{
-            sql = sql + ' ORDER BY selectTable.taskcode DESC limit 30 ';
+            sql = sql + ' ORDER BY selectTable.execTime DESC limit 30 ';
         }
         connection.query(sql_count,params_count,function(err,count){
             if (err) {
@@ -1767,12 +1767,12 @@ Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode
             params_count.push(endTime);
         }
         if(startNum) {
-            sql = sql + ' ORDER BY selectTable.taskcode  limit ?,30';
+            sql = sql + ' ORDER BY selectTable.execTime DESC limit ?,30';
             params.push(startNum+1);
             console.log("startNum",startNum);
         }
         else{
-            sql = sql + ' ORDER BY selectTable.taskcode DESC  limit 30';
+            sql = sql + ' ORDER BY selectTable.execTime DESC  limit 30';
         }
 
         connection.query(sql_count,params_count,function(err,count){

@@ -62,7 +62,15 @@ Date.prototype.format = function(format){
     }
     return format;
 }
-
+var getModFileNum= function(fileAndState){
+    var num = 0;
+    for(var j=0 ; j<filesAndState.length ;j++) {
+        if (filesAndState[j].state == 0) {
+            num++;
+        }
+    }
+    return num;
+}
 var express = require('express');
 var router = express.Router();
 var Task = require('../modular/task');
@@ -85,6 +93,7 @@ var NEW_OLD_FOLDER = './attachment/newAndOld';  //开发人员上传的新旧附
 var SVN_USER = "cmsys";
 var SVN_PWD = "717705";
 var SCAN_PATH;                                  //【自动上库】时检查新旧文件或文件夹是否相同路径
+var Compare =  require("./util/compare")
 /**
  * 判断svn上存在该文件
  * @params files 文件名数组
@@ -1459,6 +1468,20 @@ router.post('/submitFile', function(req, res) {
                             return ;
                         }
                     }
+                    var modFileNum = getModFileNum(filesAndState);
+                    if(modAndDelete.length != modFileNum){//比较数据库中的修改文件和提交的文件中的是否一致
+                        console.log("附件中的修改文件与申请文件清单的不一致,modFileNum:",modFileNum);
+                        var message = "附件中的修改文件与申请文件清单的不一致!";
+                        jsonStr = '{"sucFlag":"err","message":"'+message+'"}';
+                        var queryObj = url.parse(req.url, true).query;
+                        res.send(queryObj.callback + '(\'' + jsonStr + '\')');
+                        dao.delNewAndOld(taskId,3,function(msg){
+                            if(msg =="err"){
+                                console.log("delNewAndOld err:");
+                            }
+                        });
+                        return ;
+                    }
                     modAndDelete=modAndDelete.concat(delFiles);
                     var existFlag=true;
                     var noExistFlag =true;
@@ -2083,6 +2106,10 @@ router.post('/autoUpload', function(req,res) {
     //1.2获取要删除的文件清单
     var delTaskList = req.body['delTaskList'];
     var delFileList = delTaskList.split('\n');
+    var addTaskList = req.body['addTaskList'];
+    var addFileList = addTaskList.split('\n');
+    var modTaskList = req.body['modifyTaskList'];
+    var modFileList = modTaskList.split('\n');
     //1.3获取上传的附件名
     var a_attaFile = req.body['a_attaFile'];
     var attaFileArr = a_attaFile.split('%2Fattachment%2FnewAndOld%2F');
@@ -2142,6 +2169,12 @@ router.post('/autoUpload', function(req,res) {
                         //4.提交变更单到SVN!
                         svn.autoUpload(taskName, localDir, delFileList,function(isSuccess,result){//除了被删除的文件，目录下的所有文件将被提交
                             if('success' != isSuccess){
+                                if(result.errorString&&(result.errorString.indexOf("svn: E175002")!=-1)&&(result.errorString.indexOf("MKCOL")!=-1)){
+                                    return returnJsonMsg(req, res, "err", "自动上库过程出现错误,请“更新svn信息再上传”");
+                                }
+                                if(result.errorString&&(result.errorString.indexOf("svn: E170004")!=-1)&&(result.errorString.indexOf("is out of date")!=-1)){
+                                    return returnJsonMsg(req, res, "err", "出错，存在冲突文件,请手动上库后点击【上库完成】");
+                                }
                                 return returnJsonMsg(req, res, "err", "自动上库过程出现错误，请手动上库后点击【上库完成】");
                             }
                             //5.提交SVN成功，改变当前这条变更单记录的状态为“自动上库成功”
@@ -2164,6 +2197,100 @@ router.post('/autoUpload', function(req,res) {
                 }
             });
         });
+    });
+});
+
+/**此次的提交是基于变更文件中包含新增文件，且失败提交过至少一次，文件夹的解压缩就可舍去。目的在于更新.svn**/
+router.post('/updateSvnAndCommit', function(req,res) {
+    getCookieUser(req, res);
+    //1.获取参数
+    //1.1获取普通参数
+    var taskId = req.body['taskId'];
+    var userId = req.session.user.userId;
+    var nextDealer = req.body['nextDealer'];
+    var taskCode = req.body['taskCode'];
+    var taskName = req.body['taskName'];
+    //1.2获取要删除的文件清单
+    var delTaskList = req.body['delTaskList'];
+    var delFileList = delTaskList.split('\n');
+    var addTaskList = req.body['addTaskList'];
+    var addFileList = addTaskList.split('\n');
+    if(addTaskList==""){
+        return returnJsonMsg(req, res, "err", "无需更新svn信息，请手动上库后点击【上库完成】");
+    }
+    var modTaskList = req.body['modifyTaskList'];
+    var modFileList = modTaskList.split('\n');
+    //1.3获取上传的附件名
+    var a_attaFile = req.body['a_attaFile'];
+    var projectUri = req.body["projectUri"];
+    var attaFileArr = a_attaFile.split('%2Fattachment%2FnewAndOld%2F');
+    var attaFile = attaFileArr[1];
+    attaFile = attaFile.replace('%2E','.');
+    //2.到新旧附件目录下找到前面步骤开发人员上传的变更单文件(如果严谨，这里还要判断变更单号是否为空)
+    var oldRar = OLD_FOLDER + '/' + taskCode + '/old.zip';  //系统自动提取的压缩文件
+    var oldSvnDown = OLD_FOLDER + '/' + taskCode + '/oldSvnDown';//该目录下仅存放svn自动提取的文件
+    var newOldFile = NEW_OLD_FOLDER + '/' + attaFile;       //开发人员上传的新旧文件的压缩文件
+    var localDir = OLD_FOLDER + '/' + taskCode + '/upFolder';
+    var svnFolder = OLD_FOLDER + '/' + taskCode;
+    var tempFolder = OLD_FOLDER + '/tempFolder/';
+    deleteFolderRecursive(tempFolder);
+    mkdirsSync(tempFolder);
+    //console.log(fs.existsSync(localDir + "/.svn"));
+    //if(!fs.existsSync(localDir + "/.svn")){
+    //    returnJsonMsg(req, res, "err", "请直接尝试【自动上库】");
+    //}
+    deleteFolderRecursive(localDir+"/.svn");
+    mkdirsSync(localDir+"/.svn");
+    dao.getSvnUser(function(msg,result_svn) {
+        if (msg === "err") {
+            console.log("【svn账号查找出错】",err.message);
+            returnJsonMsg(req, res, "err", "【svn账号错误】请联系管理员！！");
+        }
+        else if (msg = "success") {
+            var option = result_svn;
+            console.log("svn  options;", option);
+            svn = new Svn(option);
+            Compare.getCheckFiles(modFileList,addFileList,projectUri,function(msg){
+                svn.checkout(tempFolder,projectUri,msg,function(err,flag){
+                    if(err){
+                        console.error("getCheckFiles <<< checkout ERRR!!!!",err);
+                        return returnJsonMsg(req, res, "err", "更新svn信息出错!");
+                    }
+                    console.log("getCheckFiles checkout files success!!!");
+                    copy(tempFolder+"/.svn", localDir+"/.svn");//拷贝对应的.svn文件夹到upFolder文件夹下
+                    //3.到数据库中查找【系统】用户
+                    findSys(function(isSuc, sysUser){
+                        if('success' != isSuc){
+                            return returnJsonMsg(req, res, "err", "查找【系统】用户出错，请手工上库!");
+                        }
+
+                        console.log("自动上库成功,请上SVN库确认无误后点击【上库完成】");
+                        //4.提交变更单到SVN!
+                        svn.autoUpload(taskName, localDir, delFileList,function(isSuccess,result){//除了被删除的文件，目录下的所有文件将被提交
+                            if('success' != isSuccess){
+                                return returnJsonMsg(req, res, "err", "自动上库过程出现错误，请手动上库后点击【上库完成】");
+                            }
+                            //5.提交SVN成功，改变当前这条变更单记录的状态为“自动上库成功”
+                            autoComp(req, taskId, function(isSuc, errMsg){
+                                if(isSuc!='success'){
+                                    return returnJsonMsg(req, res, "err", errMsg);//状态修改为“自动上库成功”时出错
+                                }
+                                returnJsonMsg(req, res, "success", "自动上库成功,请上SVN库确认无误后点击【上库完成】");
+                            });
+
+                            //                //5.提交SVN成功，记录相关信息到数据库中
+                            //                uploadToDB(req, taskId, sysUser.userId, function(isSucToDB){//记录上库成功信息到数据库中
+                            //                    if(!isSucToDB){
+                            //                       return returnJsonMsg(req, res, "err", "代码更新SVN成功。记录数据库过程出错，请联系系统管理员！");
+                            //                    }
+                            //                    returnJsonMsg(req, res, "success", "自动上库成功,请上SVN库确认无误后点击【上库完成】");
+                            //                });
+                        });
+                    });
+                });
+            });
+
+        }
     });
 });
 

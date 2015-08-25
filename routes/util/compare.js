@@ -5,6 +5,7 @@ var exec = require('child_process').exec;
 var process = require("process");
 var fs = require("fs");
 //console.log("cwd:",process.cwd());
+var svnTool = require("../../util/svnTool");
 var comParams = "";
 /**
  * 比较两个文件的是否相同
@@ -44,6 +45,39 @@ function scanFoldForUri(path,rootParentPath){
         'fileUris': fileUris
     }
 }
+/**
+ * 获取file的所有父级路径
+ * @param file
+ * @returns {{files: Array, folders: Array}}
+ *
+ */
+function getFileParentPath(file){
+    while(file.indexOf('\\')!=-1){
+        file = file.replace('\\', '/');
+    }
+    if(file.indexOf("/")== -1){
+        return  {'files': [file],
+            'fileUris': [file]
+        }
+    }
+    var fileName = file.substring(file.lastIndexOf("/"),file.length);
+    var fileList = [file],
+        fileUris = [file],
+        walk = function(file, fileUris){
+               var filePath = file.substring(0,file.lastIndexOf("/"));
+               if(filePath  == ""){
+                  return  ;
+               }
+              fileUris.push(filePath);
+              walk(filePath,fileUris);
+        };
+    walk(file,fileUris);
+    //console.log("scanFoldForUri",fileUris);
+    return {
+        'files': fileList,
+        'fileUris': fileUris
+    }
+}
 
 compareFile =function(file,file2,callback){
     var params = "fc  "+file+"  "+file2 +" "+comParams;
@@ -69,8 +103,8 @@ compareFile =function(file,file2,callback){
 exports.compareDir = function(dir,dir2,callback){
     var files = scanFoldForUri(dir,dir).fileUris;
     var files2 = scanFoldForUri(dir2,dir2).fileUris;//已排序
-    console.log("files:",files);
-    console.log("files2:",files2);
+    //console.log("files:",files);
+    //console.log("files2:",files2);
     var fileNum = files.length;
     var  stats = fs.statSync(dir);
     if((fileNum != files2.length)||stats.size!=fs.statSync(dir2).size){
@@ -97,9 +131,7 @@ exports.compareDir = function(dir,dir2,callback){
        });
     };
     compareSync(files,files2);
-    //if(i == fileNum){
-    //    return "same";
-    //}
+
 }
 //exec('fc ..\\excel.js  ..\\file.js  /a /c /n',
 //    function (error, stdout, stderr) {
@@ -118,8 +150,86 @@ exports.compareDir = function(dir,dir2,callback){
 
 //var dir1 ="D:\\变更单\\变更单\\2015-08\\NCRM开发变更单-XJ-20150813-新疆辅助功能需求变更-chenfy-0001\\new\\trunk"
 //var dir2 ="D:\\变更单\\变更单\\2015-08\\NCRM开发变更单-XJ-20150813-新疆辅助功能需求变更-chenfy-0001\\new2\\trunk"
-var dir1 ="E:/VersionManagement_server/bin/temp/newAndOld/crm某某工程1_20150807_062/old/"
-var dir2 ="E:/VersionManagement_server/bin/temp/newAndOld/crm某某工程1_20150807_062/old2/"
+//var dir1 ="E:/VersionManagement_server/bin/temp/newAndOld/crm某某工程1_20150807_062/old/"
+//var dir2 ="E:/VersionManagement_server/bin/temp/newAndOld/crm某某工程1_20150807_062/old2/"
+
+/**
+* 判断当前文件路径在svn上最短不存在路径；如：trunk\local\XJ_TRUNK\BizHall\src\main\java\com\al\crm\bizhall\remoteinvoke\adapter\test\test.java
+*                                           svn 存在trunk\local\XJ_TRUNK\BizHall\src\main\java\com\al\crm\bizhall\remoteinvoke\adapter\
+*                                           则返回：trunk\local\XJ_TRUNK\BizHall\src\main\java\com\al\crm\bizhall\remoteinvoke\adapter\test\
+* @param file
+* @param versionDir
+* @returns {string}
+*/
+compareSvnDir = function(svn,file,versionDir,callback){
+    var paths = getFileParentPath(file).fileUris;
+    var pathNum = paths.length;
+    var i = 0;
+    var that = this;
+    var compareSync = function(paths,versionDir){
+        if(i == pathNum){
+            return callback(paths[i-1]);
+        }
+        var filePath = versionDir +"/"+ paths[i] ;
+        svn.propget(filePath,function(msg){
+            //console.log("proget:",filePath)
+            if(msg == "success"){
+                if(i== 0){//当前文件路径如果存在，返回空（判断新增文件的，正常情况下不会出现
+                    return callback([]);
+                }
+                return callback(paths[i-1]);
+            }
+            else if(msg == "err"){
+                i++;
+                compareSync(paths,versionDir);
+            }
+        });
+    }
+    return  compareSync(paths,versionDir);
+}
+exports.getCheckFiles = function(svn,modFiles,addFiles,versionDir,callback){
+    var allFiles = [];
+    if(modFiles.length){
+        allFiles = modFiles;
+    }
+    var allLength = allFiles.length;
+    addFiles.sort();
+    var addLength = addFiles.length;
+    var i = 0;
+    var getAllPath = function(addFiles,versionDir, callback){
+      compareSvnDir(svn,addFiles[i],versionDir, function(result){
+           if(result != allFiles[allLength -1]&&(result.length != 0)){
+               allFiles.push(result);
+               allLength++;
+           }
+           i++;
+           if(i==addLength){
+               return callback("succes") ;
+           }
+           getAllPath(addFiles,versionDir, callback);
+       });
+     }
+    getAllPath(addFiles,versionDir,function(msg){
+        console.log("getAllPaths :",allFiles);
+        callback(allFiles);
+    })
+}
 //exports.compareDir(dir1,dir2,function(msg){
 //    console.log(msg);
 //});
+
+//
+//var file = "/trunk/service/SoManager/src/main/java/com/al/crm/so/save/smo/impl/SoSaveSMOImpl.java";
+//var versionDir = "http://192.168*****/svn/hxbss/NCRM/baseLine/Source/";
+// exports.compareSvnDir(file,versionDir,function(result){
+//    console.log("noexist parent path:",result);
+//});
+//var modFiles =["/SaleWeb/src/main/java/com/al/crm/sale/main/view/main.html",
+//    "/trunk/local/YN_TRUNK/SaleWeb/src/main/java/com/al/crm/sale/choosechannel/view/chooseChannel.html"];
+//var addFiles =["/trunk/service/SoManager/src/main/java/com/al/crm/so/save/smo/impl1/testSoSaveSMOImpl.java",
+//"/trunk/common/CrmResourceManager/src/main/java/com/al/crm/resource/smo/IdddRscServiceQuerySMO.java",
+//"/trunk/service/SoManager/src/main/java/com/al/crm/so/save/smo/impl1/tdddestSoSaveSMOImpl.java"]
+//exports.getSvnInfo(modFiles,addFiles,versionDir,function(result){
+//      console.log("allfilePath:",result);
+//});
+//console.log(getFileParentPath("path4/path3/testC.txt"));
