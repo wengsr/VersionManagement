@@ -283,10 +283,8 @@ Svn.prototype.svnExists = function(filePath,versionDir,svnMessage,callback){
     if(!fs.existsSync(filePath)) {
         var that = this;
         var newPath = getLastPath(filePath);
-        that.mkdir(newPath.parentPath,newPath.lastPath,versionDir,newPath.lastPath+svnMessage,function(msg,data){
-            if(msg =="success") {
-                console.log("mkdir " + newPath.lastPath + "successful." + data);
-                //console.log("mkdir direction:", path.relative('./', 'E:/VersionManagement_server/bin/attachment/'));
+        that.propget(versionDir+newPath.lastPath,function(msg){
+            if(msg == "success"){
                 that.checkout(process.cwd()+"/attachment/changeRar/"+newPath.lastPath, versionDir+newPath.lastPath, [], function (err, data) {
                     if (!!err) {
                         console.log("提取变更单文件夹至本地失败" + err);
@@ -299,9 +297,28 @@ Svn.prototype.svnExists = function(filePath,versionDir,svnMessage,callback){
                 });
             }
             else{
-                console.error("mkdir "+ newPath.lastPath + "   err."+data);
-                return callback("err",data);
+                that.mkdir(newPath.parentPath,newPath.lastPath,versionDir,newPath.lastPath+svnMessage,function(msg,data){
+                    if(msg =="success") {
+                        console.log("mkdir " + newPath.lastPath + "successful." + data);
+                        //console.log("mkdir direction:", path.relative('./', 'E:/VersionManagement_server/bin/attachment/'));
+                        that.checkout(process.cwd()+"/attachment/changeRar/"+newPath.lastPath, versionDir+newPath.lastPath, [], function (err, data) {
+                            if (!!err) {
+                                console.log("提取变更单文件夹至本地失败" + err);
+                                return  callback("err",data);
+                            }
+                            else {
+                                console.log("提取变更单文件夹至本地成功" + data);
+                                return  callback("success");
+                            }
+                        });
+                    }
+                    else{
+                        console.error("mkdir "+ newPath.lastPath + "   err."+data);
+                        return callback("err",data);
+                    }
+                });
             }
+
         });
     }
     else{
@@ -337,5 +354,17 @@ Svn.prototype.commitChangeRar = function(filePath,oldPath,fileName,newName,versi
     });
 }
 
+
 module.exports = Svn;
 /********测试案例*********/
+//var localDir = "D:/test/test4/";
+//var localDir = "D:/变更单/变更单/2015-08/NCRM开发变更单-XJ-20150815-订单资源释放-jinsh3-001/new";
+//var msg = "【版本管理系统】--自动上库:NCRM开发变更单-XJ-20150815-订单资源释放-jinsh3-001";
+//test.autoUpload(msg, localDir,[],function(isSuccess,result){//除了被删除的文件，目录下的所有文件将被提交
+//    if('success' != isSuccess){
+//        console.log("autoUpload ERR!")
+//    }
+//    if('success'== isSuccess){
+//        console.log("autoUpload success!")
+//    }
+//});

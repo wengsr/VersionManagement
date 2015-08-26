@@ -26,6 +26,6 @@
         "nodemailer": "^1.2.1",
         "archiver":"0.14.3",
         "excel-export":"0.4.1",
-       "process":"latest"
+        "process":"latest"
     }
 }

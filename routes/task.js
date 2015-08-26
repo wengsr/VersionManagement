@@ -64,8 +64,8 @@ Date.prototype.format = function(format){
 }
 var getModFileNum= function(fileAndState){
     var num = 0;
-    for(var j=0 ; j<filesAndState.length ;j++) {
-        if (filesAndState[j].state == 0) {
+    for(var j=0 ; j<fileAndState.length ;j++) {
+        if (fileAndState[j].state == 0) {
             num++;
         }
     }
@@ -1470,7 +1470,7 @@ router.post('/submitFile', function(req, res) {
                     }
                     var modFileNum = getModFileNum(filesAndState);
                     if(modAndDelete.length != modFileNum){//比较数据库中的修改文件和提交的文件中的是否一致
-                        console.log("附件中的修改文件与申请文件清单的不一致,modFileNum:",modFileNum);
+                        console.log("附件中的修改文件与申请文件清单的不一致,modFileNum:",modFileNum," ",modAndDelete);
                         var message = "附件中的修改文件与申请文件清单的不一致!";
                         jsonStr = '{"sucFlag":"err","message":"'+message+'"}';
                         var queryObj = url.parse(req.url, true).query;
@@ -2250,7 +2250,7 @@ router.post('/updateSvnAndCommit', function(req,res) {
             var option = result_svn;
             console.log("svn  options;", option);
             svn = new Svn(option);
-            Compare.getCheckFiles(modFileList,addFileList,projectUri,function(msg){
+            Compare.getCheckFiles(svn,modFileList,addFileList,projectUri,function(msg){
                 svn.checkout(tempFolder,projectUri,msg,function(err,flag){
                     if(err){
                         console.error("getCheckFiles <<< checkout ERRR!!!!",err);
