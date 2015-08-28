@@ -35,6 +35,21 @@ function getFilesUri(str){
     }
     return str;
 }
+var isDiffArr = function(Arr1,Arr2){
+    var length1 = Arr1.length;
+    var length2 = Arr2.length;
+    if(length1 != length2){
+        return false;
+    }
+    Arr1.sort();
+    Arr2.sort();
+    for(var i= 0;i<length1;i++){
+        if(Arr1[i]!=Arr2[i]){
+            return false;
+        }
+    }
+    return true;
+}
 /**
  * 日期格式化 yyyy-MM—dd HH-mm-ss
  * @param format
@@ -1541,7 +1556,6 @@ router.post('/submitFile', function(req, res) {
                     })
                 }
             });
-
         })
 });
 /**
@@ -2148,7 +2162,7 @@ router.post('/autoUpload', function(req,res) {
             var compResult = compFolder(svnFolder+'/oldSvnDown', svnFolder+'/extractRarFolder/new');
             //发送数据变更单给相应人员
             sendSqlAttachmentToDB(req,taskId,svnFolder+'/extractRarFolder/');
-            if('same' != compResult.msg){
+            if(('same' != compResult.msg )&&isDiffArr(compResult.diff,delFileList)){
                 return returnJsonMsg(req, res, "err", "旧文件或文件夹在new文件夹中不存在，请手动上库！涉及文件：" + compResult.diff);
             }
             //到数据库查找svn 账号
