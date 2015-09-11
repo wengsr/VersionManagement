@@ -318,7 +318,7 @@ var openTask = function(stepName, req, res, callback){
                                                             reportAtta: reportAtta,
                                                             testReportAtta: testReportAtta,
                                                             preTestAtta:preTestInfo.preTestAtta,
-                                                            preTestReason:preTestInfo.preTestReason.reason
+                                                            preTestReason:preTestInfo.preTestReason
                                                         });
                                                     });
 

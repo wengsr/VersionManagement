@@ -81,6 +81,8 @@ function fileUp(req, res, secFolder){
 
     form.parse(req, function(err, fields, files) {
         //获取页面上隐藏域中的值和文件的名称和路径
+        console.log("fileUp,fields:",fields);
+       console.log("files:",files);
         var taskId = fields.taskId;
         var processStepId = fields.processStepId;
         var reportName = files.fulAvatar.name;
