@@ -493,6 +493,100 @@ TaskTest.findAllTestTaskByParam = function(searchConds,startNum,callback){
             console.log('[CONN TASKS ERROR] - ', err.message);
             return callback(err);
         }
+        //var sql_count = "SELECT" +
+        //    "              count(selectTable.taskid) as count" +
+        //    "            FROM" +
+        //    "            (" +
+        //    "                SELECT" +
+        //    "        taskTable2.*, oU2.realName AS createrName" +
+        //    "        FROM" +
+        //    "        (" +
+        //    "            SELECT" +
+        //    "        taskTable.*, oU.realName AS dealerName ,oTps.execTime" +
+        //    "        FROM" +
+        //    "        (" +
+        //    "            SELECT DISTINCT" +
+        //    "        t.*, ps.processStepName AS stepName" +
+        //    "        FROM" +
+        //    "        tasks t" +
+        //    "        JOIN processstepdealer psd ON psd.projectId = t.projectId" +
+        //    "        JOIN processstep ps ON ps.processStepId = t.processStepId" +
+        //    "        AND t.projectId IN (" +
+        //    "           SELECT projectId from testertoproject where  userid =   ?" +
+        //    "        )" +
+        //    "        ) taskTable" +
+        //    "        JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid" +
+        //    "        AND oTps.turnNum IN (" +
+        //    "            SELECT" +
+        //    "        MAX(turnNum)" +
+        //    "        FROM" +
+        //    "        taskprocessstep maxtps2" +
+        //    "        WHERE" +
+        //    "        maxtps2.taskId = taskTable.taskid" +
+        //    "        )      AND oTps.testNum IN (" +
+        //    "            SELECT" +
+        //    "        MAX(testNum)" +
+        //    "        FROM" +
+        //    "        taskprocessstep maxtps3" +
+        //    "        WHERE" +
+        //    "        maxtps3.taskId = taskTable.taskid" +
+        //    "        )        AND oTps.processStepId = taskTable.processStepId" +
+        //    "        LEFT JOIN USER oU ON oTps.dealer = oU.userId" +
+        //    "        ) taskTable2" +
+        //    "        LEFT JOIN USER oU2 ON taskTable2.creater = oU2.userId" +
+        //    "        ) selectTable" +
+        //    "        WHERE" +
+        //    "        selectTable.taskcode LIKE ?" +
+        //    "            AND selectTable.taskname LIKE ?" +
+        //    "            AND selectTable.createrName LIKE ?" +
+        //    "            AND selectTable.dealerName LIKE ?";
+        //var sql = "SELECT" +
+        //    "            *" +
+        //    "            FROM" +
+        //    "            (" +
+        //    "                SELECT" +
+        //    "        taskTable2.*, oU2.realName AS createrName" +
+        //    "        FROM" +
+        //    "        (" +
+        //    "            SELECT" +
+        //    "        taskTable.*, oU.realName AS dealerName ,oTps.execTime" +
+        //    "        FROM" +
+        //    "        (" +
+        //    "            SELECT DISTINCT" +
+        //    "        t.*, ps.processStepName AS stepName" +
+        //    "        FROM" +
+        //    "         tasks t" +
+        //    "        JOIN processstepdealer psd ON psd.projectId = t.projectId" +
+        //    "        JOIN processstep ps ON ps.processStepId = t.processStepId" +
+        //    "        AND t.projectId IN (" +
+        //    "           SELECT projectId from testertoproject where  userid = ?" +
+        //    "        )" +
+        //    "        ) taskTable" +
+        //    "        JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid" +
+        //    "        AND oTps.turnNum IN (" +
+        //    "            SELECT" +
+        //    "        MAX(turnNum)" +
+        //    "        FROM" +
+        //    "        taskprocessstep maxtps2" +
+        //    "        WHERE" +
+        //    "        maxtps2.taskId = taskTable.taskid" +
+        //    "        )      AND oTps.testNum IN (" +
+        //    "            SELECT" +
+        //    "        MAX(testNum)" +
+        //    "        FROM" +
+        //    "        taskprocessstep maxtps3" +
+        //    "        WHERE" +
+        //    "        maxtps3.taskId = taskTable.taskid" +
+        //    "        )        AND oTps.processStepId = taskTable.processStepId" +
+        //    "        LEFT JOIN USER oU ON oTps.dealer = oU.userId" +
+        //    "        ) taskTable2" +
+        //    "        LEFT JOIN USER oU2 ON taskTable2.creater = oU2.userId" +
+        //    "        ) selectTable" +
+        //    "        WHERE" +
+        //    "        selectTable.taskcode LIKE ?" +
+        //    "            AND selectTable.taskname LIKE ?" +
+        //    "            AND selectTable.createrName LIKE ?" +
+        //    "            AND selectTable.dealerName LIKE ?";
         var sql_count = "SELECT" +
             "              count(selectTable.taskid) as count" +
             "            FROM" +
@@ -512,7 +606,7 @@ TaskTest.findAllTestTaskByParam = function(searchConds,startNum,callback){
             "        JOIN processstepdealer psd ON psd.projectId = t.projectId" +
             "        JOIN processstep ps ON ps.processStepId = t.processStepId" +
             "        AND t.projectId IN (" +
-            "           SELECT projectId from testertoproject where  userid =   ?" +
+            "            SELECT utp.projectId from testertoproject utp where utp.userId = ?" +
             "        )" +
             "        ) taskTable" +
             "        JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid" +
@@ -523,14 +617,16 @@ TaskTest.findAllTestTaskByParam = function(searchConds,startNum,callback){
             "        taskprocessstep maxtps2" +
             "        WHERE" +
             "        maxtps2.taskId = taskTable.taskid" +
-            "        )      AND oTps.testNum IN (" +
+            "        )      " +
+            "       AND oTps.testNum IN (" +
             "            SELECT" +
             "        MAX(testNum)" +
             "        FROM" +
             "        taskprocessstep maxtps3" +
             "        WHERE" +
             "        maxtps3.taskId = taskTable.taskid" +
-            "        )        AND oTps.processStepId = taskTable.processStepId" +
+            "        )        " +
+            "        AND oTps.processStepId = taskTable.processStepId" +
             "        LEFT JOIN USER oU ON oTps.dealer = oU.userId" +
             "        ) taskTable2" +
             "        LEFT JOIN USER oU2 ON taskTable2.creater = oU2.userId" +
@@ -539,7 +635,7 @@ TaskTest.findAllTestTaskByParam = function(searchConds,startNum,callback){
             "        selectTable.taskcode LIKE ?" +
             "            AND selectTable.taskname LIKE ?" +
             "            AND selectTable.createrName LIKE ?" +
-            "            AND selectTable.dealerName LIKE ?";
+            "             AND selectTable.dealerName LIKE ?";
         var sql = "SELECT" +
             "            *" +
             "            FROM" +
@@ -555,29 +651,17 @@ TaskTest.findAllTestTaskByParam = function(searchConds,startNum,callback){
             "            SELECT DISTINCT" +
             "        t.*, ps.processStepName AS stepName" +
             "        FROM" +
-            "         tasks t" +
+            "        tasks t" +
             "        JOIN processstepdealer psd ON psd.projectId = t.projectId" +
             "        JOIN processstep ps ON ps.processStepId = t.processStepId" +
             "        AND t.projectId IN (" +
-            "           SELECT projectId from testertoproject where  userid = ?" +
+            "            SELECT utp.projectId from testertoproject  utp where utp.userId = ?" +
             "        )" +
             "        ) taskTable" +
             "        JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid" +
-            "        AND oTps.turnNum IN (" +
-            "            SELECT" +
-            "        MAX(turnNum)" +
-            "        FROM" +
-            "        taskprocessstep maxtps2" +
-            "        WHERE" +
-            "        maxtps2.taskId = taskTable.taskid" +
-            "        )      AND oTps.testNum IN (" +
-            "            SELECT" +
-            "        MAX(testNum)" +
-            "        FROM" +
-            "        taskprocessstep maxtps3" +
-            "        WHERE" +
-            "        maxtps3.taskId = taskTable.taskid" +
-            "        )        AND oTps.processStepId = taskTable.processStepId" +
+            "        AND oTps.turnNum IN ( SELECT   MAX(turnNum)     FROM    taskprocessstep maxtps2   WHERE    maxtps2.taskId = taskTable.taskid   )  " +
+            "        AND oTps.testNum IN ( SELECT   MAX(testNum)     FROM    taskprocessstep maxtps3   WHERE    maxtps3.taskId = taskTable.taskid   )  " +
+            "        AND oTps.processStepId = taskTable.processStepId" +
             "        LEFT JOIN USER oU ON oTps.dealer = oU.userId" +
             "        ) taskTable2" +
             "        LEFT JOIN USER oU2 ON taskTable2.creater = oU2.userId" +
@@ -586,7 +670,8 @@ TaskTest.findAllTestTaskByParam = function(searchConds,startNum,callback){
             "        selectTable.taskcode LIKE ?" +
             "            AND selectTable.taskname LIKE ?" +
             "            AND selectTable.createrName LIKE ?" +
-            "            AND selectTable.dealerName LIKE ?";
+            "             AND selectTable.dealerName LIKE ?";
+
         var params = [searchConds.userId ,taskcode,taskname,createrName,dealerName];
         var params_count = [searchConds.userId,taskcode,taskname,createrName,dealerName];
         if(searchConds.state!=''){

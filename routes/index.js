@@ -13,14 +13,14 @@ var Project = require('../modular/project');
  * @returns {*}
  */
 var getCookieUser = function(req, res){
-    var cookieUser = req.cookies.user;
-    if(cookieUser){
-        req.session.user = cookieUser;
+        var cookieUser = req.cookies.user;
+        if(cookieUser){
+            req.session.user = cookieUser;
+        }
+        if(!req.session.user || 'undefined'==req.session.user){
+            return res.redirect("/");
+        }
     }
-    if(!req.session.user || 'undefined'==req.session.user){
-        return res.redirect("/");
-    }
-}
 
 /**
  * 保存信息到cookie和session中
