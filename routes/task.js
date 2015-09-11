@@ -1001,6 +1001,7 @@ router.post('/findAllTask', function (req, res) {
     var taskCode = req.body.taskCode;
     var taskname = req.body.taskName;
     var createrName = req.body.taskCreater;
+    var dealerName = req.body.taskDealer;
     var startDate = req.body.startDate;
     var startTime = req.body.startTime;
     var endDate = req.body.endDate;
@@ -1015,6 +1016,7 @@ router.post('/findAllTask', function (req, res) {
         taskname:taskname,
         taskCode:taskCode,
         createrName :createrName,
+        dealerName :dealerName,
         startDate:startDate,
         startTime :startTime,
         endDate:endDate,
@@ -1022,7 +1024,7 @@ router.post('/findAllTask', function (req, res) {
     };
     req.session.finAllTaskConds = searchConds;
 
-    Task.findAllTaskByParam(userId,projectId,state,processStepId,taskCode,taskname,createrName,startTime,endTime,0,function(msg,tasks,count){
+    Task.findAllTaskByParam(userId,projectId,state,processStepId,taskCode,taskname,createrName,dealerName,startTime,endTime,0,function(msg,tasks,count){
         findProsByUserIdForApplyTaskBtn(userId,req,function(userPros){
             if('success'!=msg){
                 req.session.error = "模糊查询所有变更单时发生错误,请记录并联系管理员";
@@ -1078,6 +1080,7 @@ router.get('/findAllTask/:curPage', function (req, res) {
     var taskCode = searchConds.taskCode;
     var taskname = searchConds.taskname;
     var createrName =searchConds.createrName;
+    var dealerName =searchConds.dealerName;
     var startDate = searchConds.startDate;
     var startTime = searchConds.startTime;
     var endDate = searchConds.endDate;
@@ -1089,7 +1092,7 @@ router.get('/findAllTask/:curPage', function (req, res) {
     }
     startTime = startDate ? startDate+' '+startTime+":00" : '';
     endTime = endDate? endDate+' '+endTime+":59" : '';
-    Task.findAllTaskByParam(userId,projectId,state,processStepId,taskCode,taskname,createrName,startTime,endTime,startNum,function(msg,tasks,count){
+    Task.findAllTaskByParam(userId,projectId,state,processStepId,taskCode,taskname,createrName,dealerName,startTime,endTime,startNum,function(msg,tasks,count){
         //console.log(tasks,'dddddd',count);
         findProsByUserIdForApplyTaskBtn(userId,req,function(userPros){
             if('success'!=msg){

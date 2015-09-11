@@ -486,6 +486,7 @@ TaskTest.findAllTestTaskByParam = function(searchConds,startNum,callback){
     taskcode = "%" + searchConds.taskCode + "%";
     taskname = "%" + searchConds.taskname + "%";
     createrName = "%" + searchConds.createrName + "%";
+    dealerName = "%" + searchConds.dealerName + "%";
     //console.log("taskTest:",searchConds);
     pool.getConnection(function(err, connection){
         if(err){
@@ -537,7 +538,8 @@ TaskTest.findAllTestTaskByParam = function(searchConds,startNum,callback){
             "        WHERE" +
             "        selectTable.taskcode LIKE ?" +
             "            AND selectTable.taskname LIKE ?" +
-            "            AND selectTable.createrName LIKE ?";
+            "            AND selectTable.createrName LIKE ?" +
+            "            AND selectTable.dealerName LIKE ?";
         var sql = "SELECT" +
             "            *" +
             "            FROM" +
@@ -583,9 +585,10 @@ TaskTest.findAllTestTaskByParam = function(searchConds,startNum,callback){
             "        WHERE" +
             "        selectTable.taskcode LIKE ?" +
             "            AND selectTable.taskname LIKE ?" +
-            "            AND selectTable.createrName LIKE ?";
-        var params = [searchConds.userId ,taskcode,taskname,createrName];
-        var params_count = [searchConds.userId,taskcode,taskname,createrName];
+            "            AND selectTable.createrName LIKE ?" +
+            "            AND selectTable.dealerName LIKE ?";
+        var params = [searchConds.userId ,taskcode,taskname,createrName,dealerName];
+        var params_count = [searchConds.userId,taskcode,taskname,createrName,dealerName];
         if(searchConds.state!=''){
             sql_count = sql_count + " AND selectTable.state = ? ";
             sql = sql + " AND selectTable.state = ? ";

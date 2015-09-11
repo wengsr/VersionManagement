@@ -1629,10 +1629,11 @@ Task.findAllTaskByParamForBoss = function(userId,projectId,state,processStepId,t
  * @param userId
  * @param callback
  */
-Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode,taskname,createrName,startTime,endTime,startNum,callback){
+Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode,taskname,createrName,dealerName,startTime,endTime,startNum,callback){
     taskcode = "%" + taskcode + "%";
     taskname = "%" + taskname + "%";
     createrName = "%" + createrName + "%";
+    dealerName = "%" + dealerName + "%";
     pool.getConnection(function(err, connection){
         if(err){
             console.log('[CONN TASKS ERROR] - ', err.message);
@@ -1685,7 +1686,8 @@ Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode
             "        WHERE" +
             "        selectTable.taskcode LIKE ?" +
             "            AND selectTable.taskname LIKE ?" +
-            "            AND selectTable.createrName LIKE ?";
+            "            AND selectTable.createrName LIKE ?" +
+            "             AND selectTable.dealerName LIKE ?";
         var sql = "SELECT" +
             "            *" +
             "            FROM" +
@@ -1719,9 +1721,10 @@ Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode
             "        WHERE" +
             "        selectTable.taskcode LIKE ?" +
             "            AND selectTable.taskname LIKE ?" +
-            "            AND selectTable.createrName LIKE ?";
-        var params = [userId,taskcode,taskname,createrName];
-        var params_count = [userId,taskcode,taskname,createrName];
+            "            AND selectTable.createrName LIKE ?" +
+            "             AND selectTable.dealerName LIKE ?";
+        var params = [userId,taskcode,taskname,createrName,dealerName];
+        var params_count = [userId,taskcode,taskname,createrName,dealerName];
 
         if(projectId!=''){
             sql_count = sql_count + " AND selectTable.projectId = ? ";

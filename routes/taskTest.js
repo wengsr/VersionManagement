@@ -221,6 +221,7 @@ var getSearchConds = function(req){
     var processStepId = req.body.taskStep;
     var taskCode = req.body.taskCode;
     var taskname = req.body.taskName;
+    var dealerName = req.body.taskDealer;
     var createrName = req.body.taskCreater;
     var startDate = req.body.startDate;
     var startTime = req.body.startTime;
@@ -236,6 +237,7 @@ var getSearchConds = function(req){
         taskname:taskname,
         taskCode:taskCode,
         createrName :createrName,
+        dealerName :dealerName,
         startDate:startDate,
         startTime :startTime,
         endDate:endDate,
