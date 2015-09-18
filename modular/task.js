@@ -1634,7 +1634,6 @@ Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode
     taskname = "%" + taskname + "%";
     createrName = "%" + createrName + "%";
 
-
     pool.getConnection(function(err, connection){
         if(err){
             console.log('[CONN TASKS ERROR] - ', err.message);
@@ -1722,8 +1721,8 @@ Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode
             "        selectTable.taskcode LIKE ?" +
             "            AND selectTable.taskname LIKE ?" +
             "            AND selectTable.createrName LIKE ?" ;
-        var params = [userId,taskcode,taskname,createrName,dealerName];
-        var params_count = [userId,taskcode,taskname,createrName,dealerName];
+        var params = [userId,taskcode,taskname,createrName];
+        var params_count = [userId,taskcode,taskname,createrName];
         if(dealerName!=''){
             sql_count = sql_count + "  AND selectTable.dealerName LIKE ?";
             sql = sql + "  AND selectTable.dealerName LIKE ?";
