@@ -1633,7 +1633,8 @@ Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode
     taskcode = "%" + taskcode + "%";
     taskname = "%" + taskname + "%";
     createrName = "%" + createrName + "%";
-    dealerName = "%" + dealerName + "%";
+
+
     pool.getConnection(function(err, connection){
         if(err){
             console.log('[CONN TASKS ERROR] - ', err.message);
@@ -1686,8 +1687,7 @@ Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode
             "        WHERE" +
             "        selectTable.taskcode LIKE ?" +
             "            AND selectTable.taskname LIKE ?" +
-            "            AND selectTable.createrName LIKE ?" +
-            "             AND selectTable.dealerName LIKE ?";
+            "            AND selectTable.createrName LIKE ?" ;
         var sql = "SELECT" +
             "            *" +
             "            FROM" +
@@ -1721,11 +1721,16 @@ Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode
             "        WHERE" +
             "        selectTable.taskcode LIKE ?" +
             "            AND selectTable.taskname LIKE ?" +
-            "            AND selectTable.createrName LIKE ?" +
-            "             AND selectTable.dealerName LIKE ?";
+            "            AND selectTable.createrName LIKE ?" ;
         var params = [userId,taskcode,taskname,createrName,dealerName];
         var params_count = [userId,taskcode,taskname,createrName,dealerName];
-
+        if(dealerName!=''){
+            sql_count = sql_count + "  AND selectTable.dealerName LIKE ?";
+            sql = sql + "  AND selectTable.dealerName LIKE ?";
+            dealerName = "%" + dealerName + "%";
+            params.push(dealerName);
+            params_count.push(dealerName);
+        }
         if(projectId!=''){
             sql_count = sql_count + " AND selectTable.projectId = ? ";
             sql = sql + " AND selectTable.projectId = ? ";
