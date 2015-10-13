@@ -1,0 +1,57 @@
+<nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">AILK-CRM 统一设计系统</a>
+        </div>
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul id="navMenu" class="nav navbar-nav">
+                <%if(menus&&menus!=null){ var secFlag=false; var thirdFlag=false;%>
+                <% menus.forEach(function(menu){
+                if(menu.pid==0){ %>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%=menu.menuName%><span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <% menus.forEach(function(childMenu){
+                            if(childMenu.pid == 0){}
+                            if(childMenu.pid > menu.menuId){}
+                        if(childMenu.pid == menu.menuId){%>
+                        <%var menuId = childMenu.menuId; var menuName = childMenu.menuName; var menuBtnName=childMenu.menuBtnName; var menuUrl=childMenu.url; var menuType = childMenu.type%>
+                        <%if(menuType == 1){%>
+                        <li><a class="menuBtn" btnName="<%=menuBtnName%>" btnUrl="<%=menuUrl%>" href="<%=menuUrl%>" menuType ="<%=menuType%>" id="<%=menuBtnName%>"> <%= menuName %> </a></li>
+                        <%}else{%>
+                        <li><a class="menuBtn" btnName="<%=menuBtnName%>" btnUrl="<%=menuUrl%>"  btnType ="<%=menuType%>" menuType ="<%=menuType%>" id="<%=menuBtnName%>"> <%= menuName %> </a></li>
+                        <%}%>
+                        <% }});%>
+                    </ul>
+                </li>
+                <%}});}%>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">当前用户：<%=user.userName%><span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="/users/modifyUser">修改资料</a></li>
+                        <li class="divider"></li>
+                        <li><a href="/users/logout">退出</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <!--<button type="button" class="btn btn-default navbar-btn">-->
+                <!--<li class="dropdown"><a href="/leaderModel/leader">立即变身领导模式</a></li>-->
+                <a style="margin-top:8px;font-size:16px" class="btn btn-button btn-sm" href="/" role="button">版本管理系统</a>
+                <!--</button>-->
+            </ul>
+        </div>
+    </div>
+
+</nav>
+

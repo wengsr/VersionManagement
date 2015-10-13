@@ -1,0 +1,126 @@
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>变更单历史</title>
+<link href="/stylesheets/history.css" rel="stylesheet" />
+</head>
+<body>
+
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+<h4 class="modal-title"><%=title%></h4>
+</div>
+
+
+<div class="head-warp">
+<div class="head">
+<div class="nav-box">
+<ul>
+<li class="cur" style="text-align:center; font-size:62px; font-family:'微软雅黑', '宋体';"></li>
+</ul>
+</div>
+</div>
+</div>
+<div class="main">
+<div class="history">
+<%for(var j=0; j<=maxTurnNum; j++){%>
+<div class="history-date">
+    <ul>
+    <h2 class="data01"><a href="#">第<%=j+1%>轮</a></h2>
+    <%taskHis.forEach(function(tHis, item){%>
+        <%if(tHis.turnNum == j){%>
+        <%if(tHis.processStepId == 1){%>
+        <li>
+            <h3>发起新的任务</h3>
+            <dl>
+                <dt><%=tHis.dealerName%> &nbsp;&nbsp;&nbsp;&nbsp;<time style="display:inline;color:#d3d3d3;font-weight:normal"><%=tHis.execTime?"("+tHis.execTime+")":""%></time>
+                    <span>填写提交了基本信息</span></br>
+                    <%if(tHis.processStepId==1 && tHis.fileName){%>
+                    <span>上传了需求稳定：<a typeId="attaLink" href="<%=tHis.fileUri%>" style="color:#32B1EC"><%=tHis.fileName%></a></span>
+                    <%}%>
+                </dt>
+            </dl>
+        </li>
+        <%}else %>
+        <%if(tHis.processStepId == 2){%>
+            <li>
+                <h3>确认</h3>
+                <dl>
+                <dt><%=tHis.dealerName%> &nbsp;&nbsp;&nbsp;&nbsp;<time style="display:inline;color:#d3d3d3;font-weight:normal"><%=tHis.execTime?"("+tHis.execTime+")":""%></time>
+                <span>确认该需求</span>
+                </dt>
+                </dl>
+                </li>
+        <%}else %>
+        <%if(tHis.processStepId==3 && tHis.turnNum==maxTurnNum ){%>
+            <li>
+                <h3>设计需求</h3>
+                <dl>
+                <dt><%=tHis.dealerName%> &nbsp;&nbsp;&nbsp;&nbsp;<time style="display:inline;color:#d3d3d3;font-weight:normal"><%=tHis.execTime?"("+tHis.execTime+")":""%></time>
+                    <%if(tHis.processStepId==3 && tHis.comment){%>
+                    <span><%=tHis.comment%></span></br>
+                    <%}%>
+                    <%if(tHis.processStepId==3 && tHis.fileName){%>
+                    <span>上传了设计文档：<a typeId="attaLink" href="<%=tHis.fileUri%>" style="color:#32B1EC"><%=tHis.fileName%></a></span>
+                    <%}%>
+                </dt>
+                </dl>
+                </li>
+        <%}else %>
+        <%if(tHis.processStepId==4){%>
+        <li>
+            <h3>设计方案确认</h3>
+            <dl>
+                <dt><%=tHis.dealerName%> &nbsp;&nbsp;&nbsp;&nbsp;<time style="display:inline;color:#d3d3d3;font-weight:normal"><%=tHis.execTime?"("+tHis.execTime+")":""%></time>
+                    <%if(tHis.processStepId==4 && tHis.fileName){%>
+                    <span>上传了正式方案：<a typeId="attaLink" href="<%=tHis.fileUri%>" style="color:#32B1EC"><%=tHis.fileName%></a></span>
+                    <%}%>
+                </dt>
+            </dl>
+        </li>
+        <%}else %>
+
+        <%if(tHis.processStepId==5 ){%>
+        <li>
+            <h3>交付开发</h3>
+            <dl>
+                <dt><%=tHis.dealerName%> &nbsp;&nbsp;&nbsp;&nbsp;<time style="display:inline;color:#d3d3d3;font-weight:normal"><%=tHis.execTime?"("+tHis.execTime+")":""%></time>
+                </dt>
+            </dl>
+        </li>
+        <%}%>
+        <%}});%>
+    </ul>
+    <%}%>
+</div>
+</div>
+</div>
+
+
+</body>
+</html>
+
+
+<script src="/javascripts/historyJs.js"></script>
+<script>
+jQuery(document).ready(function() {
+    //下载附件
+    var aLink = $('[typeId=attaLink]');
+    aLink.click(function(){
+        var aHref = $(this).attr('href');
+        var attaName = $(this).html();
+        if(!aHref || '#'==aHref || null==aHref){
+            return;
+        }
+        aHref = aHref.replace(/\./g,'%2E');
+        aHref = aHref.replace(/\//g,'%2F');
+        attaName = attaName.replace(/\./g,'%2E');
+        attaName = attaName.replace(/\//g,'%2F');
+        var currentUri = '/file/fileDownLoad/' + attaName + '/' + aHref;
+        location.href = currentUri;
+    });
+});
+</script>
+

@@ -1,0 +1,165 @@
+<!--变更单处理--“查找变更单”模态窗口-->
+<!--<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">-->
+<!-- 引导样式表 -->
+<link rel="stylesheet" href="/stylesheets/bootstrap-datetimepicker.min.css">
+<link rel="stylesheet" type="text/css" href="/stylesheets/bootstrap-clockpicker.min.css">
+<!--<link rel="stylesheet" href="/resources/demos/style.css">-->
+<form action="<%=url%>" id="formAddTask" class=" bs-component form-horizontal" method='post'>
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="myLargeModalLabel"><%=modalTitle%></h4>
+    </div>
+    <div  class="modal-body">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+
+                    <div class="form-group">
+                        <label for="projectName" class="col-sm-2 control-label">所属项目</label>
+                        <div class="col-sm-4">
+                            <select class="form-control" name="projectId">
+                                <option value="" selected >--请选择--</option>
+                                <%if(projects && projects.length>0){%>
+                                <%projects.forEach(function(pro,i){%>
+                                <option value="<%=pro.projectId%>"><%=pro.projectName%></option>
+                                <%})%>
+                                <%}%>
+                            </select>
+                        </div>
+                        <label for="creater" class="col-sm-2 control-label">需求发起人</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" name="createrName" id="createrName" placeholder="真实姓名 (如：张三)">
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="taskDealer" class="col-sm-2 control-label">文档上传人</label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" name="dealerName" id="dealerName" placeholder="真实姓名 (如：张三)">
+                        </div>
+
+
+                        <label for="taskStep" class="col-sm-2 control-label">文档类型</label>
+                        <div class="col-sm-3">
+                            <select class="form-control" name="processStepId">
+                                <option value="" selected >--请选择--</option>
+                                <option value="1" >需求文档</option>
+                                <option value="3" >设计文档</option>
+                                <option value="4" >正式方案</option>
+                            </select>
+                        </div>
+
+                    </div>
+                    <div class="form-group">
+                        <label for="taskCode" class="col-sm-2 control-label">需求号</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" name="reqCode" id="reqCode" placeholder="请填写需求号  (如：ncrm01)">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reqName" class="col-sm-2 control-label">需求名称</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" name="reqName" id="reqName" placeholder="请填需求名称 ">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="fileName" class="col-sm-2 control-label">文件名</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" name="fileName" id="fileName" placeholder="请填文件名 ">
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="beginDate" class="col-sm-2 control-label">开始时间</label>
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control" name="startDate" id="startDate" style="">
+                        </div>
+                        <div class="input-group clockpicker col-sm-2"  data-placement="top" data-align="top" data-autoclose="true">
+                            <input type="text" class="form-control" id ="startTime" name="startTime" value="09:00">
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-time"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="endDate" class="col-sm-2 control-label">结束时间</label>
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control" name="endDate" id="endDate" >
+                        </div>
+                        <div class="input-group clockpicker col-sm-2"   data-placement="top" data-align="top" data-autoclose="true">
+                            <input type="text" class="form-control" id ="endTime" name ="endTime" value="24:00">
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-time"></span>
+                            </span>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div style="width:78%;float:left;margin-bottom:-20px;margin-top:-9px;height:50px;" id="diaSuccessTip" class="alert alert-success alert-dismissible" role="alert">
+            <span style="text-align:center;margin-left:auto;margin-right:auto;display:block;"  >
+                <strong id ="#applyMessage" name ="applyMessage" >操作完成</strong>
+            </span>
+        </div>
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        <button type="submit" id ="btnFindAllTask" class="btn btn-primary" >查询</button>
+    </div>
+</form>
+<!--<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>-->
+<script type="text/javascript" src="/javascripts/bootstrap-clockpicker.min.js"></script>
+<script>
+    $(function() {
+        $( "#startDate").datetimepicker({format:"yyyy-mm-dd",
+            autoclose:true,
+            minView:3,
+            pickerPosition:"top-right"});
+
+    });
+    $(function() {
+        $( "#endDate" ).datetimepicker({format:"yyyy-mm-dd",
+            autoclose:true,
+            minView:3,
+            pickerPosition:"top-right"});
+    });
+    $('.clockpicker').clockpicker();
+</script>
+<!--<script>-->
+    <!--var storeSearch = function(){-->
+        <!--var userId =$('[name=userId]').val();-->
+        <!--var projectId =$('[name=projectName]').val();-->
+        <!--var state = $('[name=taskState]').val();-->
+        <!--var processStepId = $('[name=taskStep]').val();-->
+        <!--var taskCode =$('[name=taskCode]').val();-->
+        <!--var taskname =  $('[name=taskName]').val();-->
+        <!--var createrName =  $('[name=taskCreater]').val();-->
+        <!--var startDate =    $('[name=startDate]').val();-->
+        <!--var startTime =   $('[name=startTime]').val();-->
+        <!--var endDate =   $('[name=endDate]').val();-->
+        <!--var endTime =   $('[name=endTime]').val();-->
+        <!--var searchConds = {-->
+            <!--userId:userId,-->
+            <!--projectId:projectId,-->
+            <!--state:state,-->
+            <!--processStepId:processStepId,-->
+            <!--taskCode:taskCode,-->
+            <!--createrName :createrName,-->
+            <!--startDate:startDate,-->
+            <!--startTime :startTime,-->
+            <!--endDate:endDate,-->
+            <!--endTime: endTime-->
+        <!--};-->
+        <!--sessionStorage.setItem("finAllTaskConds", searchConds);-->
+    <!--};-->
+    <!--jQuery(document).ready(function() {-->
+        <!--$("#btnFindAllTask").click(function () {-->
+            <!--storeSearch();-->
+        <!--});-->
+    <!--});-->
+<!--</script>-->

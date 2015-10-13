@@ -1,0 +1,79 @@
+<!--我的待处理变更单-->
+<div id="taskDiv" class="container-fluid">
+    <div class="panel panel-primary">
+        <div class="panel-heading">我的待处理任务</div>
+        <div class="panel-body table-responsive">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>需求号</th>
+                    <th>设计名称</th>
+                    <th>申请人</th>
+                    <th>状态</th>
+                    <th>环节</th>
+                    <th>处理人</th>
+                    <th>历史</th>
+                </tr>
+                </thead>
+                <tbody>
+                <% var recCount=(curDealPage-1)*30%>
+                <% tasks.forEach(function(task,i){ var psId=task.processStepId;recCount++;%>
+                <tr id="myToBeDealTask">
+                    <td><%=recCount%></td>
+                    <td><a id="task_<%=task.reqId%>" reqProcessStepId = "<%=task.reqProcessStepId%>" createName="<%=task.createrName%>" dealerName="<%=task.dealerName%>" processStepId="<%=task.processStepId%>" step="taskProcessStep" reqId="<%=task.reqId%>" creater="<%=task.creater%>" stateId = "<%=task.stateId%>"><%=task.reqCode%></a></td>
+                    <td><a id="task_<%=task.reqId%>" createName="<%=task.createrName%>" dealerName="<%=task.dealerName%>" processStepId="<%=task.processStepId%>" step="taskProcessStep" reqId="<%=task.reqId%>" creater="<%=task.creater%>" stateId = "<%=task.stateId%>"><%=task.reqName%></a></td>
+                    <td><%=task.createrName%></td>
+                    <td><%=task.stateName%></td>
+                    <td><%=task.stepName%></td>
+                    <td><%=task.dealerName==null?'':task.dealerName%></td>
+                    <td>&nbsp;&nbsp;<a class="glyphicon glyphicon-time" btnType="reqHistory" reqId="<%=task.reqId%>"></a></td>
+                </tr>
+                <% }); %>
+                </tbody>
+            </table>
+        </div>
+        <div id="recCount" class="panel-footer" recCount="<%=recCount%>">共<%=(recCount%30)==0?30:(recCount%30)%>条
+        </div>
+        <div>
+            <nav  style="float:right">
+                <%
+                var  minPage = curDealPage-2>0?curDealPage-2:1;
+                var maxPage = minPage + 4>totalDealPage?totalDealPage:minPage + 4;
+                minPage = maxPage-4<1?1:maxPage-4;
+                //                          var maxPage =curDealPage+2>totalDealPage?totalDealPage:curDealPage+2;
+                %>
+                <ul class="pagination" id="pageUl" pageCount="<%=totalDealPage%>" curPage="<%=curDealPage%>"
+                    minPage="<%=minPage%>",maxPage="<%=maxPage%>">
+                    <%if(minPage!=1){%>
+                    <li  id="pagePre">
+                        <a href="/btnToBeDeal/<%=parseInt(curDealPage)-1%>" aria-label="Previous" >
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <%}%>
+                    <%for(var i = minPage;i<=maxPage;i++){ %>
+                    <li  class="pageId"  value ="<%=i%>"><a href="<%=url%>/<%=i%>"><%=i%></a></li>
+                    <%}%>
+                    <%if(maxPage<totalDealPage){%>
+                    <li  id="pageNext">
+                        <a href="/btnToBeDeal/<%=parseInt(curDealPage)+1%>" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <%}%>
+                </ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+<div id="noTaskNotice" style="margin-top: 100px">
+    <div class="col-sm-3"></div>
+    <div class="col-sm-6">
+            <span style="font-size:20pt; color: #cccccc;height:20px; line-height:20px; text-align:center; display:block;">
+                任务全部处理完成
+            </span>
+    </div>
+    <div class="col-sm-3"></div>
+</div>

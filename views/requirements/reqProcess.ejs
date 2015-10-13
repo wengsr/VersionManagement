@@ -1,0 +1,380 @@
+<link rel="stylesheet" href="/stylesheets/jquery.fileupload.css"/>
+<form action="/req/fileUpload" target="ifm_fileUpRe"  id="formReqProcess" class=" bs-component form-horizontal" method='post' enctype="multipart/form-data">
+    <input type="hidden" id="reqId" name="reqId" value="<%=reqId%>"/>
+    <input type="hidden" id="processStepId" name="processStepId" value="<%=processStepId%>"/>
+    <input type="hidden" id="reqProcessStepId" name="reqProcessStepId" value="<%=reqProcessStepId%>"/>
+    <input type="hidden" id="stateId" name="stateId" value="<%=stateId%>"/>
+    <span type="hidden" id="taskCode"></span>
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="myLargeModalLabel"><%=taskInfo.processStepName%></h4>
+    </div>
+    <div  class="modal-body">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <%if(stateId ==0){%>
+                    <div class="form-group">
+                        <label for="project" class="col-sm-2 control-label">项目</label>
+                        <div class="col-sm-8">
+                            <select class="form-control" name="projectId" id="projectId">
+                                <option value="" selected  projectUri="">--请选择--</option>
+                                <%if(project && project.length>0){%>
+                                <%project.forEach(function(pro,i){%>
+                                <option value="<%=pro.projectId%>"  projectUri="<%=pro.projectUri%>"><%=pro.projectName%></option>
+                                <%})%>
+                                <%}%>
+                            </select>
+                        </div>
+                    </div>
+                    <%}%>
+                    <%if((stateId>0)&&(taskInfo.projectId)){%>
+                    <div class="form-group">
+                        <label for="project" class="col-sm-2 control-label">项目</label>
+                        <div class="col-sm-8" style="margin-top:6px">
+                            <span id="project"><%=taskInfo.projectId==undefined?'':taskInfo.projectName%></span>
+                            <input type="hidden" id="projectId" name="projectId" value="<%=projectId%>"/>
+                        </div>
+                        <div class="col-sm-2" style="margin-top:3px">
+                            <%if(buttons.btnDeleteReq){%>
+                            <%-buttons.btnDeleteReq.btnCode%>
+                            <%}%>
+                        </div>
+                    </div>
+                    <%}%>
+                    <div class="form-group" id ='divTaskName'>
+                        <label for="inputTaskName" class="col-sm-2 control-label" >需求名称</label>
+                        <div class="col-sm-10">
+                            <%if((allInfo.taskInfo.reqName)!=""&&(allInfo.taskInfo.reqName!=undefined)){%>
+                            <input type="text" class="form-control"  name="reqName" id="reqName" placeholder="" disabled value ="<%=allInfo.taskInfo.reqName==undefined?"":allInfo.taskInfo.reqName%>" >
+                            <%}else{%>
+                             <input type="text" class="form-control"  name="reqName" id="reqName" placeholder="" value ="" >
+                            <%}%>
+                        </div>
+                    </div>
+                    <%if(stateId>0){%>
+                    <div class="form-group" id ='divTaskName'>
+                        <label for="inputTaskName" class="col-sm-2 control-label" >需求号</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control"  name="reqCode" id="reqCode" placeholder="" disabled value ="<%=allInfo.taskInfo==undefined?"":allInfo.taskInfo.reqCode%>" >
+                        </div>
+                    </div>
+                    <%}%>
+                    <div class="form-group" id ='taskDesc'>
+                        <label for="taskDesc" class="col-sm-2 control-label">需求内容描述</label>
+                        <div class="col-sm-10">
+                            <%if(stateId>0){%>
+                            <textarea class="form-control" id="reqDesc" rows="3" name="reqDesc" disabled><%=taskInfo.reqDesc==undefined?"":taskInfo.reqDesc%></textarea>
+                            <%}else{%>
+                                <textarea class="form-control" id="reqDesc" rows="3" name="reqDesc"></textarea>
+                            <%}%>
+                        </div>
+                    </div>
+
+                    <div  id ="divReqType">
+                        <%if(stateId<1||(infoDivs.typeId)){%>
+                        <div id="reqtypeDiv" class="form-group" class="col-sm-6">
+                            <label for="reqType" class="col-sm-2 control-label">类型</label>
+                            <div class="col-sm-4">
+                                <input type="radio" id = "reqType"    name="reqType" value="1" />需求
+                                <input type="radio" id = "reqType"    name="reqType" value="2"/>bug
+                            </div>
+                            </div>
+                        <%}else if(taskInfo.typeName){%>
+                        <div id="reqtypeDiv" class="form-group" class="col-sm-6">
+                            <label for="reqType" class="col-sm-2 control-label">类型</label>
+                            <div class="col-sm-4">
+                            <input type="radio" id = "reqType" class="col-sm-2" name="reqType" checked value="<%=taskInfo.typeId%>"/><%=taskInfo.typeName%>
+                            </div>
+                        </div>
+                        <%}%>
+                        <%if(processStepId<3){%>
+                        <div class="form-group" id ="divExpectTime" class ="col-sm-6" >
+                        <label for="reqType" class="col-sm-2 control-label">期望完成时间</label>
+                            <div class="col-sm-4">
+                            <%if((stateId==1)||(stateId ==2)){%>
+                                 <input   name="expectTime" id="expectTime"  disabled="disabled" value="<%=taskInfo.expectTime==undefined?"":taskInfo.expectTime%>"/>
+                             <%}else{%>
+                               <input  name="expectTime" id="expectTime" type="date" />
+                            <%}%>
+                            </div>
+                    </div>
+                    <%}%>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reqAtta" class="col-sm-2 control-label">需求文档</label>
+                        <div class="col-sm-10" id ="reqAttaDiv" style="margin-top:8px">
+                            <div typeId=reqAttaAdmin style=display:inline-block;margin-bottom:20px;margin-right:15px>
+                                <%if(allInfo.reqAttas!=undefined){%>
+                                <span><a id="atta_req" href="<%=allInfo.reqAttas.length?allInfo.reqAttas[0].fileUri:""%>"><%=allInfo.reqAttas.length==0?"":allInfo.reqAttas[0].fileName%></a></span>
+                                <%if((allInfo.reqAttas.length)&&(stateId ==0)){%>
+                                <span typeId=xxAttaReq type=button class='glyphicon glyphicon-remove' attachmentId="<%=allInfo.reqAttas.attachmentId%>"></span>
+                                <%}%>
+                                <%}%>
+                            </div>
+                        </div>
+                    </div>
+                    <%if(((allInfo.reqAttas==undefined)||(!(allInfo.reqAttas.length)))&&processStepId<2){%>
+                        <%if(stateId == 0){%>
+                            <div class="form-group" id = "submitReqAttaDiv"  style="display:none">
+                        <%}else{%>
+                            <div class="form-group" id = "submitReqAttaDiv" >
+                         <%}%>
+                            <label for="reqAtta" class="col-sm-2 control-label">上传需求文档</label>
+                            <div id="btnSelectReport"  class=" col-sm-1">
+                            <span class="btn btn-success fileinput-button">
+                                <i  id ="uploadIcon" class="glyphicon glyphicon-plus"></i>
+                                <span >选择文件</span>
+                                <input id="fulAvatar" name="fulAvatar" type="file" multiple="multiple"  class="form-control" />
+                            </span>
+                         </div>
+                            <div class=" col-sm-offset-1 col-sm-1">
+                                <button id=btnUpload    buttonType=buttonD type=button  url=req/nextProcess subType=post class='btn btn-primary'>上传文件</button>
+                            </div>
+                        </div>
+                        <%}%>
+                         <%if((processStepId==2)||(processStepId>2)&&(taskInfo.requestTime!=undefined)&&(taskInfo.requestTime!="")){%>
+                          <div  id="divRequestTime" class="form-group"  class="col-sm-10">
+                               <label for="requestTime" class="col-sm-2 control-label">要求时间</label>
+                               <div class="col-sm-4">
+                                   <%if((stateId>1)&&(taskInfo.requestTime!=undefined)&&(taskInfo.requestTime!="")){%>
+                                   <input   name="requestTime" id="requestTime" disabled="disabled" value="<%=taskInfo.requestTime==undefined?"":taskInfo.requestTime%>"/>
+                                   <%}%>
+                                   <%if((stateId==1)&&(taskInfo.requestTime!=undefined)&&(taskInfo.requestTime!="")){%>
+                                   <input   name="requestTime" id="requestTime" type="date" value="<%=taskInfo.requestTime==undefined?"":taskInfo.requestTime%>"/>
+                                   <%if(buttons.btnAddRTime){%>
+                                   &nbsp;&nbsp; <%-buttons.btnAddRTime.btnCode%>
+                                   <%}%>
+                                   <%}if((stateId==1)&&(processStepId==2)&&(!taskInfo.requestTime)){%>
+                                   <input   name="requestTime" id="requestTime" type="date" />
+                                   <%if(buttons.btnAddRTime){%>
+                                   &nbsp;&nbsp; <%-buttons.btnAddRTime.btnCode%>
+                                   <%}%>
+                                   <%}%>
+                               </div>
+                          </div>
+                         <%}%>
+                    <%if((processStepId>1)&&((processStepId<5))){%><!--添加显示设计人员-->
+                    <div class="form-group">
+                        <label for="designersDiv" class="col-sm-2 control-label">设计人员</label>
+                        <div class="col-sm-10" id ="addDesDealerDiv" style="margin-top:8px">
+                            <%if(allInfo.desDealerComments){
+                                var designersArr = allInfo.desDealerComments;
+                                var desNum = designersArr.length;
+                                    designersArr.forEach(function(designer){%>
+                            <div typeId=xxDealerAdmin style="margin-bottom:10px">
+                                <a>
+                                    <span  reqProcessStepId ="<%=designer.reqProcessStepId%>" class="designer" isLeader = "<%=designer.isLeader%>" style="margin-right:10px"><%=designer.realName%></span>
+                                </a>
+                                <%if(designer.isLeader==1){%>
+                                (负责人)
+                                <!--负责人:<input type="radio" checked="checked" name="isLeader"-->
+                                           <!--reqProcessStepId ="<%=designer.reqProcessStepId%>" style="margin-left:10px" />-->
+                                <%}%>
+                                <span style="margin-left:20px"><%=designer.comment%></span>
+                                <%if(stateId==1){%>
+                                <span typeId=xxDealerReq type=button class='glyphicon glyphicon-remove' reqProcessStepId ="<%=designer.reqProcessStepId%>"></span>
+                                <%}%>
+
+                                </div>
+                            <%})}%>
+                        </div>
+                    </div>
+                    <%if((stateId==2||(stateId==4))){%>
+                    <div class="form-group">
+                           <label for="designAtta" class="col-sm-2 control-label">设计文档</label>
+                           <div class="col-sm-10" id ="desAttaDiv" style="margin-top:8px">
+                           <%if(allInfo.desAttas){
+                            var desAttasArr = allInfo.desAttas;
+                            var desAttasNum = desAttasArr.length;
+                            desAttasArr.forEach(function(desAtta){%>
+                                 <div typeId=reqAttaAdmin style=display:inline-block;margin-bottom:20px;margin-right:15px>
+                                     <%if(desAtta!=undefined){%>
+                                     <span><a id="atta_req" href="<%=desAtta==undefined?"":desAtta.fileUri%>"><%=desAtta==undefined?"":desAtta.fileName%></a></span>
+                                     <%}%>
+                                 </div>
+                               <%})}%>
+                            </div>
+                    </div>
+                     <%if((processStepId==3)&&(!allInfo.desAttas.length)){%>
+                     <div class="form-group">
+                          <label for="reqAtta" class="col-sm-2 control-label">上传设计文档</label>
+                          <div id="btnSelectReport"  class="col-sm-offset-1 col-sm-1">
+                          <span class="btn btn-success fileinput-button">
+                          <i  id ="uploadIcon" class="glyphicon glyphicon-plus"></i>
+                          <span >选择文件</span>
+                          <input id="fulAvatar" name="fulAvatar" type="file"   multiple="multiple" class="form-control" />
+                          </span>
+                     </div>
+                     <div class=" col-sm-offset-1 col-sm-1">
+                           <%if(buttons.btnUpload){%>
+                             <%-buttons.btnUpload.btnCode%>
+                            <%}%>
+                      </div>
+                     <%}%>
+                     </div>
+                    <%}%>
+                    <%if(processStepId==2){%>
+                    <div class="form-group">
+                        <label for="addDesignerDiv" class="col-sm-2 control-label">添加设计人员</label>
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="addNextDealer"  processStepId="3" placeholder="输入人员账号或姓名">
+                                <div class="input-group-btn">
+                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul id="selectUl" class="dropdown-menu dropdown-menu-right" role="menu">
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4" style="padding-top:10px">
+                            <label for="addLeader" >负责人：</label>
+                            <input type="radio"   name="addLeader" id="addLeader"  value="1" />是
+                            <input type="radio"   name="addLeader" id="addLeader"  value="0" />否
+                        </div>
+                        <%if(buttons.btnNextDealer){%>
+                            <%-buttons.btnNextDealer.btnCode%>
+                        <%}%>
+                    </div>
+                    <div class="form-group">
+                    <label for="addComment" class="col-sm-2 control-label">备注</label>
+                    <div class="col-sm-10" >
+                        <input type="text" class="form-control" id="addComment" maxlength="100" placeholder="可填写相应设计人员任务说明"/>
+                    </div>
+                    </div>
+                    <%}%>
+                    <%}%><!--添加显示设计人员-->
+                    <%if(stateId>3){%>
+                    <div class="form-group"><!--添加显示开发人员-->
+                        <label for="developerDiv" class="col-sm-2 control-label">开发人员</label>
+                        <div class="col-sm-10" id ="addDevDealerDiv" style="margin-top:8px">
+                            <%if(allInfo.devDealerComments){
+                                var developersArr = allInfo.devDealerComments;
+                                var devNum = developersArr.length;
+                                    developersArr.forEach(function(developer){%>
+                            <div typeId=xxDealerAdmin  style="margin-bottom:20px;">
+                                <a><span  reqProcessStepId ="<%=developer.reqProcessStepId%>" class="developer"
+                                           isLeader = "<%=developer.isLeader%>" style="margin-right:10px"><%=developer.realName%>
+                            </span></a>
+                                <%if(developer.isLeader=="1"){%>
+                                <!--负责人:<input type="radio" checked  name="isLeader" disabled-->
+                                           <!--reqProcessStepId ="<%=developer.reqProcessStepId%>" style="margin-left:10px" />-->
+                                (负责人)
+                                <%}%>
+                                <span style="margin-left:20px"><%=developer.comment%></span>
+                                <%if(stateId==4){%>
+                                <span typeId=xxDealerReq type=button class='glyphicon glyphicon-remove' reqProcessStepId ="<%=developer.reqProcessStepId%>"></span>
+                             <%}%>
+                            </div>
+                            <%})}%>
+                        </div>
+                    </div>
+                    <%}%>
+                    <%if(stateId==4){%>
+                    <div class="form-group" id="addDesignerDiv">
+                            <label for="addNextDealer" class="col-sm-2 control-label">添加开发人员</label>
+                            <div class="col-sm-3">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="addNextDealer" processStepId="5" placeholder="输入人员账号或姓名">
+                                    <div class="input-group-btn">
+                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                            <span class="caret"></span>
+                                        </button>
+                                        <ul id="selectUl" class="dropdown-menu dropdown-menu-right" role="menu">
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                           <div class="col-sm-4" style="padding-top:10px">
+                            <label for="addLeader" >负责人：</label>
+                               <input type="radio"   name="addLeader" id="addLeader"  value="1" />是
+                               <input type="radio"   name="addLeader" id="addLeader"  value="0" />否
+                            </div>
+                        <%if(buttons.btnNextDealer){%>
+                            <%-buttons.btnNextDealer.btnCode%>
+                        <%}%>
+                    </div>
+                    <div class="form-group " >
+                        <label for ="addComment" class="col-sm-2 control-label">备注</label>
+                    <div class="col-sm-10">
+                        <input type="text" id ="addComment" class=" form-control " maxlength="100" placeholder="可填写相应开发人员任务说明"/>
+                    </div>
+                    </div>
+                    <%}%>
+                    <%if((stateId>3)){%>
+                    <div class="form-group">
+                        <label for="planAtta" class="col-sm-2 control-label">设计方案</label>
+                        <div class="col-sm-10" id ="formalAttaDiv" style="margin-top:8px">
+                            <div typeId=reqAttaAdmin style=display:inline-block;margin-bottom:20px;margin-right:15px>
+                                <%if(allInfo.formalAttas!=undefined){%>
+                                <span><a id="atta_req" href="<%=allInfo.formalAttas[0]==undefined?"":allInfo.formalAttas[0].fileUri%>"><%=allInfo.formalAttas[0]==undefined?"":allInfo.formalAttas[0].fileName%></a></span>
+                                <%}%>
+                            </div>
+                        </div>
+                    </div>
+                        <%if((processStepId<5)&&(!allInfo.formalAttas.length)){%>
+                        <div class="form-group">
+                            <label for="reqAtta" class="col-sm-2 control-label">上传设计方案</label>
+                             <div id="btnSelectReport"  class="col-sm-offset-1 col-sm-1" >
+                            <span class="btn btn-success fileinput-button">
+                                <i  id ="uploadIcon" class="glyphicon glyphicon-plus"></i>
+                                <span >选择文件</span>
+                                <input id="fulAvatar" name="fulAvatar" type="file"   multiple ="multiple" class="form-control" />
+                            </span>
+                            </div>
+                        <%if(buttons.btnUpload){%>
+                        <div class=" col-sm-offset-1 col-sm-1">
+                        <%-buttons.btnUpload.btnCode%>
+                        </div>
+                        <%}%>
+                        </div>
+                      <%}%>
+                      <%}%>
+
+                    <div class="alert alert-warning" id="divAlert" style="word-break: break-all; word-wrap:break-word;">
+                        <strong>出错啦！</strong><span id = "alertInfo"></span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div id="divErrDialog" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" id="errModal"></div>
+        </div>
+    </div>
+    <div class="modal-footer" id="footer">
+        <div style="width:68%;float:left;margin-bottom:-20px;margin-top:-9px;height:50px;" id="diaInfoTip" class="alert alert-info alert-dismissible" role="alert"><span style="text-align:center;margin-left:auto;margin-right:auto;display:block;"><strong>信息提示</strong></span></div>
+        <div style="width:68%;float:left;margin-bottom:-20px;margin-top:-9px;height:50px;" id="diaErrTip" class="alert alert-danger alert-dismissible" role="alert"><span style="text-align:center;margin-left:auto;margin-right:auto;display:block;"><strong>错误提示</strong></span></div>
+        <div style="width:68%;float:left;margin-bottom:-20px;margin-top:-9px;height:50px;" id="diaSuccessTip" class="alert alert-success alert-dismissible" role="alert"><span style="text-align:center;margin-left:auto;margin-right:auto;display:block;"><strong>操作成功</strong></span></div>
+        <div style="width:30%;float:right;margin-right: 12px">
+            <button id="btnCloseModel" type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            <div id="dynButtons" style="display:inline-block">
+            <%if(stateId==0){%>
+                <button id="btnSubmit"  style="display:none"  buttonType="buttonD" type="button" subType="post" url="req/nextProcess" class="btn btn-primary">提交</button>
+                <button id="btnApply"  hidden="hidden"  buttonType="buttonD" type="button" url="req/newApply"  subType="post"  class="btn btn-primary">申请新需求</button>
+                <%}%>
+                <%if(buttons.btnSubmit){%>
+                <%-buttons.btnSubmit.btnCode%>
+                <%}%>
+                <%if(buttons.Upload){%>
+                <%-buttons.Upload.btnCode%>
+                <%}%>
+                <%if(buttons.btnApply){%>
+                <%-buttons.btnApply.btnCode%>
+                <%}%>
+                </div>
+        </div>
+    </div>
+    </div>
+</form>
+<iframe id='ifm_fileUpRe' name='ifm_fileUpRe' style="display:none"/>
+<script src="/javascripts/bootstrap-suggest.js"></script>
+<script src="/javascripts/reqCommon.js"></script>
+<script src="/javascripts/buttonData.js"></script>
+<script src="/javascripts/reqProcess.js"></script>
+

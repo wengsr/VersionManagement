@@ -138,6 +138,11 @@
                     <!--</button>-->
                 </ul>
             <%}%>
+            <%if(user){ %>
+            <ul class="nav navbar-nav navbar-right">
+                <a style="margin-top:8px;font-size:16px" class="btn btn-button btn-sm" href="/requirement" role="button">需求设计子系统</a>
+            </ul>
+            <%}%>
             <% if(user &&( user.isBoss)){ %>
             <ul class="nav navbar-nav navbar-right">
                 <!--<button type="button" class="btn btn-default navbar-btn">-->

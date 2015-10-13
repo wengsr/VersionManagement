@@ -1,0 +1,107 @@
+<form action="/task/addTask" id="formAddTask" class=" bs-component form-horizontal" method='post'>
+    <input type="hidden" id="taskId" name="taskId" value=""/>
+    <input type="hidden" id="taskProject" name="taskProject" value=""/>
+    <input type="hidden" id="taskCode" name="taskCode" value=""/>
+    <span type="hidden" id="taskCode"></span>
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="myLargeModalLabel">申请变更单</h4>
+    </div>
+    <div  class="modal-body">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label for="project" class="col-sm-2 control-label">项目</label>
+                        <div class="col-sm-8">
+                            <select class="form-control" name="project" id="project">
+                                <option value="" selected  projectUri="">--请选择--</option>
+                                <%if(project && project.length>0){%>
+                                <%project.forEach(function(pro,i){%>
+                                <option value="<%=pro.projectId%>"  projectUri="<%=pro.projectUri%>"><%=pro.projectName%></option>
+                                <%})%>
+                            </select>
+                        </div>
+                        <div class="col-sm-2" style="margin-top:6px">
+                            <button id="btnSADelete" type="button" class=" btn btn-danger" style="float:right">放弃变更单</button>
+                        </div>
+                    </div>
+                    <%}%>
+                    <%if(stateId>0||(infoDivs.project)){%>
+                    <div class="form-group">
+                        <label for="project" class="col-sm-2 control-label">项目</label>
+                        <div class="col-sm-10" style="margin-top:6px">
+                            <span id="project"></span>
+                        </div>
+                    </div>
+                    <%}%>
+                    <div class="form-group" id ='divTaskName'>
+                        <label for="inputTaskName" class="col-sm-2 control-label">需求名称</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control"  name="inputTaskName" id="taskName" placeholder="如：NCRM开发变更单-省份简拼-日期-任务或bug号-姓名简拼-序号" >
+                            <input type="text"  style="display: none;"   hidden="hidden"/>
+                        </div>
+                    </div>
+                    <div class="form-group" id ='taskDesc'>
+                        <label for="taskDesc" class="col-sm-2 control-label">需求内容描述</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control" id="taskDesc" rows="3" name="inputTaskDesc"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id ='divTaskModList'>
+                        <label for="inputTaskModList" class="col-sm-2 control-label">修改文件清单</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control" id="inputTaskModList" rows="6" name="taskModFiles" placeholder="输入文件项目路径，多个文件间请换行，文件路径不包含项目路径，如:trunk/local/YN_TRUNK/SaleWeb/src/main/java/com/al/crm/sale/choosechannel/view/chooseChannel.html"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group" id ='divTaskNewList'>
+                        <label for="inputTaskNewList" class="col-sm-2 control-label">新增文件清单</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control" id="inputTaskNewList" rows="3" name="taskNewFiles"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group"id ='divDelTaskList'>
+                        <label for="delTaskList" class="col-sm-2 control-label">删除文件清单</label>
+                        <div class="col-sm-10" style="margin-top:6px">
+                            <textarea class="form-control" id="delTaskList" rows="2" ></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group" id="oldAtta">
+                        <label for="inputTaskList" class="col-sm-2 control-label">已提取旧文件</label>
+                        <div class="col-sm-3" style="margin-top:8px">
+                            <span><a id="a_reportAtta" href="">没有旧文件</a></span>
+                        </div>
+                    </div>
+                    <!--<div class="col-sm-offset-2 col-sm-3" style="margin-top:8px" id="divPop" >-->
+                    <!--<a href="#" id="pop" class="btn btn-danger" rel="popover"-->
+                    <!--data-content=""  data-original-title="错误信息">点击查看出错文件</a>-->
+                    <!--</div>-->
+                    <div class="alert alert-warning" id="divAlert" style="word-break: break-all; word-wrap:break-word;">
+                        <strong>出错啦！</strong><span id = "alertInfo"></span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div id="divErrDialog" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" id="errModal"></div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div style="width:68%;float:left;margin-bottom:-20px;margin-top:-9px;height:50px;" id="diaInfoTip" class="alert alert-info alert-dismissible" role="alert"><span style="text-align:center;margin-left:auto;margin-right:auto;display:block;"><strong>信息提示</strong></span></div>
+        <div style="width:68%;float:left;margin-bottom:-20px;margin-top:-9px;height:50px;" id="diaErrTip" class="alert alert-danger alert-dismissible" role="alert"><span style="text-align:center;margin-left:auto;margin-right:auto;display:block;"><strong>错误提示</strong></span></div>
+        <div style="width:68%;float:left;margin-bottom:-20px;margin-top:-9px;height:50px;" id="diaSuccessTip" class="alert alert-success alert-dismissible" role="alert"><span style="text-align:center;margin-left:auto;margin-right:auto;display:block;"><strong>操作成功</strong></span></div>
+        <button type="button"  id ="closeModel" class="btn btn-default" data-dismiss="modal">关闭</button>
+        <button id="submitApply" type="button" class="btn btn-primary" >提交</button>
+        <button id="btnExtractFile" type="button" class="btn btn-primary">提取旧文件</button>
+        <button id="btnModify" type="button" class="btn btn-primary">修改变更单</button>
+        <button id="btnConfirm" type="button" class="btn btn-primary">确定修改</button>
+    </div>
+</form>
+<script src="/javascripts/submitApply.js"></script>
+<script src="/javascripts/common.js"></script>
+<script src="/javascripts/extractFile.js"></script>
+<script src ="/javascripts/deltask.js"></script>

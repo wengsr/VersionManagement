@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/stylesheets/bootstrap.min.css">
+    <link rel = "stylesheet" href = "/stylesheets/smartMenu.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<%include topNavReq.ejs%>
+<%if(pageName =="tasks"){%>
+<%include tasks%>
+<%}%>
+<%if(pageName =="attas"){%>
+<%include reqAttas%>
+<%}%>
+<%include ../modalWindow%>
+</body>
+<%include reqIncludeJs.ejs%>
+<!--引入的JS文件-->
+<%if(pageName == "attas"){%>
+<script src="/javascripts/reqAttas.js"></script>
+<%}%>
+</html>

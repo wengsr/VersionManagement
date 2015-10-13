@@ -30,5 +30,32 @@ exports.showPage = function(res,page, params){
    return res.render(page,params);
 }
 
+/**
+ * 将查询参数保存至session中
+ */
+exports.saveFindReqsParams = function(req,params){
+
+    req.session.findReqsParams = params;
+}
+/**
+ * 将查询参数保存至session中
+ */
+exports.getFindReqsParams = function(req){
+    return  req.session.findReqsParams;
+}
+/**
+ * 将查询参数保存至session中
+ */
+exports.saveFindAllAttasParams = function(req,params){
+    req.session.findAttasParams = params;
+}
+/**
+ * 将查询参数保存至session中
+ */
+exports.getFindAllAttasParams = function(req){
+    return  req.session.findAttasParams;
+}
+
+
 
 

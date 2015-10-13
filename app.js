@@ -20,6 +20,7 @@ var file = require('./routes/file');
 var taskTest = require('./routes/taskTest');
 var  excel = require("./routes/excel");
 var  svn = require("./routes/svn");
+var  requirement = require("./routes/requirement");
 
 
 
@@ -117,5 +118,7 @@ app.use('/admin', adminModel);
 app.use('/taskTest', taskTest);
 app.use("/excel",excel);
 app.use("/svn",svn);
+app.use("/requirement",requirement);
+app.use("/req",requirement);
 
 module.exports = app;
