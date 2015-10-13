@@ -84,7 +84,6 @@ function getDataForBtnNextDealer(){
 //btnApply 要提交的数据
 function getDataForBtnApply(){
     var submitData = {};
-    debugger;
     //submitData.reqId = $("#reqId").val();
     submitData.stateId = $("#stateId").val();
     submitData.processStepId = $("#processStepId").val();

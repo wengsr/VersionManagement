@@ -16,7 +16,6 @@ function hideTip(){
 function ajaxSubmit_apply(params,url,subType){
     AjaxSubmit.call(this,params,url,subType);
     this.ajaxOptions.success = function(data){
-        debugger
         var dataJson = $.parseJSON(data);
        //var btnsStr = getButtonsStr(buttons);
         var flag =  dataJson.sucFlag;
@@ -135,7 +134,6 @@ function ajaxSubmit_deleteDealer(params,url,subType,tag){
     AjaxSubmit.call(this,params,url,subType);
 
     this.ajaxOptions.success = function(data){
-        debugger
         var dataJson = $.parseJSON(data);
         var flag =  dataJson.sucFlag;
 
@@ -144,7 +142,6 @@ function ajaxSubmit_deleteDealer(params,url,subType,tag){
         }
         if('success'==flag) {
             $(tag).remove();
-            debugger
             showTipInfo('success', dataJson.message);
         }
     }
@@ -190,11 +187,11 @@ function blindBtnsClick(){
     var btnUpload = $("#btnUpload");
     if(btnUpload.length){
         $(btnUpload).click(function(){
-            debugger
             if(!checkDataForBtnUpload()){
                 return false;
             };
             $("#formReqProcess").submit();
+            hideTag("#btnUpload");
             return true  ;
         })
     }
@@ -202,7 +199,6 @@ function blindBtnsClick(){
     for(var i = 0;i<buttons.length;i++){
         $(buttons[i]).click(function(){
             var that = this;
-            debugger
             var buttonName = $(this).attr("id");
             var url = $(this).attr("url");
             var subType = $(this).attr("subType");
@@ -350,34 +346,14 @@ function fileUpReturn(){
         var filesTagsString = getAttaTagAtring(filesArray);
         //var filesTagsString2 = getAttaTagAtring(filesArray2);
         //console.log(filesTagsString);
+        showTag("#btnUpload")
         if("true"==isUpSuccess){
             var processStepId =$("#processStepId").val();
             $(attaDivArr[processStepId]).append(filesTagsString);
             //3.把已上传文件的名称和下载链接显示在页面上
-            //$('#a_reportAtta'+i).attr('href',attaUri);//设置附件a标签的链接
-            //$('#a_reportAtta'+i).html(attaName);//设置附件a标签的内容
+
             resetAttaArrDownloadUri("[id=atta_req]");
             resDelBtnDynamic("reqAttaAdmin","xxAttaReq");
-            //$('div[typeId=reqAttaAdmin]').each (function(){
-            //    var thisBtn = $(this);
-            //    thisBtn.mouseover(function(){
-            //        thisBtn.find('[typeId=xxAttaReq]').show();
-            //    });
-            //    thisBtn.mouseleave(function(){
-            //        thisBtn.find('[typeId=xxAttaReq]').hide();
-            //    });
-            //    thisBtn.find('[typeId=xxAttaReq]').hide();
-            //});
-            resDeleteAttaReq();
-            //$ ("[ typeId=xxAttaReq]").each (function ()
-            //{
-            //    $(this).click(function(){
-            //        alert($(this).attr("attachmentId"));
-            //        var attachmentId = $(this).attr("attachmentId");
-            //        ajaxSubmit_deleteAtta({attachmentId:attachmentId},"req/deleteAtta","post");
-            //        //$('#formDelBoss').submit();
-            //    })
-            //});
             //4.页面给出“文件上传成功与否的提示”
             showTipInfo("success", returnInfo);
         }else if("false"==isUpSuccess){

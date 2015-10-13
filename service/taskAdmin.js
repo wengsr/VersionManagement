@@ -18,7 +18,7 @@ TaskAdmin.findDealTask = function(params,callback){
         var  sql_Count= TaskSQL.countDealTask;
         var sql = TaskSQL.findDealTask;
         sql += " limit ?,30 ";
-        console.log("params:",params);
+        //console.log("params:",params);
         var sql_params = [params.userId,params.startNum];
         var curDealPage = parseInt((params.startNum-1)/30)+1;
         var count_params= [params.userId];
@@ -34,8 +34,6 @@ TaskAdmin.findDealTask = function(params,callback){
                         return callback(err,null);
                     }
                     connection.release();
-                    console.log("findDealTask:",result);
-                    console.log("findDealTask curDealPage:",curDealPage);
                     callback('success',result, count[0].count,curDealPage);
                 });
             }
@@ -44,7 +42,7 @@ TaskAdmin.findDealTask = function(params,callback){
     });
 }
 TaskAdmin.findCreaterTask = function(params,callback){
-    console.log("findCreaterTask:",params);
+    //console.log("findCreaterTask:",params);
     pool.getConnection(function(err, connection){
         if(err){
             console.log('[CONN TASKS ERROR] - ', err.message);
@@ -117,7 +115,7 @@ var getSqlByParams = function(params){
 };
 //根据查找任务的参数 拼接条件SQL
 var getAttaSqlByParams = function(params){
-    console.log("getAttaSqlByParams params:",params);
+    //console.log("getAttaSqlByParams params:",params);
    var taskcode = "%" + params.reqCode + "%";
    var  taskname = "%" + params.reqName + "%";
    var  createrName = "%" + params.createrName + "%";

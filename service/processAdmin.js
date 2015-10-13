@@ -78,7 +78,7 @@ function getNextProcess(params,callback){
           var  processes = Util.getDaoResultPro(result,"processStepId");
           var index = processes.indexOf(curprocessId) + 1;
           var nextProcessId = Util.getNextItemOfArr(processes,curprocessId);
-          console.log("getNextItemOfArr:",nextProcessId)
+          //console.log("getNextItemOfArr:",nextProcessId)
           return  callback(nextProcessId);
       })
 }
@@ -88,7 +88,7 @@ function startProcess(params,callback){
     if(params.processStepId == undefined){
         return callback("success");
     }
-    console.log(" startProcess params:",params.processStepId);
+    //console.log(" startProcess params:",params.processStepId);
     switch(parseInt(params.processStepId)){
         case 1:
             newRDProcess(params,callback);break;
@@ -172,7 +172,7 @@ function endProcess(params,callback){
 var ProcessAdm = function(){
     var that = this;
     this.startNext = function(params,callback){
-        console.log("startNext!");
+        //console.log("startNext!");
         getNextProcess(params,function(nextProcess){
             var nextParams = params;
             nextParams.processStepId = nextProcess;
@@ -188,7 +188,6 @@ var ProcessAdm = function(){
     };
     this.endCurProcess = function(params,callback){
           endProcess(params,function(msg,isEnd){
-              console.log("endCurProcess msg:",msg);
               console.log("endCurProcess msg:",isEnd);
               if(msg =="err"){
                  return callback("err");
@@ -196,7 +195,7 @@ var ProcessAdm = function(){
               if(isEnd=="still"){//当前环节存在子任务未提交
                  return callback("success");
               }
-              console.log("endCurProcess!")
+              //console.log("endCurProcess!")
               that.startNext(params,callback);
           });
     }

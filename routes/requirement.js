@@ -221,7 +221,7 @@ router.post('/newApply', function(req, res, next) {
     ProcessAdmin.newProcess(params,function(msg,result){
         if(msg == "success"){
             var newIds =JSON.stringify(result);
-            //console.log("buttonsString:",button);
+            //console.log("newIds")
             Util.returnJsonMsg(req, res, "success", "新需求已成功申请",newIds);
         }
         else{
@@ -268,7 +268,7 @@ router.post('/findReqs', function(req, res, next) {
     var user = cookiesUtil.getCookieUser(req,res);
     //var allParams = Util.getParamsFromReq(req);
     var params = req.body;
-    console.log("findReqs:",params)
+    //console.log("findReqs:",params)
     params.userId=user.userId;
     params.user=user;
     if(params.startDate ==""){
@@ -355,7 +355,7 @@ router.post('/deleteDealer', function(req, res, next) {
     //var allParams = Util.getParamsFromReq(req);
     var params = req.body;
     params.userId = user.userId;
-    console.log("deleteDealer:",params);
+    //console.log("deleteDealer:",params);
     TaskProcess.deleteDealer(params, function (msg) {
         if (msg == "success") {
             Util.returnJsonMsg(req, res, "success", "已成功删除");
@@ -374,7 +374,7 @@ router.post('/deleteAtta', function(req, res, next) {
     //var allParams = Util.getParamsFromReq(req);
     var params = req.body;
     params.userId = user.userId;
-    console.log("deleteAtta:",params);
+    //console.log("deleteAtta:",params);
     ReqAttaDao.deleteAtta(params, function (msg) {
         if (msg == "success") {
             Util.returnJsonMsg(req, res, "success", "已成功删除");
@@ -421,7 +421,7 @@ router.get('/myReqs/:curPage', function(req, res) {
  */
 router.get('/history/:reqId', function(req, res) {
     var params = req.params;
-    console.log("history params:",req.params);
+    //console.log("history params:",req.params);
     findReqTaskHistory(req,res,params);
 });
 
@@ -497,7 +497,7 @@ router.post('/addRTime', function(req, res) {
     //var allParams = Util.getParamsFromReq(req);
     var params = req.body;
     params.userId= user.userId;
-    console.log("addRTime params:",params);
+    //console.log("addRTime params:",params);
     TaskAdmin.addRTime(params,function(msg,result){
         if(msg=="err"){
            return  Util.returnJsonMsg(req, res, "err", "增加要求时间失败！");

@@ -76,7 +76,7 @@ User.getMenus = function(params,callback){
             return util.hasDAOErr(err," get Connection err!!!",callback);
         }
         var getMenus = (new dBRec("per_2_menu")).getSql(params);
-        console.log("getMenus:",getMenus);
+        //console.log("getMenus:",getMenus);
         connection.query(getMenus.sql, (getMenus.params), function (err, result) {
             if (err) {
                 return util.hasDAOErr(err," getProject  err!!!",callback);
@@ -86,7 +86,7 @@ User.getMenus = function(params,callback){
         });
     });
 }
-User.saveUser([{userId:229,userName:"zlj",email:"test"},{userId:228,userName:"zlj",email:"test"}],function(msg,result){
-    console.log(result);
-});
+//User.saveUser([{userId:229,userName:"zlj",email:"test"},{userId:228,userName:"zlj",email:"test"}],function(msg,result){
+//    console.log(result);
+//});
 module.exports = User;

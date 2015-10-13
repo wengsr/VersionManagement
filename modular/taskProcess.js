@@ -72,10 +72,11 @@ TaskProcess.newRDProcess = function(params,callback){
         var sql_params = [searchReaName_params, getProject_parames, countReq_params, addReq_params,addReqProcess_params,addCreaterRole_params];
         var i= 0;
         var lastSql = "addCreaterRole";
+        var reqProcessStepId,reqId;
         async.eachSeries(sqlMember, function (item, callback_async) {
-            console.log(item + " ==> ",  sql[item]);
+            //console.log(item + " ==> ",  sql[item]);
             trans.query(sql[item], sql_params[i],function (err_async, result) {
-                console.log("trans :",result);
+                //console.log("trans :",result);
                 if(err_async) {
                     console.log(item+" result:", err_async.message);
                     callback("err");
@@ -110,9 +111,13 @@ TaskProcess.newRDProcess = function(params,callback){
                     sql_params[4]=[reqId,params.processStepId,params.userId,params.execTime,reqId];
                     sql_params[5] = [7,params.userId,reqId];
                 }
+                else if (item == 'addReqProcess') {
+                    //console.log("userAddSql:", result);
+                    reqProcessStepId = result.insertId;
+                }
                 if(item ==lastSql && !err_async){//最后一条sql语句执行没有错就返回成功
                     trans.commit();
-                    return callback('success');
+                    return callback('success',{reqId:reqId,reqProcessStepId:reqProcessStepId});
                 }
                 //console.log(result);
                 callback_async(err_async, result);
@@ -151,9 +156,9 @@ TaskProcess.nextRDProcessWithDealer = function(params,callback){
         var i= 0;
         var lastSql = "addReqProcess";
         async.eachSeries(sqlMember, function (item, callback_async) {
-            console.log(item + " ==> ",  sql[item]);
+            //console.log(item + " ==> ",  sql[item]);
             trans.query(sql[item], sql_params[i],function (err_async, result) {
-                console.log(item + " ==> ",result)
+                //console.log(item + " ==> ",result)
                 if (err) {
                     console.log(item + " result:", err_async.message);
                     callback("err");
@@ -161,7 +166,7 @@ TaskProcess.nextRDProcessWithDealer = function(params,callback){
                     return;
                 }
                 i++;
-                console.log("result:",result);
+                //console.log("result:",result);
                 if(item == "seleteDesLeader" && !err_async){//最后一条sql语句执行没有错就返回成功
                     if(result.length){
                         sql_params[2]  = [params.reqId,params.processStepId,result[0].dealer,params.execTime,params.reqId];
@@ -202,7 +207,7 @@ TaskProcess.nextRDProcess = function(params,callback){
                 return;
             }
             else{
-                console.log("nextRDProcess:",result);
+                //console.log("nextRDProcess:",result);
                 callback("success");
             }
         });
