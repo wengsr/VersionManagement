@@ -86,4 +86,9 @@ taskSQL.deleteReq = "update requirement set processStepId = 0-processStepId wher
 var deleteReq_params = "[reqId]";
 taskSQL.addRTime = "update requirement set requestTime  = ?  where reqId = ?"
 var deleteReq_params = "[requestTime,reqId]";
+taskSQL.searchEmailInfo = "select r.reqCode,r.reqName,r.processStepId, rs.processStepName ,u.realName,u.email from reqprocessstep rps JOIN user u on u.userId = rps.dealer" +
+"   join requirement r  on rps.reqId = r.reqId and rps.processStepId = r.processStepId and r.turnNum = rps.turnNum" +
+"   JOIN  reqstep rs on rs.processStepId = r.processStepId" +
+"   And r.reqId =?"
+var searchEmailInfo = "[reqId]";
 module.exports = taskSQL;

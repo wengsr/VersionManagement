@@ -9,6 +9,7 @@ var AttaSql= require("../sqlStatement/AttaSql");
 var TaskAdminDao= require("../modular/taskAdminDao");
 var TaskConf= require("../modular/taskConf");
 var TaskAdmin ={};
+var Email =require("../service/email");
 TaskAdmin.findDealTask = function(params,callback){
     pool.getConnection(function(err, connection){
         if(err){
@@ -376,6 +377,23 @@ TaskAdmin.addRTime = function(params,callback){
         }
         console.log("addRTime result:",result);
         callback("success",result);
+    });
+}
+
+TaskAdmin.sendEmail = function(params){
+    TaskAdminDao.searchEmailInfo(params,function(msg,result){
+        if(msg =="err"){
+            console.log("sendEmail ERR!!!");
+            return ;
+        }
+        //console.log("searchEmailInfo result:",result);
+        if(result.length){
+            console.log("sendEmail info:",result);
+          for(var i = 0;i<result.length;i++){
+              setTimeout( Email.sendEmailToDealer(result[i]),"10000") ;
+          }
+        }
+        //callback("success",result);
     });
 }
 module.exports = TaskAdmin;

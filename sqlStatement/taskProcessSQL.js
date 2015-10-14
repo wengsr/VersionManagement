@@ -15,8 +15,8 @@ TaskProcessSQL.countReq ='UPDATE  project set reqCount = reqCount + 1 where proj
 var countReq_params = "[projectId]";
 TaskProcessSQL.getProject =' SELECT * FROM project where projectId = ?';
 var getProject_parames = "[projectId]";
-TaskProcessSQL.addReq = 'INSERT INTO requirement(typeId,reqCode, reqName, creater, stateId, processStepId, projectId, reqDesc,expectTime) VALUES(?,?,?,?,?,?,?,?,?)';
-var addReq_params ="[typeId,reqCode, reqName, creater, stateId, processStepId, projectId, reqDesc,expectTime]";
+TaskProcessSQL.addReq = 'INSERT INTO requirement(reqCode, reqName, creater, stateId, processStepId, projectId, reqDesc,expectTime) VALUES(?,?,?,?,?,?,?,?)';
+var addReq_params ="[reqCode, reqName, creater, stateId, processStepId, projectId, reqDesc,expectTime]";
 TaskProcessSQL.addReqProcess = ' INSERT INTO reqprocessstep(reqId, processStepId, dealer,execTime,turnNum) VALUES(?,?,?,?,' +
 '   (select turnNum  from requirement where reqId = ?))';
 var addReqProcess_params = "[reqId,processStepId,dealer,execTime,reqId]";

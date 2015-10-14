@@ -84,16 +84,16 @@ function getDataForBtnNextDealer(){
 //btnApply 要提交的数据
 function getDataForBtnApply(){
     var submitData = {};
-    //submitData.reqId = $("#reqId").val();
+
     submitData.stateId = $("#stateId").val();
     submitData.processStepId = $("#processStepId").val();
     submitData.projectId = $("#projectId").val();
     submitData.reqName = $("#reqName").val();
     submitData.reqDesc = $("#reqDesc").val();
     submitData.projectId = $("#projectId").val();
-    submitData.typeId = $("[name=reqType]:checked").val();
+    //submitData.typeId = $("[name=reqType]:checked").val();
     submitData.expectTime = $("#expectTime").val();
-    if(checkSubmitValue(submitData,["projectId","reqName","reqName","expectTime","typeId"])){
+    if(checkSubmitValue(submitData,["projectId","reqName","reqName","expectTime"])){
         return submitData;
     }
     else{

@@ -8,6 +8,7 @@ var Util = require("../util/util");
 var procToProDao = require("../modular/procToProDao")
 var TaskProcess = require("../modular/taskProcess");
 var ReqConstant = require("../util/ReqConstant")
+var TaskAdmin = require("../service/taskAdmin")
 var newRDProcess = function(params,callback){
     params.stateId = ReqConstant.stateId.APPLYED;
     params.processStepId = ReqConstant.processStepId.APPLY;
@@ -100,28 +101,7 @@ function startProcess(params,callback){
             desConfirmRDProcess(params,callback);break;
         case 5:
             devRDProcss(params,callback);break;
-        //case "rd_6":
-        //    completeRDProcss(taskId,nextPro,callback);break;
-        //case "vm_1":
-        //    newVMProcss(taskId,nextPro,callback);break;
-        //case "vm_2":
-        //    newVMProcss(taskId,nextPro,callback);break;
-        //case "vm_3":
-        //    newVMProcss(taskId,nextPro,callback);break;
-        //case "vm_4":
-        //    newVMProcss(taskId,nextPro,callback);break;
-        //case "vm_5":
-        //    newVMProcss(taskId,nextPro,callback);break;
-        //case "vm_6":
-        //    newVMProcss(taskId,nextPro,callback);break;
-        //case "vm_7":
-        //    newVMProcss(taskId,nextPro,callback);break;
-        //case "vm_8":
-        //    newVMProcss(taskId,nextPro,callback);break;
-        //case "vm_9":
-        //    newVMProcss(taskId,nextPro,callback);break;
-        //case "vm_10":
-        //    newVMProcss(taskId,nextPro,callback);break;
+
     }
 
 }
@@ -180,7 +160,13 @@ var ProcessAdm = function(){
             if(nextParams==undefined){
                 callback("success");
             }
-            startProcess(nextParams,callback);
+            startProcess(nextParams,function(msg,result){
+                if(msg == "success"){
+                    TaskAdmin.sendEmail(params);
+                }
+                return  callback(msg,result);
+
+            });
         });
     };
     this.newProcess = function(params,callback){

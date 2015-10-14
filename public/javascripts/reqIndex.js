@@ -27,12 +27,13 @@ function bindClickToMenus(){
 }
 
 /**
- * 变更单记录数为0时候的处理
+ * 任务为0时候的处理
  */
 function dealZeroTask(){
     $('#noTaskNotice').hide();
     if($('#recCount').attr('recCount')==0){
         $('#taskDiv').hide();
+        $('#AttaDiv').hide();//显示附件记录时
         $('#noTaskNotice').show();
     }
 }

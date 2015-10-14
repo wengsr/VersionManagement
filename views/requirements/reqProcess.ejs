@@ -71,23 +71,7 @@
                         </div>
                     </div>
 
-                    <div  id ="divReqType">
-                        <%if(stateId<1||(infoDivs.typeId)){%>
-                        <div id="reqtypeDiv" class="form-group" class="col-sm-6">
-                            <label for="reqType" class="col-sm-2 control-label">类型</label>
-                            <div class="col-sm-4">
-                                <input type="radio" id = "reqType"    name="reqType" value="1" />需求
-                                <input type="radio" id = "reqType"    name="reqType" value="2"/>bug
-                            </div>
-                            </div>
-                        <%}else if(taskInfo.typeName){%>
-                        <div id="reqtypeDiv" class="form-group" class="col-sm-6">
-                            <label for="reqType" class="col-sm-2 control-label">类型</label>
-                            <div class="col-sm-4">
-                            <input type="radio" id = "reqType" class="col-sm-2" name="reqType" checked value="<%=taskInfo.typeId%>"/><%=taskInfo.typeName%>
-                            </div>
-                        </div>
-                        <%}%>
+                    <div  id ="divExpectTime">
                         <%if(processStepId<3){%>
                         <div class="form-group" id ="divExpectTime" class ="col-sm-6" >
                         <label for="reqType" class="col-sm-2 control-label">期望完成时间</label>
@@ -136,7 +120,7 @@
                         <%}%>
                          <%if((processStepId==2)||(processStepId>2)&&(taskInfo.requestTime!=undefined)&&(taskInfo.requestTime!="")){%>
                           <div  id="divRequestTime" class="form-group"  class="col-sm-10">
-                               <label for="requestTime" class="col-sm-2 control-label">要求时间</label>
+                               <label for="requestTime" class="col-sm-2 control-label">要求完成时间</label>
                                <div class="col-sm-4">
                                    <%if((stateId>1)&&(taskInfo.requestTime!=undefined)&&(taskInfo.requestTime!="")){%>
                                    <input   name="requestTime" id="requestTime" disabled="disabled" value="<%=taskInfo.requestTime==undefined?"":taskInfo.requestTime%>"/>
@@ -233,7 +217,7 @@
                         <div class="col-sm-4" style="padding-top:10px">
                             <label for="addLeader" >负责人：</label>
                             <input type="radio"   name="addLeader" id="addLeader"  value="1" />是
-                            <input type="radio"   name="addLeader" id="addLeader"  value="0" />否
+                            <input type="radio"   name="addLeader" id="addLeader" checked  value="0" />否
                         </div>
                         <%if(buttons.btnNextDealer){%>
                             <%-buttons.btnNextDealer.btnCode%>
@@ -291,7 +275,7 @@
                            <div class="col-sm-4" style="padding-top:10px">
                             <label for="addLeader" >负责人：</label>
                                <input type="radio"   name="addLeader" id="addLeader"  value="1" />是
-                               <input type="radio"   name="addLeader" id="addLeader"  value="0" />否
+                               <input type="radio"   name="addLeader" id="addLeader" checked  value="0" />否
                             </div>
                         <%if(buttons.btnNextDealer){%>
                             <%-buttons.btnNextDealer.btnCode%>

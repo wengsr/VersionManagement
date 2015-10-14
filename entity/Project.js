@@ -76,4 +76,4 @@ var Project  =function() {
 Project.init = function(project){
     Root.call(this,project);
 }
-console.log( new Project().saveSql({projectId:1}));
+//console.log( new Project().saveSql({projectId:1}));

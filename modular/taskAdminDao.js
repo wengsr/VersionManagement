@@ -6,6 +6,7 @@ var dBRec = require("../sqlStatement/DBRec");
 var async = require('async');// 加载async 支持顺序执行
 var queues = require('mysql-queues');// 加载mysql-queues 支
 var util = require("../util/util");
+var daoUtil = require("./daoUtil");
 var TaskSQL = require("../sqlStatement/taskSQL");
 var AttaSQL = require("../sqlStatement/AttaSql");
 var TaskProcessSQL = require("../sqlStatement/taskProcessSQL");
@@ -13,7 +14,7 @@ var TaskAdminDao  = {};
 TaskAdminDao.getAllInfos = function(params,callback){
     pool.getConnection(function(err, connection){
         if(err){
-            return util.hasDAOErr(err," get Connection err!!!",callback);
+            return daoUtil.hasDAOErr(err," get Connection err!!!",callback);
         }
         queues(connection);
         var trans = connection.startTransaction();
@@ -123,5 +124,24 @@ TaskAdminDao.addRTime = function(params,callback){
             return callback('success',result);
         });
     });
+};
+/**
+ * 查找发送邮件时，所需信息
+ */
+TaskAdminDao.searchEmailInfo = function(params,callback){
+    pool.getConnection(function(err,connection){
+        if(err){
+            return util.hasDaoErr(err,"get conne err!!!",callback)
+        }
+        var sql = TaskSQL.searchEmailInfo;
+        var sql_params = [params.reqId];
+        connection.query(sql,sql_params,function(query_err,result){
+            if(query_err){
+                return daoUtil.hasDAOErr(query_err,"searchEmailInfo",callback)
+            }
+            connection.release();
+            return  callback("success",result);
+        })
+    })
 }
 module.exports =  TaskAdminDao;

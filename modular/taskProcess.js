@@ -64,7 +64,7 @@ TaskProcess.newRDProcess = function(params,callback){
         var searchReaName_params = [params.reqName,params.reqName,params.reqName];
         var getProject_parames = [params.projectId];
         var countReq_params = [params.projectId];
-        var addReq_params =[params.typeId,params.reqCode, params.reqName, params.userId, stateId, params.processStepId, params.projectId, params.reqDesc,params.expectTime];
+        var addReq_params =[params.reqCode, params.reqName, params.userId, stateId, params.processStepId, params.projectId, params.reqDesc,params.expectTime];
         var addReqProcess_params = [reqId,params.processStepId,params.userId,params.execTime,reqId];
         //var updateAttachment_params = [reqId,attIdArr];
         var addCreaterRole_params = [7,params.userId,params.reqId];
@@ -100,7 +100,7 @@ TaskProcess.newRDProcess = function(params,callback){
                         var nowDate = util.getDateString();
                         reqCount= util.getFixedLengthNumber(reqCount,4,"0");
                         reqCode = project[0].projectName +'_'+nowDate+'_'+reqCount;
-                        sql_params[3] = [params.typeId,reqCode, params.reqName, params.userId, stateId, "1",
+                        sql_params[3] = [reqCode, params.reqName, params.userId, stateId, "1",
                             params.projectId, params.reqDesc,params.expectTime];
                     }
                 }
