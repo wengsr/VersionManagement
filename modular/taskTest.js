@@ -1103,7 +1103,7 @@ TaskTest.findPreTestInfo = function(taskId,callback){
     });
 }
 /**
- * 测试变更单是否已经被占用
+ * 测试变更单名是否已经被占用
  * @param taskId
  * @param callback
  */

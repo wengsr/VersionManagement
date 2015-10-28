@@ -1442,7 +1442,7 @@ router.post('/submitFile', function(req, res) {
                 }
                 else{
                     var allFiles = scanFoldForUri(scanFold,scanFold).fileUris;//获取变更单中的文件名;
-                    if((allFiles.length==0)||(allFiles.length > filesAndState.length) ){//变更单中new文件夹下的文件数是否和数据库中的一致
+                    if((allFiles.length==0)||(allFiles.length == filesAndState.length) ){//变更单中new文件夹下的文件数是否和数据库中的一致
                         dao.delNewAndOld(taskId,3,function(msg){
                             if(msg =="err"){
                                 console.log("delNewAndOld err:");
@@ -1540,6 +1540,7 @@ router.post('/submitFile', function(req, res) {
                                      });
                                      return ;
                                  }
+
                                  else{
                                      dao.submitFile(taskId, function(msg,result) {//
                                          if ('success' == msg) {
@@ -1705,7 +1706,6 @@ router.post('/extractFile', function(req, res) {
                                     });
                                 }
                             });
-
                         }
                     }
                 });
@@ -2168,6 +2168,10 @@ router.post('/autoUpload', function(req,res) {
             if(('same' != compResult.msg )&&isDiffArr(compResult.diff,delFileList)){
                 return returnJsonMsg(req, res, "err", "旧文件或文件夹在new文件夹中不存在，请手动上库！涉及文件：" + compResult.diff);
             }
+            //没有旧文件，只有新增，没有修改和新增文件,跳转至“更新svn信息再上传”
+            if((modTaskList=="")&&(delTaskList =="")){
+                return returnJsonMsg(req, res, "err", "自动上库过程出现错误,请“更新svn信息再上传”");
+            }
             //到数据库查找svn 账号
             dao.getSvnUser(function(msg,result_svn) {
                 if (msg === "err") {
@@ -2237,6 +2241,7 @@ router.post('/updateSvnAndCommit', function(req,res) {
     }
     var modTaskList = req.body['modifyTaskList'];
     var modFileList = modTaskList.split('\n');
+    var modAndDelFiles = modFileList.concat(addFileList);
     //1.3获取上传的附件名
     var a_attaFile = req.body['a_attaFile'];
     var projectUri = req.body["projectUri"];
@@ -2267,8 +2272,8 @@ router.post('/updateSvnAndCommit', function(req,res) {
             var option = result_svn;
             console.log("svn  options;", option);
             svn = new Svn(option);
-            Compare.getCheckFiles(svn,modFileList,addFileList,projectUri,function(msg){
-                svn.checkout(tempFolder,projectUri,msg,function(err,flag){
+            Compare.getCheckFiles(svn,modAndDelFiles,addFileList,projectUri,function(needCheckoutFiles){
+                svn.checkout(tempFolder,projectUri,needCheckoutFiles,function(err,flag){
                     if(err){
                         console.error("getCheckFiles <<< checkout ERRR!!!!",err);
                         return returnJsonMsg(req, res, "err", "更新svn信息出错!");

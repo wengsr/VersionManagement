@@ -34,12 +34,35 @@ function showReTest(){
     $("#btnBugConfirmed").hide();
     $("#btnRequireTest").hide();
 }
+//测试不通过，自动生成新的变更单名
+function getBugNewName(oldName){
+    var index = oldName.lastIndexOf("-")> oldName.lastIndexOf("_")? oldName.lastIndexOf("-"): oldName.lastIndexOf("_");
+    var num = oldName.substring(index+1,oldName.length);
+    num++;
+    if(num<10){
+        num = "00"+num;
+    }
+    else{
+        num =  "0" +num;
+    }
+    var newName;
+    if(oldName.indexOf("修订")>-1){
+        newName = oldName.substring(0,index)+"-"+num;
+    }
+    else{
+        newName = oldName.substring(0,index)+"-修订-"+num;
+    }
+    return newName;
+}
+
 /**
  *确定为bug ，填写新的变更单名
  */
 function showNewTask(){
     $("#reasonDiv").hide();
     $("#newTaskDiv").show();
+    $("#btnNewTaskName").val(getBugNewName($("#taskName")));
+    $("#btnNewTaskName").attr("disabled","disabled");
     $("#btnNewTaskName").show();
     $("#submitTReport").hide();
     $("#btnReTest").hide();

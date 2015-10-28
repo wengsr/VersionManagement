@@ -187,15 +187,17 @@ compareSvnDir = function(svn,file,versionDir,callback){
     }
     return  compareSync(paths,versionDir);
 }
-exports.getCheckFiles = function(svn,modFiles,addFiles,versionDir,callback){
+//得到真正需要从svn上提取的文件数组
+exports.getCheckFiles = function(svn,modAndDelFiles,addFiles,versionDir,callback){
     var allFiles = [];
     if(modFiles.length){
-        allFiles = modFiles;
+        allFiles = modAndDelFiles;
     }
     var allLength = allFiles.length;
     addFiles.sort();
     var addLength = addFiles.length;
     var i = 0;
+    //得到真正需要从svn上提取的文件数组，主要处理新增文件；
     var getAllPath = function(addFiles,versionDir, callback){
       compareSvnDir(svn,addFiles[i],versionDir, function(result){
            if(result != allFiles[allLength -1]&&(result.length != 0)){

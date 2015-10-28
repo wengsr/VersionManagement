@@ -357,7 +357,7 @@ Svn.prototype.commitChangeRar = function(filePath,oldPath,fileName,newName,versi
 
 module.exports = Svn;
 /********测试案例*********/
-//var localDir = "D:/test/test4/";
+//var localDir = "D:/test/";
 //var localDir = "D:/变更单/变更单/2015-08/NCRM开发变更单-XJ-20150815-订单资源释放-jinsh3-001/new";
 //var msg = "【版本管理系统】--自动上库:NCRM开发变更单-XJ-20150815-订单资源释放-jinsh3-001";
 //test.autoUpload(msg, localDir,[],function(isSuccess,result){//除了被删除的文件，目录下的所有文件将被提交
@@ -367,4 +367,9 @@ module.exports = Svn;
 //    if('success'== isSuccess){
 //        console.log("autoUpload success!")
 //    }
+//});
+//var versionDir = "http://192.168.1.22:8000/svn/hxbss/testVersion/a";
+//var svn = new Svn({username:"zhanglj6",password:"zhanglj72774"})
+//svn.checkout(localDir,versionDir,["","2015-81"],function(msg){
+//    console.log("checkout:",msg)
 //});
