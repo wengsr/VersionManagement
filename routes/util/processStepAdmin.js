@@ -165,7 +165,7 @@ function endSubmitToDev(params,callback){
     TaskProcess_version.updateState(newParams,function(msg,result){
         //邮件通知变更单创建者
         TaskProcess_version.findCreaterAndTaskInfo(params,function(msg_get,creaters){
-            if(msg_get){
+            if(msg_get=="err"){
                 console.error("获取创建者出错！");
             }
             if(!result.length){
