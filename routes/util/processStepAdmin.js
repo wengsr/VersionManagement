@@ -91,7 +91,7 @@ var  submitFail  = function(params,callback){
                 return  console.error("没有找到版本管理员！");
             }
             result.forEach(function(item){
-                //setTimeout( Email.sendEmailToDealer_new(item),"1000");
+                setTimeout( Email.sendEmailToDealer_new(item),"1000");
             })
         });
     });
@@ -164,18 +164,18 @@ function endSubmitToDev(params,callback){
     newParams.state =  States.SUBMITTODEVCOMPLETE;
     TaskProcess_version.updateState(newParams,function(msg,result){
         //邮件通知变更单创建者
-    //    TaskProcess_version.findCreaterAndTaskInfo(params,function(msg_get,creaters){
-    //        if(msg_get){
-    //            console.error("获取创建者出错！");
-    //        }
-    //        if(!result.length){
-    //            console.error("没有找到创建者！");
-    //        }
-    //        creaters.forEach(function(creater){
-        //        creater.processStepId = 11;//邮件内容设置
-    //            setTimeout( Email.sendEmailToDealer_new(creater),"1000");
-    //        })
-    //    });
+        TaskProcess_version.findCreaterAndTaskInfo(params,function(msg_get,creaters){
+            if(msg_get){
+                console.error("获取创建者出错！");
+            }
+            if(!result.length){
+                console.error("没有找到创建者！");
+            }
+            creaters.forEach(function(creater){
+                creater.processStepId = 11;//邮件内容设置
+                setTimeout( Email.sendEmailToDealer_new(creater),"1000");
+            })
+        });
         var endParams = newParams;
         endParams.processStepId = 13;
         startProcess(endParams);
