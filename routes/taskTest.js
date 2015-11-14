@@ -364,7 +364,7 @@ var isSearchCondsExits= function(req, res){
 var newTaskName = function(req,res,taskId,creater,tester,taskName){
     TaskTest.newTaskName(taskId,creater,tester,taskName,function(msg,result){
         if('success' == msg){
-            jsonStr = '{"sucFlag":"success","message":"【确定存在Bug】执行成功"，"taskName":"'+taskName+'"}';
+            jsonStr = '{"sucFlag":"success","message":"【确定存在Bug】执行成功","taskName":"'+taskName+'"}';
             sendEmailToCreaterTest(req,taskId,creater,'10',taskName)
         }else{
             jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
