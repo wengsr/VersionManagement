@@ -7,7 +7,7 @@
 function showIndex(){
     $("#reasonDiv").hide();
     $("#newTaskDiv").hide();
-    $("#btnNewTaskName").hide();
+    $("#btnNewTaskName").show();
     $("#submitTReport").hide();
     $("#btnReTest").hide();
     $("#testReport").hide();
@@ -168,8 +168,10 @@ function ajaxSubmit(params, url, subType){
                 }
                 showTipInfo('err',dataJson.message);
             }else if('success'==flag){
-                $("#btnReturn").hide();
-                $("#newTask").attr("disabled","disabled");
+                if(url=="/taskTest/newTaskName"){
+                    $("#newTask").text(dataJson.taskName);
+                }
+                //$("#btnReturn").hide();
                 showTipInfo('success',dataJson.message);
             }
         },
@@ -200,7 +202,7 @@ function submitForm_newTask(){
     var test_params={
         taskId: $('#taskId').val(),
         preDealer:$("#preDealer").val(),
-        taskName: $('#newTask').val()
+        taskName: $('#taskName').text()
     };
 
     var test_url='taskTest/newTaskName';
@@ -351,11 +353,11 @@ jQuery(document).ready(function() {
     $('#btnRequireTest').click(function(){
         showReTest();
     });
-    $('#btnBugConfirmed').click(function(){
-        showNewTask();
-    });
+    //$('#btnBugConfirmed').click(function(){
+    //    showNewTask();
+    //});
     $('#btnReTest').click(function(){
-        debugger
+        $('#btnReTest').hide();
         if(checkAtta()&&checkReason()){
             $('#btnReTest').hide();
             submitForm_reTest();
@@ -363,10 +365,12 @@ jQuery(document).ready(function() {
 
     });
     $('#btnNewTaskName').click(function(){
-        if(!checkNewTask()){
-            return ;
-        }
+        //if(!checkNewTask()){//自动生成
+        //    return ;
+        //}
+        $("#newTaskDiv").show();
         $('#btnNewTaskName').hide();
+        $('#btnRequireTest').hide();
         submitForm_newTask();
 
     });

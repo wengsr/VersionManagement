@@ -48,7 +48,8 @@ var pool = require('../util/connPool.js').getPool();
 var async = require('async');// 加载async 支持顺序执行
 var queues = require('mysql-queues');// 加载mysql-queues 支持事务
 var file = require("../modular/task");
-
+var ApplyOrderSQL = require("./sqlStatement/applyOrderSql");
+var TaskSQL = require("./sqlStatement/taskSql");
 function Task(task){
     this.taskid = task.taskid
     this.taskcode = task.taskcode
@@ -250,70 +251,72 @@ Task.findDealTaskByUserId = function(userId,startNum,callback){
             '   ) taskTable2' +
             '   LEFT JOIN user oU2 ON taskTable2.creater = oU2.userId';
 
-        var sql = 'select * FROM' +
-            '   (SELECT  taskTable2.* , oU2.realName as createrName from' +
-            '   (' +
-            '   SELECT taskTable.*, oU.realName as dealerName from' +
-            '   (' +
-            '   SELECT DISTINCT t1.*,ps1.processStepName as stepName, 2 as taskType' +
-            '   from tasks t1' +
-            '   JOIN processstepdealer psd1 ON t1.processStepId = psd1.processStepId' +
-            '   AND psd1.projectId = t1.projectId' +
-            '   AND t1.projectId = psd1.projectId' +
-            '   JOIN user u1 ON psd1.userId = u1.userId AND u1.userId = ?' +
-            '   JOIN processstep ps1 ON ps1.processStepId = t1.processStepId' +
-            '   JOIN taskprocessstep tps1 ON tps1.taskId = t1.taskid' +
-            '   AND tps1.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps1 where maxtps1.taskId = t1.taskid)' +
-            '   AND tps1.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps2 where maxtps2.taskId = t1.taskid)' +
-            '   AND tps1.processStepId = t1.processStepId' +
-            '   AND (tps1.dealer is NULL AND tps1.processStepId in (2,6)' +
-            '   OR' +
-            '   tps1.dealer is NOT NULL AND tps1.processStepId not in (2,6) AND tps1.dealer=?' +
-            '   OR' +
-            '   tps1.dealer is NOT NULL AND tps1.processStepId in (2,6) AND tps1.dealer=?' +
-            '   )' +
-            '   ) taskTable' +
-            '   JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid' +
-            '   AND oTps.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps2 where maxtps2.taskId = taskTable.taskid)' +
-            '   AND oTps.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps3 where maxtps3.taskId = taskTable.taskid)' +
-            '   AND oTps.processStepId = taskTable.processStepId' +
-            '   LEFT JOIN user oU ON oTps.dealer = oU.userId' +
-            '   ) taskTable2' +
-            '   LEFT JOIN user oU2 ON taskTable2.creater = oU2.userId) as taskTable3' +
-            '   where  taskTable3.taskid>' +
-            '   (' +
-            '   select tasktable6.taskid from (' +
-            '   SELECT taskTable2.* from' +
-            '   (  ' +
-            '   SELECT taskTable.*, oU.realName as dealerName from' +
-            '   (' +
-            '   SELECT DISTINCT t1.*,ps1.processStepName as stepName, 2 as taskType' +
-            '   from tasks t1' +
-            '   JOIN processstepdealer psd1 ON t1.processStepId = psd1.processStepId' +
-            '   AND psd1.projectId = t1.projectId' +
-            '   AND t1.projectId = psd1.projectId' +
-            '   JOIN user u1 ON psd1.userId = u1.userId AND u1.userId = ?' +
-            '   JOIN processstep ps1 ON ps1.processStepId = t1.processStepId' +
-            '   JOIN taskprocessstep tps1 ON tps1.taskId = t1.taskid' +
-            '   AND tps1.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps1 where maxtps1.taskId = t1.taskid)' +
-            '   AND tps1.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps2 where maxtps2.taskId = t1.taskid)' +
-            '   AND tps1.processStepId = t1.processStepId' +
-            '   AND (tps1.dealer is NULL AND tps1.processStepId in (2,6)' +
-            '   OR' +
-            '   tps1.dealer is NOT NULL AND tps1.processStepId not in (2,6) AND tps1.dealer=?' +
-            '   OR' +
-            '   tps1.dealer is NOT NULL AND tps1.processStepId in (2,6) AND tps1.dealer=?' +
-            '   )  ' +
-            '   ) taskTable' +
-            '   JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid' +
-            '   AND oTps.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps2 where maxtps2.taskId = taskTable.taskid)' +
-            '   AND oTps.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps3 where maxtps3.taskId = taskTable.taskid)' +
-            '   AND oTps.processStepId = taskTable.processStepId' +
-            '   LEFT JOIN user oU ON oTps.dealer = oU.userId' +
-            '   ) taskTable2' +
-            '   LEFT JOIN user oU2 ON taskTable2.creater = oU2.userId ) as tasktable6 ORDER BY taskTable6.taskcode limit ?,1' +
-            '   )  ORDER BY taskTable3.taskcode limit 30';
+        //var sql = 'select * FROM' +
+        //    '   (SELECT  taskTable2.* , oU2.realName as createrName from' +
+        //    '   (' +
+        //    '   SELECT taskTable.*, oU.realName as dealerName from' +
+        //    '   (' +
+        //    '   SELECT DISTINCT t1.*,ps1.processStepName as stepName, 2 as taskType' +
+        //    '   from tasks t1' +
+        //    '   JOIN processstepdealer psd1 ON t1.processStepId = psd1.processStepId' +
+        //    '   AND psd1.projectId = t1.projectId' +
+        //    '   AND t1.projectId = psd1.projectId' +
+        //    '   JOIN user u1 ON psd1.userId = u1.userId AND u1.userId = ?' +
+        //    '   JOIN processstep ps1 ON ps1.processStepId = t1.processStepId' +
+        //    '   JOIN taskprocessstep tps1 ON tps1.taskId = t1.taskid' +
+        //    '   AND tps1.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps1 where maxtps1.taskId = t1.taskid)' +
+        //    '   AND tps1.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps2 where maxtps2.taskId = t1.taskid)' +
+        //    '   AND tps1.processStepId = t1.processStepId' +
+        //    '   AND (tps1.dealer is NULL AND tps1.processStepId in (2,6,12)' +
+        //    '   OR' +
+        //    '   tps1.dealer is NOT NULL AND tps1.processStepId not in (2,6) AND tps1.dealer=?' +
+        //    '   OR' +
+        //    '   tps1.dealer is NOT NULL AND tps1.processStepId in (2,6) AND tps1.dealer=?' +
+        //    '   )' +
+        //    '   ) taskTable' +
+        //    '   JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid' +
+        //    '   AND oTps.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps2 where maxtps2.taskId = taskTable.taskid)' +
+        //    '   AND oTps.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps3 where maxtps3.taskId = taskTable.taskid)' +
+        //    '   AND oTps.processStepId = taskTable.processStepId' +
+        //    '   LEFT JOIN user oU ON oTps.dealer = oU.userId' +
+        //    '   ) taskTable2' +
+        //    '   LEFT JOIN user oU2 ON taskTable2.creater = oU2.userId) as taskTable3' +
+        //    '   where  taskTable3.taskid>' +
+        //    '   (' +
+        //    '   select tasktable6.taskid from (' +
+        //    '   SELECT taskTable2.* from' +
+        //    '   (  ' +
+        //    '   SELECT taskTable.*, oU.realName as dealerName from' +
+        //    '   (' +
+        //    '   SELECT DISTINCT t1.*,ps1.processStepName as stepName, 2 as taskType' +
+        //    '   from tasks t1' +
+        //    '   JOIN processstepdealer psd1 ON t1.processStepId = psd1.processStepId' +
+        //    '   AND psd1.projectId = t1.projectId' +
+        //    '   AND t1.projectId = psd1.projectId' +
+        //    '   JOIN user u1 ON psd1.userId = u1.userId AND u1.userId = ?' +
+        //    '   JOIN processstep ps1 ON ps1.processStepId = t1.processStepId' +
+        //    '   JOIN taskprocessstep tps1 ON tps1.taskId = t1.taskid' +
+        //    '   AND tps1.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps1 where maxtps1.taskId = t1.taskid)' +
+        //    '   AND tps1.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps2 where maxtps2.taskId = t1.taskid)' +
+        //    '   AND tps1.processStepId = t1.processStepId' +
+        //    '   AND (tps1.dealer is NULL AND tps1.processStepId in (2,6,12)' +
+        //    '   OR' +
+        //    '   tps1.dealer is NOT NULL AND tps1.processStepId not in (2,6) AND tps1.dealer=?' +
+        //    '   OR' +
+        //    '   tps1.dealer is NOT NULL AND tps1.processStepId in (2,6) AND tps1.dealer = ?' +
+        //    '   )  ' +
+        //    '   ) taskTable' +
+        //    '   JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid' +
+        //    '   AND oTps.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps2 where maxtps2.taskId = taskTable.taskid)' +
+        //    '   AND oTps.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps3 where maxtps3.taskId = taskTable.taskid)' +
+        //    '   AND oTps.processStepId = taskTable.processStepId' +
+        //    '   LEFT JOIN user oU ON oTps.dealer = oU.userId' +
+        //    '   ) taskTable2' +
+        //    '   LEFT JOIN user oU2 ON taskTable2.creater = oU2.userId ) as tasktable6 ORDER BY taskTable6.taskcode limit ?,1' +
+        //    '   )  ORDER BY taskTable3.taskcode limit 30';
         //查询第一页
+        var taskSql = new TaskSQL();
+        var sql = taskSql.findDealTaskSql;
         var sql_0 = 'select * from (' +
         '   SELECT taskTable2.* , oU2.realName as createrName from' +
         '   (  ' +
@@ -330,7 +333,7 @@ Task.findDealTaskByUserId = function(userId,startNum,callback){
         '   AND tps1.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps1 where maxtps1.taskId = t1.taskid)' +
         '   AND tps1.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps2 where maxtps2.taskId = t1.taskid)' +
         '   AND tps1.processStepId = t1.processStepId' +
-        '   AND (tps1.dealer is NULL AND tps1.processStepId in (2,6)' +
+        '   AND (tps1.dealer is NULL AND tps1.processStepId in (12,2,6)' +
         '   OR' +
         '   tps1.dealer is NOT NULL AND tps1.processStepId not in (2,6) AND tps1.dealer=?' +
         '   OR' +
@@ -344,13 +347,14 @@ Task.findDealTaskByUserId = function(userId,startNum,callback){
         '   LEFT JOIN user oU ON oTps.dealer = oU.userId' +
         '   ) taskTable2' +
         '   LEFT JOIN user oU2 ON taskTable2.creater = oU2.userId ) as tasktable6 ORDER BY taskTable6.taskcode limit 30';
-        var params = [userId,userId,userId,userId,userId,userId,startNum];
+        //var params = [userId,userId,userId,userId,userId,startNum];
+        var params = [userId,userId,userId,startNum];
         var params_0 = [userId,userId,userId];
         var count_params= [userId,userId,userId];
-        if(!startNum){
-            sql=sql_0;
-            params = params_0;
-        }
+        //if(!startNum){
+        //    sql=sql_0;
+        //    params = params_0;
+        //}
         connection.query(sql_Count,count_params,function(err,count){
             if (err) {
                 console.log('[QUERY COUNT TASKS ERROR] - ', err.message);
@@ -399,42 +403,44 @@ Task.findCreateTaskByUserId = function(userId,startNum,callback){
             '   LEFT JOIN user oU ON oTps.dealer = oU.userId' +
             '   ) taskTable2' +
             '   LEFT JOIN user oU2 ON taskTable2.creater = oU2.userId';
-        var sql = "select taskTable3.*  from (SELECT taskTable2.*, oU2.realName as createrName from " +
-            "   (" +
-            "   SELECT taskTable.*, oU.realName as dealerName from" +
-            "   (" +
-            "   SELECT DISTINCT t.*,ps.processStepName as stepName, 1 as taskType from tasks t" +
-            "   JOIN processstepdealer psd ON t.creater = psd.userId" +
-            "   AND psd.projectId = t.projectId" +
-            "   JOIN user u ON psd.userId = u.userId AND u.userId = ?" +
-            "   JOIN processstep ps ON ps.processStepId = t.processStepId" +
-            "   ) taskTable" +
-            "   JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid" +
-            "   AND oTps.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps2 where maxtps2.taskId = taskTable.taskid)" +
-            "   AND oTps.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps3 where maxtps3.taskId = taskTable.taskid)" +
-            "   AND oTps.processStepId = taskTable.processStepId" +
-            "   LEFT JOIN user oU ON oTps.dealer = oU.userId" +
-            "   ) taskTable2" +
-            "   LEFT JOIN user oU2 ON taskTable2.creater = oU2.userId)as taskTable3 where taskTable3.taskid >" +
-            "   (" +
-            "   SELECT taskTable4.taskid from" +
-            "   (" +
-            "   SELECT taskTable.*, oU.realName as dealerName from" +
-            "   (" +
-            "   SELECT DISTINCT t.*,ps.processStepName as stepName, 1 as taskType from tasks t" +
-            "   JOIN processstepdealer psd ON t.creater = psd.userId" +
-            "   AND psd.projectId = t.projectId" +
-            "   JOIN user u ON psd.userId = u.userId AND u.userId = ?" +
-            "   JOIN processstep ps ON ps.processStepId = t.processStepId" +
-            "   ) taskTable" +
-            "   JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid" +
-            "   AND oTps.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps2 where maxtps2.taskId = taskTable.taskid)" +
-            "   AND oTps.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps3 where maxtps3.taskId = taskTable.taskid)" +
-            "   AND oTps.processStepId = taskTable.processStepId" +
-            "   LEFT JOIN user oU ON oTps.dealer = oU.userId" +
-            "   ) taskTable4" +
-            "   LEFT JOIN user oU2 ON taskTable4.creater = oU2.userId order by taskTable4.taskid limit ?,1)" +
-            "   order by taskTable3.taskid limit 30";
+        //var sql = "select taskTable3.*  from (SELECT taskTable2.*, oU2.realName as createrName from " +
+        //    "   (" +
+        //    "   SELECT taskTable.*, oU.realName as dealerName from" +
+        //    "   (" +
+        //    "   SELECT DISTINCT t.*,ps.processStepName as stepName, 1 as taskType from tasks t" +
+        //    "   JOIN processstepdealer psd ON t.creater = psd.userId" +
+        //    "   AND psd.projectId = t.projectId" +
+        //    "   JOIN user u ON psd.userId = u.userId AND u.userId = ?" +
+        //    "   JOIN processstep ps ON ps.processStepId = t.processStepId" +
+        //    "   ) taskTable" +
+        //    "   JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid" +
+        //    "   AND oTps.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps2 where maxtps2.taskId = taskTable.taskid)" +
+        //    "   AND oTps.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps3 where maxtps3.taskId = taskTable.taskid)" +
+        //    "   AND oTps.processStepId = taskTable.processStepId" +
+        //    "   LEFT JOIN user oU ON oTps.dealer = oU.userId" +
+        //    "   ) taskTable2" +
+        //    "   LEFT JOIN user oU2 ON taskTable2.creater = oU2.userId)as taskTable3 where taskTable3.taskid >" +
+        //    "   (" +
+        //    "   SELECT taskTable4.taskid from" +
+        //    "   (" +
+        //    "   SELECT taskTable.*, oU.realName as dealerName from" +
+        //    "   (" +
+        //    "   SELECT DISTINCT t.*,ps.processStepName as stepName, 1 as taskType from tasks t" +
+        //    "   JOIN processstepdealer psd ON t.creater = psd.userId" +
+        //    "   AND psd.projectId = t.projectId" +
+        //    "   JOIN user u ON psd.userId = u.userId AND u.userId = ?" +
+        //    "   JOIN processstep ps ON ps.processStepId = t.processStepId" +
+        //    "   ) taskTable" +
+        //    "   JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid" +
+        //    "   AND oTps.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps2 where maxtps2.taskId = taskTable.taskid)" +
+        //    "   AND oTps.testNum IN(SELECT MAX(testNum) from taskprocessstep maxtps3 where maxtps3.taskId = taskTable.taskid)" +
+        //    "   AND oTps.processStepId = taskTable.processStepId" +
+        //    "   LEFT JOIN user oU ON oTps.dealer = oU.userId" +
+        //    "   ) taskTable4" +
+        //    "   LEFT JOIN user oU2 ON taskTable4.creater = oU2.userId order by taskTable4.taskid limit ?,1)" +
+        //    "   order by taskTable3.taskid limit 30";
+        var taskSql = new TaskSQL();
+        var sql = taskSql.findCreaterTaskSql;
         var sql_0 = "select taskTable3.*  from (SELECT taskTable2.*, oU2.realName as createrName from " +
             "   (" +
             "   SELECT taskTable.*, oU.realName as dealerName from" +
@@ -452,14 +458,15 @@ Task.findCreateTaskByUserId = function(userId,startNum,callback){
             "   LEFT JOIN user oU ON oTps.dealer = oU.userId" +
             "   ) taskTable2" +
             "   LEFT JOIN user oU2 ON taskTable2.creater = oU2.userId)as taskTable3 "+
-            "   order by taskTable3.taskcode limit 30";
-        var params = [userId,userId,startNum];
-        var params_0 = [userId];
+            "   order by taskTable3.taskcode limit  30";
+        //var params = [userId,userId,startNum];
+        var params = [userId,startNum];
+        //var params_0 = [userId];
         var count_params= [userId];
-        if(!startNum){
-            sql=sql_0;
-            params = params_0;
-        }
+        //if(!startNum){
+        //    sql=sql_0;
+        //    params = params_0;
+        //}
         connection.query(sql_count,count_params,function(err,count){
             if (err) {
                 console.log('[QUERY COUNT TASKS ERROR] - ', err.message);
@@ -467,6 +474,9 @@ Task.findCreateTaskByUserId = function(userId,startNum,callback){
             }
             else{
                 connection.query(sql, params, function (err, result) {
+                    console.log(sql);
+                    console.log(params);
+
                     if (err) {
                         console.log('[QUERY TASKS ERROR] - ', err.message);
                         return callback(err,null);
@@ -910,14 +920,14 @@ Task.acceptMission = function(taskId, processStepId, taskState, userId, callback
         queues(connection);
         var trans = connection.startTransaction();
         var sql= {
-            selectDealer:"select * from taskprocessstep where taskid=? and processStepId=6 and dealer is not null " +
+            selectDealer:"select * from taskprocessstep where taskid=? and processStepId=? and dealer is not null " +
                 " and turnNum IN (SELECT MAX(turnNum) FROM taskprocessstep where taskId=?)",
-            updateTask: "update tasks t set t.state=?, t.processStepId = ? where t.taskId = ?",
+            updateTask: "update tasks t set t.state=? where t.taskId = ? and t.processStepId = ? ",
             updateDealer: 'update taskProcessStep set dealer=? where taskId=? and processStepId=? ' +
                 ' AND turnNum = (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)'
         }
-        var selectDealer_params = [taskId,taskId];
-        var updateTask_Params = [taskState, processStepId, taskId];
+        var selectDealer_params = [taskId,processStepId,taskId];
+        var updateTask_Params = [taskState,taskId, processStepId ];
         var updateDealer_params = [userId, taskId, processStepId, taskId];
         var sqlMember = ['selectDealer', 'updateTask', 'updateDealer'];
         var sqlMember_params = [selectDealer_params, updateTask_Params, updateDealer_params];
@@ -931,6 +941,7 @@ Task.acceptMission = function(taskId, processStepId, taskState, userId, callback
                 }
                 if(err_async){
                     trans.rollback();
+                    console.log("acceptMission ERR:",item,"->",err_async);
                     return callback('err',err_async);
                 }
                 if(item == 'updateDealer' && !err_async){//最后一条sql语句执行没有错就返回成功
@@ -1140,19 +1151,21 @@ Task.doCheckPass = function(taskId,callback){
             selectDealer:"select * from taskprocessstep where taskid=? and processStepId=6 " +
                 " and turnNum IN (SELECT MAX(turnNum) FROM taskprocessstep where taskId=?)",
             selectDealer_Unpass:"select * from tasks where taskid=? and state='走查不通过'",
-            updateTask: "update tasks set processStepId=6, state='走查通过' where taskid=?",
-            updateDealer: 'insert into taskprocessstep(taskId,processStepId,turnNum,execTime) values ' +
-                ' (?,6,' +
-                ' (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable),?)'
+            //updateTask: "update tasks set processStepId=6, state='走查通过' where taskid=?"
+            updateTask: "update tasks set  state='走查通过' where taskid=?"
+            //updateDealer: 'insert into taskprocessstep(taskId,processStepId,turnNum,execTime,dealer) values ' +
+            //    ' (?,6,' +
+            //    ' (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable),?,235)'
         };
         var selectDealer_params = [taskId, taskId];
         var selectDealer_Unpass_params = [taskId];
         var updateTask_params = [taskId];
         var now = new Date().format("yyyy-MM-dd HH:mm:ss") ;
         var updateDealer_params = [taskId,taskId,now];
-        var sqlMember = ['selectDealer','selectDealer_Unpass', 'updateTask', 'updateDealer'];
-        var sqlMember_params = [selectDealer_params, selectDealer_Unpass_params, updateTask_params, updateDealer_params];
+        var sqlMember = ['selectDealer','selectDealer_Unpass', 'updateTask'];
+        var sqlMember_params = [selectDealer_params, selectDealer_Unpass_params, updateTask_params];
         var i = 0;
+        var lastSql = "updateTask";
         async.eachSeries(sqlMember, function (item, callback_async) {
             trans.query(sql[item], sqlMember_params[i++],function (err_async, result) {
                 if(item == 'selectDealer' && undefined!=result && ''!=result && null!=result){
@@ -1169,7 +1182,7 @@ Task.doCheckPass = function(taskId,callback){
                     trans.rollback();
                     return callback('err',err_async);
                 }
-                if(item == 'updateDealer' && !err_async){//最后一条sql语句执行没有错就返回成功
+                if(item == lastSql && !err_async){//最后一条sql语句执行没有错就返回成功
                     trans.commit();
                     return callback('success');
                 }
@@ -1263,7 +1276,7 @@ Task.submitComplete = function(taskId, userId, callback){
             updateFileList: "update filelist set commit=1 where taskId=?",
             updateTPS:"insert into taskprocessstep (taskid, processStepId, turnNum, dealer,execTime,isAuto) " +
                 " values (?,7,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?,?," +
-            "   (SELECT isAuto from (select * from taskprocessstep where taskId =? and processstepId = 6) as tps ))",
+            "   (SELECT max(isAuto) from (select * from taskprocessstep where taskId =? and processstepId = 6) as tps ))",
             //测试环节
             //updateTPS2:"insert into taskprocessstep (taskid, processStepId,dealer,turnNum,execTime) " +
             //" values (?,8,?,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?)"
@@ -1953,19 +1966,21 @@ Task.findHistory = function(taskId,callback){
  * @param taskId
  * @param callback
  */
-Task.autoComp = function(taskId,callback){
+Task.autoComp = function(taskId,revision,callback){
     pool.getConnection(function(err, connection){
         if(err){
             console.log('[CONN TASKS ERROR] - ', err.message);
             return callback(err);
         }
         var sql = "UPDATE tasks SET state='自动上库完成' WHERE taskid = ?";
-        var upateAutoSql = "update taskprocessstep set isAuto = 1 where taskId = ? and processstepId =6";
+        var upateAutoSql = "update taskprocessstep set isAuto = 1 , execTime = NOW() where taskId = ? and processstepId =6";
+        var updateRevisionSql = ApplyOrderSQL.addOrder;
+        var updateRevisionSql_params = [taskId,taskId,taskId,revision];
         var params = [taskId];
         var upateAuto_params = [taskId];
         connection.query(sql, params, function (err, result) {
             if (err) {
-                console.log('[UPDATE TASKS ERROR] - ', err.message);
+                console.log('[autoComp ERROR] - ', err.message);
                 return callback('err',err);
             }
             connection.query(upateAutoSql, upateAuto_params, function (err, result) {
@@ -1973,12 +1988,53 @@ Task.autoComp = function(taskId,callback){
                     console.log('update taskprocessstep ERROR] - ', err.message);
                     return callback('err',err);
                 }
-                connection.release();
-                callback('success',null);
+                connection.query(updateRevisionSql, updateRevisionSql_params, function (err, result) {
+                    if (err) {
+                        console.log('update updateRevision ERROR] - ', err.message);
+                        return callback('err',err);
+                    }
+                    connection.release();
+                    callback('success',null);
+                });
             });
         });
     });
 }
+/**自动上库完成后，更新状态和版本号**/
+//Task.autoCompWithRevision = function(taskId,revision,callback){
+//    pool.getConnection(function(err, connection){
+//        if(err){
+//            console.log('[CONN TASKS ERROR] - ', err.message);
+//            return callback(err);
+//        }
+//        var sql = "UPDATE tasks SET state='自动上库完成' WHERE taskid = ?";
+//        var upateAutoSql = "update taskprocessstep set isAuto = 1 where taskId = ? and processstepId =6";
+//        var updateRevisionSql = ApplyOrderSQL.updateRevision;
+//        var updateRevisionSql_params = [taskId,revision]
+//        var params = [taskId];
+//        var upateAuto_params = [taskId];
+//        connection.query(sql, params, function (err, result) {
+//            if (err) {
+//                console.log('[autoComp ERROR] - ', err.message);
+//                return callback('err',err);
+//            }
+//            connection.query(upateAutoSql, upateAuto_params, function (err, result) {
+//                if (err) {
+//                    console.log('update taskprocessstep ERROR] - ', err.message);
+//                    return callback('err',err);
+//                }
+//                connection.query(updateRevisionSql, updateRevisionSql_params, function (err, result) {
+//                    if (err) {
+//                        console.log('update updateRevision ERROR] - ', err.message);
+//                        return callback('err',err);
+//                    }
+//                    connection.release();
+//                    callback('success',null);
+//                });
+//            });
+//        });
+//    });
+//}
 
 /**
  * 根据id查询变更单信息和PM
@@ -2033,4 +2089,98 @@ Task.findTaskAndDBById = function(taskId,callback){
         });
     });
 }
+Task.getDealer =function(params,callback) {
+    pool.getConnection(function (err, connection) {
+        if (err) {
+            console.log('[CONN TASKS ERROR] - ', err.message);
+            return callback(err);
+        }
+        var taskSQL = new TaskSQL();
+        var sql = taskSQL.getTaskDealer;
+        var dealerPermissionSql  = taskSQL.checkDealerPermission;
+        //console.log("params dealer: ",params )
+        var sqlParams = [params.taskId];
+        var dealerPermissionSql_params = [params.userId,params.taskId]
+        connection.query(sql, sqlParams, function (err, result) {
+            if (err) {
+                console.log('[QUERY TASKS ERROR] - ', err.message);
+                return callback(err, false);
+            }
+            else{
+                if(result[0].dealer == params.userId ){
+                    return   callback('success', true);
+                }
+                else if((result[0].dealer != null)&&(result[0].dealer != params.userId) ){
+                    return callback("success",false);
+                }
+                else if(result[0].dealer == null ){
+                    connection.query(dealerPermissionSql, dealerPermissionSql_params, function (err_per, dealer) {
+                        if (err_per) {
+                            console.log('[QUERY TASKS ERROR] - ', err.message);
+                            connection.release();
+                            return callback(err, false);
+                        }
+                        if(dealer.length >0){
+                            connection.release();
+                            return   callback('success', true);
+                        }
+                        else{
+                            connection.release();
+                            return   callback('success', false);
+                        }
+                    });
+                }
+
+            }
+
+        });
+    });
+}
+module.exports = Task;/**
+ * Created by wangfeng on 2015/2/5.
+ */
+/**
+ * 将文件路径'\'转成'/'
+ * @param str
+ */
+function fileStrChange(str){
+    str = str.trim();
+    while(str.indexOf('\\')!=-1){
+        str = str.replace('\\', '/');
+    }
+    while(str.indexOf('\r')!=-1) {
+        str.replace("\r", '');
+    }
+    str.split('\n');
+    return str;
+}
+
+/**
+ * 日期格式化 yyyy-MM—dd HH-mm-ss
+ * @param format
+ * @returns {*}
+ */
+Date.prototype.format = function(format){
+    var o = {
+        "M+" : this.getMonth()+1, //month
+        "d+" : this.getDate(), //day
+        "H+" : this.getHours(), //hour
+        "m+" : this.getMinutes(), //minute
+        "s+" : this.getSeconds(), //second
+        "q+" : Math.floor((this.getMonth()+3)/3), //quarter
+        "S" : this.getMilliseconds() //millisecond
+    }
+
+    if(/(y+)/.test(format)) {
+        format = format.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length));
+    }
+
+    for(var k in o) {
+        if(new RegExp("("+ k +")").test(format)) {
+            format = format.replace(RegExp.$1, RegExp.$1.length==1 ? o[k] : ("00"+ o[k]).substr((""+ o[k]).length));
+        }
+    }
+    return format;
+}
+
 module.exports = Task;

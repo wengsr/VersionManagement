@@ -7,6 +7,7 @@ var fs = require("fs");
 var path= require("path");
 var process = require("process");
 var curPath =  process.cwd();
+var Tool = require("../routes/util/tool");
 /**
  *
  * @param options
@@ -119,16 +120,10 @@ Svn.prototype.commit = function (localDir, callback) {
  * @param callback    回调函数
  */
 Svn.prototype.autoUpload = function(taskName, localDir, delFileList, callback) {
-    //1.设置参数
-    //var client = new Client({
-    //    cwd: localDir,       //'C:/test/uu/',
-    //    username: SVN_USER,
-    //    password: SVN_PWD
-    //});
     this.client.option('cwd', localDir);
     var client   = this.client;
     //2.删除
-    if((delFileList.length>0) && (delFileList[0]!='')) {
+    if(delFileList&&(delFileList.length>0) && (delFileList[0]!='')) {
         client.del(delFileList, function (err, data) {
             if (err) return callback('err', err);
             console.log('删除本地SVN文件成功');
@@ -194,8 +189,8 @@ Svn.prototype.commitRar = function( localDir, fileName, newName,message,callback
     this.client.option('cwd', localDir);
     var client   = this.client;
     console.log("committing SvnUri ",localDir);
-    console.log("committing file ",fileName);
-    console.log("msg :",message);
+    //console.log("committing file ",fileName);
+    //console.log("msg :",message);
     //fs.renameSync(localDir+fileName,localDir+newName);
     client.addLocal(function (modifyErr, modifyData) {
         if (modifyErr) return callback('err', modifyErr);
@@ -327,7 +322,7 @@ Svn.prototype.svnExists = function(filePath,versionDir,svnMessage,callback){
 }
 
 /**
- *
+ *提交变更的附件
  * @param filePath
  * @param oldPath
  * @param fileName
@@ -354,12 +349,50 @@ Svn.prototype.commitChangeRar = function(filePath,oldPath,fileName,newName,versi
     });
 }
 
-
+Svn.prototype.merge = function(devRepositoryPath,testRepository,revisions,taskName,callback) {
+    this.client.option('cwd', devRepositoryPath);
+    var client = this.client;
+    var merge_params = testRepository+"/@"+revisions;
+    console.log("svn merge time:",1);
+    client.update(function(err,data){
+        if(err){
+            console.error("update before merge: "+ taskName + "  err."+err);
+            return callback("err","merge至开发库出错！版本号:" +revisions);
+        }
+        client.merge(merge_params,function(merge_err,result){
+            if(merge_err)
+            {
+                console.error("merge "+ taskName + "  err."+merge_err);
+                return callback("err","merge至开发库出错！版本号:" +revisions);
+            }
+            else{
+                console.log("merge "+ "successful."+data);
+                var msg = "【版本管理系统】--自动上库:"+taskName;
+                client.commit(msg,function(commit_err,result){
+                    if(commit_err)
+                    {
+                        console.error("commit "+ taskName + "  err."+data);
+                        return callback("err","merge至开发库出错！版本号:" +revisions);
+                    }
+                    else {
+                        var testRevision = data.substring(data.indexOf("提交后的版本为 ")+8,data.length-1);
+                        console.log("commit successful !"+data);
+                        console.log("getTestRevision:",testRevision,"end");
+                        var newRevision = Tool.getRevisionFromData(data);
+                        return callback("success",data,newRevision)
+                    }
+                })
+            }
+        })
+    })
+}
+    //2.删除
 module.exports = Svn;
 /********测试案例*********/
-//var localDir = "D:/test/";
-//var localDir = "D:/变更单/变更单/2015-08/NCRM开发变更单-XJ-20150815-订单资源释放-jinsh3-001/new";
-//var msg = "【版本管理系统】--自动上库:NCRM开发变更单-XJ-20150815-订单资源释放-jinsh3-001";
+//    var svn = new Svn({userName:"zhanglj6",password:"zhanglj72774"});
+//var versionDir = "http://192.168.1.22:8000/svn/hxbss/testVersion/a";
+//var localDir = "D:/testSvn-branch";
+//var msg = "NCRM开发变更单-XJ-20150815-订单资源释放-jinsh3-001";
 //test.autoUpload(msg, localDir,[],function(isSuccess,result){//除了被删除的文件，目录下的所有文件将被提交
 //    if('success' != isSuccess){
 //        console.log("autoUpload ERR!")
@@ -372,4 +405,9 @@ module.exports = Svn;
 //var svn = new Svn({username:"zhanglj6",password:"zhanglj72774"})
 //svn.checkout(localDir,versionDir,["","2015-81"],function(msg){
 //    console.log("checkout:",msg)
+//});
+var revision = 48472;
+//svn.merge(localDir,versionDir,revision,msg,function(msg,data){
+//    console.log("merge111:",msg)
+//    console.log("merge data111:",data)
 //});

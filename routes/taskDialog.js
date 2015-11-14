@@ -7,6 +7,8 @@ var Task = require('../modular/task');
 var taskDao = require('../modular/taskDao');
 var TaskAtta = require('../modular/taskAtta');
 var TaskTest = require('../modular/taskTest');
+var Tool = require("./util/tool");
+var ApplyOrder = require("../modular/applyOrder");
 
 var showFileList = function( taskId){
     taskDao.getFileList(taskId,function(msg,result) {
@@ -476,7 +478,88 @@ var openTask = function(stepName, req, res, callback){
         });
     }
 }
+//获取申请单信息
+function getApplyOrder(params,callback){
+    ApplyOrder.getApplyOrderInfo(params,callback);
+}
+//判断事否有处理人权限
+function hasPermissionOfDealer(params,callback){
+    //var TASK = new Task();
+    var newParams = {taskId:params.taskId,userId:params.userId}
+    Task.getDealer(newParams,function(msg,hasDealerPermission){
+          if(msg =="success"){
+              return callback(hasDealerPermission);
+          }
+         else{
+              console.log("hasPermissionOfDealer err : ",hasDealerPermission);
+              return callback(false)
+          }
+        });
 
+}
+//获取变更单的信息
+function getTaskInfos(params,callback){
+    ApplyOrder.getTaskInfos(params,function(msg,taskInfos){
+        if(msg == "success"){
+            var files = taskInfos.files;
+            var modFileList = [];
+            var addFileList = [];
+            var delFileList = [];
+            files.forEach(function(file){
+                if(file.state == 0){
+                    modFileList.push(file.fileUri);
+                }
+                else if(file.state == 1){
+                    addFileList.push(file.fileUri);
+                }
+                else if(file.state == 2){
+                    delFileList.push(file.fileUri);
+                }
+            })
+            modFileList=modFileList.join("\r\n");
+            addFileList=addFileList.join("\r\n");
+            delFileList=delFileList.join("\r\n");
+            var infos = {task:taskInfos.taskInfo,modFileList:modFileList,addFileList:addFileList,delFileList:delFileList,
+           attas:taskInfos.taskAttas}
+           return callback("success",infos);
+        }
+        else{
+            return  callback(msg,"查找变更单信息出错");
+        }
+    });
+}
+/**
+ * 上开发库界面
+ */
+function openTaskDialog(stepName,req,res){
+     var user = Tool.getCookieUser(req,res);
+     var userId = user.userId;
+    var params  = req.params;
+    params.userId = user.userId;
+    if(stepName == "submitToDev"){
+        var newParams = {userId:userId,dealer:req.params.dealerName,creater:params.createName,taskId:params.taskId}
+        //hasPermissionOfDealer(newParams)
+       hasPermissionOfDealer(newParams,function(isDealer){
+            if(isDealer){
+                var newParmas = {taskId:params.taskId}
+                getApplyOrder(newParmas,function(msg,orderInfo){
+                    if(msg == "err"){
+                        req.session.error = "查找申请单的信息出错！";
+                        return null;
+                    }
+                    res.render(stepName,{task:orderInfo.taskInfo[0], applyInfo:orderInfo.applyInfo,taskAttas:orderInfo.taskAttas,operator:true});
+                })
+            }
+            else {//变更单发起人，且没有处理人的权限
+                getTaskInfos(newParams,function(msg_taskInfo,taskInfos){//获取变更单的基本信息
+                    taskInfos.task[0].createName=taskInfos.task[0].createrName;
+                    res.render('taskInfo',{task:taskInfos.task[0], addFileList:taskInfos.addFileList, modifyFileList:taskInfos.modifyFileList, delFileList:taskInfos.delFileList, attaFile:taskInfos.attas});
+                });
+            };
+        });
+
+    }
+};
 /**
  * 打开"提交申请"的页面（步骤1）
  */
@@ -525,12 +608,22 @@ router.get('/submit/:taskId/:taskCreater/:dealerName/:createName', function(req,
 router.get('/testing/:taskId/:taskCreater/:dealerName/:createName', function(req, res) {
     openTask('testing',req,res);
 });
+
 /**
  * 上库完成后，打开的界面，版本管理员，打开文件列表界面，测试人员打开测试界面
  */
 router.get('/comfirming/:taskId/:taskCreater/:dealerName/:createName', function(req, res) {
     openTask('comfirming',req,res);
 });
+
+/**
+ * 上开发库，打开的界面，版本管理员，打开文件列表界面，测试人员打开测试界面
+ */
+router.get('/submitToDev/:taskId/:taskCreater/:dealerName/:createName', function(req, res) {
+    openTaskDialog('submitToDev',req,res);//打开上开发库界面
+});
+
+
 router.get('/errModal', function(req, res) {
     res.render('errModal.ejs');
 });

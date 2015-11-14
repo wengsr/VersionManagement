@@ -52,9 +52,10 @@
                             <li><a class="menuBtn" btnname="btnSubmitApply" btnurl="" href="#" id="btnSubmitApply"> 申请变更单 </a></li>
                             <li><a class="menuBtn" btnname="btnFindTasks" btnurl="" href="#" id="btnFindTasks"> 查找变更单 </a></li>
                             <li><a class="menuBtn" btnname="btnSubmitBug" btnurl="" href="#" id="btnSubmitBug"> 修复Bug变更单 </a></li>
+                            <li><a class="menuBtn" btnname="btnFindAllTasks" btnurl="" href="#" id="btnFindAllTasks"> 查找所有变更单 </a></li>
                             <%}%>
                             <%if(user && ((user.isAdmin)||(user.isLeader)||(user.isBoss))){ %>
-                            <li><a class="menuBtn" btnname="btnFindAllTasks" btnurl="" href="#" id="btnFindAllTasks"> 查找所有变更单 </a></li>
+                               <!--<li><a class="menuBtn" btnname="btnFindAllTasks" btnurl="" href="#" id="btnFindAllTasks"> 查找所有变更单 </a></li>-->
                             <%}%>
                             <%if(user && user.isAdmin){%>
                             <li><a class="menuBtn" btnname="btnFileHistory" btnurl="" href="/admin/findFileHistory" methods="post" id="btnFileHistory"> 查看文件历史记录 </a></li>

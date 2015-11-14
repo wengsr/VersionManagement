@@ -83,7 +83,9 @@ function ajaxSubmit(params, url, subType,submitflag){
  */
 function submitForm_pass(){
     var planCheck_params={
-        taskId: $('#taskId').val()
+        taskId: $('#taskId').val(),
+        taskName: $('#taskName').text(),
+        taskCode: $('#taskCode').text()
     };
     var planCheck_url='task/checkPass';
     ajaxSubmit(planCheck_params, planCheck_url, 'post');

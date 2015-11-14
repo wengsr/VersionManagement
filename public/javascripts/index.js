@@ -155,6 +155,27 @@ function regTaskComfirminDialog() {
     });
 }
 /**
+ * 上开发库环节
+ */
+function regTaskDevReposityDialog() {
+    var stepId = "[step=taskProcessStepId_12]";
+    //var url = '/users/showFileList',
+    var url = '/taskDialog/submitToDev',
+        stepName = 'submitToDev';
+    $(stepId).each(function(){
+        $(this).attr('step',stepName);
+        var taskTagId = $(this).attr('id');
+        var taskId = $(this).attr('taskid');
+        var taskCreater = $(this).attr('taskcreater');
+        var dealerName = $(this).attr('dealerName');
+        var createName = $(this).attr('createName');
+        var realUrl = url + "/" + taskId + "/"+taskCreater + "/" + dealerName + "/" + createName;
+        btnForm = stepName.replace('btn','form');
+        showModelDialog(taskTagId, realUrl, btnForm);
+        //showModelDialog(taskTagId2, realUrl, btnForm);
+    });
+}
+/**
  * 记录当前被选中的taskid
  * @param taskId
  */
@@ -192,6 +213,7 @@ jQuery(document).ready(function() {
     regTaskFileList();
     regTaskTestDialog();
     regTaskComfirminDialog();
+    regTaskDevReposityDialog()//上开发库
     //隐藏页面上方提示条
     setTimeout(function(){$('#errTip').slideUp(1000);setTimeout(function(){$('#errTip').remove()},2000)},2000);
     setTimeout(function(){$('#successTip').slideUp(1000);setTimeout(function(){$('#successTip').remove()},2000)},1000);
@@ -201,10 +223,8 @@ jQuery(document).ready(function() {
     $("#PlanCheck").popover({placement:'right'});
     $("#Check").popover({placement:'bottom'});
     $("#Submit").popover({placement:'left'});
-
     //变更单记录为0时候的处理
     dealZeroTask();
-
     //查看变更单历史
     var btnHistory = $('[btnType=taskHistory]');
     btnHistory.click(function(){

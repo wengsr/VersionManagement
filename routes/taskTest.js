@@ -25,6 +25,8 @@ var NEW_OLD_FOLDER = './attachment/newAndOld';  //开发人员上传的新旧附
 var SCAN_PATH;
 var taskXls = require("../modular/taskXls");
 var tool = require("./util/tool");
+var FilesAdmin = require("./util/filesAdmin");
+var ProcessStepAdmin = require("./util/processStepAdmin");
 
 /**
  * 查找测试人员，用于显示“申请变更单”和“查找变更单”按钮等
@@ -57,6 +59,7 @@ var getCookieUser = function(req, res){
     if(!req.session.user || 'undefined'==req.session.user){
         return res.redirect("/");
     }
+    return cookieUser;
 }
 
 /**
@@ -89,7 +92,6 @@ var sendEmailToCreaterTest = function(req,taskId,dealer, stepId,isPass) {
         else if(stepId = 10){
             content = "存在bug，新的变更单名称是："+isPass;
         }
-
         Email.sendMailToCreaterTest(taskcode, taskname, userName, userEmail,content);
     });
 }
@@ -362,7 +364,7 @@ var isSearchCondsExits= function(req, res){
 var newTaskName = function(req,res,taskId,creater,tester,taskName){
     TaskTest.newTaskName(taskId,creater,tester,taskName,function(msg,result){
         if('success' == msg){
-            jsonStr = '{"sucFlag":"success","message":"【新变更单名填写】执行成功"}';
+            jsonStr = '{"sucFlag":"success","message":"【确定存在Bug】执行成功"，"taskName":"'+taskName+'"}';
             sendEmailToCreaterTest(req,taskId,creater,'10',taskName)
         }else{
             jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
@@ -396,7 +398,7 @@ router.post('/assignTest', function(req, res) {
  * “测试通过”业务实现
  */
 router.post('/testPass', function(req, res) {
-    getCookieUser(req, res);
+    var user = getCookieUser(req, res);
     var taskId = req.body['taskId'];
     var creater = req.body['creater'];
     var reason =  req.body['reason'];
@@ -410,6 +412,12 @@ router.post('/testPass', function(req, res) {
         }else{
             jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
         }
+        var params = {taskId:taskId,userId:user.userId,dealer:user.userId,processStepId:12};
+        ProcessStepAdmin.startProcess(params,function(msg,result){
+            if(msg =="err"){
+                console.error("startProcess processStepId 12 ERR!");
+            }
+        })
         var queryObj = url.parse(req.url,true).query;
         res.send(queryObj.callback+'(\'' + jsonStr + '\')');
     });
@@ -705,25 +713,28 @@ router.post('/newTaskName', function(req, res) {
     var tester = req.body['preDealer'];
     var taskName =  req.body['taskName'];
     var creater = req.session.user.userId;
-    var taskName = checkName(req,res,taskName);
+    //var taskName = checkName(req,res,taskName);
     var jsonStr;
-    TaskTest.testNameUsed(taskName,function(name_msg,isUsed){
-        if(("success"==name_msg)&&(!isUsed)){
-            //console.log(isUsed);
-            newTaskName(req,res,taskId,creater,tester,taskName);
-        }
-        else if(("success"==name_msg)&&(isUsed)){
-            jsonStr = '{"sucFlag":"err","message":"该变更单名称已被占用，请重新填写"}';
-            var queryObj = url.parse(req.url,true).query;
-            res.send(queryObj.callback+'(\'' + jsonStr + '\')');
-        }
-        else{
-            jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
-            var queryObj = url.parse(req.url,true).query;
-            res.send(queryObj.callback+'(\'' + jsonStr + '\')');
-        }
-
-    });
+    var newName = FilesAdmin.getBugNewName(taskName);
+    //console.log("new  task name:",newName);
+    newTaskName(req,res,taskId,creater,tester,newName);
+    //TaskTest.testNameUsed(taskName,function(name_msg,isUsed){
+    //    if(("success"==name_msg)&&(!isUsed)){
+    //        //console.log(isUsed);
+    //        newTaskName(req,res,taskId,creater,tester,taskName);
+    //    }
+    //    else if(("success"==name_msg)&&(isUsed)){
+    //        jsonStr = '{"sucFlag":"err","message":"该变更单名称已被占用，请重新填写"}';
+    //        var queryObj = url.parse(req.url,true).query;
+    //        res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+    //    }
+    //    else{
+    //        jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
+    //        var queryObj = url.parse(req.url,true).query;
+    //        res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+    //    }
+    //
+    //});
 
 });
 

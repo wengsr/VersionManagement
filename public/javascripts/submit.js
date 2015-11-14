@@ -23,6 +23,7 @@ function ajaxSubmit(params, url, subType, fun){
             var flag =  dataJson.sucFlag;
             if('err'==flag){
                 showTipInfo('err',dataJson.message);
+                $('#updateRevDiv').show();
                 if(dataJson.message.indexOf("更新svn信息再上传")!=-1){
                     $('#btnAutoSubmit').hide();
                     $('#btnAutoUpateSubmit').show();
@@ -38,10 +39,10 @@ function ajaxSubmit(params, url, subType, fun){
                 } else if('autoUpdateAndComplete'==fun){          //跟新svn信息后上库完成
                     $('#btnAutoUpateSubmit').hide();
                 }else if('complete'==fun){              //上库完成
-                    $('#btnSubmitComplete').hide();
-                    $('#btnAutoUpateSubmit').hide();
-                    $('#btnAutoSubmit').hide();
-                    //window.open("http://192.168.1.22:8082/jenkins/");
+                $('#btnSubmitComplete').hide();
+                $('#btnAutoUpateSubmit').hide();
+                $('#btnAutoSubmit').hide();
+                //window.open("http://192.168.1.22:8082/jenkins/");
                 }
             }
         },
@@ -57,7 +58,8 @@ function ajaxSubmit(params, url, subType, fun){
  */
 function submitForm_submitAccept(){
     var planCheck_params={
-        taskId: $('#taskId').val()
+        taskId: $('#taskId').val(),
+        processStepId: $('#processStepId').val()
     };
     var planCheck_url='task/submitAccept';
     ajaxSubmit(planCheck_params, planCheck_url, 'post', 'accept');
@@ -111,17 +113,29 @@ function submitForm_autoUpdateAndUpload(){
     var planCheck_url='task/updateSvnAndCommit';
     ajaxSubmit(planCheck_params, planCheck_url, 'post', 'autoUpdateAndComplete');
 }
+//更新上测试库的版本号
+function submitForm_updateRevision(){
+    var planCheck_params={
+        taskId:$("#btnUpdateRev").attr("taskId"),
+        revision :$("#revision").val()
+    };
+    var planCheck_url='task/updateRevision';
+    ajaxSubmit(planCheck_params, planCheck_url, 'post', 'autoComplete');
+}
+
 
 /**
  * “接受任务”和“上库完成”按钮的显示隐藏
  */
 function acceptAndCompBtn(){
     var taskState = $('#taskState').val();
-    if('走查通过'==taskState){
+    if(('走查通过'==taskState) ||("变更文件已提交" ==taskState)){
+        $('#updateRevDiv').hide();
         $('#btnSubmitAccept').show();
         $('#btnSubmitComplete').hide();
         $('#btnAutoSubmit').hide();
     }else if('自动上库完成'==taskState){
+        $('#updateRevDiv').hide();
         $('#btnSubmitAccept').hide();
         $('#btnSubmitComplete').show();
         $('#btnAutoSubmit').hide();
@@ -151,10 +165,12 @@ jQuery(document).ready(function() {
     $('#btnAutoUpateSubmit').hide();
     //接受任务
     $('#btnSubmitAccept').click(function(){
+        $('#btnSubmitAccept').hide();
         submitForm_submitAccept();
     });
     //上库完成
     $('#btnSubmitComplete').click(function(){
+        $('#btnSubmitComplete').hide();
         submitForm_submitComplete();
     });
     //点击关闭按钮时刷新页面
@@ -168,6 +184,10 @@ jQuery(document).ready(function() {
     //自动上库失败后再次尝试
     $('#btnAutoUpateSubmit').click(function(){
         submitForm_autoUpdateAndUpload();
+    });
+    //更新测试库版本
+    $('#btnUpdateRev').click(function(){
+        submitForm_updateRevision();
     });
 
 });

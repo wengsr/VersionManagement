@@ -64,21 +64,27 @@
                             <span><a id="a_oldFile" href="old/<%=task.taskcode%>/old.zip">old.zip</a></span>
                         </div>
                     </div>
-
                     <div class="form-group">
                         <label for="inputTaskList" class="col-sm-2 control-label">已上传的变更单</label>
                         <div class="col-sm-10" style="margin-top:6px">
                             <span><a id="a_attaFile" href="<%=attaFile.fileUri%>"><%=attaFile.fileName%></a></span>
                         </div>
                     </div>
-
                     <div class="form-group">
                         <label for="inputTaskList" class="col-sm-2 control-label">走查报告</label>
                         <div class="col-sm-10" style="margin-top:6px">
                             <span><a id="a_reportAtta" href="<%=reportAtta.fileUri%>"><%=reportAtta.fileName%></a></span>
                         </div>
                     </div>
-
+                    <div class="form-group" id="updateRevDiv">
+                        <label for="inputTaskList" class="col-sm-2 control-label">版本号</label>
+                        <div class="col-sm-2" style="margin-top:6px" typeId = "revisionAdmin" taskId = <%=task.taskid%>>
+                            <input  id="revision" class="form-control"  value="" placeholder="未提交"/>
+                        </div>
+                        <div class = "col-sm-2" style="margin-top:6px" >
+                            <button type ="button" class = "btn btn-primary" id = "btnUpdateRev"  taskId = <%=task.taskid%>>提交版本号</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

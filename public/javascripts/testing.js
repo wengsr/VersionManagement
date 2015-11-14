@@ -76,6 +76,13 @@ function ajaxSubmit(params, url, subType,submitflag){
  * 提交表单信息_测试通过
  */
 function submitForm_testPass(){
+    var testReportHref = $('#a_reportAtta').attr('href');
+    if(testReportHref=='#'){
+        $('#diaInfoTip').hide();//隐藏已选择文件提示
+        $('#fulAvatar').val('');//清楚已选择的文件
+        showTipInfo('err','请先上传测试报告');
+        return;
+    }
     var test_params={
         taskId: $('#taskId').val(),
         creater:$("#creater").val(),
@@ -117,7 +124,6 @@ function submitForm_testUnPass(){
     if(testReportHref=='#'){
         $('#diaInfoTip').hide();//隐藏已选择文件提示
         $('#fulAvatar').val('');//清楚已选择的文件
-
         showTipInfo('err','不通过前请先上传测试报告');
         return;
     }

@@ -1,0 +1,82 @@
+<!--变更单处理--“上库”模态窗口-->
+<link rel="stylesheet" href="/stylesheets/jquery.fileupload.css"/>
+<form action="" id="formSubmitToDev" class=" bs-component form-horizontal" method='post'>
+    <input type="hidden" id="taskId" name="taskId" value="<%= task.taskid%>"/>
+    <input type="hidden" id="processStepId" name="processStepId" value=<%= task.processStepId%>  />
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="myLargeModalLabel">上发布库</h4>
+    </div>
+    <div  class="modal-body">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label for="taskCode" class="col-sm-2 control-label">变更单号</label>
+                        <div class="col-sm-10" style="margin-top:6px">
+                            <span id="taskCode" name="taskCode" id="taskCode"><%=task.taskcode%></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputTaskName" class="col-sm-2 control-label">变更单名</label>
+                        <div class="col-sm-10" style="margin-top:6px">
+                            <span id="taskName"><%=task.taskname%></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputProjectUri" class="col-sm-2 control-label">项目SVN路径</label>
+                        <div class="col-sm-10" style="margin-top:6px">
+                            <span id="projectUri"><%=task.projectUri%></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputTaskDesc" class="col-sm-2 control-label">申请人</label>
+                        <div class="col-sm-10" style="margin-top:6px">
+                            <span id="createrName"><%=task.createrName%></span>
+                        </div>
+                    </div>
+                   <%taskAttas.forEach(function(item,i){%>
+                        <div class="form-group">
+                            <label for="inputTaskList" class="col-sm-2 control-label">变更单</label>
+                            <div class="col-sm-9" style="margin-top:6px" >
+                                <span><a id="a_attaFile" href="<%=item.fileUri%>"><%=item.fileName%></a></span>
+                            </div>
+                        </div>
+                    <div class="form-group" >
+                        <label for="inputTaskList" class="col-sm-2 control-label">版本号</label>
+                        <div class="col-sm-2" style="margin-top:6px" typeId = "devRevisionAdmin" taskId = <%=item.taskId%>>
+                            <input  id="devRevision" class="form-control"  value="<%=item.devRevision == null?'未提交':item.devRevision%>" />
+                        </div>
+                        <%if((task.state =="上发布库失败")&&operator){%>
+                        <div class = "col-sm-2" style="margin-top:6px" >
+                        <button type ="button" class = "btn btn-primary" id = "btnUpdateDevRevision"  taskId = <%=item.taskId%>>提交版本号</button>
+                        </div>
+                        <%}%>
+                    </div>
+                    <div class="form-group" >
+
+                    </div>
+                    <!--</div>-->
+                   <%});%>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div style="width:64%;float:left;margin-bottom:-20px;margin-top:-9px;height:50px;" id="diaErrTip" class="alert alert-danger alert-dismissible" role="alert"><span style="text-align:center;margin-left:auto;margin-right:auto;display:block;"><strong>错误提示</strong></span></div>
+        <div style="width:64%;float:left;margin-bottom:-20px;margin-top:-9px;height:50px;" id="diaSuccessTip" class="alert alert-success alert-dismissible" role="alert"><span style="text-align:center;margin-left:auto;margin-right:auto;display:block;"><strong>操作成功</strong></span></div>
+        <div style="width:35%;float:right;">
+            <button id="btnCloseModel" type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            <input type="hidden" id="taskState" value="<%=task.state%>"/>
+            <%if(operator){%>
+            <button id="btnSubmitAccept" type="button" class="btn btn-primary">接受任务</button>
+            <button id="btnAutoMerge" type="button" class="btn btn-primary">自动上发布库</button>
+            <button id="btnMergeComplete" type="button" class="btn btn-primary">上发布库完成</button>
+            <%}%>
+        </div>
+    </div>
+</form>
+
+<script src="/javascripts/bootstrap-suggest.js"></script>
+<script src="/javascripts/common.js"></script>
+<script src="/javascripts/submitToDev.js"></script>

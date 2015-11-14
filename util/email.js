@@ -18,7 +18,7 @@ var transporter = nodemailer.createTransport({
 var mailOptions = {
     from: '版本管理系统<crm_wangfeng@aliyun.com>',
     to: '', // wangfeng13@asiainfo.com
-    subject: '【版本管理系统】文件占用解除',
+    subject: '',
     html: ''
 };
 
@@ -30,6 +30,7 @@ exports.sendMailToCreater = function(taskcode, taskname, creater, content, userE
         '<div><b>'+content+'</b><br/></div>'
     mailOptions.html = sendContent+alink;
     mailOptions.to = userEmail;
+    mailOptions.subject='【版本管理系统】文件占用解除';
     transporter.sendMail(mailOptions, function(error, info){
         if(error){
             console.log(error);
@@ -84,7 +85,7 @@ exports.sendMailToDealer = function(taskcode, taskname, creater, processStepId, 
     mailOptions.to = userEmail;
     transporter.sendMail(mailOptions, function(error, info){
         if(error){
-            console.log(error);
+            console.log("sendMail:",error);
         }else{
             console.log('Message sent: ' + info.response);
         }
@@ -159,6 +160,49 @@ exports.sendSqlAttaToPM =function(taskcode, taskname, userName, userEmail,conten
         });
     }
 };
+
+//2015-11-2后发送邮件使用一下方式
+var  operatorArr  = ["","已经上库了，请尽快查看库上代码是否有误！","占用文件解除，可以提取旧文件了。","走查不通过，赶紧去看看吧。",
+    "需要安排走查，赶紧去看看吧。","需要走查，赶紧去看看吧。","需要上测试库，赶紧去看看吧","已上测试库，请尽快核对代码。",/*7*/
+"需要测试，赶紧去看看吧。","","要求重新测试，赶紧去看看吧。" ,"需要上发布库，赶紧去看看吧！","已经上发布库了！"/*11*/]
+var MailOptions2 =function(){
+    return {
+        from: '版本管理系统<crm_wangfeng@aliyun.com>',
+        to: '',
+        subject: '',
+        html: ''
+    }};
+var sendEmail = function(userEmail,content,operator){
+    var options = new MailOptions2();
+    options.html = content+alink;
+    options.to = userEmail;
+    options.subject= '【版本管理系统】有新的变更单'+operator;
+    transporter.sendMail(options, function(error, info){
+        if(error){
+            console.log(error);
+        }else{
+            console.log('Message sent: ' + info.response);
+        }
+    });
+}
+var getContent = function(params,content){
+    var sendContent ='<b>亲爱的'+params.realName+'：<br/>' +
+        '&emsp;&emsp;您好！【变更名称】:“'+params.taskName+'”   (变更单号：'+params.taskCode+')' +
+        '<br/><br/></b>' +
+        '<div><b>'+content+'</b><br/></div>';
+    return sendContent;
+}
+/**
+ * 发送邮件给处理人,2015-11-2 后使用
+ * params:{reqCode,reqName,processStepId,Email
+ */
+exports.sendEmailToDealer_new = function(params){
+    var processStepId = params.processStepId;
+    var userEmail  = params.userEmail;
+    var operator = operatorArr[parseInt(params.processStepId)];
+    var content = getContent(params,operator);
+    sendEmail(params.email,content,operator);
+}
 //exports.sendSqlAttaToPM("", "", "zlj", "1021890251@qq.com","send attachment","./fileTool.js");
 //module.exports = sendMailToCreater;
 //module.exports = sendMailToDealer;

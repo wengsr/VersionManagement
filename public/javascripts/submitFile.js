@@ -23,7 +23,6 @@ function ajaxSubmit(params, url, subType){
         timeout: 60000,
         type: subType,
         success: function(data){
-
             var dataJson = $.parseJSON(data);
             var flag =  dataJson.sucFlag;
             if('err'==flag){
@@ -35,6 +34,7 @@ function ajaxSubmit(params, url, subType){
                     $('#btnSubmitFile').show();
                 }
             }else if('success'==flag) {
+                showTipInfo('success', dataJson.message);
             //    debugger
             //    if (url == './task/extractFile') {
             //        if (dataJson.userFlag) {
@@ -70,7 +70,9 @@ function ajaxSubmit(params, url, subType){
 function submitForm_submitFile(){
     var submitFile_params={
         nextDealer: $('#checkPerson').val(),
-        taskId: $('#taskId').val()
+        taskId: $('#taskId').val(),
+        taskName: $('#taskName').text(),
+        taskCode: $('#taskCode').val()
     };
     var submitFile_url='task/submitFile';
 

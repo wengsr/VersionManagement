@@ -81,8 +81,8 @@ function fileUp(req, res, secFolder){
 
     form.parse(req, function(err, fields, files) {
         //获取页面上隐藏域中的值和文件的名称和路径
-        console.log("fileUp,fields:",fields);
-       console.log("files:",files);
+       // console.log("fileUp,fields:",fields);
+       //console.log("files:",files);
         var taskId = fields.taskId;
         var processStepId = fields.processStepId;
         var reportName = files.fulAvatar.name;
@@ -241,7 +241,7 @@ var compareOld = function(taskId,oldDir,oldDir2,excPath,callback){
                 }
                 else {//非首次比对，无需解压
                     Compare.compareDir(cmpPath,cmpPath2,function(msg_cmp){
-                        console.log("compareFile:",cmpPath,"  ",cmpPath2);
+                        //console.log("compareFile:",cmpPath,"  ",cmpPath2);
                         var massage ;
                         if(msg_cmp == "same"){
                             massage = "一致";

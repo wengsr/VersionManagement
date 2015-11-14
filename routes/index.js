@@ -196,7 +196,7 @@ var topBtnClick = function(res, req, btnName){
     if(curPage ==undefined || curPage ==''){
         curPage = 1;
     }
-    var startNum = (curPage-1)*30 -1;
+    var startNum = (curPage-1)*30 ;
     if(startNum<0){
         startNum = 0;
     }

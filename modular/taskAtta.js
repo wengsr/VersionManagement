@@ -161,11 +161,13 @@ TaskAtta.getNeedCommit = function(userId,startNum, callback){
         connection.query(sql_count,count_params, function (err, count) {
             if (err) {
                 console.log('[QUERY findNeedCommitAtt ERROR] - ', err.message);
+                connection.release();
                 return callback('err',err);
             }
             connection.query(findNeedCommitAtt, params, function(err, attas) {
                 if (err) {
                     console.log('[QUERY findNeedCommitAtt ERROR] - ', err.message);
+                    connection.release();
                     return callback('err', err);
                 }
                 //console.log("result_testType：",result_testType);
@@ -201,6 +203,7 @@ TaskAtta.findAttachmentInfo = function(attachmentId, callback){
             }
             callback('success', result[0]);
         });
+        connection.release();
     });
 }
 
@@ -228,6 +231,7 @@ TaskAtta.searchAttaAndSvn = function(attachmentId,svnId, callback){
             }
             callback('success', result[0]);
         });
+        connection.release();
     });
 }
 
@@ -247,6 +251,7 @@ TaskAtta.searchAttaAndSvn2 = function(attachmentId,svnId, callback){
             }
             callback('success', result[0]);
         });
+        connection.release();
     });
 }
 /**
@@ -270,6 +275,7 @@ TaskAtta.commitRar = function(attachmentId, callback){
             }
             callback('success', result[0]);
         });
+        connection.release();
     });
 }
 

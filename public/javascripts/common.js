@@ -169,7 +169,24 @@ function dynInputBlur(inputName){
             animationShr(inputName)},200);
     });
 }
-
+/* ajax请求
+* @param params
+* @param url
+* @param subType
+*/
+function AjaxRequset(params, url, subType){
+    url = '/' + url;
+    this.ajaxOptions = {
+        data: params,
+        url: url,
+        dataType: 'jsonp',
+        cache: false,
+        timeout: 50000,
+        type: subType,
+        error: function(jqXHR, textStatus, errorThrown){
+            alert('error ' + textStatus + " " + errorThrown);
+        }};
+}
 jQuery(document).ready(function() {
     hideTip();
     resetAttaDownloadUri('a_preTestAtta');

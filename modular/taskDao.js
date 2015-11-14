@@ -221,6 +221,7 @@ exports.searchProject = function( taskInfo , callback){
                 //console.log("[taskDao] searchProject;", result);
                 callback("success", result[0]);
             }
+
         });
     });
 }
@@ -575,15 +576,12 @@ exports.searchNewAndOld= function(taskId,processStepId,callback){
     });
 };
  /**提交新旧文件
- *
- *
  */
 exports.submitFile= function(taskId,callback){
     pool.getConnection(function (err, connection) {
         //开启事务
         queues(connection);
         var trans = connection.startTransaction();
-
         var sql= {
             selectDealer:"select manager from project where projectId in ( select projectId from tasks where taskId = ?)",
             updateTask: "update tasks set processStepId= 4, state='变更文件已提交' where taskid=?",
@@ -626,6 +624,43 @@ exports.submitFile= function(taskId,callback){
             }
             else {
                return  callback('err');
+            }
+        });
+        trans.execute();//提交事务
+        //callback('success');
+        connection.release();
+    });
+};
+/**
+ * 提交完变更单后，直接跳转自动上库(“绿色通道”）
+ * @param taskId
+ * @param callback
+ */
+exports.submitFileToUploadFile= function(taskId,callback){
+    pool.getConnection(function (err, connection) {
+        //开启事务
+        queues(connection);
+        var trans = connection.startTransaction();
+        var sql= {
+            selectDealer:"select manager from project where projectId in ( select projectId from tasks where taskId = ?)",
+            updateTask: "update tasks set processStepId= 6, state='变更文件已提交' where taskid=?",
+            updateDealer: 'insert into taskprocessstep(taskId,processStepId,turnNum,dealer,execTime) values ' +
+            ' (?,6,' +
+            ' (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=' +
+            '  (select taskid from tasks where taskid = ?)) as maxNumTable),?,?)'
+        }
+        var selectDealer_params = [taskId];
+        var updateTask_params = [taskId];
+        var updateDealer_params = [taskId,taskId];
+        var sqlMember = ['selectDealer','updateTask', 'updateDealer'];
+        var sqlMember_params = [selectDealer_params, updateTask_params, updateDealer_params];
+        var i = 0;
+        asyQuery_submit(trans,sql,sqlMember,sqlMember_params,i ,function(msg){
+            if(msg =='success'){
+                return  callback('success');
+            }
+            else {
+                return  callback('err');
             }
         });
         trans.execute();//提交事务
@@ -1026,7 +1061,6 @@ exports.searchAllBugs = function(userId, callback){
     pool.getConnection(function (err, connection){
         var sql = "SELECT b.* ,p.projectName, p.projectUri FROM `bugs` b JOIN project p" +
             "    on p.projectId = b.projectId  and b.creater  =?  and newTask < 0 ";
-
         var sql_params = [userId];
         connection.query(sql,sql_params,function(err,result){
             if (err) {
@@ -1049,7 +1083,32 @@ exports.searchTaskFiles = function(taskId,callback){
                 return callback("err");
             }
             return callback("success",result);
-
         });
+        connection.release();
     });
+}
+exports.hasGreenPass = function(params,callback){
+    pool.getConnection(function(err,connection){
+        if (err) {
+            console.log('[QUERY COUNT FILE ERROR] - ', err.message);
+            return callback(err,null);
+        }
+        else{
+            var sql = TaskSql.hasGreenPass;
+            var sql_params = [params.userId];
+            connection.query(sql,sql_params,function(err,result){
+                if(err){
+                    console.error("SEARCHTASKFILES ERR!!!",err);
+                    return callback("err");
+                }
+                if(result.length){
+                    return callback("success",true);
+                }
+                else{
+                    return callback("success",false);
+                }
+
+            })
+        }
+    })
 }
