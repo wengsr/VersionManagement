@@ -50,6 +50,7 @@ var queues = require('mysql-queues');// 加载mysql-queues 支持事务
 var file = require("../modular/task");
 var ApplyOrderSQL = require("./sqlStatement/applyOrderSql");
 var TaskSQL = require("./sqlStatement/taskSql");
+var TaskTestSQL = require("./sqlStatement/testStateSql");
 function Task(task){
     this.taskid = task.taskid
     this.taskcode = task.taskcode
@@ -1285,17 +1286,20 @@ Task.submitComplete = function(taskId, userId, callback){
         "   (select * from  (select tester as dealer from bugs where newTask = ?" +
         "   union" +
             "   select PM as dealer from project  where projectId =(select projectId from tasks where taskId = ?) ) as dealerTable limit 1)," +
-            "(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?)"
+            "(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?)",
+            insertTestState:TaskTestSQL.insertStateByTaskId
         }
         var selectDealer_params = [taskId];
         var updateTask_params = [taskId];
         var updateFileList_params = [taskId];
+        var insertTestState_params = [taskId,0,taskId];//0:等待测试
         var now = new Date().format("yyyy-MM-dd HH:mm:ss") ;
         var updateTPS_params = [taskId,taskId,userId,now,taskId];
         var updateTPS2_params = [taskId,taskId,taskId,taskId,now];
-        var sqlMember = ['selectDealer', 'updateTask', 'updateFileList', 'updateTPS','updateTPS2'];
-        var sqlMember_params = [selectDealer_params, updateTask_params, updateFileList_params, updateTPS_params,updateTPS2_params];
+        var sqlMember = ['selectDealer', 'updateTask', 'updateFileList', 'updateTPS','updateTPS2','insertTestState'];
+        var sqlMember_params = [selectDealer_params, updateTask_params, updateFileList_params, updateTPS_params,updateTPS2_params,insertTestState_params];
         var i = 0;
+        var lastSql = "insertTestState";
         async.eachSeries(sqlMember, function (item, callback_async) {
             trans.query(sql[item], sqlMember_params[i++],function (err_async, result) {
                 if(item == 'selectDealer' && undefined!=result && ''!=result && null!=result){
@@ -1304,11 +1308,11 @@ Task.submitComplete = function(taskId, userId, callback){
                     return callback('err','该变更单已经上库完成,无需重复操作');
                 }
                 if(err_async){
-                    console.log("submitComplete",sql[item],"  ",sqlMember_params[i-1]);
+                    console.log("submitComplete",sql[item],"  ",sqlMember_params[i]);
                     trans.rollback();
                     return callback('err',err_async);
                 }
-                if(item == 'updateTPS2' && !err_async){//最后一条sql语句执行没有错就返回成功
+                if(item == lastSql && !err_async){//最后一条sql语句执行没有错就返回成功
                     trans.commit();
                     return callback('success');
                 }

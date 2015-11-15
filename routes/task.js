@@ -114,7 +114,7 @@ var FilesAdmin = require("./util/filesAdmin");
 var ProcessStepAdmin = require("./util/processStepAdmin");
 var ApplyOrder = require("../modular/applyOrder");
 var TaskProcess_version = require("../modular/taskProcess_version");
-var svnAdmin = require("./util/svnAdmin")
+var svnAdmin = require("./util/svnAdmin");
 /**
  * 判断svn上存在该文件
  * @params files 文件名数组

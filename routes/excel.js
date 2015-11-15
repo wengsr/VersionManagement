@@ -84,7 +84,14 @@ var exlCols = [{
 
 
 /*统计测试情况的列属性*/
-var exlColsForCount = [{
+var exlColsForCount = [
+    //{
+    //    caption:'项目',
+    //    captionStyleIndex: 1,
+    //    type:'string',
+    //    width:30
+    //},
+    {
     caption:'变更单数量',
     captionStyleIndex: 1,
     type:'number',
