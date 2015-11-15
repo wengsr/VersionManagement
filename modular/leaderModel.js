@@ -330,10 +330,11 @@ LeaderModel.addProAdmin = function(userName, projectId, callback){
             "   userId=(select u.userId from user u where u.userName=?) " +
             "   and projectId=? and processStepId=6",
             addProToAdmin:"insert into processstepdealer (userId, processStepId, projectId) " +
-            "   values ((select u.userId from user u where u.userName=?),6,?)"
+            "   values ((select u.userId from user u where u.userName=?),6,?)," +
+            "((select u.userId from user u where u.userName=?),12,?)"
         }
         var isAdminExist_params = [userName,projectId];
-        var addProToAdmin_params = [userName,projectId];
+        var addProToAdmin_params = [userName,projectId,userName,projectId];
         var sqlMember = ['isAdminExist', 'addProToAdmin'];
         var sqlMember_params = [isAdminExist_params, addProToAdmin_params];
         var i = 0;
@@ -487,7 +488,7 @@ LeaderModel.delProAdmin = function(userId, projectId, callback){
         }
         var sql = 'delete from processstepdealer' +
             '        where userId=?' +
-            '        and processStepId=6 and projectId=?';
+            '        and processStepId in (6,12) and projectId=?';
         var params = [userId,projectId];
         connection.query(sql, params, function (err, result) {
             if (err) {
