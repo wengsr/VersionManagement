@@ -77,5 +77,8 @@ var getTaskInfo_params = "[taskId]";
 taskProcessSql_v.getFiles = "SELECT * from filelist where taskId = ? order by state";
 var getFiles_params = "[taskId]"
 taskProcessSql_v.getAttas = "SELECT * ,max(turnNum) maxTurn from taskattachment ta where ta.taskId = ? and ta.processStepId in(2,3) order by  processStepId,turnNum DESC";// 只包含，Old.zip,变更单附件
-var getAttas_params = "[taskId]"
+var getAttas_params = "[taskId]";
+taskProcessSql_v.isNeedToDevReposity ="SELECT * FROM tasks t join submittodevreposity stds on " +
+" t.projectId = stds.projectId and t.taskId = ?;"
+var isNeedDevReposity_params = "[taskI]";
 module.exports = taskProcessSql_v;

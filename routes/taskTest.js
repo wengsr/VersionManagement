@@ -677,6 +677,12 @@ router.post('/noTest', function(req, res) {
         }else{
             jsonStr = '{"sucFlag":"err","message":"【暂不测试】支持出错"}';
         }
+        var params = {taskId:taskId,userId:user.userId,dealer:user.userId,processStepId:12};
+        ProcessStepAdmin.startProcess(params,function(msg,result){
+            if(msg =="err"){
+                console.error("startProcess processStepId 12 ERR!");
+            }
+        })
         var queryObj = url.parse(req.url,true).query;
         res.send(queryObj.callback+'(\'' + jsonStr + '\')');
     });

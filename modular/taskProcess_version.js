@@ -219,5 +219,27 @@ taskProcess_version.getDealerAndTaskInfo = function(params,callback){
         connection.release();
     });
 }
+//查找处理人和变更单信息，便于发送邮件
+taskProcess_version.isNeedToDevReposity = function(params,callback){
+    pool.getConnection(function(err, connection) {
+        if (err) {
+            return util.hasDAOErr(err, " get Connection err!!!", callback);
+        }
+        var sql = TaskProcessSQL_v.isNeedToDevReposity;
+        var sql_params = [params.taskId];
+        connection.query(sql, sql_params,function (err, result) {
+            if (err) {
+                console.log("findCreaterAndTaskInfo  result:", err.message);
+                callback("err","false");
+                return;
+            }
+            else{
+                console.log("getDealerAndTaskInfo success");
+                callback("success",result.length);
+            }
+        });
+        connection.release();
+    });
+}
 
 module.exports = taskProcess_version;

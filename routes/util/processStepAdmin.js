@@ -186,9 +186,16 @@ function endSubmitToDev(params,callback){
 function submitToDevCompleteProcess(params,callback){
     var newParams = params;
     newParams.dealer = params.userId;
-    TaskProcess_version.newProcess(newParams,function(msg){
-        console.log("submitToDevCompleteProcess ",msg);
-    })
+    TaskProcess_version.isNeedToDevReposity(params,function(msg,resultLength){
+        if(msg=="success" && ( resultLength >0) ){
+            TaskProcess_version.newProcess(newParams,function(msg){
+                console.log("submitToDevCompleteProcess ",msg);
+            })
+        }
+       else {
+            console.log("isNeedToDevReposity:" ,msg ,"isNeed:",resultLength);
+        }
+    });
 }
 
 
