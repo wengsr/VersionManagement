@@ -8,7 +8,7 @@
                 <tr>
                     <th>序号</th>
                     <th>变更单名</th>
-                    <th>数据变更单</th>
+                    <th>上传</th>
                     <th>申请人</th>
                     <th>状态</th>
                     <th>上传附件</th>
@@ -20,8 +20,8 @@
                 <% recCount++;%>
                 <tr id="myToBeDealTask">
                     <td><%=recCount%></td>
-                    <td><a id="attach_<%=atta.attachmentId%>" attachment ="attachment" attachmentId="<%=atta.attachmentId%>"  attaUri = "<%=atta.fileUri%>" ><%=atta.fileName%></a></td>
-                    <td>无</td>
+                    <td><a id="attachment_down" attachment ="attachment_down" href="<%=atta.fileUri%>"><%=atta.fileName%></a></td>
+                    <td><a id="attach_<%=atta.attachmentId%>" attachment ="attachment" attachmentId="<%=atta.attachmentId%>"  attaUri = "<%=atta.fileUri%>" >上传至svn路径</a></td>
                     <td><%=atta.realName%></td>
                     <td>未上传至svn</td>
                     <td><a  id ="attachCommit_"<%=atta.attachmentId%> href ="/svn/commitRarManual/<%=atta.attachmentId%>" attaId ="<%=atta.attachmentId%>" >已手工上传</a></td>
@@ -76,4 +76,28 @@
     </div>
     <div class="col-sm-3"></div>
 </div>
+<script src="http://libs.baidu.com/jquery/1.10.2/jquery.min.js"></script>
+<script>
+    /**
+     * 处理文件下载中的特殊字符
+     * @param aInputId        下载文件超链接标签的ID
+     */
+    function resetAttaDownloadUri(aInput){
+        debugger
+        var attaUri = $(aInput).attr('href');
+        var attaName = $(aInput).html();
+        if(!attaUri || '#'==attaUri){
+            return;
+        }
+        attaUri = attaUri.replace(/\./g,'%2E');
+        attaUri = attaUri.replace(/\//g,'%2F');
+        attaName = attaName.replace(/\./g,'%2E');
+        attaName = attaName.replace(/\//g,'%2F');
+        var currentUri = '/file/fileDownLoad/' + attaName + '/' + attaUri;
+        $(aInput).attr('href',currentUri);
+    }
+    $("[id=attachment_down]").each(function(i,input){
+        resetAttaDownloadUri(input);
+    });
 
+</script>
