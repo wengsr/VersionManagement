@@ -45,21 +45,19 @@ var  submitProcess  = function(params,callback){
                         })
                     });
                     //给配置管理员发送邮件
-                    TaskProcess_version.getVMAndTaskInfo(params,function(msg_getVM,VMs){
-                    //TaskProcess_version.getVMAndTaskInfo(params,function(msg_get,VMs){
-                        if(msg_getVM =="err"){
-                            console.error("获取配置管理员出错！");
-                        }
-                        if(!result.length){
-                            console.error("没有找到配置管理员！");
-                        }
-                        VMs.forEach(function(vm){
-                            setTimeout( Email.sendEmailToDealer_new(vm),"1000");
-                        })
-                    });
-                   return  Task.submitComplete(params.taskId,params.userId,function(msg,result){
-                       console.log("submitComplete: ",msg ,"  result:",result);
-                   });
+                    //TaskProcess_version.getVMAndTaskInfo(params,function(msg_getVM,VMs){
+                    ////TaskProcess_version.getVMAndTaskInfo(params,function(msg_get,VMs){
+                    //    if(msg_getVM =="err"){
+                    //        console.error("获取配置管理员出错！");
+                    //    }
+                    //    if(!result.length){
+                    //        console.error("没有找到配置管理员！");
+                    //    }
+                    //    VMs.forEach(function(vm){
+                    //        setTimeout( Email.sendEmailToDealer_new(vm),"1000");
+                    //    })
+                    //});
+                   //return  ;
                 }
             })
         }
@@ -152,7 +150,7 @@ function submitToDevProcess(params,callback){
                 console.error("没有找到配置管理员！");
             }
             VMs.forEach(function(vm){
-                vm.processStepId = 10;
+                vm.processStepId = 11;
                 setTimeout( Email.sendEmailToDealer_new(vm),"1000");
             });
         });
@@ -172,7 +170,7 @@ function endSubmitToDev(params,callback){
                 console.error("没有找到创建者！");
             }
             creaters.forEach(function(creater){
-                creater.processStepId = 11;//邮件内容设置
+                creater.processStepId = 12;//邮件内容设置
                 setTimeout( Email.sendEmailToDealer_new(creater),"1000");
             })
         });

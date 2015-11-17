@@ -66,8 +66,9 @@ taskProcessSql_v.findCreaterAndTaskInfo = "select u.userName ,u.realName,u.email
 var getVMAndTaskInfo_params = "[taskId]";
 //查找处理人信息和变更单信息
 taskProcessSql_v.getDealerAndTaskInfo = 'SELECT t.taskCode , t.taskName , t.processStepId , u.userName , u.realName ,u.email  FROM tasks t ' +
-'        JOIN User u  ON t.creater=u.userId ' +
-'        where t.taskid = ?';
+'     JOIN taskprocessstep tps on tps.taskid = t.taskId and tps.processStepId = t.processStepId' +
+'    JOIN User u  ON tps.dealer=u.userId ' +
+'      where t.taskid = ?';
 var getDealerAndTaskInfo_params ="[taskId]"
 taskProcessSql_v.getTaskInfo = "SELECT t.*,u.realName  createrName,p.projectName,p.projectUri,ps.processStepName from tasks t join project p on t.projectId = p.projectId" +
 "   JOIN user u on u.userId  = t.creater" +
@@ -79,6 +80,6 @@ var getFiles_params = "[taskId]"
 taskProcessSql_v.getAttas = "SELECT * ,max(turnNum) maxTurn from taskattachment ta where ta.taskId = ? and ta.processStepId in(2,3) order by  processStepId,turnNum DESC";// 只包含，Old.zip,变更单附件
 var getAttas_params = "[taskId]";
 taskProcessSql_v.isNeedToDevReposity ="SELECT * FROM tasks t join submittodevreposity stds on " +
-" t.projectId = stds.projectId and t.taskId = ?;"
+" t.projectId = stds.projectId and t.taskId = ? And stds.submitToDevReposity = 0;"
 var isNeedDevReposity_params = "[taskI]";
 module.exports = taskProcessSql_v;

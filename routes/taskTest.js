@@ -665,7 +665,7 @@ router.get('/taskTestedCount', function(req, res) {
  * “测试通过”业务实现
  */
 router.post('/noTest', function(req, res) {
-    getCookieUser(req, res);
+    var user = getCookieUser(req, res);
     var taskId = req.body['taskId'];
     var reason = req.body['reason'];
     var dealer = req.session.user.userId;

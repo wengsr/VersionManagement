@@ -115,6 +115,7 @@ var ProcessStepAdmin = require("./util/processStepAdmin");
 var ApplyOrder = require("../modular/applyOrder");
 var TaskProcess_version = require("../modular/taskProcess_version");
 var svnAdmin = require("./util/svnAdmin");
+var Tool = require("./util/tool.js");
 /**
  * 判断svn上存在该文件
  * @params files 文件名数组
@@ -2245,8 +2246,12 @@ router.post('/autoUpload', function(req,res) {
                                 return returnJsonMsg(req, res, "err", "自动上库过程出现错误，请手动上库后点击【上库完成】");
                             }
                             //5.提交SVN成功，改变当前这条变更单记录的状态为“自动上库成功”
-                            var revision = result.substring(result.indexOf("提交后的版本为 ")+8,result.length-1);
-                            console.log("revision:",revision);
+                            var testRevision = result.substring(result.indexOf("提交后的版本为 ")+8,result.length-1);
+                            console.log("testRevision:",testRevision);
+                            var revision = Tool.getRevisionFromData(result);
+                            //if(revision==-1){
+                            //
+                            //}
                             autoComp(req, taskId, revision,function(isSuc, errMsg){
                                 if(isSuc!='success'){
                                     var updateRevision_params = {taskId:taskId,state:"自动上库失败"}
@@ -2430,7 +2435,7 @@ router.post('/updateSvnAndCommit', function(req,res) {
 
                             }
                             //5.提交SVN成功，改变当前这条变更单记录的状态为“自动上库成功”
-                            auotoComp(req, taskId, function(isSuc, errMsg){
+                            autoComp(req, taskId, function(isSuc, errMsg){
                                 if(isSuc!='success'){
                                     return returnJsonMsg(req, res, "err", errMsg);//状态修改为“自动上库成功”时出错
                                 }

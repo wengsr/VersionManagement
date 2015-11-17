@@ -236,11 +236,25 @@ var commitToTestRepository = function(params,callback){
                                         var testRevision = result.substring(result.indexOf("提交后的版本为 ")+8,result.length-1);
                                         console.log("getTestRision:",testRevision,"end");
                                        var newRevision = Tool.getRevisionFromData(result);
+                                        if(newRevision == -1){
+                                            TaskProcess_version.getVMAndTaskInfo(params,function(msg_getVM,VMs){
+                                                if(msg_getVM =="err"){
+                                                    console.error("获取配置管理员出错！");
+                                                }
+                                                if(!result.length){
+                                                    console.error("没有找到配置管理员！");
+                                                }
+                                                VMs.forEach(function(vm){
+                                                    vm.processStepId = 0;
+                                                    setTimeout( Email.sendEmailToDealer_new(vm),"1000");
+                                                })
+                                            });
+                                        }
                                         autoComp(taskId, newRevision,function(isSuc, errMsg){
                                             if(isSuc!='success'){
                                                 return callback( "err", errMsg);//状态修改为“自动上库成功”时出错
                                             }
-                                            taskComplete({taskId:taskId,userId:params.userId});
+                                            taskComplete({taskId:taskId,userId:235});
                                             return callback(  "success", "自动上库成功,请上SVN库确认无误后点击【上库完成】");
                                         });
                                     }

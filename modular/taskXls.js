@@ -132,3 +132,12 @@ exports.countTasks = function(params,callback){
         connection.release();
     });
 }
+
+exports.countTasksGroupByProjectId = function(params,callback){
+    pool.getConnection(function (err, connection) {
+        //开启事务
+        queues(connection);
+        var trans = connection.startTransaction();
+
+        var sql= { countState :""}});
+}

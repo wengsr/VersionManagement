@@ -75,6 +75,7 @@ exports.getRevisionFromData = function(data){
         else {
             revision = revision[0];
         }
+        console.log("getRevisionFromData：",revision);
         return revision ;
     }
 }
