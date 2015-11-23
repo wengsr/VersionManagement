@@ -5,7 +5,48 @@ var Project = require('../modular/project');
 var Attachment = require('../modular/taskAtta');
 var AttaSql = require("../modular/sqlStatement/taskAttaSql");
 var process = require("process");
-var dao = require("../modular/taskDao")
+var dao = require("../modular/taskDao");
+var VersionConstant = require("../util/versionConstant");
+var fileZip = require("../util/fileTool");
+var url = require('url');
+/**
+ * 返回JSON信息
+ * @param res
+ * @param sucFlag 操作是否成功  err success
+ * @param msg     返回的操作结果信息
+ */
+var returnJsonMsg = function(req, res, sucFlag, msg){
+    var jsonStr = '{"sucFlag":"' + sucFlag + '","message":"' + msg + '"}';
+    var queryObj = url.parse(req.url,true).query;
+    res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+}
+/**
+ * 日期格式化 yyyy-MM—dd HH-mm-ss
+ * @param format
+ * @returns {*}
+ */
+Date.prototype.format = function(format){
+    var o = {
+        "M+" : this.getMonth()+1, //month
+        "d+" : this.getDate(), //day
+        "H+" : this.getHours(), //hour
+        "m+" : this.getMinutes(), //minute
+        "s+" : this.getSeconds(), //second
+        "q+" : Math.floor((this.getMonth()+3)/3), //quarter
+        "S" : this.getMilliseconds() //millisecond
+    }
+
+    if(/(y+)/.test(format)) {
+        format = format.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length));
+    }
+
+    for(var k in o) {
+        if(new RegExp("("+ k +")").test(format)) {
+            format = format.replace(RegExp.$1, RegExp.$1.length==1 ? o[k] : ("00"+ o[k]).substr((""+ o[k]).length));
+        }
+    }
+    return format;
+}
 /**
  * 查找用户所属项目，用于显示“申请变更单”和“查找变更单”按钮
  * @param userId
@@ -414,13 +455,87 @@ router.get('/findAttaHistory/:curPage', function(req, res) {
         });
     });
 });
-//打开上传附件至svn的页面
-router.get('/commitChangeRarPage/:attachmentId', function(req, res) {
+
+
+//打开导出本地变更单附件压缩包页面
+router.get('/exportLocalChangeAttaPage/', function(req, res) {
     getCookieUser(req, res);
     var userId = req.session.user.userId;
-    var attachmentId = req.params.attachmentId;
-    Attachment.findAttachmentInfo(attachmentId, function (msg,attachments) {
-        return res.render('adminModel/attachCommit.ejs', {attachment:attachments});
+    return res.render('adminModel/attachExport.ejs');
+});
+/**
+ * 返回JSON信息
+ * @param res
+ * @param sucFlag 操作是否成功  err success
+ * @param msg     返回的操作结果信息
+ */
+var returnJsonMsg = function(req, res, sucFlag, msg){
+    var jsonStr = '{"sucFlag":"' + sucFlag + '","message":"' + msg + '"}';
+    var queryObj = url.parse(req.url,true).query;
+    res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+}
+//导出本地变更单附件压缩包
+router.post('/exportLocalChangeAtta/', function(req, res) {
+    getCookieUser(req, res);
+    var userId = req.session.user.userId;
+    var postParams = req.body;
+    console.log("post body:",req.body)
+    //console.log("post params:",req.params)
+    var params = {};
+    var fileUriSeg = postParams.fileUriSecg;
+    //var startDate = postParams.startDate.trim();
+    //var endDate = postParams.endDate.trim();
+    console.log("postParams:",postParams.sstartDate == "")
+    var startDate = postParams.startDate.trim();
+    var endDate = postParams.endDate.trim();
+    if(startDate== undefined || startDate ==""){
+        params.startTime = "2015-1-1 ";
+    }
+    else {
+        params.startTime = startDate  +" "+postParams.startTime;
+    }
+    if(endDate== undefined ||endDate ==""){
+        params.endTime = (new Date()).format(("yyyy-MM-dd HH:mm:ss")) ;
+    }
+    else {
+        params.endTime = endDate +" " + postParams.startTime;
+    }
+    params.fileUriSeg = fileUriSeg;
+    Attachment.exportLocalChangeAtta(params, function (msg,attachements) {
+        if(msg =="success"){
+             if(!attachements.length){
+                req.session.error = "没有查找到相应变更单" ;
+                 console.log("filesArr1:","没有查找到相应变更单");
+                 return (null);
+             }
+
+            var filesArr = [];
+            attachements.forEach(function(file){
+                filesArr.push(file.fileUri.substring(1,file.fileUri.length));
+            })
+            var exportAttachmentsLocalPath = VersionConstant.paths.exportAttachmentsLocalPath;
+            var attachmentLocalPath = VersionConstant.paths.attachmentLocalPath;
+            var fileName;
+            if(fileUriSeg!=""&&fileUriSeg!=undefined){
+               fileName = fileUriSeg +'['+startDate+']['+endDate+Math.random().toString().substr(3,5)+".zip";
+            }
+            else if(fileUriSeg==""||fileUriSeg==undefined){
+                fileName =  'All['+startDate+']['+endDate+Math.random().toString().substr(3,5)+"].zip";
+            }
+            console.log("filesArr1:",filesArr);
+            var realName = exportAttachmentsLocalPath+fileName
+            fileZip.zipFiles(attachmentLocalPath,filesArr,realName);
+            console.log("filesArr1:",fileName);
+            //异步
+            var newName;
+            var  sucFlag ="success"
+            var jsonStr = '{"sucFlag":"' + sucFlag + '","message":"' + msg + '","fileName":"' + fileName + '"}';
+            var queryObj = url.parse(req.url,true).query;
+          return  res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+            //res.download(fileName,newName);
+            //return null;
+
+        }
     });
 });
 //router.post('/copyRar', function(req, res) {

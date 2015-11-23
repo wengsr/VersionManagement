@@ -1,0 +1,80 @@
+<!--变更单处理--“查找变更单”模态窗口-->
+<!--<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">-->
+<!-- 引导样式表 -->
+<link rel="stylesheet" href="/stylesheets/bootstrap-datetimepicker.min.css">
+<link rel="stylesheet" type="text/css" href="/stylesheets/bootstrap-clockpicker.min.css">
+<!--<link rel="stylesheet" href="/resources/demos/style.css">-->
+<form action="/admin/exportLocalChangeAtta" id="formExportXls" class=" bs-component form-horizontal" method='post'>
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="myLargeModalLabel">导出变更单压缩包</h4>
+    </div>
+    <div  class="modal-body">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label for="fileUriReg" class="col-sm-2 control-label">文件路径</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name="fileUriReg" id="fileUriReg" placeholder="部分文件路径，如：/local/YN_TRUNK/,不能使用'\'">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="beginDate" class="col-sm-2 control-label">开始时间</label>
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control" name="startDate" id="startDate" style="">
+                        </div>
+                        <div class="input-group clockpicker col-sm-2"  data-placement="bottom" data-align="top" data-autoclose="true">
+                            <input type="text" class="form-control" id ="startTime" name="startTime" value="09:00">
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-time"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="NewExportAtta" class="col-sm-2 control-label">变更单附件</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name="NewExportAtta" id="NewExportAtta" >
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="fileUriReg" class="col-sm-2 control-label">文件路径</label>
+                        <div class="col-sm-10">
+                            <span><a id="fileUriReg"  name="fileUriReg" href=""></a></span>
+                            <input type="text" class="form-control" name="fileUriReg" id="fileUriReg" placeholder="部分文件路径，如：/local/YN_TRUNK/,不能使用'\'">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div style="width:68%;float:left;margin-bottom:-20px;margin-top:-9px;height:50px;" id="diaInfoTip" class="alert alert-info alert-dismissible" role="alert"><span style="text-align:center;margin-left:auto;margin-right:auto;display:block;"><strong>信息提示</strong></span></div>
+        <div style="width:68%;float:left;margin-bottom:-20px;margin-top:-9px;height:50px;" id="diaErrTip" class="alert alert-danger alert-dismissible" role="alert"><span style="text-align:center;margin-left:auto;margin-right:auto;display:block;"><strong>错误提示</strong></span></div>
+        <div style="width:68%;float:left;margin-bottom:-20px;margin-top:-9px;height:50px;" id="diaSuccessTip" class="alert alert-success alert-dismissible" role="alert"><span style="text-align:center;margin-left:auto;margin-right:auto;display:block;"><strong>操作成功</strong></span></div>
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        <button type="button" id ="btnExportXls" class="btn btn-primary" >导出变更单</button>
+    </div>
+</form>
+<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<script type="text/javascript" src="/javascripts/bootstrap-clockpicker.min.js"></script>
+<script type="text/javascript" src="/javascripts/attachExport.js"></script>
+<script>
+    $(function() {
+        $( "#startDate").datetimepicker({format:"yyyy-mm-dd",
+            autoclose:true,
+            minView:3,
+            pickerPosition:"left"});
+
+    });
+    $(function() {
+        $( "#endDate" ).datetimepicker({format:"yyyy-mm-dd",
+            autoclose:true,
+            minView:3,
+            pickerPosition:"left"});
+    });
+    $('.clockpicker').clockpicker();
+
+</script>
+
+<!--<script src="/javascripts/exportTasks.js"></script>-->

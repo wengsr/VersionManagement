@@ -39,6 +39,12 @@ var AttaSql = function(){
 
     this.insertAttaCommit = "insert into attachmentCommit(attachmentId , attaType, commitType) value( ?, 0,0)";
     var insertAttaCommit_params = "[attachementId]";
+
+    this.findLocalChangeAtta = "SELECT DISTINCT t.taskid,t.taskCode,ta.fileUri FROM tasks t join filelist fl  on fl.fileUri like ?  and fl.taskId =" +
+    "   t.taskId JOIN" +
+    "   taskprocessstep tps on tps.taskId = t.taskId And  tps.processStepId = 7 and tps.execTime between ? and ? " +
+    "   JOIN taskattachment ta on ta.taskId = tps.taskId and tps.turnNum = ta.turnNum  and  ta.processStepId = 3 ;"
+    var findLocalChangeAtta_params = "[filrUriSeg,startTime,endTime]"
 }
 module.exports = AttaSql;
 //var sql = new AttaSql();

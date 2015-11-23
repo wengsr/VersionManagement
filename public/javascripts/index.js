@@ -201,6 +201,7 @@ jQuery(document).ready(function() {
     showModelDialog("btnSubmitBug","/task/addBugTaskPage",'formAddTask');
     //点击“查找变更单”打开模态窗口
     showModelDialog("btnFindTasks","/task/findTaskPage",'formFindTasks');
+    showModelDialog("btnExportLocalChangeAttaPage","/admin/exportLocalChangeAttaPage",'formExportXls');
     //点击“查找所有变更单”打开模态窗口
     showModelDialog("btnFindAllTasks","/task/findAllTaskPage",'formFindAllTasks');
     //测试主管“查找所有与测试相关的变更单”

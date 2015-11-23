@@ -29,7 +29,6 @@ var fs = require('fs');
 
 var archiver = require('archiver');
 exports.zipFiles = function (localBaseDir, fileList, zipFileName) {
-
     //var output = fs.createWriteStream(__dirname + '/example111.zip');
     var output = fs.createWriteStream(zipFileName);
     var archive = archiver('zip');
@@ -138,15 +137,16 @@ exports.syncFolder = function (src, dst) {
 
 /******测试案例*********/
 
-var localDir = "d:test/变更单9/";
+var localDir = "d:/testZip/文件/";
 //var localDir = "c:/test/变更单6/";
 //var localDir = "C:/test/变更单7/trunk/local";
 
 //var localDir = "E:/VersionManagement0308/bin/old/";
 var fileList = [
-   //'a/b/b1.txt',
-   //'a/b/a.txt',
-   //'a/b1.txt',
+   'a/aa/aa1.txt',
+   'b/b2/aaa.txt',
+   'b/b2/aab.txt',
+   'c/c1/c11.txt'
    //'b1.txt',
    //'a.',
    // 'sssss.t'
@@ -163,9 +163,9 @@ var fileList = [
    //'trunk/service/LimitManager/src/main/resources/com/al/crm/limit/shortcut/dao/IShortcutQueryMapper.xml'
 //'IShortcutQueryBMO.java'
 ];
-//var zipName ="E:/VersionManagement0308/bin/old/测试工程名称_20150323_0260/old.zip";
+var zipName ="D:/testZip/文件压缩/test1.zip";
 //var zipName ="E:/VersionManagement-master.zip";
-//var fs = require('fs');
+var fs = require('fs');
 //var flag =exports.zipFiles(localDir, fileList, zipName);
 //console.log(flag);
 //fs.unlinkSync("./测试工程名称/old/");

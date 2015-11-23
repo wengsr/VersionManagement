@@ -279,6 +279,38 @@ TaskAtta.commitRar = function(attachmentId, callback){
     });
 }
 
+/**
+ * 获取本地路径所有的变更单
+ * @param taskId
+ * @param callback
+ */
+TaskAtta.exportLocalChangeAtta = function(params, callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN ATTACHMENT ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = AttaSql.findLocalChangeAtta;
+        if(params.fileUriSeg =="" ||params.fileUriSeg == undefined){
+            params.fileUriSeg = "%%";
+        }
+        else{
+            params.fileUriSeg ="%"+params.fileUriSeg+"%";
+        }
+        var newParams = [params.fileUriSeg,params.startTime,params.endTime];
+        connection.query(sql,newParams, function (err, result) {
+            if (err) {
+                console.log('[QUERY findLocalChangeAtta ERROR] - ', err.message);
+                return callback('err',err);
+            }
+            else{
+                console.log('success', params);
+                callback('success', result);
+            }
+        });
+        connection.release();
+    });
+}
 
 
 module.exports = TaskAtta;

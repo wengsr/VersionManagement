@@ -771,7 +771,7 @@ TaskTest.findTestTaskByParam = function(searchConds,startNum,callback){
             "            SELECT DISTINCT" +
             "        t.*, ps.processStepName AS stepName" +
             "        FROM" +
-            "        ( select * from tasks where processStepid > 7 and processStepid < 10) as t" +
+            "        ( select * from tasks where processStepid > 7 ) as t" +
             "        JOIN processstepdealer psd ON psd.projectId = t.projectId" +
             "        JOIN processstep ps ON ps.processStepId = t.processStepId" +
             "        AND t.projectId IN (" +
@@ -793,7 +793,7 @@ TaskTest.findTestTaskByParam = function(searchConds,startNum,callback){
             "        taskprocessstep maxtps3" +
             "        WHERE" +
             "        maxtps3.taskId = taskTable.taskid" +
-            "        )        AND oTps.processStepId = taskTable.processStepId" +
+            "        )        AND  oTps.processStepId = 8 and taskTable.processStepId> 8" +
             "        AND oTps.dealer = ?" +
             "        LEFT JOIN USER oU ON oTps.dealer = oU.userId" +
             "        ) taskTable2" +
@@ -818,7 +818,7 @@ TaskTest.findTestTaskByParam = function(searchConds,startNum,callback){
             "            SELECT DISTINCT" +
             "        t.*, ps.processStepName AS stepName" +
             "        FROM" +
-            "        ( select * from tasks where processStepid > 7 and processStepid < 10) as t" +
+            "        ( select * from tasks where processStepid > 7) as t" +
             "        JOIN processstepdealer psd ON psd.projectId = t.projectId" +
             "        JOIN processstep ps ON ps.processStepId = t.processStepId" +
             "        AND t.projectId IN (" +
@@ -840,7 +840,7 @@ TaskTest.findTestTaskByParam = function(searchConds,startNum,callback){
             "        taskprocessstep maxtps3" +
             "        WHERE" +
             "        maxtps3.taskId = taskTable.taskid" +
-            "        )        AND oTps.processStepId = taskTable.processStepId" +
+            "        )        AND oTps.processStepId = 8 and taskTable.processStepId> 8" +
             "        AND oTps.dealer = ?" +
             "        LEFT JOIN USER oU ON oTps.dealer = oU.userId" +
             "        ) taskTable2" +

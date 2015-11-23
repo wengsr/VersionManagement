@@ -73,7 +73,7 @@ exports.getRevisionFromData = function(data){
             revision = -1;
         }
         else {
-            revision = revision[0];
+            revision = revision[revision.length-1];
         }
         console.log("getRevisionFromData：",revision);
         return revision ;

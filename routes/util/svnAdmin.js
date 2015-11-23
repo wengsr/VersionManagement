@@ -347,7 +347,7 @@ function commitToFinalRepository(params,callback){
                         console.log("updateState Success!");
                     })
                     console.log("svnMergeToBranch ERR:",result);
-                    callback(msg_merge,result);
+                   return  callback(msg_merge,result);
                 }
                 else{
                     var udateState_params = {taskId:params.taskId,state:VersionConstant.states.AUTOSUBMITTODEV}

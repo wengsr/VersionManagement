@@ -359,7 +359,8 @@ Svn.prototype.merge = function(devRepositoryPath,testRepository,revisions,taskNa
             console.error("update before merge: "+ taskName + "  err."+err);
             return callback("err","merge至开发库出错！版本号:" +revisions);
         }
-        client.merge(merge_params,function(merge_err,result){
+        client.merge(merge_params,function(merge_err,result_merge){
+            console.log("merge  err info:",merge_err);
             if(merge_err)
             {
                 console.error("merge "+ taskName + "  err."+merge_err);
@@ -371,15 +372,16 @@ Svn.prototype.merge = function(devRepositoryPath,testRepository,revisions,taskNa
                 client.commit(msg,function(commit_err,result){
                     if(commit_err)
                     {
-                        console.error("commit "+ taskName + "  err."+data);
+                        console.error("commit "+ taskName + "  err."+result);
                         return callback("err","merge至开发库出错！版本号:" +revisions);
                     }
                     else {
-                        var testRevision = data.substring(data.indexOf("提交后的版本为 ")+8,data.length-1);
-                        console.log("commit successful !"+data);
+                        var testRevision = result.substring(result.indexOf("提交后的版本为 ")+8,result.length-1);
+                        console.log("commit successful !"+result);
                         console.log("getTestRevision:",testRevision,"end");
-                        var newRevision = Tool.getRevisionFromData(data);
-                        return callback("success",data,newRevision)
+                        var newRevision = Tool.getRevisionFromData(result);
+                        console.log("getTestRevision:",newRevision,"end");
+                        return callback("success",result,newRevision)
                     }
                 })
             }
@@ -389,12 +391,14 @@ Svn.prototype.merge = function(devRepositoryPath,testRepository,revisions,taskNa
     //2.删除
 module.exports = Svn;
 /********测试案例*********/
-    var svn = new Svn({userName:"zhanglj6",password:"zhanglj72774"});
-var versionDir = "http://192.168.1.22:8000/svn/hxbss/testVersion/a";
+    //var svn = new Svn({userName:"zhanglj6",password:"zhanglj72774"});
+    var svn = new Svn({userName:"cmsys",password:"717705"});
+//var versionDir = "http://192.168.1.22:8000/svn/hxbss/testVersion/a";
+var versionDir = "http://192.168.1.22:8000/svn/hxbss/NCRM/baseLine/Source/trunk";
 //var localDir = "D:/testSvn-branch";
-//var localDir = "D:/testSvn";
+var localDir = "D:/svn_baseline";
 //var msg = "NCRM开发变更单-XJ-20150815-订单资源释放-jinsh3-001";
-//var msg = "test";
+var msg = "test";
 //svn.autoUpload(msg, localDir,[],function(isSuccess,result){//除了被删除的文件，目录下的所有文件将被提交
 //    console.log("result:",result=="")
 //    if('success' != isSuccess){
@@ -410,7 +414,7 @@ var versionDir = "http://192.168.1.22:8000/svn/hxbss/testVersion/a";
 //svn.checkout(localDir,versionDir,["","2015-81"],function(msg){
 //    console.log("checkout:",msg)
 //});
-//var revision = 48472;
+//var revision = 49067;
 //svn.merge(localDir,versionDir,revision,msg,function(msg,data){
 //    console.log("merge111:",msg)
 //    console.log("merge data111:",data)
