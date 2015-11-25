@@ -81,5 +81,5 @@ taskProcessSql_v.getAttas = "SELECT * ,max(turnNum) maxTurn from taskattachment 
 var getAttas_params = "[taskId]";
 taskProcessSql_v.isNeedToDevReposity ="SELECT * FROM tasks t join submittodevreposity stds on " +
 " t.projectId = stds.projectId and t.taskId = ? And stds.submitToDevReposity = 0;"
-var isNeedDevReposity_params = "[taskI]";
+var isNeedDevReposity_params = "[taskId]";
 module.exports = taskProcessSql_v;

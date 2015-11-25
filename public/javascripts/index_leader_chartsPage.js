@@ -22,7 +22,7 @@ var drawStepLine = function(param1,param2,param3,param4,param5,param6){
             {
                 type : 'category',
                 boundaryGap : false,
-                data : ['申请完成','旧文件已提取','变更文件已提交','已安排走查','走查通过','正在上库']
+                data : ['申请完成','旧文件已提取','变更文件已提交','已安排走查','走查通过','上测试库']
             }
         ],
         yAxis : [
@@ -102,7 +102,7 @@ var parseTaskCount = function(){
             param4 = taskC.stateCount;
         }else if('走查通过'==taskC.state){
             param5 = taskC.stateCount;
-        }else if('正在上库'==taskC.state){
+        }else if('上测试库'==taskC.state){
             param6 = taskC.stateCount;
         }
     });

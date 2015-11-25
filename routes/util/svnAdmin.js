@@ -91,7 +91,7 @@ var getTaskFilesAndAtta = function(params,callback){
 function autoComp( taskId,revision, callback){
     Task.autoComp(taskId,revision, function(msg,resu){
         if('success'!=msg){
-            return callback("err", "修改变更单状态为【自动上库成功】时出错,请联系管理员! 错误信息：" + resu);
+            return callback("err", "修改变更单状态为【自动上测试库成功】时出错,请联系管理员! 错误信息：" + resu);
         }
         callback("success", null);
     });
@@ -290,11 +290,11 @@ var commitToTestRepository = function(params,callback){
 function svnMergeToBranch(svn,revisions ,i,callback){
         var finalRepository = VersionConstant.svnLocation.DevRepository;
         var devRepositoryPath = VersionConstant.paths.DevRepositoryPath;
-
         if(i == revisions.length){
             //return callback("success","申请单已成功合并，共"+i+"个变更单");
+            console.log("申请单已成功合并，共"+i+"个变更单!!!");
             var message =  "申请单已成功合并，共"+i+"个变更单";
-            return callback(  "success", message);
+            return callback( "success", message);
         }else{
             if(revisions[i].revision == -1){
                 i++;
@@ -357,8 +357,9 @@ function commitToFinalRepository(params,callback){
                         }
                         console.log("updateState Success!");
                     })
-                     console.log("commitToFinalRepository--updateState success !!!");
-                    callback(msg_merge,"自动上发布库成功");
+                    console.log("commitToFinalRepository--updateState success !!!");
+                    console.log(msg_merge,"自动上发布库成功");
+                    return callback(msg_merge,"自动上发布库成功");
                 }
             });
         })

@@ -478,7 +478,7 @@ var sendEmailToCreaterSubmit = function(req,taskId,dealer, stepId,isPass) {
         var content = '';
         if(stepId ==7)
         {
-            content = "已经上库完成";
+            content = "已上测试库完成";
         }
 
         Email.sendMailToCreaterSubmit(taskcode, taskname, userName, userEmail,content);
@@ -781,7 +781,7 @@ router.post('/submitAccept', function(req, res) {
     var userId = req.session.user.userId;
     var taskState ;
     if(parseInt(processStepId) == 6){
-        taskState = '正在上库';
+        taskState = '上测试库';
     }
     else if(parseInt(processStepId) == 12){
         taskState = '正在上发布库';
@@ -810,7 +810,7 @@ router.post('/submitComplete', function(req, res) {
     var jsonStr;
     Task.submitComplete(taskId, userId, function(msg,result){
         if('success' == msg){
-            jsonStr = '{"sucFlag":"success","message":"【上库完成】执行成功"}';
+            jsonStr = '{"sucFlag":"success","message":"【上测试库完成】执行成功"}';
             //判断其他变更单的文件占用情况并发邮件
             sendEmailToNext(req,taskId,'',7);
             findUnUsedTaskAndFileUri(taskId,req,function(fileLists){
@@ -2183,14 +2183,14 @@ router.post('/autoUpload', function(req,res) {
         CmdExc.extractRar(svnFolder+"/old.zip", svnFolder+'/oldSvnDown', function(oldIsSuccess, extraOldRarErr){
             //解压svn自动提取的文件到oldSvnDown文件夹(目的是为了让oldSvnDown下仅存在SVN上提取的文件，方便与开发人员上传的new文件夹进行比较)
             if(!isSuccess || !oldIsSuccess){//解压过程出错，直接返回出错信息
-                var updateRevision_params = {taskId:taskId,state:"自动上库失败"}
+                var updateRevision_params = {taskId:taskId,state:"自动上测试库失败"}
                 updateState(updateRevision_params);
-                return returnJsonMsg(req, res, "err", "解压出错，请手工上库! 错误信息：" + extraRarErr + extraOldRarErr);
+                return returnJsonMsg(req, res, "err", "解压出错，请手工上测试库! 错误信息：" + extraRarErr + extraOldRarErr);
             }
             if(!fs.existsSync(svnFolder+'/extractRarFolder/new')){//如果解压出来的new目录不存在,提示用户。
-                var updateRevision_params = {taskId:taskId,state:"自动上库失败"}
+                var updateRevision_params = {taskId:taskId,state:"自动上测试库失败"}
                 updateState(updateRevision_params);
-                return returnJsonMsg(req, res, "err", "解压出来的文件中没有new文件夹或者new文件夹的路径不对，请手工上库!");
+                return returnJsonMsg(req, res, "err", "解压出来的文件中没有new文件夹或者new文件夹的路径不对，请手工上测试库!");
             }
             //2.3从解压好的文件中提取new文件夹内的内容
             copy(svnFolder+'/extractRarFolder/new', localDir);
@@ -2199,13 +2199,13 @@ router.post('/autoUpload', function(req,res) {
             //发送数据变更单给相应人员
             //sendSqlAttachmentToDB(req,taskId,svnFolder+'/extractRarFolder/');
             if(('same' != compResult.msg )&&isDiffArr(compResult.diff,delFileList)){
-                var updateRevision_params = {taskId:taskId,state:"自动上库失败"}
+                var updateRevision_params = {taskId:taskId,state:"自动上测试库失败"}
                 updateState(updateRevision_params);
-                return returnJsonMsg(req, res, "err", "旧文件或文件夹在new文件夹中不存在，请手动上库！涉及文件：" + compResult.diff);
+                return returnJsonMsg(req, res, "err", "旧文件或文件夹在new文件夹中不存在，请手动上测试库！涉及文件：" + compResult.diff);
             }
             //没有旧文件，只有新增，没有修改和新增文件,跳转至“更新svn信息再上传”
             if((modTaskList=="")&&(delTaskList =="")){
-                var updateRevision_params = {taskId:taskId,state:"自动上库失败"}
+                var updateRevision_params = {taskId:taskId,state:"自动上测试库失败"}
                 updateState(updateRevision_params);
                 return returnJsonMsg(req, res, "err", "自动上库过程出现错误,请“更新svn信息再上传”");
             }
@@ -2214,7 +2214,7 @@ router.post('/autoUpload', function(req,res) {
                 if (msg === "err") {
                     console.log("【svn账号查找出错】",err.message);
                     returnJsonMsg(req, res, "err", "【svn账号错误】请联系管理员！！");
-                    var updateRevision_params = {taskId:taskId,state:"自动上库失败"}
+                    var updateRevision_params = {taskId:taskId,state:"自动上测试库失败"}
                     updateState(updateRevision_params);
                 }
                 else if (msg = "success") {
@@ -2224,26 +2224,26 @@ router.post('/autoUpload', function(req,res) {
                     //3.到数据库中查找【系统】用户
                     findSys(function(isSuc, sysUser){
                         if('success' != isSuc){
-                            var updateRevision_params = {taskId:taskId,state:"自动上库失败"}
+                            var updateRevision_params = {taskId:taskId,state:"自动上测试库失败"}
                             updateState(updateRevision_params);
-                            return returnJsonMsg(req, res, "err", "查找【系统】用户出错，请手工上库!");
+                            return returnJsonMsg(req, res, "err", "查找【系统】用户出错，请手工上测试库!");
                         }
                         //4.提交变更单到SVN!
                         svn.autoUpload(taskName, localDir, delFileList,function(isSuccess,result){//除了被删除的文件，目录下的所有文件将被提交
                             if('success' != isSuccess){
                                 if(result.errorString&&(result.errorString.indexOf("svn: E175002")!=-1)&&(result.errorString.indexOf("MKCOL")!=-1)){
-                                    var updateRevision_params = {taskId:taskId,state:"自动上库失败"}
+                                    var updateRevision_params = {taskId:taskId,state:"自动上测试库失败"}
                                     updateState(updateRevision_params);
-                                    return returnJsonMsg(req, res, "err", "自动上库过程出现错误,请“更新svn信息再上传”");
+                                    return returnJsonMsg(req, res, "err", "自动上测试库过程出现错误,请“更新svn信息再上传”");
                                 }
                                 if(result.errorString&&(result.errorString.indexOf("svn: E170004")!=-1)&&(result.errorString.indexOf("is out of date")!=-1)){
-                                    var updateRevision_params = {taskId:taskId,state:"自动上库失败"}
+                                    var updateRevision_params = {taskId:taskId,state:"自动上测试库失败"}
                                     updateState(updateRevision_params);
-                                    return returnJsonMsg(req, res, "err", "出错，存在冲突文件,请手动上库后点击【上库完成】");
+                                    return returnJsonMsg(req, res, "err", "出错，存在冲突文件,请手动上测试库后点击【上测试库完成】");
                                 }
-                                var updateRevision_params = {taskId:taskId,state:"自动上库失败"}
+                                var updateRevision_params = {taskId:taskId,state:"自动上测试库失败"}
                                 updateState(updateRevision_params);
-                                return returnJsonMsg(req, res, "err", "自动上库过程出现错误，请手动上库后点击【上库完成】");
+                                return returnJsonMsg(req, res, "err", "自动上测试库过程出现错误，请手动上测试库后点击【上测试库完成】");
                             }
                             //5.提交SVN成功，改变当前这条变更单记录的状态为“自动上库成功”
                             var testRevision = result.substring(result.indexOf("提交后的版本为 ")+8,result.length-1);
@@ -2254,11 +2254,11 @@ router.post('/autoUpload', function(req,res) {
                             //}
                             autoComp(req, taskId, revision,function(isSuc, errMsg){
                                 if(isSuc!='success'){
-                                    var updateRevision_params = {taskId:taskId,state:"自动上库失败"}
+                                    var updateRevision_params = {taskId:taskId,state:"自动上测试库失败"}
                                     updateState(updateRevision_params);
                                     return returnJsonMsg(req, res, "err", errMsg);//状态修改为“自动上库成功”时出错
                                 }
-                                returnJsonMsg(req, res, "success", "自动上库成功,请上SVN库确认无误后点击【上库完成】");
+                                returnJsonMsg(req, res, "success", "自动上测试库成功,请上SVN库确认无误后点击【上测试库完成】");
                             });
 
                             //                //5.提交SVN成功，记录相关信息到数据库中
@@ -2378,7 +2378,7 @@ router.post('/updateSvnAndCommit', function(req,res) {
     var addTaskList = req.body['addTaskList'];
     var addFileList = addTaskList.split('\n');
     if(addTaskList==""){
-        return returnJsonMsg(req, res, "err", "无需更新svn信息，请手动上库后点击【上库完成】");
+        return returnJsonMsg(req, res, "err", "无需更新svn信息，请手动上测试库后点击【上测试库完成】");
     }
     var modTaskList = req.body['modifyTaskList'];
     var modFileList = modTaskList.split('\n');
@@ -2424,13 +2424,13 @@ router.post('/updateSvnAndCommit', function(req,res) {
                     //3.到数据库中查找【系统】用户
                     findSys(function(isSuc, sysUser){
                         if('success' != isSuc){
-                            return returnJsonMsg(req, res, "err", "查找【系统】用户出错，请手工上库!");
+                            return returnJsonMsg(req, res, "err", "查找【系统】用户出错，请手工上测试库!");
                         }
-                        console.log("自动上库成功,请上SVN库确认无误后点击【上库完成】");
+                        console.log("自动上测试库成功,请上SVN库确认无误后点击【上测试库完成】");
                         //4.提交变更单到SVN!
                         svn.autoUpload(taskName, localDir, delFileList,function(isSuccess,result){//除了被删除的文件，目录下的所有文件将被提交
                             if('success' != isSuccess){
-                                return returnJsonMsg(req, res, "err", "自动上库过程出现错误，请手动上库后点击【上库完成】");
+                                return returnJsonMsg(req, res, "err", "自动上测试库过程出现错误，请手动上测试库后点击【上测试库完成】");
                             }
                             //5.提交SVN成功，改变当前这条变更单记录的状态为“自动上库成功”
                             var revision = Tool.getRevisionFromData(result);
@@ -2438,7 +2438,7 @@ router.post('/updateSvnAndCommit', function(req,res) {
                                 if(isSuc!='success'){
                                     return returnJsonMsg(req, res, "err", errMsg);//状态修改为“自动上库成功”时出错
                                 }
-                                returnJsonMsg(req, res, "success", "自动上库成功,请上SVN库确认无误后点击【上库完成】");
+                                returnJsonMsg(req, res, "success", "自动上测试库成功,请上SVN库确认无误后点击【上测试库完成】");
                             });
 
                             //                //5.提交SVN成功，记录相关信息到数据库中
@@ -2468,10 +2468,10 @@ router.post("/delTask",function(req, res){
             return null;
         }
         if(result==false){
-            req.session.error="删除变更单失败,变更单已上库";
+            req.session.error="删除变更单失败,变更单已上测试库";
             console.log("[delTask] sorry,you can't delete the task!!1");
             var queryObj = url.parse(req.url,true).query;
-            res.send(queryObj.callback+'(\'{"message": "【删除变更单】变更单已上库无法删除，"}\')');
+            res.send(queryObj.callback+'(\'{"message": "【删除变更单】变更单已上测试库无法删除，"}\')');
             return null ;
         }
         else{

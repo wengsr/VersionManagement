@@ -1274,7 +1274,7 @@ Task.submitComplete = function(taskId, userId, callback){
         var sql= {
             selectRevision:ApplyOrderSQL.selectApplyOrder,
             selectDealer:"select * from tasks where taskid=? and processStepId=7",
-            updateTask: "update tasks set state='上库完成',processStepId=8 where taskid=?",
+            updateTask: "update tasks set state='上测试库完成',processStepId=8 where taskid=?",
             updateFileList: "update filelist set commit=1 where taskId=?",
             updateTPS:"insert into taskprocessstep (taskid, processStepId, turnNum, dealer,execTime,isAuto) " +
                 " values (?,7,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?,?," +
@@ -1312,7 +1312,7 @@ Task.submitComplete = function(taskId, userId, callback){
                 if(item == 'selectDealer' && undefined!=result && ''!=result && null!=result){
                     //判断是否已经走查通过
                     trans.rollback();
-                    return callback('err','该变更单已经上库完成,无需重复操作');
+                    return callback('err','该变更单已经上测试库完成,无需重复操作');
                 }
                 if(err_async){
                     console.log("submitComplete",sql[item],"  ",sqlMember_params[i]);
@@ -1441,8 +1441,8 @@ Task.findTaskByParam = function(userId,projectId,state,processStepId,taskcode,ta
         }
         if(state!=''){
             if(state == '未完成'){
-                sql_count = sql_count + " AND selectTable.state != '上库完成'";
-                sql = sql + " AND selectTable.state  != '上库完成' ";
+                sql_count = sql_count + " AND selectTable.state != '上测试库完成'";
+                sql = sql + " AND selectTable.state  != '上测试库完成' ";
             }
             else{
                 sql_count = sql_count + " AND selectTable.state = ? ";
@@ -1762,8 +1762,8 @@ Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode
         }
         if(state!=''){
             if(state == '未完成'){
-                sql_count = sql_count + " AND selectTable.state != '上库完成'";
-                sql = sql + " AND selectTable.state  != '上库完成' ";
+                sql_count = sql_count + " AND selectTable.state != '上测试库完成'";
+                sql = sql + " AND selectTable.state  != '上测试库完成' ";
             }
             else{
                 sql_count = sql_count + " AND selectTable.state = ? ";
@@ -1983,7 +1983,7 @@ Task.autoComp = function(taskId,revision,callback){
             console.log('[CONN TASKS ERROR] - ', err.message);
             return callback(err);
         }
-        var sql = "UPDATE tasks SET state='自动上库完成' WHERE taskid = ?";
+        var sql = "UPDATE tasks SET state='已自动上测试库' WHERE taskid = ?";
         var upateAutoSql = "update taskprocessstep set isAuto = 1 , execTime = NOW() where taskId = ? and processstepId =6";
         var updateRevisionSql = ApplyOrderSQL.addOrder;
         var updateRevisionSql_params = [taskId,taskId,taskId,revision];
@@ -2018,7 +2018,7 @@ Task.autoComp = function(taskId,revision,callback){
 //            console.log('[CONN TASKS ERROR] - ', err.message);
 //            return callback(err);
 //        }
-//        var sql = "UPDATE tasks SET state='自动上库完成' WHERE taskid = ?";
+//        var sql = "UPDATE tasks SET state='自动上测试库' WHERE taskid = ?";
 //        var upateAutoSql = "update taskprocessstep set isAuto = 1 where taskId = ? and processstepId =6";
 //        var updateRevisionSql = ApplyOrderSQL.updateRevision;
 //        var updateRevisionSql_params = [taskId,revision]

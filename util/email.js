@@ -71,9 +71,9 @@ exports.sendMailToDealer = function(taskcode, taskname, creater, processStepId, 
     }
     else if(processStepId==6){
         sendContent = '<b>亲爱的'+creater+'：<br/>' +
-        '&emsp;&emsp;有新的上库任务需要处理：【变更单名称】:“'+taskname+'”   (变更单号：'+taskcode+')。' +
+        '&emsp;&emsp;有新的上测试库任务需要处理：【变更单名称】:“'+taskname+'”   (变更单号：'+taskcode+')。' +
         '等着你来哦！<br/><br/></b>' ;
-        mailOptions.subject= '【版本管理系统】有新的上库任务';
+        mailOptions.subject= '【版本管理系统】有新的上测试库任务';
     }
     else if(processStepId == 4){
         sendContent = '<b>亲爱的'+creater+'：<br/>' +
@@ -162,7 +162,7 @@ exports.sendSqlAttaToPM =function(taskcode, taskname, userName, userEmail,conten
 };
 
 //2015-11-2后发送邮件使用一下方式
-var  operatorArr  = ["已上测试库，似乎存在问题，请尽快验证","已经上库了，请尽快查看库上代码是否有误！","占用文件解除，可以提取旧文件了。","走查不通过，赶紧去看看吧。",/**3*/
+var  operatorArr  = ["已上测试库，似乎存在问题，请尽快验证","已经上发布库了，请尽快查看库上代码是否有误！","占用文件解除，可以提取旧文件了。","走查不通过，赶紧去看看吧。",/**3*/
     "需要安排走查，赶紧去看看吧。","需要走查，赶紧去看看吧。","需要上测试库，赶紧去看看吧","已上测试库，请尽快核对代码。",/*8*/
 "需要测试，赶紧去看看吧。","","要求重新测试，赶紧去看看吧。" ,"需要上发布库，赶紧去看看吧！",/*11*/
     "已经上发布库了！"/*12*/]

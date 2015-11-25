@@ -219,7 +219,7 @@ taskProcess_version.getDealerAndTaskInfo = function(params,callback){
         connection.release();
     });
 }
-//查找处理人和变更单信息，便于发送邮件
+//判断是否需要上开发；
 taskProcess_version.isNeedToDevReposity = function(params,callback){
     pool.getConnection(function(err, connection) {
         if (err) {

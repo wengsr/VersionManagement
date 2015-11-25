@@ -58,7 +58,7 @@ var exlCols = [{
     type:'string',
     width:15
 },{
-    caption:'上库日期',
+    caption:'上测试库日期',
     type:'String',
     width:20.85
 },{
@@ -66,7 +66,7 @@ var exlCols = [{
     type:'number'
     , width:10
 },{
-    caption:'自动上库',
+    caption:'自动上测试库',
     type:'string',
     beforeCellWrite:function(row, cellData){
         if(cellData == null || cellData == 0 ) {
@@ -77,7 +77,7 @@ var exlCols = [{
         }
     }
 },{
-    caption:'上库人员',
+    caption:'上测试库人员',
     type:'string',
     width:20
 }];

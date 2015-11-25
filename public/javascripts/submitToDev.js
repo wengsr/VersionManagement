@@ -184,7 +184,7 @@ jQuery(document).ready(function() {
     //更新版本号
     $("#btnUpdateDevRevision").click(function(){
         $("#btnUpdateDevRevision").hide();
-       submitForm_updateRevision();
+        submitForm_updateRevision();
     })
     //点击关闭按钮时刷新页面
     $('#btnCloseModel').click(function(){

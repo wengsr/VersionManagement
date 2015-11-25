@@ -134,7 +134,7 @@ function acceptAndCompBtn(){
         $('#btnSubmitAccept').show();
         $('#btnSubmitComplete').hide();
         $('#btnAutoSubmit').hide();
-    }else if('自动上库完成'==taskState){
+    }else if('已自动上测试库'==taskState){
         $('#updateRevDiv').hide();
         $('#btnSubmitAccept').hide();
         $('#btnSubmitComplete').show();

@@ -76,7 +76,7 @@ LeaderModel.findTaskStateCount = function(projectId,callback){
         }
         var sql = 'SELECT state, count(*) as stateCount' +
             '        FROM tasks' +
-            '        WHERE state<>"上库完成" and projectId = ?' +
+            '        WHERE state<>"上测试库完成" and projectId = ?' +
         '        GROUP BY state' +
         '        ORDER BY stateCount desc';
         var params = [projectId];

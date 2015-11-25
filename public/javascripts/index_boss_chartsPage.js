@@ -102,7 +102,7 @@ var parseTaskCount = function(){
             param4 = taskC.stateCount;
         }else if('走查通过'==taskC.state){
             param5 = taskC.stateCount;
-        }else if('正在上库'==taskC.state){
+        }else if('上测试库'==taskC.state){
             param6 = taskC.stateCount;
         }
     });
