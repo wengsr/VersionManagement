@@ -135,26 +135,34 @@ function planCheckProcess(params,callback){
 function submitToDevProcess(params,callback){
     var newParams = params;
     newParams.dealer = null;
-    TaskProcess_version.newProcess(newParams,function(msg,result){
-        if(msg == "err"){
-            console.error("启动上开发库流程出错！");
-            return callback(msg,result);
+    TaskProcess_version.isNeedToDevReposity(params,function(msg,resultLength){
+        if(msg=="success" && ( resultLength >0) ){
+            TaskProcess_version.newProcess(newParams,function(msg,result){
+                if(msg == "err"){
+                    console.error("启动上开发库流程出错！");
+                    return callback(msg,result);
+                }
+                callback(msg,result);
+                //给所有的上库人员发送邮件
+                TaskProcess_version.getAllVersionManagers(params,function(msg_get,VMs){
+                    if(msg_get =="err"){
+                        return  console.error("获取配置管理员出错！");
+                    }
+                    if(!VMs||!VMs.length){
+                        console.error("没有找到配置管理员！");
+                    }
+                    VMs.forEach(function(vm){
+                        vm.processStepId = 11;
+                        setTimeout( Email.sendEmailToDealer_new(vm),"1000");
+                    });
+                });
+            })
         }
-        callback(msg,result);
-        //给所有的上库人员发送邮件
-        TaskProcess_version.getAllVersionManagers(params,function(msg_get,VMs){
-            if(msg_get =="err"){
-              return  console.error("获取配置管理员出错！");
-            }
-            if(!VMs||!VMs.length){
-                console.error("没有找到配置管理员！");
-            }
-            VMs.forEach(function(vm){
-                vm.processStepId = 11;
-                setTimeout( Email.sendEmailToDealer_new(vm),"1000");
-            });
-        });
-    })
+        else {
+            console.log("isNeedToDevReposity:" ,msg ," no Need:",resultLength);
+            return callback("success");
+        }
+    });
 }
 //上开发库环节结束
 function endSubmitToDev(params,callback){
