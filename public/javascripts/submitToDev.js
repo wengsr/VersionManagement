@@ -45,11 +45,12 @@ function ajaxSubmit_merge(params,url,subType){
     this.ajaxOptions.success = function(data){
         var dataJson = $.parseJSON(data);
         var flag =  dataJson.sucFlag;
+        $('#btnAutoMerge').button("reset");
         if('err'==flag) {
             showTipInfo('err', dataJson.message);
-            $('#btnAutoMerge').show();
         }
         else{
+            $('#btnAutoMerge').hide();
             showTipInfo('success',dataJson.message)
         }
     }
@@ -191,7 +192,7 @@ jQuery(document).ready(function() {
     });
     //自动合并
     $('#btnAutoMerge').click(function(){
-        $('#btnAutoMerge').hide();
+        $('#btnAutoMerge').button("loading").text("正在上发布库...");
         submitForm_autoMerge();
     });
 
