@@ -1,6 +1,25 @@
 /**
  * Created by lijuanZhang on 2015/11/5.
  */
+
+/* ajax请求
+ * @param params
+ * @param url
+ * @param subType
+ */
+function AjaxRequset_LongTime(params, url, subType){
+    url = '/' + url;
+    this.ajaxOptions = {
+        data: params,
+        url: url,
+        dataType: 'jsonp',
+        cache: false,
+        timeout: 500000,
+        type: subType,
+        error: function(jqXHR, textStatus, errorThrown){
+            alert('error ' + textStatus + " " + errorThrown);
+        }};
+}
 //接受任务
 function ajaxSubmit_submitAccept(params,url,subType){
     AjaxRequset.call(this,params,url,subType);
@@ -22,7 +41,7 @@ function ajaxSubmit_submitAccept(params,url,subType){
 }
 //合并
 function ajaxSubmit_merge(params,url,subType){
-    AjaxRequset.call(this,params,url,subType);
+    AjaxRequset_LongTime.call(this,params,url,subType);
     this.ajaxOptions.success = function(data){
         var dataJson = $.parseJSON(data);
         var flag =  dataJson.sucFlag;
