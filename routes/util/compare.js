@@ -190,7 +190,7 @@ compareSvnDir = function(svn,file,versionDir,callback){
 //得到真正需要从svn上提取的文件数组
 exports.getCheckFiles = function(svn,modAndDelFiles,addFiles,versionDir,callback){
     var allFiles = [];
-    if(modFiles.length){
+    if(modAndDelFiles.length){
         allFiles = modAndDelFiles;
     }
     var allLength = allFiles.length;
