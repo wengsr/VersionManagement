@@ -2426,16 +2426,15 @@ router.post('/updateSvnAndCommit', function(req,res) {
                         if('success' != isSuc){
                             return returnJsonMsg(req, res, "err", "查找【系统】用户出错，请手工上库!");
                         }
-
                         console.log("自动上库成功,请上SVN库确认无误后点击【上库完成】");
                         //4.提交变更单到SVN!
                         svn.autoUpload(taskName, localDir, delFileList,function(isSuccess,result){//除了被删除的文件，目录下的所有文件将被提交
                             if('success' != isSuccess){
                                 return returnJsonMsg(req, res, "err", "自动上库过程出现错误，请手动上库后点击【上库完成】");
-
                             }
                             //5.提交SVN成功，改变当前这条变更单记录的状态为“自动上库成功”
-                            autoComp(req, taskId, function(isSuc, errMsg){
+                            var revision = Tool.getRevisionFromData(result);
+                            autoComp(req, taskId,revision, function(isSuc, errMsg){
                                 if(isSuc!='success'){
                                     return returnJsonMsg(req, res, "err", errMsg);//状态修改为“自动上库成功”时出错
                                 }
