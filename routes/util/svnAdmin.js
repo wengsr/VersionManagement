@@ -288,7 +288,7 @@ var commitToTestRepository = function(params,callback){
  * @param i
  */
 function svnMergeToBranch(svn,revisions ,i,callback){
-        var finalRepository = VersionConstant.svnLocation.DevRepository;
+        var TESTRepository = VersionConstant.svnLocation.TESTRepository;
         var devRepositoryPath = VersionConstant.paths.DevRepositoryPath;
         if(i == revisions.length){
             //return callback("success","申请单已成功合并，共"+i+"个变更单");
@@ -301,7 +301,7 @@ function svnMergeToBranch(svn,revisions ,i,callback){
                 return  svnMergeToBranch(svn,revisions ,i,callback);
             }
             else{
-                svn.merge(devRepositoryPath,finalRepository,revisions[i].revision,revisions[i].taskname,function(msg, data,newRevision){
+                svn.merge(devRepositoryPath,TESTRepository,revisions[i].revision,revisions[i].taskname,function(msg, data,newRevision){
                     if(msg != "success"){
                         var message = "变更单："+revisions[i].taskname +" 合并至开发库出错"+i;
                         return callback("err", message);
