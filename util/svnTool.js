@@ -349,10 +349,11 @@ Svn.prototype.commitChangeRar = function(filePath,oldPath,fileName,newName,versi
     });
 }
 
-Svn.prototype.merge = function(devRepositoryPath,testRepository,revisions,taskName,callback) {
+Svn.prototype.merge = function(devRepositoryPath,testRepository,preRisions,revisions,taskName,callback) {
     this.client.option('cwd', devRepositoryPath);
     var client = this.client;
-    var merge_params = testRepository+"/@"+revisions;
+    var merge_params = [testRepository+"@"+preRisions];
+    merge_params.push(testRepository+"@"+revisions);;
     console.log("svn merge time:",1);
     client.update(function(err,data){
         if(err){
@@ -361,6 +362,9 @@ Svn.prototype.merge = function(devRepositoryPath,testRepository,revisions,taskNa
         }
         client.merge(merge_params,function(merge_err,result_merge){
             console.log("merge  err info:",merge_err);
+            //console.log("devRepositoryPath:",devRepositoryPath)
+            //console.log("testRepository:",testRepository);
+            //console.log("merge_params:",merge_params);
             if(merge_err)
             {
                 console.error("merge "+ taskName + "  err."+merge_err);
@@ -380,6 +384,7 @@ Svn.prototype.merge = function(devRepositoryPath,testRepository,revisions,taskNa
                         console.log("commit successful !"+result);
                         console.log("getTestRevision:",testRevision,"end");
                         var newRevision = Tool.getRevisionFromData(result);
+                        //var newRevision = Tool.getRevisionFromData(data);
                         console.log("getTestRevision:",newRevision,"end");
                         return callback("success",result,newRevision)
                     }
@@ -393,10 +398,11 @@ module.exports = Svn;
 /********测试案例*********/
     //var svn = new Svn({userName:"zhanglj6",password:"zhanglj72774"});
     var svn = new Svn({userName:"cmsys",password:"717705"});
-//var versionDir = "http://192.168.1.22:8000/svn/hxbss/testVersion/a";
-var versionDir = "http://192.168.1.22:8000/svn/hxbss/NCRM/baseLine/Source/trunk";
-//var localDir = "D:/testSvn-branch";
-var localDir = "D:/svn_baseline";
+var versionDir = "http://192.168.1.22:8000/svn/hxbss/testVersion/a";
+//var versionDir = "http://192.168.1.22:8000/svn/hxbss/NCRM/baseLine/Source/trunk";
+var localDir = "D:/testSvn-branch";
+//var localDir = "D:/svn_baseline";
+//var localDir = "C:/app/NCRM_Baseline/NCRM_BASELINE/Source/trunk";
 //var msg = "NCRM开发变更单-XJ-20150815-订单资源释放-jinsh3-001";
 var msg = "test";
 //svn.autoUpload(msg, localDir,[],function(isSuccess,result){//除了被删除的文件，目录下的所有文件将被提交
@@ -414,7 +420,7 @@ var msg = "test";
 //svn.checkout(localDir,versionDir,["","2015-81"],function(msg){
 //    console.log("checkout:",msg)
 //});
-//var revision = 49067;
+//var revision = 49320;
 //svn.merge(localDir,versionDir,revision,msg,function(msg,data){
 //    console.log("merge111:",msg)
 //    console.log("merge data111:",data)
