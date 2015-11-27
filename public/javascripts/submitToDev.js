@@ -39,6 +39,15 @@ function ajaxSubmit_submitAccept(params,url,subType){
     $.ajax(ajaxOptions)
 
 }
+//显示版本号的更新按钮
+function showUpdateDevRevisionBtns(){
+    var updateDivs = $("[id = updateDevRevisionDiv] > [typeId = devRevisionAdmin]");
+    updateDivs.each(function(i,item){
+        var taskId = $( item).attr("taskId");
+       $(item).after('  <div class = "col-sm-2" style="margin-top:6px"  ><button type ="button" class = "btn btn-primary"' +
+       ' id = "btnUpdateDevRevision"  taskId ='+taskId+'>提交版本号</button> </div>')
+    })
+}
 //合并
 function ajaxSubmit_merge(params,url,subType){
     AjaxRequset_LongTime.call(this,params,url,subType);
@@ -47,6 +56,7 @@ function ajaxSubmit_merge(params,url,subType){
         var flag =  dataJson.sucFlag;
         $('#btnAutoMerge').button("reset");
         if('err'==flag) {
+            showUpdateDevRevisionBtns();
             showTipInfo('err', dataJson.message);
         }
         else{

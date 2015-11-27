@@ -42,16 +42,17 @@
                                 <span><a id="a_attaFile" href="<%=item.fileUri%>"><%=item.fileName%></a></span>
                             </div>
                         </div>
-                    <div class="form-group" >
+                    <div class="form-group"  id="updateDevRevisionDiv">
                         <label for="inputTaskList" class="col-sm-2 control-label">版本号</label>
                         <div class="col-sm-2" style="margin-top:6px" typeId = "devRevisionAdmin" taskId = <%=item.taskId%>>
-                            <input  id="devRevision" class="form-control"  value="<%=item.devRevision == null?'未提交':item.devRevision%>" />
+                            <input  id="devRevision" class ="form-control" value="<%=item.devRevision == null?'未提交':item.devRevision%>" />
                         </div>
                         <%if((task.state =="上发布库失败")&&operator){%>
                         <div class = "col-sm-2" style="margin-top:6px" >
-                        <button type ="button" class = "btn btn-primary" id = "btnUpdateDevRevision"  taskId = <%=item.taskId%>>提交版本号</button>
+                            <button type ="button" class = "btn btn-primary" id = "btnUpdateDevRevision"  taskId = <%=item.taskId%>>提交版本号</button>
                         </div>
                         <%}%>
+
                     </div>
                     <div class="form-group" >
 
