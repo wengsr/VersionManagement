@@ -187,6 +187,10 @@ jQuery(document).ready(function() {
     });
     //更新测试库版本
     $('#btnUpdateRev').click(function(){
+        var  revision = $("#revision").val().trim();
+        if(revision == "" ){
+            return  showTipInfo('err',"请填写【版本号】！");
+        }
         submitForm_updateRevision();
     });
 

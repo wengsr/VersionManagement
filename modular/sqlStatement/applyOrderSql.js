@@ -18,6 +18,8 @@ applyOrderSql.updateRevisionById = "update applyorder set revision = ? where id 
 var updateRevision_params="[revision,id]";//测试库版本号
 applyOrderSql.updateRevision = "update applyorder set revision = ? where taskId = ?";
 var updateRevision_params="[revision,id]";
+applyOrderSql.updateRevisionAndPreRevision = "update applyorder set revision = ? ,preRevision = ? where taskId = ?";
+var updateRevision_params="[revision,preRevision,id]";
 applyOrderSql.selectApplyOrder ="select * from applyorder where taskId = ?"
 var selectApplyOrder = "[taskId]"
 //获取申请单的相关信息
