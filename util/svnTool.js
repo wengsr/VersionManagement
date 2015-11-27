@@ -353,8 +353,8 @@ Svn.prototype.merge = function(devRepositoryPath,testRepository,preRisions,revis
     this.client.option('cwd', devRepositoryPath);
     var client = this.client;
     var merge_params = [testRepository+"@"+preRisions];
-    merge_params.push(testRepository+"@"+revisions);;
-    console.log("svn merge time:",1);
+    merge_params.push(testRepository+"@"+revisions);
+    console.log("svn merge time:",1);;
     client.update(function(err,data){
         if(err){
             console.error("update before merge: "+ taskName + "  err."+err);
@@ -364,10 +364,15 @@ Svn.prototype.merge = function(devRepositoryPath,testRepository,preRisions,revis
             console.log("merge  err info:",merge_err);
             //console.log("devRepositoryPath:",devRepositoryPath)
             //console.log("testRepository:",testRepository);
-            //console.log("merge_params:",merge_params);
+            console.log("merge_params:",merge_params);
             if(merge_err)
             {
                 console.error("merge "+ taskName + "  err."+merge_err);
+                var revertParams =["--recursive"];
+                revertParams.push(devRepositoryPath);
+                client.revert( revertParams ,function(revert_msg,result_revert){
+                    console.log("merge ERR  --> revert_msg : ",revert_msg);
+                })
                 return callback("err","merge至开发库出错！版本号:" +revisions);
             }
             else{
@@ -421,7 +426,9 @@ var msg = "test";
 //    console.log("checkout:",msg)
 //});
 //var revision = 49320;
-//svn.merge(localDir,versionDir,revision,msg,function(msg,data){
+//var preRevision = 49320;
+//svn.merge(localDir,versionDir,preRevision,revision,msg,function(msg,data){
 //    console.log("merge111:",msg)
 //    console.log("merge data111:",data)
 //});
+////
