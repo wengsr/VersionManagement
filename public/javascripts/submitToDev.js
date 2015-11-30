@@ -138,10 +138,12 @@ function submitForm_autoMerge(){
 /**
  * 提交表单信息_更新版本号
  */
-function submitForm_updateRevision(){
+function submitForm_updateRevision(taskId,devRevision){
     var planCheck_params={
-        taskId:$("btnUpdateDevRevision").attr("taskId"),
-        devRevision :$("#devDevRevision").val()
+        //taskId:$("#btnUpdateDevRevision").attr("taskId"),
+        //devRevision :$("#devRevision").val()
+        taskId:taskId,
+        devRevision :devRevision
     };
     var planCheck_url='task/updateDevRevision';
     ajaxSubmit_updateDevRevisions(planCheck_params, planCheck_url, 'post');
@@ -192,9 +194,17 @@ jQuery(document).ready(function() {
         submitForm_mergeComplete();
     });
     //更新版本号
-    $("#btnUpdateDevRevision").click(function(){
-        $("#btnUpdateDevRevision").hide();
-        submitForm_updateRevision();
+    //$("#btnUpdateDevRevision").click(function(){
+    //    $("#btnUpdateDevRevision").hide();
+    //    submitForm_updateRevision();
+    //})
+    $("[id=btnUpdateDevRevision]").each(function(i,btns){
+        $(btns).click(function(){
+            var taskId =  $(this).attr("taskId");
+            var devRevision  = $("[typeId=devRevisionAdmin][taskId = "+taskId+"]>[id=devRevision]").val();
+            submitForm_updateRevision(taskId,devRevision);
+            $(this).hide();
+        })
     })
     //点击关闭按钮时刷新页面
     $('#btnCloseModel').click(function(){
