@@ -632,6 +632,7 @@ router.post('/addTask', function (req, res) {
     var tasker = req.session.user.userId;
     var taskState = '申请完成';//申请时，状态默认为；1,提交申请
     var taskProject = req.body.taskProject;
+    var taskType = req.body.taskType;
     var taskDetails = req.body.taskDetails;
     var taskNewFiles = req.body.taskNewFiles;
     var taskModFiles = req.body.taskModFiles;
@@ -644,7 +645,7 @@ router.post('/addTask', function (req, res) {
     var projectUri ;
     var flag = false;
     dao.addTask({name: taskName, tasker: tasker ,state: taskState,projectId:taskProject,desc:taskDetails,newFiles:taskNewFiles,
-        modFiles:taskModFiles,delFiles:taskDelFiles}, function (msg,taskId,taskCode) {
+        modFiles:taskModFiles,delFiles:taskDelFiles,typeId:taskType}, function (msg,taskId,taskCode) {
         var queryObj = url.parse(req.url,true).query;
         var jsonStr;
         if('success' == msg){
@@ -1421,6 +1422,7 @@ router.post('/submitFile', function(req, res) {
     var userId = req.session.user.userId;
     var taskId = req.body['taskId'];
     var taskName = req.body['taskName'];//上测试库时需要msg
+    var typeId = req.body['taskType'];//上测试库时需要msg
     //var taskCode = req.body['taskCode'];//上测试库时需要msg
     var jsonStr;
     dao.searchNewAndOld(taskId,3,function(msg,newAndOld,taskCode,filesAndState,projectUri){
@@ -1446,9 +1448,12 @@ router.post('/submitFile', function(req, res) {
                     return res.send(queryObj.callback + '(\'' + jsonStr + '\')');
                 }
                 //else{
-                FilesAdmin.checkNeedFiles(tempFold ,function(isAll){
+                FilesAdmin.checkNeedFiles(tempFold ,typeId,function(isAll){
                     if(!isAll){
                         var msg = "附件中需包含 测试报告(.doc)，开发变更单(.xls),请核对！"
+                        if(typeId==1){
+                            msg = "附件中需包含 测试报告(.doc)，开发变更单(.xls),支撑方案设计(.doc) 请核对！"
+                        }
                          console.log("附件中需包含 测试报告(.doc)，开发变更单(.xls),请核对！");
                         dao.delNewAndOld(taskId,3,function(msg){
                             if(msg =="err"){
@@ -1742,11 +1747,12 @@ router.post('/modifyTask', function(req, res) {
     var userId = req.session.user.userId;
     var taskId = req.body['taskId'];
     var taskDetails =  req.body['taskDesc'];
+    var taskType=  req.body['taskType'];
     var taskNewFiles = req.body['taskNewFiles'];
     var taskModFiles= req.body['taskModFiles'];
     var taskDelFiles= req.body['taskDelFiles'];
     var jsonStr;
-    dao.modifyTask({taskId:taskId, details:taskDetails, newFiles: taskNewFiles, modFiles: taskModFiles,delFiles:taskDelFiles}, function(msg,result){
+    dao.modifyTask({taskId:taskId, details:taskDetails,typeId:taskType, newFiles: taskNewFiles, modFiles: taskModFiles,delFiles:taskDelFiles}, function(msg,result){
         if('success' == msg){
             jsonStr = '{"sucFlag":"success","message":"【修改变更单】执行成功"}';
         }else{
@@ -2295,7 +2301,7 @@ router.post('/autoMerge', function(req,res) {
 /**
  * 填写开发库版本号
  */
-router.post('/updateDevRevisions', function(req,res) {
+router.post('/updateDevRevision', function(req,res) {
     getCookieUser(req, res);
     //1.获取参数
     var taskId = req.body['taskId'];

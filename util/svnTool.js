@@ -382,6 +382,11 @@ Svn.prototype.merge = function(devRepositoryPath,testRepository,preRisions,revis
                     if(commit_err)
                     {
                         console.error("commit "+ taskName + "  err."+result);
+                        var revertParams =["--recursive"];
+                        revertParams.push(devRepositoryPath);
+                        client.revert( revertParams ,function(revert_msg,result_revert){
+                            console.log("merge ERR  --> revert_msg : ",revert_msg);
+                        });
                         return callback("err","merge至开发库出错！版本号:" +revisions);
                     }
                     else {

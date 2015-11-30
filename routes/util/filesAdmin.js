@@ -305,7 +305,7 @@ filesAdmin.containFiles = function(dir,filesReg){
     });
 };
 /**需要匹配的文件，开发变更单，测试报告**/
-var needFiles = [FilesReg.testReporter,FilesReg.devOrder];
+var alNneedFiles = [FilesReg.testReporter,FilesReg.devOrder,FilesReg.reqCase];
 /**开发变更单和测试报告是否存在**/
 var hasFiles = [false,false];
 function hasAllFiles(hasFiles){
@@ -319,8 +319,13 @@ function hasAllFiles(hasFiles){
     return flag;
 }
 /**判断变更单是否包含制定文件**/
-filesAdmin.checkNeedFiles = function(dir,callback){
+filesAdmin.checkNeedFiles = function(dir,isRequirement,callback){
     var hasFiles = [false,false];
+    var needFiles = [FilesReg.testReporter,FilesReg.devOrder];
+    if(isRequirement==1){
+        hasFiles.push(false);
+        needFiles.push(FilesReg.reqCase)
+    }
     var length = hasFiles.length;
     //var i = 0;
     fs.readdir(dir, function(err, paths) {
@@ -367,7 +372,7 @@ filesAdmin.checkNeedFiles = function(dir,callback){
                     throw err;
                 }
                 //console.log("lalalal1:",pa)
-                console.log("lalala2:",j)
+                //console.log("lalala2:",j)
                 if (st.isFile()) {
                     if(paths[j].match(fileReg)){
                         console.log(" file:  ",j,"   ",fileReg);
@@ -432,11 +437,10 @@ var fileDir = "D:/test/path4";
 var fileReg = /teswwt/g;
 //filesAdmin.containFiles(fileDir,fileReg);
 //var srcpath = "D:/变更单/NCRM开发变更单-YN-20151022-云南NCRM安卓变更单系统优化-hezf2-001"
-var srcpath = "D:/变更单/NCRM开发变更单-HX-20151013-集团回调地址支撑通过properties文件配置-lilin-001"
+//var srcpath = "D:/变更单/NCRM开发变更单-HX-20151013-集团回调地址支撑通过properties文件配置-lilin-001"
 //var srcpath = "D:/变更单/NCRM开发变更单-YN-20151022-云南NCRM安卓变更单系统优化-hezf2-001"
-
-
-//filesAdmin.checkNeedFiles(srcpath,function(result){
+//
+//filesAdmin.checkNeedFiles(srcpath,0,function(result){
 //    console.log("checkNeedFiles:",result);
 //})
 

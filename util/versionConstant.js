@@ -4,19 +4,19 @@
 var versionConstant ={
     svnLocation:{
         CHANGATTARepository:1,
-        //TESTRepository : "http://192.168.1.22:8000/svn/hxbss/testVersion/a/",
-        //DevRepository :"http://192.168.1.22:8000/svn/hxbss/testVersion/a-branch/"
-        TESTRepository : "http://192.168.1.22:8000/svn/hxbss/NCRM/baseLine/Source/",
+        TESTRepository : "http://192.168.1.22:8000/svn/hxbss/testVersion/a/",
+        DevRepository :"http://192.168.1.22:8000/svn/hxbss/testVersion/a-branch/"
+        //TESTRepository : "http://192.168.1.22:8000/svn/hxbss/NCRM/baseLine/Source/",
         //TESTRepository : "http://192.168.1.22:8000/svn/hxbss/NCRM/baseLine/Source/",
         //DevRepository :"http://192.168.1.22:8000/svn/hxbss/NCRM_BASELINE/Sourse/trunk/"
-        DevRepository :"http://192.168.1.22:8000/svn/hxbss/NCRM_BASELINE/Sourse"
+        //DevRepository :"http://192.168.1.22:8000/svn/hxbss/NCRM_BASELINE/Sourse"
     },
     paths :{
         //DevRepositoryPath:"./svn-branch/"
-        DevRepositoryPath:"D://testSvn",
+        DevRepositoryPath:"D://testSvn-branch/",
         exportAttachmentsLocalPath :"./exportAttachmentsLocalPath/", //需要导出特定变跟单附件压缩包的路径
         //DevRepositoryPath:"C:/app/NCRM_Baseline/NCRM_BASELINE/Sourse/trunk/"
-        DevRepositoryPath:"C:/app/NCRM_Baseline/NCRM_BASELINE/Sourse",
+        //DevRepositoryPath:"C:/app/NCRM_Baseline/NCRM_BASELINE/Sourse",
         attachmentLocalPath :"./" //所有变更单存放的父级路径
     },
     states:{

@@ -99,10 +99,17 @@ function disableInput(){
     $("#inputTaskModList").attr("disabled","disabled");
     $("#inputTaskName").attr("disabled","disabled");
     $("#delTaskList").attr("disabled","disabled");
+    $("[name=taskType]").attr("disabled","disabled");
 }
 
 function checkSubmit(fields){
     var flag = true;
+    //变更单类型校验
+    if($("input[name=taskType]:checked").val()== undefined){
+        $('#alertInfo').text("请选择【是否是需求】");
+        $('#divAlert').show();
+        return false;
+    }
     $.each(fields,function(i,n){
         if(i<3) {
             if ($(fields[i]).val() == '') {
@@ -217,6 +224,7 @@ jQuery(document).ready(function() {
             var params = {
                 taskName: $("#inputTaskName").val(),
                 // tasker : $(#inputTasker).val();
+                taskType: $("input[name=taskType]:checked").val(),//提交申请
                 taskState: "申请通过",//提交申请
                 taskProject: $("#project").val(),
                 taskDetails: $("#inputTaskDesc").val(),

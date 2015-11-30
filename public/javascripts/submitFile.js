@@ -72,7 +72,8 @@ function submitForm_submitFile(){
         nextDealer: $('#checkPerson').val(),
         taskId: $('#taskId').val(),
         taskName: $('#taskName').text(),
-        taskCode: $('#taskCode').val()
+        taskCode: $('#taskCode').val(),
+        taskType: $('#taskType').val()
     };
     var submitFile_url='task/submitFile';
 

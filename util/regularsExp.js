@@ -14,8 +14,10 @@ RegularsExp.dataFile = /(^(NCRM配置变更单|NCRM模型变更单|NCRM数据变
 RegularsExp.testReporter = /^(测试报告)([\u4e00-\u9fa5]|[\x00-\xff])+((.doc)$|(.docx)$)/g;
 //变更单中的开发变更单
 RegularsExp.devOrder= /^(NCRM开发变更单)([\u4e00-\u9fa5]|[\x00-\xff])+((.xls)$|(.xlsx)$)/g;
-//var testFile ="测试报告-HX-20151013-集团回调地址支撑通过properties文件配置-lilin-001.docx";
-//console.log(testFile.match(RegularsExp.testReporter));
+//支撑方案  "CTC-CRM-PSO-模块名称-需求简述.doc
+RegularsExp.reqCase= /^(CTC-CRM-PSO-)([\u4e00-\u9fa5]|[\x00-\xff])+(支撑方案设计)((.docx)$|(.doc)$)/g;
+var testFile ="CTC-CRM-PSO-HX-20151013-集团回调地址支撑通过properties支撑方案设计.dox";
+console.log(testFile.match(RegularsExp.reqCase));
 
 
 

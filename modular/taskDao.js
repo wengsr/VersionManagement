@@ -207,6 +207,7 @@ var BugSql = new  bugSql();
 //const DEBUG = true;
 var async = require('async');
 var taskSql = require("./sqlStatement/taskSql");
+var TaskTypeSql = require("./sqlStatement/taskTypeSql");
 var TaskSql = new taskSql();
 exports.searchProject = function( taskInfo , callback){
     pool.getConnection(function (err, connection) {
@@ -406,10 +407,10 @@ exports.addTask = function (taskInfo,callback) {
             '   and t.taskName = ? and psd3.processStepId < 7',
             countTask: 'UPDATE  project set taskCount = taskCount + 1 where projectId= ?',
             selectProject :' SELECT * FROM project where projectId = ?',
-            userAddSql : 'INSERT INTO tasks(taskCode, taskName, creater, state, processStepId, projectId, taskDesc) VALUES(?,?,?,?,?,?,?)',
+            userAddSql : 'INSERT INTO tasks(taskCode, taskName, creater, state, processStepId, projectId, taskDesc,typeId) VALUES(?,?,?,?,?,?,?,?)',
             addTaskProcess : ' INSERT INTO taskProcessStep(taskId, processStepId, dealer,turnNum,execTime) VALUES(?,?,?,?,?)',
+            //addTaskType: TaskTypeSql.addType,
             addFiles: 'INSERT INTO fileList(taskId,fileName,state,commit,fileUri) VALUES(?,?,?,?)'
-
         };
         var searchTaskName_params = [taskInfo.name, taskInfo.name, taskInfo.name];
         var addTaskProcess_params = [1, 2];
@@ -419,12 +420,13 @@ exports.addTask = function (taskInfo,callback) {
         var userAddSql_params=[1,1];
         var addTaskPro_params = [];
         var addFiles_params =[];
+        var addTaskType_params =[];
         var userId = taskInfo.tasker;
         //var task = ['countTask', 'selectProject', 'us、erAddSql','addTaskProcess', 'addFiles' ];
-        //var task = ['countTask', 'selectProject', 'userAddSql','addTaskProcess' ];
+        //var task = ['searchTaskName','countTask', 'selectProject', 'userAddSql','addTaskProcess','addTaskType' ];
         var task = ['searchTaskName','countTask', 'selectProject', 'userAddSql','addTaskProcess' ];
         //var task_params = [projectId, projectId, userAddSql_params,addTaskPro_params, addFiles_params];
-        //var task_params = [projectId, projectId, userAddSql_params,addTaskPro_params];
+        //var task_params = [searchTaskName_params, projectId, projectId, userAddSql_params,addTaskPro_params,addTaskType_params];
         var task_params = [searchTaskName_params, projectId, projectId, userAddSql_params,addTaskPro_params];
         var taskId,projectUri;
         var newFiles, modFiles,delFiles;
@@ -477,7 +479,7 @@ exports.addTask = function (taskInfo,callback) {
                         taskCode = project[0].projectName +'_'+nowDate+'_'+taskCount;
                         projectUri = project[0].projectUri;
                         task_params[3] = [taskCode, taskInfo.name, taskInfo.tasker, taskInfo.state, "2",
-                            taskInfo.projectId, taskInfo.desc];
+                            taskInfo.projectId, taskInfo.desc,taskInfo.typeId];
                     }
                 }
                 else if (item == 'userAddSql') {
@@ -485,6 +487,7 @@ exports.addTask = function (taskInfo,callback) {
                     taskId = result.insertId;
                     var now = new Date().format("yyyy-MM-dd HH:mm:ss");
                     task_params[4] = [taskId, '2', userId, 0,now];//taskPrecessStep turnNum 默认为0：
+                    //task_params[5] = [taskId, taskInfo.typeId];//taskPrecessStep turnNum 默认为0：
                     //插入多条的file数据
                     //获取文件完整的uri；
                         if(taskInfo.newFiles!=""){
@@ -500,7 +503,7 @@ exports.addTask = function (taskInfo,callback) {
                             delFiles = getFilesName(delUri);
                         }
                     }
-                else if(item =='addTaskProcess') {
+                else if(item =='addTaskProcess') {//插入文件列表前
                     //插入新增文件，修改文件，删除文件
                     addFiles_params = addFilesParam(addFiles_params, taskId, newFiles, newUri, 1);
                     addFiles_params = addFilesParam(addFiles_params, taskId, modFiles, modUri, 0);
@@ -741,6 +744,7 @@ exports.modifyTask= function(taskInfo,callback){
         var taskId = taskInfo.taskId;
         var sql= {
             updateTask: "update tasks set  taskDesc =? where taskid= ?",
+            updateTaskTypeId: "update tasks set typeId =? where taskid= ?",
             updateFileList:"INSERT INTO fileList(taskId,fileName,state,commit,fileUri) VALUES(?,?,?,?,?)",
             deleteFiles: "delete from fileList where taskId = ? and state = ?"
         };
@@ -753,6 +757,19 @@ exports.modifyTask= function(taskInfo,callback){
             trans.query(sql.updateTask, updateParam, function (err, result) {
                 if (err) {
                     console.log("[modifyTask] updateTask ERR:", err.message);
+                    trans.rollback();
+                    return callback("err");
+                }
+                else{
+                    console.log("updateTask result",result);
+                }
+            })
+        }
+        if(taskInfo.typeId !=undefined) {
+            var updateTaskTypeId = [taskInfo.typeId,taskId];
+            trans.query(sql.updateTaskTypeId, updateTaskTypeId, function (err, result) {
+                if (err) {
+                    console.log("[modifyTask] updateTaskTypeId ERR:", err.message);
                     trans.rollback();
                     return callback("err");
                 }

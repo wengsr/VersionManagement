@@ -36,7 +36,8 @@ function getFieldValues(){
         taskDesc: $("#inputTaskDesc").val(),
         taskNewFiles: $("#inputTaskNewList").val(),
         taskModFiles: $("#inputTaskModList").val(),
-        taskDelFiles: $("#delTaskList").val()
+        taskDelFiles: $("#delTaskList").val(),
+        taskType:$("input[name=taskType]:checked").val()
     };
 }
 /**
@@ -122,6 +123,7 @@ function ajaxSubmit_extract(params, url, subType){
                     $('#inputTaskNewList').attr('disabled', true);
                     $('#inputTaskDesc').attr('disabled', true);
                     $('#delTaskList').attr('disabled', true);
+                    $('[name = taskType]').attr('disabled', true);
                     showTipInfo('success', dataJson.message);
                 }
             }
@@ -168,7 +170,8 @@ function submitForm_modify(){
             taskDesc: $("#inputTaskDesc").val(),
             taskNewFiles: $("#inputTaskNewList").val(),
             taskDelFiles: $("#delTaskList").val(),
-            taskModFiles: $("#inputTaskModList").val()
+            taskModFiles: $("#inputTaskModList").val(),
+            taskType: $("input[name=taskType]:checked").val()
         };
         var modifyFlag = false;
         for(var val in fieldValues){
@@ -192,6 +195,7 @@ function submitForm_modify(){
             $('#inputTaskNewList').attr('disabled', true);
             $('#inputTaskDesc').attr('disabled', true);
             $('#delTaskList').attr('disabled', true);
+            $('[name = taskType]').attr('disabled', true);
 
         }
     }
@@ -241,6 +245,7 @@ function bindClick_btnUploadFile(){
         $('#inputTaskNewList').attr('disabled', false);
         $('#inputTaskDesc').attr('disabled', false);
         $('#delTaskList').attr('disabled', false);
+        $('[name = taskType]').attr('disabled', false);
     });
     $("#btnModCancel").on("click", function () {
         $("#btnConfirm").hide();

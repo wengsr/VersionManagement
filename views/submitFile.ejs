@@ -39,6 +39,13 @@
                         </div>
                     </div>
                     <div class="form-group">
+                    <label  class="col-sm-2 control-label">是否是需求</label>
+                    <div class="col-sm-10">
+                        <%if(task.typeId ==1){%>是<%}else if(task.typeId ==0){%>否<%}%>
+                         <input type="radio"  name = "taskType" id ="taskType" value = "<%=task.typeId %>" checked disabled />
+                    </div>
+                    </div>
+                    <div class="form-group">
                         <label for="inputTaskDesc" class="col-sm-2 control-label">变更单描述</label>
                         <div class="col-sm-4" style="margin-top:6px">
                             <span id="createrName"><%=task.taskDesc%></span>

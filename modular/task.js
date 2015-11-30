@@ -62,11 +62,11 @@ function Task(task){
     this.taskDesc = task.taskDesc
     this.modifiedFileList = task.modifiedFileList
     this.newFileList = task.newFileList
-
     this.createrName = task.createrName
     this.stepName = task.stepName
     this.dealerName = task.dealerName
     this.projectUri = task.projectUri
+    this.typeId = task.typeId
 }
 
 
