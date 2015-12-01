@@ -23,4 +23,38 @@ countSql.countSqlByUser ="SELECT u.realName createrName ,count(*) num  from task
 "  GROUP BY  u.realName"
 
 countSql.countTotal =""
+//核心
+countSql.countCoreTotal = "SELECT" +
+"   	'核心' project ,t.*,tps.execTime,u.realName createrName" +
+"   FROM tasks t JOIN ( " +
+"   SELECT DISTINCT   taskId  FROM" +
+"   fileList  WHERE   taskId NOT IN (" +
+"   SELECT DISTINCT taskId" +
+"   FROM  `filelist`" +
+"   WHERE  fileUri LIKE %local%" +
+"   )" +
+"   ) coreTasks ON t.taskId = coreTasks.taskId" +
+"   JOIN taskprocessstep tps ON t.taskId = tps.taskid" +
+"   AND tps.processStepId = 8" +
+"   AND tps.execTime BETWEEN ?" +
+"   AND ? " +
+"   JOIN user u on u.userId  = creater ";
+var countCoreTotal_params = "[startTime,endTime]"
+//本地
+countSql.countLocalTotal = "SELECT" +
+"   	?  project ,t.*,tps.execTime,u.realName createrName" +
+"   FROM tasks t JOIN ( " +
+"   SELECT DISTINCT   taskId  FROM" +
+"   fileList  WHERE   taskId NOT IN (" +
+"   SELECT DISTINCT taskId" +
+"   FROM  `filelist`" +
+"   WHERE  fileUri LIKE ?" +
+"   )" +
+"   ) coreTasks ON t.taskId = coreTasks.taskId" +
+"   JOIN taskprocessstep tps ON t.taskId = tps.taskid" +
+"   AND tps.processStepId = 8" +
+"   AND tps.execTime BETWEEN ?" +
+"   AND ? " +
+"   JOIN user u on u.userId  = creater ";
+var countLocalTotal_params = "[projectName,localPath,startTime,endTime]";
 module.exports = countSql;

@@ -39,13 +39,55 @@ var AttaSql = function(){
 
     this.insertAttaCommit = "insert into attachmentCommit(attachmentId , attaType, commitType) value( ?, 0,0)";
     var insertAttaCommit_params = "[attachementId]";
-
-    this.findLocalChangeAtta = "SELECT DISTINCT t.taskid,t.taskCode,ta.fileUri FROM tasks t join filelist fl  on fl.fileUri like ?  and fl.taskId =" +
+    //全部变更单
+    this.findAllChangeAtta = "SELECT DISTINCT t.taskid,t.taskCode,ta.fileUri,p.projectName  FROM tasks t join filelist fl  on fl.fileUri like '/trunk/%'  and fl.taskId =" +
     "   t.taskId JOIN" +
-    "   taskprocessstep tps on tps.taskId = t.taskId And  tps.processStepId = 7 and tps.execTime between ? and ? " +
-    "   JOIN taskattachment ta on ta.taskId = tps.taskId and tps.turnNum = ta.turnNum  and  ta.processStepId = 3 ;"
-    var findLocalChangeAtta_params = "[filrUriSeg,startTime,endTime]"
-}
+    "   taskprocessstep tps on tps.taskId = t.taskId And  tps.processStepId = 8 and tps.execTime between ? and ? " +
+    "   JOIN taskattachment ta on ta.taskId = tps.taskId and tps.turnNum = ta.turnNum  and  ta.processStepId = 3 " +
+    "   JOIN project p on p.projectId = t.projectId ;"
+    var findAllChaneAtta_params = "[startTime,endTime]"
+    //本地加核心变更单
+    this.findLocalChangeAtta = "SELECT *  FROM" +
+    "   (SELECT  DISTINCT t.taskid,t.taskCode,ta.fileUri,? project FROM tasks t join filelist fl on fl.fileUri like ?" +
+    "   and fl.taskId =t.taskId" +
+    "   join  taskprocessstep tps on tps.taskId = t.taskId And  tps.processStepId = 8" +
+    "   and tps.execTime between ? and ? " +
+    "   JOIN taskattachment ta on ta.taskId = tps.taskId and tps.turnNum = ta.turnNum  and  ta.processStepId = 3) localTable" +
+    "   Union(	select  t.taskid,t.taskCode,ta.fileUri,'核心' project" +//核心变更单
+    "   FROM tasks t JOIN ( " +
+    "   SELECT DISTINCT   taskId  FROM" +
+    "   fileList  WHERE   taskId NOT IN (" +
+    "   SELECT DISTINCT taskId" +
+    "   FROM  `filelist`" +
+    "   WHERE  fileUri LIKE '/trunk/local/%'" +
+    "   ) and fileUri like '/trunk%') coreTasks" +
+    "    ON t.taskId = coreTasks.taskId" +
+    "   JOIN taskprocessstep tps ON t.taskId = tps.taskid" +
+    "   AND tps.processStepId = 8" +
+    "   AND tps.execTime BETWEEN ?" +
+    "   AND ? " +
+    "   JOIN taskattachment ta on ta.taskId = tps.taskId and tps.turnNum = ta.turnNum  and  ta.processStepId = 3) ORDER BY taskId ;"
+    var findLocalChangeAtta_params = "[projecName,filrUriSeg,startTime,endTime,startTime,endTime]"
+    //核心变更单
+    this.findCoreChangeAtta = "SELECT" +
+    "   '核心' project ,t.taskid,t.taskCode,ta.fileUri,tps.execTime" +
+    "   FROM tasks t JOIN (" +
+    "   SELECT DISTINCT   taskId  FROM" +
+    "   fileList  WHERE   taskId NOT IN (" +
+    "   SELECT DISTINCT taskId" +
+    "   FROM  `filelist`    " +
+    "   WHERE  fileUri LIKE '/trunk/local/%'  " +
+    "   ) and fileUri like '/trunk%'" +
+    "   ) coreTasks ON t.taskId = coreTasks.taskId" +
+    "   JOIN taskprocessstep tps ON t.taskId = tps.taskid" +
+    "   AND tps.processStepId = 8" +
+    "   AND tps.execTime BETWEEN ?" +
+    "   AND ? " +
+    "   JOIN taskattachment ta on ta.taskId = tps.taskId" +
+    "   and tps.turnNum = ta.turnNum  and  ta.processStepId = 3";
+    var findCoreChangeAtta_params = "[startTime,endTime]"
+};
+
 module.exports = AttaSql;
 //var sql = new AttaSql();
 //console.log("sql:",sql.fTestAttaSql);

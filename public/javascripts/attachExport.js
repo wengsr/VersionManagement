@@ -45,7 +45,8 @@ function ajaxSubmit_attachExport(params,url,subType){
         }
         else{
             showTipInfo('success',dataJson.message)
-            $('#NewExportAtta').val(dataJson.fileName);
+            $('#NewExportAtta').html(dataJson.fileName);
+            $('#NewExportAtta').attr("href",dataJson.fileUri);
             $('#NewExportAtta').show();
         }
     }
@@ -55,7 +56,7 @@ jQuery(document).ready(function() {
    $("#btnExportXls").click(function(){
        debugger;
       var params = {
-          fileUriReg:$("#fileUriReg").val(),
+          fileUriSeg:$("#fileUriSeg").val(),
           startDate:$("#startDate").val(),
           startTime :$("#startTime").val(),
           endDate:$("#endDate").val(),

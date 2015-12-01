@@ -15,14 +15,23 @@
                 <div class="col-lg-12">
                     <div class="form-group">
                         <label for="fileUriReg" class="col-sm-2 control-label">文件路径</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="fileUriReg" id="fileUriReg" placeholder="部分文件路径，如：/local/YN_TRUNK/,不能使用'\'">
+                        <div class="col-sm-5">
+                            <!--<input type="text" class="form-control" name="fileUriReg" id="fileUriReg" placeholder="部分文件路径，如：/local/YN_TRUNK/,不能使用'\'">-->
+                                <select class="form-control" name="fileUriSeg" id="fileUriSeg">
+                                    <option value="" selected >--请选择--</option>
+                                    <option value="XJ" > 新疆本地 + 核心</option>
+                                    <option value="YN" >云南本地 + 核心</option>
+                                    <option value="SC" >四川本地 + 核心</option>
+                                    <option value="CORE" >核心</option>
+                                    <option value="ALL" >全部</option>
+                                </select>
+
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="beginDate" class="col-sm-2 control-label">开始时间</label>
                         <div class="col-sm-2">
-                            <input type="text" class="form-control" name="startDate" id="startDate" style="">
+                            <input type="text" class="form-control" name="startDate" id="startDate" value ="" style="">
                         </div>
                         <div class="input-group clockpicker col-sm-2"  data-placement="bottom" data-align="top" data-autoclose="true">
                             <input type="text" class="form-control" id ="startTime" name="startTime" value="09:00">
@@ -32,16 +41,22 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="NewExportAtta" class="col-sm-2 control-label">变更单附件</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="NewExportAtta" id="NewExportAtta" >
+                        <label for="beginDate" class="col-sm-2 control-label">结束时间</label>
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control" name="endDate" value ="" id="endDate" style="">
+                        </div>
+                        <div class="input-group clockpicker col-sm-2"  data-placement="bottom" data-align="top" data-autoclose="true">
+                            <input type="text" class="form-control" id ="endTime" name="endTime" value="09:00">
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-time"></span>
+                            </span>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="fileUriReg" class="col-sm-2 control-label">文件路径</label>
+                        <label for="NewExportAtta" class="col-sm-2 control-label">变更单附件</label>
                         <div class="col-sm-10">
-                            <span><a id="fileUriReg"  name="fileUriReg" href=""></a></span>
-                            <input type="text" class="form-control" name="fileUriReg" id="fileUriReg" placeholder="部分文件路径，如：/local/YN_TRUNK/,不能使用'\'">
+                            <!--<input type="text" class="form-control" name="NewExportAtta" id="NewExportAtta" > -->
+                            <a   href ="" name="NewExportAtta" id="NewExportAtta" > </a>
                         </div>
                     </div>
                 </div>

@@ -482,10 +482,10 @@ router.post('/exportLocalChangeAtta/', function(req, res) {
     console.log("post body:",req.body)
     //console.log("post params:",req.params)
     var params = {};
-    var fileUriSeg = postParams.fileUriSecg;
+    var fileUriSeg = postParams.fileUriSeg;
     //var startDate = postParams.startDate.trim();
     //var endDate = postParams.endDate.trim();
-    console.log("postParams:",postParams.sstartDate == "")
+    console.log("postParams:",postParams.startDate == "")
     var startDate = postParams.startDate.trim();
     var endDate = postParams.endDate.trim();
     if(startDate== undefined || startDate ==""){
@@ -503,12 +503,15 @@ router.post('/exportLocalChangeAtta/', function(req, res) {
     params.fileUriSeg = fileUriSeg;
     Attachment.exportLocalChangeAtta(params, function (msg,attachements) {
         if(msg =="success"){
-             if(!attachements.length){
+             if(!attachements||!attachements.length){
                 req.session.error = "没有查找到相应变更单" ;
                  console.log("filesArr1:","没有查找到相应变更单");
-                 return (null);
+                 var  sucFlag ="success";
+                 var  massage = "没有查找到相应变更单";
+                 var jsonStr = '{"sucFlag":"' + sucFlag + '","message":"' + massage + '"}';
+                 var queryObj = url.parse(req.url,true).query;
+                 return  res.send(queryObj.callback+'(\'' + jsonStr + '\')');
              }
-
             var filesArr = [];
             attachements.forEach(function(file){
                 filesArr.push(file.fileUri.substring(1,file.fileUri.length));
@@ -523,16 +526,24 @@ router.post('/exportLocalChangeAtta/', function(req, res) {
                 fileName =  'All['+startDate+']['+endDate+Math.random().toString().substr(3,5)+"].zip";
             }
             console.log("filesArr1:",filesArr);
-            var realName = exportAttachmentsLocalPath+fileName
+            var realName = exportAttachmentsLocalPath+fileName;
             fileZip.zipFiles(attachmentLocalPath,filesArr,realName);
             console.log("filesArr1:",fileName);
             //异步
-            var newName;
-            var  sucFlag ="success"
-            var jsonStr = '{"sucFlag":"' + sucFlag + '","message":"' + msg + '","fileName":"' + fileName + '"}';
+            var newUri = realName;
+            var newName = fileName;
+            newUri = newUri.replace(/\./g,'%2E');
+            newUri = newUri.replace(/\//g,'%2F');
+            newName = newName.replace(/\./g,'%2E');
+            newName = newName.replace(/\//g,'%2F');
+            var currentUri = '/file/fileDownLoad/' + newName + '/' + newUri;
+            var  sucFlag ="success";
+            var  massage = "相关附件已成功压缩,请点击【变更单附件】进行下载";
+            var jsonStr = '{"sucFlag":"' + sucFlag + '","message":"' + massage + '","fileName":"' + fileName + '","fileUri":"' + currentUri + '"}';
             var queryObj = url.parse(req.url,true).query;
-          return  res.send(queryObj.callback+'(\'' + jsonStr + '\')');
-            //res.download(fileName,newName);
+         return  res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+            //res.download(exportAttachmentsLocalPath+fileName,fileName);
+
             //return null;
 
         }

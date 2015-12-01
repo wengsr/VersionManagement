@@ -279,6 +279,40 @@ TaskAtta.commitRar = function(attachmentId, callback){
     });
 }
 
+//本地与核心，全部的变更单对应sql
+   var findChangAttaSql = {
+       'XJ':AttaSql.findLocalChangeAtta,
+       'YN':AttaSql.findLocalChangeAtta,
+       'SC':AttaSql.findLocalChangeAtta,
+       'CORE':AttaSql.findCoreChangeAtta,
+       'ALL':AttaSql.findAllChangeAtta
+   }
+   var projectName = {
+       'XJ':"新疆",
+       'YN':"云南",
+       'SC':"四川",
+       'CORE':"核心"
+   };
+   //本地对应的文件路径特征
+    var  localFileSeg = {
+         'XJ':"/trunk/local/XJ_TRUNK/%",
+         'YN':"/trunk/local/YN_TRUNK/%",
+         'SC':"/trunk/local/SC_TRUNK/%"
+    }
+/**
+ * 根据传入的文件的路径信息查找对应的变更单
+ * @params
+ */
+function  getFindChangeAttaSqlAndParams(params){
+    var sqlParams = [];
+    if(params.fileUriSeg =="XJ"||params.fileUriSeg =="YN"||params.fileUriSeg =="SC"){
+        sqlParams =[projectName[params.fileUriSeg],localFileSeg[params.filrUriSeg],params.startTime,params.endTime,params.startTime,params.endTime]
+    }
+    if(params.fileUriSeg =="CORE"||params.fileUriSeg =="ALL"){
+        sqlParams = [params.startTime,params.endTime];
+    }
+    return {sql:findChangAttaSql[params.fileUriSeg],params:sqlParams}
+}
 /**
  * 获取本地路径所有的变更单
  * @param taskId
@@ -290,27 +324,29 @@ TaskAtta.exportLocalChangeAtta = function(params, callback){
             console.log('[CONN ATTACHMENT ERROR] - ', err.message);
             return callback(err);
         }
-        var sql = AttaSql.findLocalChangeAtta;
-        if(params.fileUriSeg =="" ||params.fileUriSeg == undefined){
-            params.fileUriSeg = "%%";
-        }
-        else{
-            params.fileUriSeg ="%"+params.fileUriSeg+"%";
-        }
+        //var sql = AttaSql.findLocalChangeAtta;
+        //if(params.fileUriSeg =="" ||params.fileUriSeg == undefined){
+        //    params.fileUriSeg = "%%";
+        //}
+        //else{
+        //    params.fileUriSeg ="%"+params.fileUriSeg+"%";
+        //}
         var newParams = [params.fileUriSeg,params.startTime,params.endTime];
-        connection.query(sql,newParams, function (err, result) {
+        var sqlAndParams = getFindChangeAttaSqlAndParams(params);
+        //console.log('success', sqlAndParams.sql);
+        //console.log('success', sqlAndParams.params);
+        connection.query(sqlAndParams.sql,sqlAndParams.params, function (err, result) {
             if (err) {
                 console.log('[QUERY findLocalChangeAtta ERROR] - ', err.message);
                 return callback('err',err);
             }
             else{
-                console.log('success', params);
+                console.log('success',result);
                 callback('success', result);
+                //callback('success', null);
             }
         });
         connection.release();
     });
 }
-
-
 module.exports = TaskAtta;
