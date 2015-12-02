@@ -49,7 +49,7 @@ TaskTest.doTestPass = function(taskId,userId,reason,callback){
         var sql= {
             updateTask: "update tasks set state='测试通过', processStepId = 9 where taskid=?",
             //updateDealer: 'update taskprocessstep set dealer =?,execTime = ? where taskId = ? and processStepId = 8'
-            updateDealer: 'update taskprocessstep set dealer = ? where turnNum =' +
+            updateDealer: 'update taskprocessstep set dealer = ? ,execTime = ? where turnNum =' +
             '   (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)' +
             '  and testNum =' +
             '   (SELECT maxTestNum from (SELECT MAX(testNum) as maxTestNum FROM taskprocessstep where taskId=?) as maxTestNumTable)' +
@@ -62,7 +62,7 @@ TaskTest.doTestPass = function(taskId,userId,reason,callback){
 
         var updateTask_params = [taskId];
         var now = new Date().format("yyyy-MM-dd HH:mm:ss") ;
-        var updateDealer_params = [userId,taskId,taskId,taskId];
+        var updateDealer_params = [userId,now,taskId,taskId,taskId];
         var updateTPS_params = [taskId,taskId,taskId,userId,now];
         var sqlMember = ['updateTask', 'updateDealer','updateTPS','upateTestState'];
         var upateTestState_params = [1,taskId];//1:测试通过；
@@ -108,7 +108,7 @@ TaskTest.doTestUnPass = function(taskId, userId, noPassReason,noPassType, callba
 
         var sql = {
             updateTask: "update tasks set state='测试不通过',processStepId =10 where taskid=?",
-            updateDealer: 'update taskprocessstep set dealer = ? where turnNum =' +
+            updateDealer: 'update taskprocessstep set dealer = ? ,execTime = ? where turnNum =' +
             '   (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)' +
             '  and  (SELECT maxTestNum from (SELECT MAX(testNum) as maxTestNum FROM taskprocessstep where taskId=?) as maxTestNumTable)' +
             '   and taskId =? and processStepId = 8',
@@ -126,7 +126,7 @@ TaskTest.doTestUnPass = function(taskId, userId, noPassReason,noPassType, callba
         }
         var updateTask_params = [taskId];
         var now = new Date().format("yyyy-MM-dd HH:mm:ss");
-        var updateDealer_params = [userId,taskId,taskId, taskId ];
+        var updateDealer_params = [userId,now,taskId,taskId, taskId ];
         var updateTPS_params = [taskId,taskId,taskId,taskId,now ];
         var insertTestUnpass_params = [taskId, taskId,taskId, userId, noPassReason,noPassType];
         var upateTestState_params = [2,taskId];//2:测试不通过；
@@ -929,7 +929,7 @@ TaskTest.noTest = function(taskId,userId,reason,callback){
         var sql= {
             updateTask: "update tasks set state="+state+", processStepId = 9 where taskid=?",
             //updateDealer: 'update taskprocessstep set dealer =?,execTime = ? where taskId = ? and processStepId = 8'
-            updateDealer: 'update taskprocessstep set dealer = ? where turnNum =' +
+            updateDealer: 'update taskprocessstep set dealer = ?,execTime = ?  where turnNum =' +
             '   (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)' +
             '   and testNum =' +
             '   (SELECT maxTestNum from (SELECT MAX(testNum) as maxTestNum FROM taskprocessstep where taskId=?) as maxNumTable)' +
@@ -942,7 +942,7 @@ TaskTest.noTest = function(taskId,userId,reason,callback){
         };
         var updateTask_params = [taskId];
         var now = new Date().format("yyyy-MM-dd HH:mm:ss") ;
-        var updateDealer_params = [userId,taskId,taskId,taskId];
+        var updateDealer_params = [userId,now,taskId,taskId,taskId];
         var updateTPS_params = [taskId,taskId,taskId,userId,now];
         var upateTestState_params = [3,taskId];//3:没有测试；
         var sqlMember = ['updateTask', 'updateDealer','updateTPS',"upateTestState"];
