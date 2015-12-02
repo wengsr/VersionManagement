@@ -25,6 +25,24 @@ taskProcessSql_v.updateExecTime_test = "UPDATE taskprocessstep tps set tps.execT
     ")" +
     ")";
 var updateExecTime_params = "[taskId,processStepId,taskId]";
+//更新环节的结束时间
+taskProcessSql_v.updateEndTime_test = "UPDATE taskprocessstep tps set tps.endTime  = ? where tps.taskId =? and tps.processStepId = ?  and testNum =" +
+" (" +
+"( select * from" +
+"(" +
+"SELECT max(testNum) as maxTestNum from taskprocessstep tps2 where tps2.taskId = ?) as maxTestNumTable" +
+")" +
+")";
+var updateExecTime_params = "[now,taskId,processStepId,taskId]";
+//更新环节的结束时间
+taskProcessSql_v.updateEndTime = "UPDATE taskprocessstep tps set tps.endTime  = ? where tps.taskId =? and tps.processStepId = ?  and turnNum =" +
+" (" +
+"( select * from" +
+"(" +
+"SELECT max(turnNum) as maxTestNum from taskprocessstep tps2 where tps2.taskId = ?) as maxTestNumTable" +
+")" +
+")";
+var updateExecTime_params = "[now,taskId,processStepId,taskId]";
 //增加taskProcessStep的记录，processStepId in （2,3,5，6,7）;
 taskProcessSql_v.addProcess = "insert into taskprocessstep (taskid, processStepId, turnNum,testNum, dealer,execTime) " +
 " values (?,?,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?)," +

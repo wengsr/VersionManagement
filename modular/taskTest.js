@@ -49,7 +49,7 @@ TaskTest.doTestPass = function(taskId,userId,reason,callback){
         var sql= {
             updateTask: "update tasks set state='测试通过', processStepId = 9 where taskid=?",
             //updateDealer: 'update taskprocessstep set dealer =?,execTime = ? where taskId = ? and processStepId = 8'
-            updateDealer: 'update taskprocessstep set dealer = ? ,execTime = ? where turnNum =' +
+            updateDealer: 'update taskprocessstep set dealer = ? ,endTime = ? where turnNum =' +
             '   (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)' +
             '  and testNum =' +
             '   (SELECT maxTestNum from (SELECT MAX(testNum) as maxTestNum FROM taskprocessstep where taskId=?) as maxTestNumTable)' +
@@ -108,7 +108,7 @@ TaskTest.doTestUnPass = function(taskId, userId, noPassReason,noPassType, callba
 
         var sql = {
             updateTask: "update tasks set state='测试不通过',processStepId =10 where taskid=?",
-            updateDealer: 'update taskprocessstep set dealer = ? ,execTime = ? where turnNum =' +
+            updateDealer: 'update taskprocessstep set dealer = ? ,endTime = ? where turnNum =' +
             '   (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)' +
             '  and  (SELECT maxTestNum from (SELECT MAX(testNum) as maxTestNum FROM taskprocessstep where taskId=?) as maxTestNumTable)' +
             '   and taskId =? and processStepId = 8',
@@ -929,7 +929,7 @@ TaskTest.noTest = function(taskId,userId,reason,callback){
         var sql= {
             updateTask: "update tasks set state="+state+", processStepId = 9 where taskid=?",
             //updateDealer: 'update taskprocessstep set dealer =?,execTime = ? where taskId = ? and processStepId = 8'
-            updateDealer: 'update taskprocessstep set dealer = ?,execTime = ?  where turnNum =' +
+            updateDealer: 'update taskprocessstep set dealer = ?,endTime = ?  where turnNum =' +
             '   (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)' +
             '   and testNum =' +
             '   (SELECT maxTestNum from (SELECT MAX(testNum) as maxTestNum FROM taskprocessstep where taskId=?) as maxNumTable)' +

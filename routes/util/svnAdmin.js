@@ -162,7 +162,7 @@ var commitToTestRepository = function(params,callback){
     var taskCode = params.taskCode;
     //console.log("commitToTestRepository  params:",params,"  ",taskName);
     getTaskFilesAndAtta(params,function(msg,files,atta){
-        if(msg == "success"){
+        if((msg == "success")&& atta ){
             var  attaFile = atta.fileUri;
             //2.到新旧附件目录下找到前面步骤开发人员上传的变更单文件(如果严谨，这里还要判断变更单号是否为空)
             var oldRar = OLD_FOLDER + '/' + taskCode + '/old.zip';  //系统自动提取的压缩文件
@@ -276,6 +276,15 @@ var commitToTestRepository = function(params,callback){
                         }
                     });
                 });
+            });
+        }
+        if(!atta){
+            autoComp(taskId, -1,function(isSuc, errMsg){
+                if(isSuc!='success'){
+                    return callback( "err", errMsg);//状态修改为“自动上库成功”时出错
+                }
+                taskComplete({taskId:taskId,userId:235});
+                return callback(  "success", "没有文件需要上库,请上SVN库确认无误后点击【上库完成】");
             });
         }
     })

@@ -1153,20 +1153,20 @@ Task.doCheckPass = function(taskId,callback){
                 " and turnNum IN (SELECT MAX(turnNum) FROM taskprocessstep where taskId=?)",
             selectDealer_Unpass:"select * from tasks where taskid=? and state='走查不通过'",
             //updateTask: "update tasks set processStepId=6, state='走查通过' where taskid=?"
-            updateTask: "update tasks set  state='走查通过' where taskid=?"
-            //updateDealer: 'insert into taskprocessstep(taskId,processStepId,turnNum,execTime,dealer) values ' +
-            //    ' (?,6,' +
-            //    ' (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable),?,235)'
+            updateTask: "update tasks set  state='走查通过' where taskid=?",
+            updateEndTime: 'update taskprocessstep set endTime = ? where turnNum =' +
+            '(SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)' +
+            '   and taskId =? and processStepId = 5'
         };
         var selectDealer_params = [taskId, taskId];
         var selectDealer_Unpass_params = [taskId];
         var updateTask_params = [taskId];
         var now = new Date().format("yyyy-MM-dd HH:mm:ss") ;
-        var updateDealer_params = [taskId,taskId,now];
-        var sqlMember = ['selectDealer','selectDealer_Unpass', 'updateTask'];
-        var sqlMember_params = [selectDealer_params, selectDealer_Unpass_params, updateTask_params];
+        var updateEndTime_params = [now,taskId,taskId];
+        var sqlMember = ['selectDealer','selectDealer_Unpass', 'updateTask','updateEndTime'];
+        var sqlMember_params = [selectDealer_params, selectDealer_Unpass_params, updateTask_params,updateEndTime_params];
         var i = 0;
-        var lastSql = "updateTask";
+        var lastSql = "updateEndTime";
         async.eachSeries(sqlMember, function (item, callback_async) {
             trans.query(sql[item], sqlMember_params[i++],function (err_async, result) {
                 if(item == 'selectDealer' && undefined!=result && ''!=result && null!=result){
@@ -1212,6 +1212,9 @@ Task.doCheckUnPass = function(taskId, userId, noPassReason, callback){
                 " and turnNum IN (SELECT MAX(turnNum) FROM taskprocessstep where taskId=?)",
             selectDealer_Unpass:"select * from tasks where taskid=? and state='走查不通过'",
             updateTask: "update tasks set state='走查不通过', processStepId=3 where taskid=?",
+            updateEndTime: 'update taskprocessstep set endTime = ? where turnNum =' +
+            '(SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)' +
+            '   and taskId =? and processStepId = 5',
             insertCheckUnpass: "insert into checkUnPass " +
                 "            (taskId, turnNum, checkPerson, noPassReason)" +
                 "            values(?, (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskProcessStep WHERE taskId=?) as maxNumTable)," +
@@ -1228,8 +1231,9 @@ Task.doCheckUnPass = function(taskId, userId, noPassReason, callback){
         var insertCheckUnpass_params = [taskId, taskId, userId, noPassReason];
         var now = new Date().format("yyyy-MM-dd HH:mm:ss") ;
         var insertReturnInfo_params = [taskId,taskId,taskId,now];
-        var sqlMember = ['selectDealer_pass', 'selectDealer_Unpass', 'updateTask', 'insertCheckUnpass', 'insertReturnInfo'];
-        var sqlMember_params = [selectDealer_params, selectDealer_Unpass_params, updateTask_params, insertCheckUnpass_params, insertReturnInfo_params];
+        var updateEndTime_params = [now,taskId,taskId];
+        var sqlMember = ['selectDealer_pass', 'selectDealer_Unpass', 'updateTask','updateEndTime', 'insertCheckUnpass', 'insertReturnInfo'];
+        var sqlMember_params = [selectDealer_params, selectDealer_Unpass_params, updateTask_params, updateEndTime_params,insertCheckUnpass_params, insertReturnInfo_params];
         var i = 0;
         async.eachSeries(sqlMember, function (item, callback_async) {
             trans.query(sql[item], sqlMember_params[i++],function (err_async, result) {
@@ -1276,6 +1280,9 @@ Task.submitComplete = function(taskId, userId, callback){
             selectDealer:"select * from tasks where taskid=? and processStepId=7",
             updateTask: "update tasks set state='上测试库完成',processStepId=8 where taskid=?",
             updateFileList: "update filelist set commit=1 where taskId=?",
+            updateEndTime: 'update taskprocessstep set endTime = ? where turnNum =' +
+            '(SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)' +
+            '   and taskId =? and processStepId = 6',
             updateTPS:"insert into taskprocessstep (taskid, processStepId, turnNum, dealer,execTime,isAuto) " +
                 " values (?,7,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?,?," +
             "   (SELECT max(isAuto) from (select * from taskprocessstep where taskId =? and processstepId = 6) as tps ))",
@@ -1296,10 +1303,11 @@ Task.submitComplete = function(taskId, userId, callback){
         var updateFileList_params = [taskId];
         var insertTestState_params = [taskId,0,taskId];//0:等待测试
         var now = new Date().format("yyyy-MM-dd HH:mm:ss") ;
+        var updateEndTime_params = [now,taskId,taskId];
         var updateTPS_params = [taskId,taskId,userId,now,taskId];
         var updateTPS2_params = [taskId,taskId,taskId,taskId,now];
-        var sqlMember = ["selectRevision",'selectDealer', 'updateTask', 'updateFileList', 'updateTPS','updateTPS2','insertTestState'];
-        var sqlMember_params = [selectRevision_params,selectDealer_params, updateTask_params, updateFileList_params, updateTPS_params,updateTPS2_params,insertTestState_params];
+        var sqlMember = ["selectRevision",'selectDealer', 'updateTask', 'updateFileList','updateEndTime', 'updateTPS','updateTPS2','insertTestState'];
+        var sqlMember_params = [selectRevision_params,selectDealer_params, updateTask_params, updateFileList_params,updateEndTime_params, updateTPS_params,updateTPS2_params,insertTestState_params];
         var i = 0;
         var lastSql = "insertTestState";
         async.eachSeries(sqlMember, function (item, callback_async) {
