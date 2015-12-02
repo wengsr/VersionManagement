@@ -1,7 +1,7 @@
 var pool = require('../util/connPool.js').getPool();
 var async = require('async');// 加载async 支持顺序执行
 var queues = require('mysql-queues');// 加载mysql-queues 支持事务
-
+var taskSql = require('./sqlStatement/taskSql');
 /**
  *根据查找条件拼接sql语句
  * @param sql
@@ -55,6 +55,65 @@ exports.getTaskList = function(params,callback){
         }
         sql +=  '   order by execTime desc';
         connection.query(sql, param, function (err, result) {
+            if (err) {
+                console.log('[QUERY TASKS ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            //console.log("result:",result);
+            //console.log("param:",param);
+            //console.log("sql:",sql);
+            callback('success',result);
+        });
+    });
+}
+
+//本地与核心，全部的变更单对应sql
+var TaskSql = new taskSql();
+var findChangAttaSql = {
+    'XJ':TaskSql.getTaskListWithFileUriSegLocal,
+    'YN':TaskSql.getTaskListWithFileUriSegLocal,
+    'SC':TaskSql.getTaskListWithFileUriSegLocal,
+    'CORE':TaskSql.getTaskListWithFileUriSegCore,
+    'ALL':TaskSql.getTaskListWithFileUriSegAll
+}
+var projectName = {
+    'XJ':"新疆",
+    'YN':"云南",
+    'SC':"四川",
+    'CORE':"核心"
+};
+//本地对应的文件路径特征
+var  localFileSeg = {
+    'XJ':"/trunk/local/XJ_TRUNK/%",
+    'YN':"/trunk/local/YN_TRUNK/%",
+    'SC':"/trunk/local/SC_TRUNK/%"
+}
+/**
+ * 根据传入的文件的路径信息查找对应的变更单
+ * @params
+ */
+function  getFindTaskListSqlAndParams(params){
+    //console.log("params:",params);
+    var sqlParams = [];
+    if(params.fileUriSeg =="XJ"||params.fileUriSeg =="YN"||params.fileUriSeg =="SC"){
+        sqlParams =[projectName[params.fileUriSeg],localFileSeg[params.filrUriSeg],params.startTime,params.endTime,params.startTime,params.endTime]
+    }
+    if(params.fileUriSeg =="CORE"||params.fileUriSeg =="ALL"){
+        sqlParams = [params.startTime,params.endTime];
+    }
+    return {sql:findChangAttaSql[params.fileUriSeg],params:sqlParams}
+}
+//根据文件路径特征查找变更单
+exports.getTaskListWithFileUriSeg = function(params,callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN TASKS ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sqlAndParams = getFindTaskListSqlAndParams(params);
+        console.log("params222:",sqlAndParams.params);
+        connection.query(sqlAndParams.sql, sqlAndParams.params, function (err, result) {
             if (err) {
                 console.log('[QUERY TASKS ERROR] - ', err.message);
                 return callback(err,null);

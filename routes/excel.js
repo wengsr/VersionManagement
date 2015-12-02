@@ -65,22 +65,24 @@ var exlCols = [{
     caption:'回退次数',
     type:'number'
     , width:10
-},{
-    caption:'自动上测试库',
-    type:'string',
-    beforeCellWrite:function(row, cellData){
-        if(cellData == null || cellData == 0 ) {
-            return "否";
-        }
-        else{
-            return "是";
-        }
-    }
-},{
-    caption:'上测试库人员',
-    type:'string',
-    width:20
-}];
+}
+//    ,{
+//    caption:'自动上测试库',
+//    type:'string',
+//    beforeCellWrite:function(row, cellData){
+//        if(cellData == null || cellData == 0 ) {
+//            return "否";
+//        }
+//        else{
+//            return "是";
+//        }
+//    }
+//},{
+//    caption:'上测试库人员',
+//    type:'string',
+//    width:20
+//}
+];
 
 
 /*统计测试情况的列属性*/
@@ -140,8 +142,8 @@ var getRows = function(sqlResult){
         row.push(sqlResult[i].creater);
         row.push(sqlResult[i].execTime);
         row.push(sqlResult[i].turnNum);
-        row.push(sqlResult[i].isAuto);
-        row.push(sqlResult[i].dealerName);
+        //row.push(sqlResult[i].isAuto);
+        //row.push(sqlResult[i].dealerName);
         rows.push(row);
     }
     //console.log("rows:",rows);
@@ -206,26 +208,56 @@ var getParams = function(req){
 router.post("/exportXls", function(req, res) {
     Tool.getCookieUser(req, res);
     var params = getParams(req);
+    //console.log("exportXls:",params);
     var conf = {};
-    TaskXls.getTaskList(params, function (msg, result) {
-        if ('success' != msg) {
-            req.session.error = "查找变更单历史数据时发生错误,请记录并联系管理员";
-            return null;
+    if(params.fileUriSeg != ""){//根据文件路径导出本地+核心变更单
+        if(params.startDate== undefined || params.startDate ==""){
+            params.startTime = "2015-1-1 ";
         }
-        result.forEach(function (task, i) {
-            if (task.execTime) {
-                task.execTime = task.execTime.format("yyyy-MM-dd HH:mm:ss");
+        if(params.endDate== undefined ||params.endDate ==""){
+            params.endTime = (new Date()).format(("yyyy-MM-dd HH:mm:ss")) ;
+        }
+        TaskXls.getTaskListWithFileUriSeg(params, function (msg, result) {
+            if ('success' != msg) {
+                req.session.error = "查找变更单历史数据时发生错误,请记录并联系管理员";
+                return null;
             }
+            result.forEach(function (task, i) {
+                if (task.execTime) {
+                    task.execTime = task.execTime.format("yyyy-MM-dd HH:mm:ss");
+                }
+            });
+            conf.cols = exlCols;
+            conf.rows = getRows(result);
+            var result = nodeExcel.execute(conf);
+            var exlName = getExlName(params)+".xlsx";
+            console.log("exlName",exlName);
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats');
+            res.setHeader("Content-Disposition", "attachment; filename=" +exlName );
+            res.end(result, 'binary');
         });
-        conf.cols = exlCols;
-        conf.rows = getRows(result);
-        var result = nodeExcel.execute(conf);
-        var exlName = getExlName(params)+".xlsx";
-        console.log("exlName",exlName);
-        res.setHeader('Content-Type', 'application/vnd.openxmlformats');
-        res.setHeader("Content-Disposition", "attachment; filename=" +exlName );
-        res.end(result, 'binary');
-    });
+    }
+    else{//根据项目名导出变更单
+        TaskXls.getTaskList(params, function (msg, result) {
+            if ('success' != msg) {
+                req.session.error = "查找变更单历史数据时发生错误,请记录并联系管理员";
+                return null;
+            }
+            result.forEach(function (task, i) {
+                if (task.execTime) {
+                    task.execTime = task.execTime.format("yyyy-MM-dd HH:mm:ss");
+                }
+            });
+            conf.cols = exlCols;
+            conf.rows = getRows(result);
+            var result = nodeExcel.execute(conf);
+            var exlName = getExlName(params)+".xlsx";
+            console.log("exlName",exlName);
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats');
+            res.setHeader("Content-Disposition", "attachment; filename=" +exlName );
+            res.end(result, 'binary');
+        });
+    }
 });
 
 router.get("/exportTasks", function(req, res) {

@@ -78,6 +78,55 @@ var TaskSql = function(){
         "   LEFT JOIN user oU2 ON taskTable2.creater = oU2.userId)as taskTable3 where taskTable3.taskid" +
         "   order by taskTable3.execTime desc limit ?,30"
     var findCreaterTask_params = "[userId,startNum]";
+    this.getTaskListWithFileUriSegLocal = " SELECT *  FROM" +
+    "   (SELECT  DISTINCT t.taskid,? provice,t.taskCode,t.taskName, u.realName creater ,tps.execTime ,tps.turnNum  FROM tasks t join filelist fl on fl.fileUri like ?" +
+    "   and fl.taskId =t.taskId" +
+    "   join  taskprocessstep tps on tps.taskId = t.taskId And  tps.processStepId = 8" +
+    "   and tps.execTime BETWEEN ?" +
+    "   AND ? " +
+    "   JOIN user u on t.creater = u.userId" +
+    "   ) localTable" +
+    "   Union(	select  t.taskid,'核心' provice,t.taskCode,t.taskName, u.realName creater,tps.execTime ,tps.turnNum" +
+    "   FROM tasks t JOIN (" +
+    "   SELECT DISTINCT   taskId  FROM" +
+    "   fileList  WHERE   taskId NOT IN (" +
+    "   SELECT DISTINCT taskId" +
+    "   FROM  `filelist`" +
+    "   WHERE  fileUri LIKE '/trunk/local/%'" +
+    "   ) and fileUri like '/trunk%'" +
+    "   ) coreTasks" +
+    "   ON t.taskId = coreTasks.taskId" +
+    "   JOIN taskprocessstep tps ON t.taskId = tps.taskid" +
+    "   AND tps.processStepId = 8" +
+    "   AND tps.execTime BETWEEN ? " +
+    "   AND ? " +
+    "   JOIN user u on t.creater = u.userId" +
+    "   ) ORDER BY taskId "
+    var getTaskListWithFileUriSegLocal_params = "[projectName,fileUriSeg,startTime,endTime,startTime,endTime]";
+    this.getTaskListWithFileUriSegCore ="SELECT " +
+    "   '核心' provice ,t.taskid,t.taskCode, t.taskName,u.realName creater,tps.execTime,tps.turnNum" +
+    "   FROM tasks t JOIN (" +
+    "   SELECT DISTINCT   taskId  FROM" +
+    "   fileList  WHERE   taskId NOT IN (" +
+    "   SELECT DISTINCT taskId" +
+    "   FROM  `filelist`" +
+    "   WHERE  fileUri LIKE '/trunk/local/%'" +
+    "   ) and fileUri like '/trunk%'" +
+    "   ) coreTasks ON t.taskId = coreTasks.taskId" +
+    "   JOIN taskprocessstep tps ON t.taskId = tps.taskid" +
+    "   AND tps.processStepId = 8" +
+    "   AND tps.execTime BETWEEN ?" +
+    "   AND ? " +
+    "   JOIN user u on u.userId = t.creater";
+    var getTaskListWithFileUriSegCore_params = "[startTime,endTime]";
+    this.getTaskListWithFileUriSegAll = "SELECT DISTINCT t.taskid,p.projectName provice,t.taskCode,t.taskName,u.realName creater ,tps.execTime " +
+    "    FROM tasks t join filelist fl  on fl.fileUri like '/trunk/%'  and fl.taskId =" +
+    "   t.taskId JOIN" +
+    "   taskprocessstep tps on tps.taskId = t.taskId And  tps.processStepId = 8 and tps.execTime between ? and ?" +
+    "   JOIN taskattachment ta on ta.taskId = tps.taskId and tps.turnNum = ta.turnNum  and  ta.processStepId = 3" +
+    "   JOIN project p on p.projectId = t.projectId" +
+    "   JOIN user u on u.userId = t.creater";
+    var getTaskListWithFileUriSegAll_params = "[startTime,endTime]"
 }
 
 module.exports = TaskSql;
