@@ -108,6 +108,14 @@ function getNextProcess_submitFile(params,callback){
             return Util.hasErr("hasGreenPass",callback);
         }
         if(result){
+            TaskDao.addGreenTask(params,function(msg,result){//userId,taskId
+                if(msg =="err"){
+                    console.log("addGreenTask ERR:",result);
+                }
+                else{
+                    console.log("addGreenTask success");
+                }
+            });
             return callback("success",6)
         }
         else{
@@ -233,7 +241,7 @@ function endSubmitFileProcess(params ,callback){
             console.log(" endSubmitFileProcess msg :",result);
         }
     });
-    getNextProcess_submitFile({userId:params.userId},function(msg,result){
+    getNextProcess_submitFile({userId:params.userId,taskId:params.taskId},function(msg,result){
         console.log("getNextProcess_submitFile processStep:",result);
         if(msg=="success"){
             var newParams_next = params;
@@ -280,6 +288,12 @@ newParams.processStepId = 12;
 newParams.dealer = 1;//系统用户:system
 //newParams.svnLocationID = 2;//上测试库
 var i= 0;
-//ProcessAdm.startProcess(newParams,function(msg,result){
-//    console.log("submitProcess result:",msg ," ",result,"  ",++i);
+//var params = {taskId:1,userId:1}
+//TaskDao.addGreenTask(params,function(msg,result){//userId,taskId
+//    if(msg =="err"){
+//        console.log("addGreenTask ERR:",result);
+//    }
+//    else{
+//        console.log("addGreenTask success");
+//    }
 //})
