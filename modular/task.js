@@ -51,6 +51,10 @@ var file = require("../modular/task");
 var ApplyOrderSQL = require("./sqlStatement/applyOrderSql");
 var TaskSQL = require("./sqlStatement/taskSql");
 var TaskTestSQL = require("./sqlStatement/testStateSql");
+var processStepSql = require("./sqlStatement/processStepSql");
+var ProcessStepReason = new (require("./sqlStatement/processStepReason"))() ;
+var ProcessStepSql = new processStepSql();
+var  VersionConstant = require("../util/versionConstant");
 function Task(task){
     this.taskid = task.taskid
     this.taskcode = task.taskcode
@@ -1154,15 +1158,13 @@ Task.doCheckPass = function(taskId,callback){
             selectDealer_Unpass:"select * from tasks where taskid=? and state='走查不通过'",
             //updateTask: "update tasks set processStepId=6, state='走查通过' where taskid=?"
             updateTask: "update tasks set  state='走查通过' where taskid=?",
-            updateEndTime: 'update taskprocessstep set endTime = ? where turnNum =' +
-            '(SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)' +
-            '   and taskId =? and processStepId = 5'
+            updateEndTime: ProcessStepSql.updateEndTimeAndState
         };
         var selectDealer_params = [taskId, taskId];
         var selectDealer_Unpass_params = [taskId];
         var updateTask_params = [taskId];
         var now = new Date().format("yyyy-MM-dd HH:mm:ss") ;
-        var updateEndTime_params = [now,taskId,taskId];
+        var updateEndTime_params = [now,VersionConstant.states.CHECKPASS,taskId,taskId,5];
         var sqlMember = ['selectDealer','selectDealer_Unpass', 'updateTask','updateEndTime'];
         var sqlMember_params = [selectDealer_params, selectDealer_Unpass_params, updateTask_params,updateEndTime_params];
         var i = 0;
@@ -1212,9 +1214,8 @@ Task.doCheckUnPass = function(taskId, userId, noPassReason, callback){
                 " and turnNum IN (SELECT MAX(turnNum) FROM taskprocessstep where taskId=?)",
             selectDealer_Unpass:"select * from tasks where taskid=? and state='走查不通过'",
             updateTask: "update tasks set state='走查不通过', processStepId=3 where taskid=?",
-            updateEndTime: 'update taskprocessstep set endTime = ? where turnNum =' +
-            '(SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)' +
-            '   and taskId =? and processStepId = 5',
+            updateEndTime:ProcessStepSql.updateEndTimeAndState,
+            insertReason: ProcessStepReason.insertReasonWithoutType,
             insertCheckUnpass: "insert into checkUnPass " +
                 "            (taskId, turnNum, checkPerson, noPassReason)" +
                 "            values(?, (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskProcessStep WHERE taskId=?) as maxNumTable)," +
@@ -1231,9 +1232,10 @@ Task.doCheckUnPass = function(taskId, userId, noPassReason, callback){
         var insertCheckUnpass_params = [taskId, taskId, userId, noPassReason];
         var now = new Date().format("yyyy-MM-dd HH:mm:ss") ;
         var insertReturnInfo_params = [taskId,taskId,taskId,now];
-        var updateEndTime_params = [now,taskId,taskId];
-        var sqlMember = ['selectDealer_pass', 'selectDealer_Unpass', 'updateTask','updateEndTime', 'insertCheckUnpass', 'insertReturnInfo'];
-        var sqlMember_params = [selectDealer_params, selectDealer_Unpass_params, updateTask_params, updateEndTime_params,insertCheckUnpass_params, insertReturnInfo_params];
+        var updateEndTime_params = [now,VersionConstant.states.CHECKUNPASS,taskId,taskId,5];
+        var insertReason_params = [taskId,5,noPassReason];
+        var sqlMember = ['selectDealer_pass', 'selectDealer_Unpass', 'updateTask','updateEndTime','insertReason', 'insertCheckUnpass', 'insertReturnInfo'];
+        var sqlMember_params = [selectDealer_params, selectDealer_Unpass_params, updateTask_params, updateEndTime_params,insertReason_params,insertCheckUnpass_params, insertReturnInfo_params];
         var i = 0;
         async.eachSeries(sqlMember, function (item, callback_async) {
             trans.query(sql[item], sqlMember_params[i++],function (err_async, result) {
@@ -1280,9 +1282,7 @@ Task.submitComplete = function(taskId, userId, callback){
             selectDealer:"select * from tasks where taskid=? and processStepId=7",
             updateTask: "update tasks set state='上测试库完成',processStepId=8 where taskid=?",
             updateFileList: "update filelist set commit=1 where taskId=?",
-            updateEndTime: 'update taskprocessstep set endTime = ? where turnNum =' +
-            '(SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)' +
-            '   and taskId =? and processStepId = 6',
+            updateEndTime: ProcessStepSql.updateEndTimeAndState,
             updateTPS:"insert into taskprocessstep (taskid, processStepId, turnNum, dealer,execTime,isAuto) " +
                 " values (?,7,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?,?," +
             "   (SELECT max(isAuto) from (select * from taskprocessstep where taskId =? and processstepId = 6) as tps ))",
@@ -1303,7 +1303,7 @@ Task.submitComplete = function(taskId, userId, callback){
         var updateFileList_params = [taskId];
         var insertTestState_params = [taskId,0,taskId];//0:等待测试
         var now = new Date().format("yyyy-MM-dd HH:mm:ss") ;
-        var updateEndTime_params = [now,taskId,taskId];
+        var updateEndTime_params = [now,VersionConstant.states.SUBMITTED,taskId,taskId,6];
         var updateTPS_params = [taskId,taskId,userId,now,taskId];
         var updateTPS2_params = [taskId,taskId,taskId,taskId,now];
         var sqlMember = ["selectRevision",'selectDealer', 'updateTask', 'updateFileList','updateEndTime', 'updateTPS','updateTPS2','insertTestState'];
@@ -1992,11 +1992,11 @@ Task.autoComp = function(taskId,revision,callback){
             return callback(err);
         }
         var sql = "UPDATE tasks SET state='已自动上测试库' WHERE taskid = ?";
-        var upateAutoSql = "update taskprocessstep set isAuto = 1 , execTime = NOW() where taskId = ? and processstepId =6";
+        var upateAutoSql = "update taskprocessstep set isAuto = 1 , endTime = NOW() ,state = ? where taskId = ? and processstepId =6";
         var updateRevisionSql = ApplyOrderSQL.addOrder;
         var updateRevisionSql_params = [taskId,taskId,taskId,revision];
         var params = [taskId];
-        var upateAuto_params = [taskId];
+        var upateAuto_params = [VersionConstant.states.AUTOSUBMITTED,taskId];
         connection.query(sql, params, function (err, result) {
             if (err) {
                 console.log('[autoComp ERROR] - ', err.message);

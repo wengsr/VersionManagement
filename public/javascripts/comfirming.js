@@ -357,7 +357,7 @@ jQuery(document).ready(function() {
     //    showNewTask();
     //});
     $('#btnReTest').click(function(){
-        $('#btnReTest').hide();
+        //$('#btnReTest').hide();
         if(checkAtta()&&checkReason()){
             $('#btnReTest').hide();
             submitForm_reTest();

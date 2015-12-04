@@ -18,6 +18,8 @@ var BugSql = new bugSql();
 var taskAttaSql = require("./sqlStatement/taskAttaSql");
 var TaskAttaSql = new taskAttaSql();
 var TestStateSQL = require("./sqlStatement/testStateSql");
+var ProcessStepSql =new (require("./sqlStatement/processStepSql"))();
+var VersionConstant  =require("../util/versionConstant");
 function TaskTest(task){
     this.taskid = task.taskid
     this.taskcode = task.taskcode
@@ -49,11 +51,7 @@ TaskTest.doTestPass = function(taskId,userId,reason,callback){
         var sql= {
             updateTask: "update tasks set state='测试通过', processStepId = 9 where taskid=?",
             //updateDealer: 'update taskprocessstep set dealer =?,execTime = ? where taskId = ? and processStepId = 8'
-            updateDealer: 'update taskprocessstep set dealer = ? ,endTime = ? where turnNum =' +
-            '   (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)' +
-            '  and testNum =' +
-            '   (SELECT maxTestNum from (SELECT MAX(testNum) as maxTestNum FROM taskprocessstep where taskId=?) as maxTestNumTable)' +
-            '   and taskId =? and processStepId = 8',
+            updateDealer:ProcessStepSql.updateEndTimeAndState_T,
             updateTPS:"insert into taskprocessstep (taskid, processStepId, turnNum,testNum, dealer,execTime) " +
             " values (?,9,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?)," +
             " (SELECT MAX(testNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?,?)",
@@ -62,7 +60,7 @@ TaskTest.doTestPass = function(taskId,userId,reason,callback){
 
         var updateTask_params = [taskId];
         var now = new Date().format("yyyy-MM-dd HH:mm:ss") ;
-        var updateDealer_params = [userId,now,taskId,taskId,taskId];
+        var updateDealer_params = [now,VersionConstant.states.CHECKPASS,taskId,taskId,taskId,8];
         var updateTPS_params = [taskId,taskId,taskId,userId,now];
         var sqlMember = ['updateTask', 'updateDealer','updateTPS','upateTestState'];
         var upateTestState_params = [1,taskId];//1:测试通过；
@@ -70,7 +68,8 @@ TaskTest.doTestPass = function(taskId,userId,reason,callback){
         var i = 0;
         var lastSql = "upateTestState";
         if(reason!=""){
-            sql.insertReason = "insert into taskprocessreason(taskid,processStepId,reason) values(?,?,?) ";
+            //sql.insertReason = "insert into taskprocessreason(taskid,processStepId,reason) values(?,?,?) ";
+            sql.insertReason =  PSReason.insertReasonWithoutType;
             sqlMember.push("insertReason");
             var insertReason_params = [taskId,8,reason];
             sqlMember_params.push(insertReason_params);
@@ -108,15 +107,13 @@ TaskTest.doTestUnPass = function(taskId, userId, noPassReason,noPassType, callba
 
         var sql = {
             updateTask: "update tasks set state='测试不通过',processStepId =10 where taskid=?",
-            updateDealer: 'update taskprocessstep set dealer = ? ,endTime = ? where turnNum =' +
-            '   (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)' +
-            '  and  (SELECT maxTestNum from (SELECT MAX(testNum) as maxTestNum FROM taskprocessstep where taskId=?) as maxTestNumTable)' +
-            '   and taskId =? and processStepId = 8',
+            updateDealer:ProcessStepSql.updateEndTimeAndState_T,
             insertTestUnpass: "insert into testUnPass " +
             "            (taskId, turnNum,testNum, dealer, noPassReason,unPassTypeId)" +
             "            values(?, (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskProcessStep WHERE taskId=?) as maxNumTable)," +
             "             (SELECT maxTestNum from (SELECT MAX(testNum) as maxTestNum FROM taskProcessStep WHERE taskId=?) as maxTestNumTable)," +
             "           ?,?,?)",
+            insertReason:PSReason.insertReasonWithType,
             //updateDealer: 'update taskprocessstep set dealer =?,execTime = ? where taskId = ? and processStepId = 8',
             updateTPS:"insert into taskprocessstep (taskid, processStepId, turnNum, testNum,dealer,execTime) " +
             " values (?,10,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?)," +
@@ -126,12 +123,13 @@ TaskTest.doTestUnPass = function(taskId, userId, noPassReason,noPassType, callba
         }
         var updateTask_params = [taskId];
         var now = new Date().format("yyyy-MM-dd HH:mm:ss");
-        var updateDealer_params = [userId,now,taskId,taskId, taskId ];
+        var updateDealer_params = [now,VersionConstant.states.TESTUNPASS,taskId,taskId, taskId,8 ];
         var updateTPS_params = [taskId,taskId,taskId,taskId,now ];
         var insertTestUnpass_params = [taskId, taskId,taskId, userId, noPassReason,noPassType];
+        var insertReason_params = [taskId, 8,noPassReason,noPassType];
         var upateTestState_params = [2,taskId];//2:测试不通过；
-        var sqlMember = ['updateTask',"updateDealer",'insertTestUnpass', 'updateTPS','upateTestState'];
-        var sqlMember_params = [updateTask_params,updateDealer_params,insertTestUnpass_params, updateTPS_params,upateTestState_params];
+        var sqlMember = ['updateTask',"updateDealer",'insertTestUnpass','insertReason', 'updateTPS','upateTestState'];
+        var sqlMember_params = [updateTask_params,updateDealer_params,insertTestUnpass_params,insertReason_params, updateTPS_params,upateTestState_params];
         var i = 0;
         var lastSql = "upateTestState";
         if(noPassReason!=""){
@@ -929,11 +927,7 @@ TaskTest.noTest = function(taskId,userId,reason,callback){
         var sql= {
             updateTask: "update tasks set state="+state+", processStepId = 9 where taskid=?",
             //updateDealer: 'update taskprocessstep set dealer =?,execTime = ? where taskId = ? and processStepId = 8'
-            updateDealer: 'update taskprocessstep set dealer = ?,endTime = ?  where turnNum =' +
-            '   (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)' +
-            '   and testNum =' +
-            '   (SELECT maxTestNum from (SELECT MAX(testNum) as maxTestNum FROM taskprocessstep where taskId=?) as maxNumTable)' +
-            '   and taskId =? and processStepId = 8',
+            updateDealer:ProcessStepSql.updateEndTimeAndState_T,
             updateTPS:"insert into taskprocessstep (taskid, processStepId, turnNum, testNum,dealer,execTime) " +
             " values (?,9,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?)," +
             "   (SELECT MAX(testNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?,?)",
@@ -942,7 +936,7 @@ TaskTest.noTest = function(taskId,userId,reason,callback){
         };
         var updateTask_params = [taskId];
         var now = new Date().format("yyyy-MM-dd HH:mm:ss") ;
-        var updateDealer_params = [userId,now,taskId,taskId,taskId];
+        var updateDealer_params = [now,VersionConstant.states.NOTEST,taskId,taskId,taskId,8];
         var updateTPS_params = [taskId,taskId,taskId,userId,now];
         var upateTestState_params = [3,taskId];//3:没有测试；
         var sqlMember = ['updateTask', 'updateDealer','updateTPS',"upateTestState"];
@@ -950,7 +944,8 @@ TaskTest.noTest = function(taskId,userId,reason,callback){
         var i = 0;
         var lastSql = "upateTestState";
         if(reason!=""){
-            sql.insertReason = "insert into taskprocessreason(taskid,processStepId,reason) values(?,?,?) ";
+            //sql.insertReason = "insert into taskprocessreason(taskid,processStepId,reason) values(?,?,?) ";
+            sql.insertReason = PSReason.insertReasonWithoutType;
             sqlMember.push("insertReason");
             var insertReason_params = [taskId,8,reason];
             sqlMember_params.push(insertReason_params);
@@ -1007,9 +1002,13 @@ TaskTest.reTest = function(taskId,dealer,reason,callback){
         var i = 0;
         var lastSql = "upateTestState";
         if(reason!=""){
+            sql.insertReasonWithoutType = PSReason.insertReasonWithoutType;
             sql.insertReason = PSReason.insertReason_b;
+            sqlMember.push("insertReasonWithoutType");
             sqlMember.push("insertReason");
+            var insertReasonWithoutType_params = [taskId,10,reason];
             var insertReason_params = [taskId,10,reason,taskId,taskId];
+            sqlMember_params.push(insertReasonWithoutType_params);
             sqlMember_params.push(insertReason_params);
             lastSql = "insertReason";
         }

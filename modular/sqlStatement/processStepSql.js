@@ -51,6 +51,17 @@ var processStepSql = function(){
    "    and tpr.testNum = (SELECT max(testNum) from taskprocessstep where taskid= ?) -1" +
    "    and tpr.processStepId = ?";
    var selectPreTestReason_params ="[taskId,taskId,processStepId]";
+    this.updateEndTimeAndState = 'update taskprocessstep set endTime = ?,state =?  where turnNum =' +
+    '(SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)' +
+    '   and taskId =? and processStepId = ?';
+    var updateEndTimeAndState_params = "[curTime,state,taskId,taskId,processStep]]";
+    //测试环节 的更新结束日期和状态的操作
+    this.updateEndTimeAndState_T = 'update taskprocessstep set endTime = ?,state = ? where turnNum =' +
+    '   (SELECT maxNum from (SELECT MAX(turnNum) as maxNum FROM taskprocessstep where taskId=?) as maxNumTable)' +
+    '  and testNum =' +
+    '   (SELECT maxTestNum from (SELECT MAX(testNum) as maxTestNum FROM taskprocessstep where taskId=?) as maxTestNumTable)' +
+    '   and taskId =? and processStepId = ?';
+    var updateEndTimeAndState_params = "[curTime,state,taskId,taskId,processStep]]";
 }
 
 module.exports = processStepSql;

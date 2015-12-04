@@ -16,7 +16,7 @@ taskProcess_version.updateState= function(params,callback){
             var sql = TaskProcessSQL_v.updateTaskState;
             var sql_updateEndTime = TaskProcessSQL_v.updateEndTime_test;
             var now = new Date().format("yyyy-MM-dd HH:mm:ss");
-            var updateEndTime_params = [now,params.taskId,12,params.taskId];
+            var updateEndTime_params = [now,params.state,params.taskId,12,params.taskId];
             var sql_params = [params.state,params.taskId];
             connection.query(sql, sql_params,function (err, result) {
                 if (err) {

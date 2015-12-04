@@ -34,6 +34,14 @@ taskProcessSql_v.updateEndTime_test = "UPDATE taskprocessstep tps set tps.endTim
 ")" +
 ")";
 var updateExecTime_params = "[now,taskId,processStepId,taskId]";
+taskProcessSql_v.updateEndTimeAndState_test = "UPDATE taskprocessstep tps set tps.endTime  = ? ,tps.state = ? where tps.taskId =? and tps.processStepId = ?  and testNum =" +
+" (" +
+"( select * from" +
+"(" +
+"SELECT max(testNum) as maxTestNum from taskprocessstep tps2 where tps2.taskId = ?) as maxTestNumTable" +
+")" +
+")";
+var updateExecTime_params = "[now,state,taskId,processStepId,taskId]";
 //更新环节的结束时间
 taskProcessSql_v.updateEndTime = "UPDATE taskprocessstep tps set tps.endTime  = ? where tps.taskId =? and tps.processStepId = ?  and turnNum =" +
 " (" +
