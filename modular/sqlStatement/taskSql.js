@@ -128,7 +128,17 @@ var TaskSql = function(){
     "   JOIN taskattachment ta on ta.taskId = tps.taskId and tps.turnNum = ta.turnNum  and  ta.processStepId = 3" +
     "   JOIN project p on p.projectId = t.projectId" +
     "   JOIN user u on u.userId = t.creater";
-    var getTaskListWithFileUriSegAll_params = "[startTime,endTime]"
+    var getTaskListWithFileUriSegAll_params = "[startTime,endTime]";
+    this.findTaskHistory = "SELECT" +
+    "   tps.*, u.realName,ta.fileName,ta.fileUri,tpr.reason" +
+    "   FROM" +
+    "   taskprocessstep tps" +
+    "   JOIN USER u ON u.userId = tps.dealer and tps.taskId = ?" +
+    "   LEFT JOIN taskattachment ta on ta.taskId = tps.taskid and ta.turnNum = tps.turnNum" +
+    "   and ta.testNum  = ta.testNum and ta.processStepId = tps.processStepId" +
+    "   LEFT JOIN processStepReason tpr on tpr.id = tps.id" +
+    "   ORDER BY tps.id"
+    var findTaskHistory_params = "[taskId]"
 }
 
 module.exports = TaskSql;

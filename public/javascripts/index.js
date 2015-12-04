@@ -238,8 +238,6 @@ jQuery(document).ready(function() {
 //            });
         });
         $('#divModelDialog').modal();
-
-
     });
 
 

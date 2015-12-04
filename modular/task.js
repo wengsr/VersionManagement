@@ -1966,8 +1966,12 @@ Task.findHistory = function(taskId,callback){
        //    "    ) t1 JOIN (" +
        //    "    SELECT taskId ,state from tasks where taskId = ?) as t2 ON t1.taskid = t2.taskid" +
        //    "    ORDER BY turnNum,testNum,processStepId,id";
-
         var params = [taskId,taskId];
+        var taskSql = new TaskSQL();
+        if(taskId=165){
+            sql = taskSql.findTaskHistory;
+            params = [taskId];
+        }
         connection.query(sql, params, function (err, results) {
             if (err) {
                 console.log('[QUERY TASKS ERROR] - ', err.message);
