@@ -12,7 +12,16 @@ var AttaSql = function(){
     this.selectPreTestAtt ="select * from taskattachment ta where ta.testNum = " +
     " (select max(testNum) from taskprocessstep where taskid = ?)-1 and ta.taskid=? and ta.processStepId=?"
     var selectPreTestAtt_params = "[taskId,taskId,processStepId]";
-
+    //从attachmentId 为1900开始使用系统的自动提交变更单，发布
+    //this.findNeedCommitAtt =    " SELECT atta.* ,t.creater,u.realName,t.taskcode from tasks t join taskattachment atta on t.taskId = atta.taskId" +
+    //"   join  (select max(turnNum) turnNum  ,taskId  FROM taskprocessstep where processStepId = ? group by taskid )" +
+    //"   tps on atta.turnNum = tps.turnNum   and atta.taskId = tps.taskId and atta.processStepId = ? and atta.attachmentId >1900 " +
+    //"    and atta.attachmentId not in (" +
+    //"   select attachmentId from attachmentcommit)" +
+    //"   and t.processStepId >6 " +
+    //"   and t.projectId in (select projectId from processstepdealer where userId = ? and processStepId = 6)" +
+    //"   JOIN user u on t.creater = u.userId " ;
+    //从attachmentId 为1900开始使用系统的自动提交变更单本机测试使用
     this.findNeedCommitAtt =    " SELECT atta.* ,t.creater,u.realName,t.taskcode from tasks t join taskattachment atta on t.taskId = atta.taskId" +
     "   join  (select max(turnNum) turnNum  ,taskId  FROM taskprocessstep where processStepId = ? group by taskid )" +
     "   tps on atta.turnNum = tps.turnNum   and atta.taskId = tps.taskId and atta.processStepId = ? and atta.attachmentId not in (" +
