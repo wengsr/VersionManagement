@@ -60,7 +60,7 @@ TaskTest.doTestPass = function(taskId,userId,reason,callback){
 
         var updateTask_params = [taskId];
         var now = new Date().format("yyyy-MM-dd HH:mm:ss") ;
-        var updateDealer_params = [now,VersionConstant.states.CHECKPASS,taskId,taskId,taskId,8];
+        var updateDealer_params = [now,VersionConstant.states.TESTED,taskId,taskId,taskId,8];
         var updateTPS_params = [taskId,taskId,taskId,userId,now];
         var sqlMember = ['updateTask', 'updateDealer','updateTPS','upateTestState'];
         var upateTestState_params = [1,taskId];//1:测试通过；
