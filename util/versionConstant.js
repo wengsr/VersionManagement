@@ -4,12 +4,12 @@
 var versionConstant ={
     svnLocation:{
         CHANGATTARepository:1,
-        TESTRepository : "http://192.168.1.22:8000/svn/hxbss/testVersion/a/",
-        DevRepository :"http://192.168.1.22:8000/svn/hxbss/testVersion/a-branch/"
+        TESTRepository : "http://crmsvn.asiainfo.org:8001/svn/hxbss/testVersion/a/",
+        DevRepository :"http://crmsvn.asiainfo.org:8001/svn/hxbss/testVersion/a-branch/"
         //TESTRepository : "http://192.168.1.22:8000/svn/hxbss/NCRM/baseLine/Source/",
-        //TESTRepository : "http://192.168.1.22:8000/svn/hxbss/NCRM/baseLine/Source/",
-        //DevRepository :"http://192.168.1.22:8000/svn/hxbss/NCRM_BASELINE/Sourse/trunk/"
-        //DevRepository :"http://192.168.1.22:8000/svn/hxbss/NCRM_BASELINE/Sourse"
+        //TESTRepository : "http://192.168.1.22:8001/svn/hxbss/NCRM/baseLine/Source/",
+        //DevRepository :"http://192.168.1.22:8001/svn/hxbss/NCRM_BASELINE/Sourse/trunk/"
+        //DevRepository :"http://192.168.1.22:8001/svn/hxbss/NCRM_BASELINE/Sourse"
     },
     paths :{
         //DevRepositoryPath:"./svn-branch/"
@@ -17,7 +17,8 @@ var versionConstant ={
         exportAttachmentsLocalPath :"./exportAttachmentsLocalPath/", //需要导出特定变跟单附件压缩包的路径
         //DevRepositoryPath:"C:/app/NCRM_Baseline/NCRM_BASELINE/Sourse/trunk/"
         //DevRepositoryPath:"C:/app/NCRM_Baseline/NCRM_BASELINE/Sourse",
-        attachmentLocalPath :"./" //所有变更单存放的父级路径
+        attachmentLocalPath :"./",//所有变更单存放的父级路径,
+        renameFiles :"./attachment/newAndOld/rename.bat" //所有变更单存放的父级路径
     },
     states:{
         APPLYCOMPLETE  :  "申请完成",
@@ -25,13 +26,17 @@ var versionConstant ={
         FILESUBMITED:"变更文件已提交",
         PLANCHECKED:"已安排走查",
         CHECK:"走查",
+        CHECKUNPASS:"走查不通过",
+        CHECKPASS:"走查通过",
         SUBMITTING:"上测试库",
         AUTOSUBMITTED:"已自动上测试库",
         SUBMITTED:"上测试库完成",
         TEST:"提交测试",
-        TESTED:"测试完成",
+        TESTED:"测试通过",
+        NOTEST:"没有测试",
         TESTUNPASS:"测试不通过",
         BUGCOMFIRMED:"BUG确认",
+        REQUESTRETEST:"请求重测",
         SUBMITTODEV:"上发布库",
         AUTOSUBMITTODEV:"已自动上发布库",
         SUBMITTODEVFAIL:"上发布库失败",

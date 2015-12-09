@@ -27,6 +27,7 @@
         "archiver":"0.14.3",
         "excel-export":"0.4.1",
         "process":"latest",
-        "log4js":"latest"
+        "log4js":"latest",
+      "iconv-lite":"latest"
     }
 }

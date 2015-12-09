@@ -9,6 +9,8 @@ var dao = require("../modular/taskDao");
 var VersionConstant = require("../util/versionConstant");
 var fileZip = require("../util/fileTool");
 var url = require('url');
+var fs = require("fs");
+var iconv = require('iconv-lite');
 /**
  * 返回JSON信息
  * @param res
@@ -479,7 +481,7 @@ router.post('/exportLocalChangeAtta/', function(req, res) {
     getCookieUser(req, res);
     var userId = req.session.user.userId;
     var postParams = req.body;
-    console.log("post body:",req.body)
+    //console.log("post body:",req.body)
     //console.log("post params:",req.params)
     var params = {};
     var fileUriSeg = postParams.fileUriSeg;
@@ -513,20 +515,39 @@ router.post('/exportLocalChangeAtta/', function(req, res) {
                  return  res.send(queryObj.callback+'(\'' + jsonStr + '\')');
              }
             var filesArr = [];
+            var fileContent = [];
             attachements.forEach(function(file){
-                filesArr.push(file.fileUri.substring(1,file.fileUri.length));
-            })
+                var fileUri = file.fileUri;
+                filesArr.push(fileUri.substring(1,file.fileUri.length));
+                fileContent.push("ren "+fileUri.substring(fileUri.lastIndexOf("/")+1,fileUri.length)+"  "+file.fileName+"  ");
+            });
+            fileContent = fileContent.join("\r\n    ");
+             fileContent = iconv.encode(fileContent, 'gbk');
+            var renameFiles = VersionConstant.paths.renameFiles;
+            if(fs.existsSync(renameFiles)){
+                fs.unlinkSync(renameFiles);
+            }
+            fs.appendFile(renameFiles, fileContent, function(err){
+                if(err){
+                    console.log("fail " + err);
+                }
+                else{
+                    console.log("写入文件ok");
+                }
+            });
+            console.log(fileContent);
             var exportAttachmentsLocalPath = VersionConstant.paths.exportAttachmentsLocalPath;
             var attachmentLocalPath = VersionConstant.paths.attachmentLocalPath;
             var fileName;
             if(fileUriSeg!=""&&fileUriSeg!=undefined){
-               fileName = fileUriSeg +'['+startDate+']['+endDate+Math.random().toString().substr(3,5)+".zip";
+               fileName = fileUriSeg +'['+startDate+']['+endDate+Math.random().toString().substr(3,5)+"].zip";
             }
             else if(fileUriSeg==""||fileUriSeg==undefined){
                 fileName =  'All['+startDate+']['+endDate+Math.random().toString().substr(3,5)+"].zip";
             }
-            console.log("filesArr1:",filesArr);
+            //console.log("filesArr1:",filesArr);
             var realName = exportAttachmentsLocalPath+fileName;
+            filesArr.push(renameFiles);
             fileZip.zipFiles(attachmentLocalPath,filesArr,realName);
             console.log("filesArr1:",fileName);
             //异步
