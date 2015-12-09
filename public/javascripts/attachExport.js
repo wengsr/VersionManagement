@@ -62,6 +62,10 @@ jQuery(document).ready(function() {
           endDate:$("#endDate").val(),
           endTime: $("#endTime").val()};
        var url ="admin/exportLocalChangeAtta";
+       if((params.fileUriSeg=="")||(params.fileUriSeg==undefined)){
+           showTipInfo('err', "请先选择项目");
+           return ;
+       }
        ajaxSubmit_attachExport(params,url,"post");
    })
 
