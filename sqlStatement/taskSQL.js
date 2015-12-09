@@ -91,4 +91,7 @@ taskSQL.searchEmailInfo = "select r.reqCode,r.reqName,r.processStepId, rs.proces
 "   JOIN  reqstep rs on rs.processStepId = r.processStepId" +
 "   And r.reqId =?"
 var searchEmailInfo = "[reqId]";
+taskSQL.searchAllNeedReqs = "SELECT r.reqId,r.reqName FROM requirement r join reqprocessstep rps on r.reqId = rps.reqId" +
+"   and r.turnNum = rps.turnNum and r.processStepId = rps.processStepId and rps.dealer = ? and rps.processStepId = 5;"
+var searchAllNeedReqs_params = "[userId]"
 module.exports = taskSQL;

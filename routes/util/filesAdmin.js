@@ -7,6 +7,7 @@ var Path = require("path");
 var filesAdmin = {};
 var fileZip = require("../../util/fileTool.js");
 var FilesReg = require("../../util/regularsExp");
+var iconv = require('iconv-lite');
 /**
  * 删除文件夹
  * @param path
@@ -432,6 +433,17 @@ filesAdmin.getBugNewName = function(oldName){
         newName = oldName.substring(0,index)+"-修订-"+num;
     }
     return newName;
+}
+filesAdmin.newRenameFile = function(fileContent,fileName){
+    fileContent = fileContent.join("\r\n    ");
+    fileContent = iconv.encode(fileContent, 'gbk');
+
+    if(fs.existsSync(fileName)){
+        fs.unlinkSync(fileName);
+    }
+    fs.appendFileSync(fileName, fileContent);
+    console.log(fileContent);
+    //return fileName;
 }
 var fileDir = "D:/test/path4";
 var fileReg = /teswwt/g;

@@ -307,7 +307,7 @@ TaskAdmin.getTaskInfo = function(params,callback){
         }
         var allInfos = {};
         var processStepId = params.processStepId ;
-        console.log("getTaskInfo processStepId:",processStepId);
+        //console.log("getTaskInfo processStepId:",processStepId);
         allInfos.taskInfo = result.taskInfo[0];
         if( allInfos.taskInfo.expectTime !=undefined){
             allInfos.taskInfo.expectTime =allInfos.taskInfo.expectTime.format("yyyy-MM-dd");
@@ -341,7 +341,7 @@ TaskAdmin.getTaskInfo = function(params,callback){
             devDealerComments = Util.getAttas(dealerComments,5);
             allInfos.devDealerComments = devDealerComments;
         }
-        console.log("getTaskInfo:",allInfos);
+        //console.log("getTaskInfo:",allInfos);
         callback("success",allInfos);
     });
 }

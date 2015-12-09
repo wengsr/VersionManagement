@@ -10,7 +10,7 @@ var VersionConstant = require("../util/versionConstant");
 var fileZip = require("../util/fileTool");
 var url = require('url');
 var fs = require("fs");
-var iconv = require('iconv-lite');
+
 /**
  * 返回JSON信息
  * @param res
@@ -521,21 +521,10 @@ router.post('/exportLocalChangeAtta/', function(req, res) {
                 filesArr.push(fileUri.substring(1,file.fileUri.length));
                 fileContent.push("ren "+fileUri.substring(fileUri.lastIndexOf("/")+1,fileUri.length)+"  "+file.fileName+"  ");
             });
-            fileContent = fileContent.join("\r\n    ");
-             fileContent = iconv.encode(fileContent, 'gbk');
             var renameFiles = VersionConstant.paths.renameFiles;
-            if(fs.existsSync(renameFiles)){
-                fs.unlinkSync(renameFiles);
-            }
-            fs.appendFile(renameFiles, fileContent, function(err){
-                if(err){
-                    console.log("fail " + err);
-                }
-                else{
-                    console.log("写入文件ok");
-                }
-            });
-            console.log(fileContent);
+            //创建重命名文件
+            var filesAdmin = require("./util/filesAdmin");
+             filesAdmin.newRenameFile(fileContent,renameFiles);
             var exportAttachmentsLocalPath = VersionConstant.paths.exportAttachmentsLocalPath;
             var attachmentLocalPath = VersionConstant.paths.attachmentLocalPath;
             var fileName;
