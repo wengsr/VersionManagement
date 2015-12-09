@@ -25,7 +25,8 @@
 </div>
 <div class="main">
     <div class="history">
-        <% if(taskHis.length && (taskHis[0].taskId!=165)){%>
+        <% if(taskHis.length && (taskHis[0].taskid < 1600)){%>
+        <!--//12.9 taskid 1566-->
         <%for(var j=0; j<=maxTurnNum; j++){%>
         <div class="history-date">
             <ul>
@@ -235,7 +236,7 @@
         <%}%>
         <%}else%>
         <!--新版历史消息记录 taskId>1666-->
-        <% if(taskHis.length && (taskHis[0].taskId==165)){%>
+        <% if(taskHis.length && (taskHis[0].taskId >2000)){%>
         <div class="history-date">
             <ul>
                 <% var j = 0;var curTestNum = 0%>
