@@ -549,6 +549,16 @@ router.post('/exportLocalChangeAtta/', function(req, res) {
         }
     });
 });
+//打开上传附件至svn的页面
+router.get('/commitChangeRarPage/:attachmentId', function(req, res) {
+    getCookieUser(req, res);
+    var userId = req.session.user.userId;
+    var attachmentId = req.params.attachmentId;
+    Attachment.findAttachmentInfo(attachmentId, function (msg,attachments) {
+        return res.render('adminModel/attachCommit.ejs', {attachment:attachments});
+    });
+});
+
 //router.post('/copyRar', function(req, res) {
 //    getCookieUser(req, res);
 //    var userId = req.session.user.userId;
