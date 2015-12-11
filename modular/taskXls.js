@@ -112,7 +112,7 @@ exports.getTaskListWithFileUriSeg = function(params,callback){
             return callback(err);
         }
         var sqlAndParams = getFindTaskListSqlAndParams(params);
-        console.log("params222:",sqlAndParams.params);
+        //console.log("params222:",sqlAndParams.params);
         connection.query(sqlAndParams.sql, sqlAndParams.params, function (err, result) {
             if (err) {
                 console.log('[QUERY TASKS ERROR] - ', err.message);

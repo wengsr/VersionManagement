@@ -20,7 +20,7 @@ var getCookieUser = function(req, res){
         if(!req.session.user || 'undefined'==req.session.user){
             return res.redirect("/");
         }
-    }
+}
 
 /**
  * 保存信息到cookie和session中
@@ -201,7 +201,7 @@ var topBtnClick = function(res, req, btnName){
         startNum = 0;
     }
     var cookieUser = req.cookies.user;
-    if(cookieUser){
+    if(cookieUser!=undefined){
         req.session.user = cookieUser;
     }
     if(undefined == req.session.user){

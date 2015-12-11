@@ -141,7 +141,7 @@ function checkDataForBtnSubmit(){
         case "3":return checkDataForDesignSubmit();break;
         case "4":return checkDataForDesConfirmSubmit();break;
         //case 5:checkDataForToDevSubmit();break;
-        case 5:return true;break;
+        case "5":return true;break;
     }
 }
 function checkDataForBtnUpload(){

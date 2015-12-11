@@ -138,7 +138,9 @@ var TaskSql = function(){
     "   and ta.testNum  = ta.testNum and ta.processStepId = tps.processStepId" +
     "   LEFT JOIN processStepReason tpr on tpr.id = tps.id" +
     "   ORDER BY tps.id"
-    var findTaskHistory_params = "[taskId]"
+    var findTaskHistory_params = "[taskId]";
+    this.updateReqId = "update tasks set reqId = (select reqId  from requirement where reqCode = ?) where taskId= ?";
+    var updateReqParams = "[reqCode,taskId]"
 }
 
 module.exports = TaskSql;

@@ -100,6 +100,8 @@ function disableInput(){
     $("#inputTaskName").attr("disabled","disabled");
     $("#delTaskList").attr("disabled","disabled");
     $("[name=taskType]").attr("disabled","disabled");
+    $("#requirement").attr("disabled","disabled");
+    $("#requirement").bsSuggest("disable");
 }
 
 function checkSubmit(fields){
@@ -185,9 +187,36 @@ function ajaxSubmit(params, url, subType){
         }
     });
 }
+//需求列显示
+function reqListShow(){
+    //if($("input[name=taskType][value='1']").attr("checked") !="checked"){
+    //    $("#requirement").bsSuggest(
+    //    {
+    //        indexId: 1, //data.value 的第几个数据，作为input输入框的内容
+    //        indexKey: 1, //data.value 的第几个数据，作为input输入框的内容
+    //        autoMinWidth: true, //是否自动最小宽度，设为 false 则最小宽度与下拉式菜单等齐
+    //        data: {
+    //            'value':JSON.parse(requirements),
+    //            //'value':[{"reqId":11,"reqCode":"crm某某工程1_20151005_0002","reqName":"dds"},{"reqId":26,"reqCode":"crm某某工程1_20151012_0016","reqName":"sssds"},{"reqId":26,"reqCode":"crm某某工程1_20151012_0016","reqName":"sssds"},{"reqId":30,"reqCode":"crm某某工程1_20151013_0019","reqName":"dddsssssssswwwwwwwwwwwwwww"},{"reqId":30,"reqCode":"crm某某工程1_20151013_0019","reqName":"dddsssssssswwwwwwwwwwwwwww"}]
+    //            //,
+    //            'defaults':''
+    //        }
+    //    })
+    //}
+    //else{
+    //    $("#reqDiv").show();
+    //}
+    $("input[name=taskType][value='1']").change(function(){
+      $("#reqDiv").show();
+    });
+    $("input[name=taskType][value='0']").change(function(){
+      $("#reqDiv").hide();
+    });
+}
 
 jQuery(document).ready(function() {
     //隐藏文件路径信息提示条
+    //reqListShow();
     $('#diaInfoTip').hide();
     $('#btnExtractFile').hide();
     $('#btnModify').hide();
@@ -230,7 +259,8 @@ jQuery(document).ready(function() {
                 taskDetails: $("#inputTaskDesc").val(),
                 taskNewFiles: $("#inputTaskNewList").val(),
                 taskModFiles: $("#inputTaskModList").val(),
-                taskDelFiles: $("#delTaskList").val()
+                taskDelFiles: $("#delTaskList").val(),
+                reqCode: $("#requirement").val()
             };
             url = 'task/addTask';
             ajaxSubmit(params, url, 'post');
@@ -248,6 +278,7 @@ jQuery(document).ready(function() {
     $('#closeModel').click(function () {
         location.reload();
     });
+
     $('#divModelDialog').on('hide.bs.modal', function (e) {
         if (storageFlag) {
             storageTask(storageNames);

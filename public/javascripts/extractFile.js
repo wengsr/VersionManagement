@@ -37,7 +37,8 @@ function getFieldValues(){
         taskNewFiles: $("#inputTaskNewList").val(),
         taskModFiles: $("#inputTaskModList").val(),
         taskDelFiles: $("#delTaskList").val(),
-        taskType:$("input[name=taskType]:checked").val()
+        taskType:$("input[name=taskType]:checked").val(),
+        reqCode:$("#requirement").val()
     };
 }
 /**
@@ -152,8 +153,80 @@ function submitForm_extract(){
     ajaxSubmit_extract(extractFile_params, extractFile_url, 'post');
     fileUploadBtnLoading("btnExtractFile","正在提取文件");
 }
-
-
+function showReqsInfo(requirements){
+    $("#requirement").bsSuggest(
+        {
+            indexId: 1, //data.value 的第几个数据，作为input输入框的内容
+            indexKey: 1, //data.value 的第几个数据，作为input输入框的内容
+            autoMinWidth: true, //是否自动最小宽度，设为 false 则最小宽度与下拉式菜单等齐
+            data: {
+                'value':requirements,
+                'defaults':''
+            }
+        })
+    reqListShow();
+}
+//需求列显示
+function reqListShow(){
+    //if($("input[name=taskType][value='1']").attr("checked") !="checked"){
+    //    //console.log(requirements)
+    //    $("#requirement").bsSuggest(
+    //    {
+    //        indexId: 1, //data.value 的第几个数据，作为input输入框的内容
+    //        indexKey: 1, //data.value 的第几个数据，作为input输入框的内容
+    //        autoMinWidth: true, //是否自动最小宽度，设为 false 则最小宽度与下拉式菜单等齐
+    //        data: {
+    //            'value':JSON.parse(requirements),
+    //            //'value':[{"reqId":11,"reqCode":"crm某某工程1_20151005_0002","reqName":"dds"},{"reqId":26,"reqCode":"crm某某工程1_20151012_0016","reqName":"sssds"},{"reqId":26,"reqCode":"crm某某工程1_20151012_0016","reqName":"sssds"},{"reqId":30,"reqCode":"crm某某工程1_20151013_0019","reqName":"dddsssssssswwwwwwwwwwwwwww"},{"reqId":30,"reqCode":"crm某某工程1_20151013_0019","reqName":"dddsssssssswwwwwwwwwwwwwww"}]
+    //            //,
+    //            'defaults':''
+    //        }
+    //    })
+    //}
+    //else{
+    //    $("#reqDiv").show();
+    //}
+    $("input[name=taskType][value='1']").change(function(){
+        $("#reqDiv").show();
+        $("#requirement").bsSuggest('enable');
+    });
+    $("input[name=taskType][value='0']").change(function(){
+        $("#reqDiv").hide();
+        $("#requirement").bsSuggest('disable');
+    });
+    $("#requirement").attr('disabled',true);
+    $("#requirement").bsSuggest('disable');
+}
+/**
+ * 获取需求信息ajax提交
+ * @param params
+ * @param url
+ * @param subType
+ */
+function allReqsAjaxSubmit(params, url, subType){
+    url = '/' + url;
+    $.ajax({
+        data: params,
+        url: url,
+        dataType: 'jsonp',
+        cache: false,
+        timeout: 500000,
+        type: subType,
+        success: function(data){
+            var dataJson = $.parseJSON(data);
+            var flag =  dataJson.message;
+            var requirements = dataJson.requirements;
+            if('err'==flag){
+                showTipInfo('err',dataJson.message);
+            }else if('success'==flag) {
+                showReqsInfo(requirements);
+            }
+        },
+        error: function(jqXHR, textStatus, errorThrown){
+            alert('error ' + textStatus + " " + errorThrown);
+        }
+    });
+}
 /**
  * 修改提交表单信息
  */
@@ -171,7 +244,8 @@ function submitForm_modify(){
             taskNewFiles: $("#inputTaskNewList").val(),
             taskDelFiles: $("#delTaskList").val(),
             taskModFiles: $("#inputTaskModList").val(),
-            taskType: $("input[name=taskType]:checked").val()
+            taskType: $("input[name=taskType]:checked").val(),
+            reqCode: $("#requirement").val()
         };
         var modifyFlag = false;
         for(var val in fieldValues){
@@ -216,7 +290,6 @@ function fileUp(url){
             });
         },
         fail:function(e,data){
-            console.log(e);
             console.log(data);
         }
     })
@@ -230,11 +303,9 @@ function bindClick_btnUploadFile(){
         $('#btnConfirm').hide();
         $("#btnModify").hide();
         //$("#btnModifyTask").hide();
-
         submitForm_extract();
 
     });
-
     $("#btnModify").on("click", function () {
         $("#btnConfirm").show();
         $("#btnModCancel").show();
@@ -245,6 +316,8 @@ function bindClick_btnUploadFile(){
         $('#inputTaskNewList').attr('disabled', false);
         $('#inputTaskDesc').attr('disabled', false);
         $('#delTaskList').attr('disabled', false);
+        $('#requirement').attr('disabled', false);
+        $("#requirement").bsSuggest("enable");
         $('[name = taskType]').attr('disabled', false);
     });
     $("#btnModCancel").on("click", function () {
@@ -259,6 +332,8 @@ function bindClick_btnUploadFile(){
         $('#inputTaskNewList').attr('disabled', true);
         $('#inputTaskDesc').attr('disabled', true);
         $('#delTaskList').attr('disabled', true);
+        $('#requirement').attr('disabled', true);
+        $("#requirement").bsSuggest("disable");
     });
     $("#btnConfirm").on("click", function () {
         var newFiles = $("#inputTaskNewList").val();
@@ -276,20 +351,28 @@ function bindClick_btnUploadFile(){
         //$('#formModifyTask').submit();
     });
 }
-
+/**
+ * 向后台请求所有需求信息
+ */
+function getAllReqs(){
+    var params={};
+    url='task/getAllReqs';
+    allReqsAjaxSubmit(params, url, 'post');
+}
 
 jQuery(document).ready(function() {
     //隐藏文件上传时用于替代走查通过or不通过的按钮
     $('#btnModCancel').hide();
     $('#btnConfirm').hide();
     $('#divAlert').hide();
+    //reqListShow();
     //$("#btnModifyTask").hide();
 
     //隐藏文件路径信息提示条
     $('#diaInfoTip').hide();
 
     bindClick_btnUploadFile();
-
+    getAllReqs();
     $('#btnCloseModel').click(function(){
         location.reload();
     });

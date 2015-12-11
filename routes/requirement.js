@@ -186,10 +186,10 @@ router.get('/newReqApply', function(req, res, next) {
         }
     });
 });
-router.post('/reqProcess', function(req, res, next) {
+function showReqProcessPage(req,res,params){
     var user = cookiesUtil.getCookieUser(req,res);
     //var allParams = Util.getParamsFromReq(req);
-    var params = req.body;
+    //var params = req.body;
     params.userId=user.userId;
     //console.log("reqProcess:",params);
     TaskAdmin.getTaskInfo(params,function(msg,allInfo){
@@ -199,6 +199,7 @@ router.post('/reqProcess', function(req, res, next) {
                 if(msg=="err"){
                     return req.sessoin.error = "获取按钮失败";
                 }
+                console.log("buttons:",buttons);
                 res.render('requirements/reqProcess',{reqProcessStepId:params.reqProcessStepId,allInfo:allInfo,infoDivs:"",stateId:allInfo.taskInfo.stateId,
                     buttons:buttons,projectId:allInfo.taskInfo.projectId,processStepId:allInfo.taskInfo.processStepId,
                     taskInfo:allInfo.taskInfo,reqId:
@@ -211,6 +212,14 @@ router.post('/reqProcess', function(req, res, next) {
             return ;
         }
     });
+}
+router.post('/reqProcess', function(req, res) {
+    var params = req.body;
+    showReqProcessPage(req,res,params);
+});
+router.get('/reqProcess/:reqId/:reqProcessStepId/:processStepId/:stateId', function(req, res) {
+    var params = req.params;
+    showReqProcessPage(req,res,params);
 });
 router.post('/newApply', function(req, res, next) {
     var user = cookiesUtil.getCookieUser(req,res);
@@ -332,7 +341,6 @@ router.post('/nextDealer', function(req, res, next) {
     var user = cookiesUtil.getCookieUser(req,res);
     var params = req.body;
     params.userId=user.userId;
-
     var dealerData = {userName:params.dealer,processStepId:params.processStepId,
         isLeader:params.isLeader,comment:params.comment}
     TaskProcess.assignNextDealer(params,function(msg,insertId,realName){

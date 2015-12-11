@@ -44,7 +44,6 @@ function ajaxSubmit_submit(params,url,subType){
     this.ajaxOptions.success = function(data){
         var dataJson = $.parseJSON(data);
         var flag =  dataJson.sucFlag;
-
         var buttonsString = getButtonsStr(dataJson.datas);
         if('err'==flag) {
             showTipInfo('err', dataJson.message);
@@ -351,7 +350,6 @@ function fileUpReturn(){
             var processStepId =$("#processStepId").val();
             $(attaDivArr[processStepId]).append(filesTagsString);
             //3.把已上传文件的名称和下载链接显示在页面上
-
             resetAttaArrDownloadUri("[id=atta_req]");
             resDelBtnDynamic("reqAttaAdmin","xxAttaReq");
             //4.页面给出“文件上传成功与否的提示”
@@ -381,6 +379,25 @@ jQuery(document).ready(function() {
     resDeleteDealerClick("xxDealerAdmin","xxDealerReq");
     resDeleteDealerClick("xxAttaAdmin","xxAttaReq");
     resetAttaArrDownloadUri("[id=atta_req]");
+    $("#btnTest").click(function(){
+        var  reqId = $("#reqId").val();
+        var reqName = $("#reqName").val();
+        var reqProcessStepId = $("#reqProcessStepId").val();
+        var processStepId = $("#processStepId").val();
+        var stateId = $("#stateId").val();
+        var reqId = $("#reqId").val();
+        $('#divModel').load("/task/addTaskPage/"+reqId+"/"+reqName,function(){
+            hideTip();
+            $(".modal-footer").append('<button id="btnBack" type="button" reqProcessStepId ='+reqProcessStepId+' class="btn btn-primary">返回</button>');
+            $("#reqDiv").show();
+            $("#btnBack").click(function(){
+                var url = "/requirement/reqProcess/"+reqId+"/"+reqProcessStepId+"/"+processStepId+"/"+stateId
+                $('#divModel').load(url,function(){
+                    hideTip();
+                });
+            })
+        });
+    })
     //resDelBtnDynamic("xxDealerAdmin","xxDealerReq");
     //resDelBtnDynamic("xxAttaAdmin","xxAttaReq");
 });

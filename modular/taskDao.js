@@ -207,6 +207,7 @@ var BugSql = new  bugSql();
 //const DEBUG = true;
 var async = require('async');
 var taskSql = require("./sqlStatement/taskSql");
+var TaskSql_req = require("../sqlStatement/taskSQL");//设计系统
 var TaskTypeSql = require("./sqlStatement/taskTypeSql");
 var TaskSql = new taskSql();
 exports.searchProject = function( taskInfo , callback){
@@ -226,12 +227,43 @@ exports.searchProject = function( taskInfo , callback){
         });
     });
 }
+//查找所有当前用户s所属的所有项目;
 exports.searchAllProject = function(userId, callback){
     pool.getConnection(function (err, connection){
         var sql = "select projectId , projectName, projectUri from project  where projectId in" +
             " ( select projectId from userToProject where userId = ?)";
         var param = [userId];
         connection.query(sql, param,function (err, result){
+            if (err) {
+                console.log("searchAllProject ERR;", err.message);
+            }
+            connection.release();
+            callback("success", result);
+        });
+    });
+};
+
+//查找所有当前用户需要开发的需求
+exports.searchAllNeedReqs = function(userId, callback){
+    pool.getConnection(function (err, connection){
+        var sql = TaskSql_req.searchAllNeedReqs ;
+        var param = [userId];
+        connection.query(sql, param,function (err, result){
+            if (err) {
+                console.log("searchAllProject ERR;", err.message);
+            }
+            connection.release();
+            callback("success", result);
+        });
+    });
+};
+//查找所有需求
+exports.searchAllReqs = function(userId, callback){
+    pool.getConnection(function (err, connection){
+        var sql = TaskSql_req.searchAllReqs ;
+        //var param = [userId];
+        var param = [];
+        connection.query(sql,param,function (err, result){
             if (err) {
                 console.log("searchAllProject ERR;", err.message);
             }
@@ -407,7 +439,8 @@ exports.addTask = function (taskInfo,callback) {
             '   and t.taskName = ? and psd3.processStepId < 7',
             countTask: 'UPDATE  project set taskCount = taskCount + 1 where projectId= ?',
             selectProject :' SELECT * FROM project where projectId = ?',
-            userAddSql : 'INSERT INTO tasks(taskCode, taskName, creater, state, processStepId, projectId, taskDesc,typeId) VALUES(?,?,?,?,?,?,?,?)',
+            userAddSql : 'INSERT INTO tasks(taskCode, taskName, creater, state, processStepId, projectId, taskDesc,typeId,reqId) VALUES(?,?,?,?,?,?,?,?,' +
+            '(SELECT reqId from requirement where reqCode = ?))',
             addTaskProcess : ' INSERT INTO taskProcessStep(taskId, processStepId, dealer,turnNum,execTime) VALUES(?,?,?,?,?)',
             //addTaskType: TaskTypeSql.addType,
             addFiles: 'INSERT INTO fileList(taskId,fileName,state,commit,fileUri) VALUES(?,?,?,?)'
@@ -422,6 +455,7 @@ exports.addTask = function (taskInfo,callback) {
         var addFiles_params =[];
         var addTaskType_params =[];
         var userId = taskInfo.tasker;
+        var reqCode = taskInfo.typeId?taskInfo.reqCode:null;
         //var task = ['countTask', 'selectProject', 'us、erAddSql','addTaskProcess', 'addFiles' ];
         //var task = ['searchTaskName','countTask', 'selectProject', 'userAddSql','addTaskProcess','addTaskType' ];
         var task = ['searchTaskName','countTask', 'selectProject', 'userAddSql','addTaskProcess' ];
@@ -474,12 +508,11 @@ exports.addTask = function (taskInfo,callback) {
                             while(taskCount.lenth<4){
                                 taskCount ='0'+taskCount;
                             }
-
                         }
                         taskCode = project[0].projectName +'_'+nowDate+'_'+taskCount;
                         projectUri = project[0].projectUri;
                         task_params[3] = [taskCode, taskInfo.name, taskInfo.tasker, taskInfo.state, "2",
-                            taskInfo.projectId, taskInfo.desc,taskInfo.typeId];
+                            taskInfo.projectId, taskInfo.desc,taskInfo.typeId,reqCode];
                     }
                 }
                 else if (item == 'userAddSql') {
@@ -745,6 +778,7 @@ exports.modifyTask= function(taskInfo,callback){
         var sql= {
             updateTask: "update tasks set  taskDesc =? where taskid= ?",
             updateTaskTypeId: "update tasks set typeId =? where taskid= ?",
+            updateReqId: TaskSql.updateReqId,
             updateFileList:"INSERT INTO fileList(taskId,fileName,state,commit,fileUri) VALUES(?,?,?,?,?)",
             deleteFiles: "delete from fileList where taskId = ? and state = ?"
         };
@@ -766,10 +800,26 @@ exports.modifyTask= function(taskInfo,callback){
             })
         }
         if(taskInfo.typeId !=undefined) {
+            if(taskInfo.typeId==0){
+                sql.updateTaskTypeId="update tasks set typeId =?,reqId = null where taskid= ?"
+            }
             var updateTaskTypeId = [taskInfo.typeId,taskId];
             trans.query(sql.updateTaskTypeId, updateTaskTypeId, function (err, result) {
                 if (err) {
                     console.log("[modifyTask] updateTaskTypeId ERR:", err.message);
+                    trans.rollback();
+                    return callback("err");
+                }
+                else{
+                    console.log("updateTask result",result);
+                }
+            })
+        }
+        if((taskInfo.reqCode !=undefined)) {
+            var updateReqId = [taskInfo.reqCode,taskId];
+            trans.query(sql.updateReqId, updateReqId, function (err, result) {
+                if (err) {
+                    console.log("[modifyTask] updateReqId ERR:", err.message);
                     trans.rollback();
                     return callback("err");
                 }

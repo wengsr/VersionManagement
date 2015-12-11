@@ -18,7 +18,7 @@ var versionConstant ={
         //DevRepositoryPath:"C:/app/NCRM_Baseline/NCRM_BASELINE/Sourse/trunk/"
         //DevRepositoryPath:"C:/app/NCRM_Baseline/NCRM_BASELINE/Sourse",
         attachmentLocalPath :"./",//所有变更单存放的父级路径,
-        renameFiles :"./attachment/newAndOld/rename.bat" //所有变更单存放的父级路径
+        renameFiles :"./attachment/newAndOld/rename.bat" //存放重命名文件
     },
     states:{
         APPLYCOMPLETE  :  "申请完成",

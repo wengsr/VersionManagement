@@ -287,7 +287,7 @@ TaskProcess.assignNextDealer = function(params,callback){
                 roleId=3
             }
             else{
-                params.processStepId == 4;
+               roleId = 4;
             }
         }
         var addRole_params = [roleId,params.dealer,params.reqId];

@@ -49,7 +49,7 @@ var AttaSql = function(){
     this.insertAttaCommit = "insert into attachmentCommit(attachmentId , attaType, commitType) value( ?, 0,0)";
     var insertAttaCommit_params = "[attachementId]";
     //全部变更单
-    this.findAllChangeAtta = "SELECT DISTINCT t.taskid,t.taskCode,ta.fileUri,p.projectName  FROM tasks t join filelist fl  on fl.fileUri like '/trunk/%'  and fl.taskId =" +
+    this.findAllChangeAtta = "SELECT DISTINCT t.taskid,t.taskCode,ta.fileName,ta.fileUri,p.projectName  FROM tasks t join filelist fl  on fl.fileUri like '/trunk/%'  and fl.taskId =" +
     "   t.taskId JOIN" +
     "   taskprocessstep tps on tps.taskId = t.taskId And  tps.processStepId = 8 and tps.execTime between ? and ? " +
     "   JOIN taskattachment ta on ta.taskId = tps.taskId and tps.turnNum = ta.turnNum  and  ta.processStepId = 3 " +
@@ -57,12 +57,12 @@ var AttaSql = function(){
     var findAllChaneAtta_params = "[startTime,endTime]"
     //本地加核心变更单
     this.findLocalChangeAtta = "SELECT *  FROM" +
-    "   (SELECT  DISTINCT t.taskid,t.taskCode,ta.fileUri,? project FROM tasks t join filelist fl on fl.fileUri like ?" +
+    "   (SELECT  DISTINCT t.taskid,t.taskCode,ta.fileName,ta.fileUri,? project FROM tasks t join filelist fl on fl.fileUri like ?" +
     "   and fl.taskId =t.taskId" +
     "   join  taskprocessstep tps on tps.taskId = t.taskId And  tps.processStepId = 8" +
     "   and tps.execTime between ? and ? " +
     "   JOIN taskattachment ta on ta.taskId = tps.taskId and tps.turnNum = ta.turnNum  and  ta.processStepId = 3) localTable" +
-    "   Union(	select  t.taskid,t.taskCode,ta.fileUri,'核心' project" +//核心变更单
+    "   Union(	select  t.taskid,t.taskCode,ta.fileName,ta.fileUri,'核心' project" +//核心变更单
     "   FROM tasks t JOIN ( " +
     "   SELECT DISTINCT   taskId  FROM" +
     "   fileList  WHERE   taskId NOT IN (" +
@@ -79,7 +79,7 @@ var AttaSql = function(){
     var findLocalChangeAtta_params = "[projecName,filrUriSeg,startTime,endTime,startTime,endTime]"
     //核心变更单
     this.findCoreChangeAtta = "SELECT" +
-    "   '核心' project ,t.taskid,t.taskCode,ta.fileUri,tps.execTime" +
+    "   '核心' project ,t.taskid,t.taskCode,ta.fileName,ta.fileUri,tps.execTime" +
     "   FROM tasks t JOIN (" +
     "   SELECT DISTINCT   taskId  FROM" +
     "   fileList  WHERE   taskId NOT IN (" +

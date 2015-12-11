@@ -341,7 +341,7 @@ TaskAtta.exportLocalChangeAtta = function(params, callback){
                 return callback('err',err);
             }
             else{
-                console.log('success',result);
+                //console.log('success',result);
                 callback('success', result);
                 //callback('success', null);
             }

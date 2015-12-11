@@ -27,10 +27,10 @@ TaskAdminDao.getAllInfos = function(params,callback){
         var lastSql = "dealerComment";
         var infos  = {};
         async.eachSeries(sqlMember, function (item, callback_async) {
-            console.log(item + " ==> ", sql[item] );
-            console.log(item + " ==> ", sql_params[i] );
+            //console.log(item + " ==> ", sql[item] );
+            //console.log(item + " ==> ", sql_params[i] );
             trans.query(sql[item], sql_params[i], function (err_async, result) {
-                console.log("trans :", result);
+                //console.log("trans :", result);
                 if (err_async) {
                     console.log(item + " result:", err_async.message);
                     callback("err");
@@ -41,7 +41,7 @@ TaskAdminDao.getAllInfos = function(params,callback){
                 i++;
                 if(item ==lastSql && !err_async){//最后一条sql语句执行没有错就返回成功
                     trans.commit();
-                    console.log("getAllInfo result:",infos);
+                    //console.log("getAllInfo result:",infos);
                     return callback('success',infos);
                 }
                 //console.log(result);

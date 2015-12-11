@@ -553,22 +553,44 @@ var isSearchCondsExits= function(req, res){
     }
 }
 
-
+//版本管理系统，通过【申请变更单】进入
 router.get('/addTaskPage', function(req, res) {
   // res.send('respond with a resource');
 //    res.render('taskInfo', { title: 'Express' });
     getCookieUser(req, res);
     var allProject ;
         dao.searchAllProject(req.session.user.userId,function(msg,result){
-           if(msg == "success"){
-               allProject = result;
-               res.render('submitApply',{project : allProject});
-           }
-            else{
-               alert("查找项目失败，请联系管理员");
-           }
+            if(msg == "err"){
+                return req.session.error ="查找项目失败，请联系管理员";
+            }
+            getAllReqs({userId:req.session.user.userId},function(msg_req,requirements) {
+                if (msg_req == "success") {
+                    allProject = result;
+                    res.render('submitApply', {project: allProject, requirements: [], isReq: false});//isReq:判断是否是从设计系统直接进入
+                }
+                else {
+                    return req.session.error = "查找待处理需求失败，请联系管理员";
+                }
+            });
     });
-
+});
+//需求子系统，开发人员通过交付开发提交变更单
+router.get('/addTaskPage/:reqId/:reqName', function(req, res) {
+    // res.send('respond with a resource');
+//    res.render('taskInfo', { title: 'Express' });
+    getCookieUser(req, res);
+    var reqId = req.params.reqId;
+    var reqName = req.params.reqName;
+    var allProject ;
+    dao.searchAllProject(req.session.user.userId,function(msg,result){
+        if (msg == "success") {
+            allProject = result;
+            res.render('submitApply', {project: allProject, requirements: {reqId:reqId,reqName:reqName}, isReq: true});//isReq:判断是否是从设计系统直接进入
+        }
+        else {
+            return req.session.error = "查找待处理需求失败，请联系管理员";
+        }
+    });
 });
 //申请修复bug的变更单
 router.get('/addBugTaskPage', function(req, res) {
@@ -633,6 +655,7 @@ router.post('/addTask', function (req, res) {
     var taskState = '申请完成';//申请时，状态默认为；1,提交申请
     var taskProject = req.body.taskProject;
     var taskType = req.body.taskType;
+    var reqCode = req.body.reqCode;
     var taskDetails = req.body.taskDetails;
     var taskNewFiles = req.body.taskNewFiles;
     var taskModFiles = req.body.taskModFiles;
@@ -645,7 +668,7 @@ router.post('/addTask', function (req, res) {
     var projectUri ;
     var flag = false;
     dao.addTask({name: taskName, tasker: tasker ,state: taskState,projectId:taskProject,desc:taskDetails,newFiles:taskNewFiles,
-        modFiles:taskModFiles,delFiles:taskDelFiles,typeId:taskType}, function (msg,taskId,taskCode) {
+        modFiles:taskModFiles,delFiles:taskDelFiles,typeId:taskType,reqCode:reqCode}, function (msg,taskId,taskCode) {
         var queryObj = url.parse(req.url,true).query;
         var jsonStr;
         if('success' == msg){
@@ -1751,8 +1774,9 @@ router.post('/modifyTask', function(req, res) {
     var taskNewFiles = req.body['taskNewFiles'];
     var taskModFiles= req.body['taskModFiles'];
     var taskDelFiles= req.body['taskDelFiles'];
+    var reqCode= req.body['reqCode'];
     var jsonStr;
-    dao.modifyTask({taskId:taskId, details:taskDetails,typeId:taskType, newFiles: taskNewFiles, modFiles: taskModFiles,delFiles:taskDelFiles}, function(msg,result){
+    dao.modifyTask({taskId:taskId, details:taskDetails,typeId:taskType, newFiles: taskNewFiles, modFiles: taskModFiles,delFiles:taskDelFiles,reqCode:reqCode}, function(msg,result){
         if('success' == msg){
             jsonStr = '{"sucFlag":"success","message":"【修改变更单】执行成功"}';
         }else{
@@ -2488,4 +2512,39 @@ router.post("/delTask",function(req, res){
         }
     });
 })
+//获取所有的需求
+router.post('/getAllReqs', function(req, res) {
+    // res.send('respond with a resource');
+//    res.render('taskInfo', { title: 'Express' });
+    getCookieUser(req, res);
+    var allProject ;
+    getAllReqs({userId:req.session.user.userId},function(msg_req,requirements) {
+        if (msg_req == "success") {
+            var queryObj = url.parse(req.url,true).query;
+            res.send(queryObj.callback+'(\'{"message":"success","requirements": '+requirements+'}\')');
+        }
+        else {
+            var queryObj = url.parse(req.url,true).query;
+            res.send(queryObj.callback+'(\'{"message":"success","requirements": "查找所有需求出错"}\')');
+        }
+    });
+});
+//获取所有的需求
+function getAllReqs(params,callback){//userId
+    dao.searchAllReqs(params.userId,function(msg,requirements) {
+        if (msg == "success") {
+            var reqs = [];
+            requirements.forEach(function(req){
+                var reqId = req.reqId;
+                var reqCode = req.reqCode;
+                var reqName = req.reqName;
+                var req = {reqId:reqId,reqCode:reqCode,reqName:reqName};
+                reqs.push(req);
+            });
+            reqs = JSON.stringify(reqs);
+            console.log(reqs);
+        }
+        callback(msg,reqs);
+    });
+}
 module.exports = router;
