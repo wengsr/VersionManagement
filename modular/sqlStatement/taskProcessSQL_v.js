@@ -63,6 +63,13 @@ taskProcessSql_v.addProcess_planCheck = "insert into taskprocessstep (taskid, pr
 "(SELECT manager from project where projectId = (SELECT projectId from tasks t where t.taskId = ?)" +
 "),NOW())";
 var addProcess_planCheck_params = "[taskId,processStepId,taskId,taskId,taskId]";
+taskProcessSql_v.addProcess_test = "insert into taskprocessstep (taskid, processStepId,dealer,turnNum,execTime) " +
+"values (?,8," +
+"   (select * from  (select tester as dealer from bugs where newTask = ?" +
+"   union" +
+"   select PM as dealer from project  where projectId =(select projectId from tasks where taskId = ?) ) as dealerTable limit 1)," +
+"(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?)";
+var addProcess_test_params = " [taskId,taskId,taskId,taskId,now];";
 taskProcessSql_v.setAuto = "UPDATE taskprocessstep tps set tps.isAuto  = 1 where tps.taskId =? and tps.processStepId = ?  and turnNum =" +
 " (" +
 "( select * from" +

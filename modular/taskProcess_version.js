@@ -87,6 +87,60 @@ taskProcess_version.newProcess= function(params,callback){
             updateTask:  TaskProcessSQL_v.updateTaskProcessStep,
             addTaskProcess : TaskProcessSQL_v.addProcess
         }
+        var now = new Date().format("yyyy-MM-dd HH:mm:ss");
+        var updateTask_params = [params.processStepId,params.taskId];
+        var addTaskProcess_params =[params.taskId,params.processStepId,params.taskId,params.taskId,params.dealer];
+        if(params.processStepId == 4){
+            sql.addTaskProcess  = TaskProcessSQL_v.addProcess_planCheck;
+            addTaskProcess_params =[params.taskId,params.processStepId,params.taskId,params.taskId,params.taskId];
+        }
+        if(params.processStepId == 8){
+            sql.addTaskProcess  = TaskProcessSQL_v.addProcess_test;
+            addTaskProcess_params =[params.taskId,params.taskId,params.taskId,params.taskId,now];
+        }
+        var sqlMember = ['updateTask','addTaskProcess'];
+        var sql_params = [updateTask_params, addTaskProcess_params];
+        var i= 0;
+        var lastSql = "addTaskProcess";
+        if(params.processStepId == 5 ){
+            lastSql="updateTask";
+        }
+        async.eachSeries(sqlMember, function (item, callback_async) {
+            //console.log(item + " ==> ",  sql[item]);
+            trans.query(sql[item], sql_params[i],function (err_async, result) {
+                //console.log(item + " ==> ",result)
+                if (err) {
+                    console.log(item + " result:", err_async.message);
+                    callback("err");
+                    trans.rollback();
+                    return;
+                }
+                i++;
+                //console.log("result:",result);
+                if(item == lastSql  && !err_async){//最后一条sql语句执行没有错就返回成功
+                    trans.commit();
+                    return callback('success');
+                }
+                callback_async(err_async, result);
+            });
+            //callback("success");
+        });
+        trans.execute();
+        connection.release();
+    });
+}
+//开始测试环节
+taskProcess_version.newTestProcess= function(params,callback){
+    pool.getConnection(function(err, connection) {
+        if (err) {
+            return util.hasDAOErr(err, " get Connection err!!!", callback);
+        }
+        queues(connection);
+        var trans = connection.startTransaction();
+        var sql= {
+            updateTask:  TaskProcessSQL_v.updateTaskProcessStep,
+            addTaskProcess : TaskProcessSQL_v.addTestProcess
+        }
         var updateTask_params = [params.processStepId,params.taskId];
         var addTaskProcess_params =[params.taskId,params.processStepId,params.taskId,params.taskId,params.dealer];
         if(params.processStepId == 4){
@@ -124,6 +178,7 @@ taskProcess_version.newProcess= function(params,callback){
         connection.release();
     });
 }
+
 
 // 更新当前任务的处理人
 taskProcess_version.updateDealer= function(params,callback){
@@ -243,7 +298,6 @@ taskProcess_version.isNeedToDevReposity = function(params,callback){
             if (err) {
                 console.log("findCreaterAndTaskInfo  result:", err.message);
                 callback("err","false");
-                return;
             }
             else{
                 console.log("getDealerAndTaskInfo success");

@@ -9,12 +9,88 @@ var ProcessStep = require("../../util/versionConstant").processStep;
 var SvnAdmin = require("./svnAdmin");
 var Task = require("../../modular/task");
 var States =  require("../../util/versionConstant").states;
+function autoToDevReposity(params,callback){
+    var newParams = params;
+    newParams.processStepId = 12;
+    newParams.svnLocationID = 3;//上测试库
+    newParams.dealer = 235;//系统用户:system
+    TaskProcess_version.newProcess(newParams,function(msg,result){
+        console.log("newProcess times！！")
+        if(msg == "success"){
+            SvnAdmin.commitToSvn(newParams,function(msg_commit,result){
+                console.log("commitToSvn times!")
+                callback(msg_commit,result);
+                if(msg_commit == "err"){
+                    /*上发布库失败，转至版本管理员*/
+                     submitFail(params);
+                }
+                /*上测试库成功，进入测试环节*/
+                else{
+                    //给变更单的创建者发送邮件
+                    TaskProcess_version.findCreaterAndTaskInfo(params,function(msg_get,creaters){
+                        if(msg_get =="err"){
+                            console.error("获取创建者出错！");
+                        }
+                        if(!result.length){
+                            console.error("没有找到创建者！");
+                        }
+                        creaters.forEach(function(creater){
+                            //暂时关闭
+                            //setTimeout( Email.sendEmailToDealer_new(creater),"1000");
+                        })
+                    });
+                }
+            })
+        }
+        else{
+            return callback(msg,result);
+        }
+    })
+}
+function  startAutoProcess(params,callback){
+    switch(params){
+        case 12:autoToDevReposity(params,callback);break;
+        default :callback("err");
+    }
+}
 var submitFileProcess = function(params,callback){
     //params.stateId = ReqConstant.stateId.APPLYED;
     params.processStepId = ProcessStep.SUBMITFILE ;
     TaskProcess_version.newProcess(params,callback);
 };
-//测试库环节
+var testProcess = function(params,callback){
+    //params.stateId = ReqConstant.stateId.APPLYED;
+    //params.processStepId = ProcessStep.TEST ;
+    getNextProcess_greenPass(params,function(msg,result){//绿色通道 直接上发布库
+        console.log("getNextProcess_greenPass processStep:",result);
+        if(msg=="success"){
+            var newParams_next = params;
+            newParams_next.processStepId = result;
+            if(result == 12){
+                TaskProcess_version.isNeedToDevReposity(newParams_next,function(msg,resultLength){
+                    if(msg=="success" && ( resultLength >0) ){//确保项目需要上发布库
+                        autoToDevReposity(newParams_next,function(msg,result){
+                            if(msg =="success"){
+                                endProcess(newParams_next,function(msg,result){
+                                    console.log("自动上发布库流程：",msg);
+                                });
+                            }
+                            return  callback(msg,result);
+                        });
+                    }
+                    else {
+                        console.log("isNeedToDevReposity:" ,msg ," no Need:",resultLength);
+                        return callback("success");
+                    }
+                });
+            }
+            else {
+                startProcess(newParams_next,callback);
+            }
+        }
+    });
+};
+//测试库环节和发布库环节
 var  submitProcess  = function(params,callback){
     var newParams = params;
     newParams.processStepId = 6;
@@ -44,20 +120,6 @@ var  submitProcess  = function(params,callback){
                             setTimeout( Email.sendEmailToDealer_new(creater),"1000");
                         })
                     });
-                    //给配置管理员发送邮件
-                    //TaskProcess_version.getVMAndTaskInfo(params,function(msg_getVM,VMs){
-                    ////TaskProcess_version.getVMAndTaskInfo(params,function(msg_get,VMs){
-                    //    if(msg_getVM =="err"){
-                    //        console.error("获取配置管理员出错！");
-                    //    }
-                    //    if(!result.length){
-                    //        console.error("没有找到配置管理员！");
-                    //    }
-                    //    VMs.forEach(function(vm){
-                    //        setTimeout( Email.sendEmailToDealer_new(vm),"1000");
-                    //    })
-                    //});
-                   //return  ;
                 }
             })
         }
@@ -74,7 +136,6 @@ var  submitProcess  = function(params,callback){
  */
 var  submitFail  = function(params,callback){
     var newParams = params;
-    newParams.processStepId = 6;
     newParams.dealer = null;//系统用户
     TaskProcess_version.updateDealer(newParams,function(msg,result){
         if(msg == "err"){
@@ -89,19 +150,25 @@ var  submitFail  = function(params,callback){
                 return  console.error("没有找到版本管理员！");
             }
             result.forEach(function(item){
-                setTimeout( Email.sendEmailToDealer_new(item),"1000");
+                if(params.processStepId == 6){
+                    //setTimeout( Email.sendEmailToDealer_new(item),"1000");
+                }
+                if(params.processStepId == 12){
+                    item.processStepId = 11;
+                    //setTimeout( Email.sendEmailToDealer_new(item),"1000");
+                }
             })
         });
     });
 }
 
 /**
- * 获取提交变更单，判断是否执行绿色通道下一环节
+ * 获取提交变更单，判断是否执行绿色通道下一环节（或进入测试环节）
  * @param projectId
  * @param curprocessId
  * @param callback
  */
-function getNextProcess_submitFile(params,callback){
+function getNextProcess_greenPass(params,callback){
     TaskDao.hasGreenPass(params,function(msg,result){
         console.log("hasGreenPass result:",result);
         if(msg == "err"){
@@ -116,10 +183,20 @@ function getNextProcess_submitFile(params,callback){
                     console.log("addGreenTask success");
                 }
             });
-            return callback("success",6)
+            if(params.processStepId == 3){
+                return callback("success",6)
+            }
+            if(params.processStepId == 8){
+                return callback("success",12);//发布库
+            }
         }
-        else{
-            return callback("success",4);
+        else  if(!result){
+            if(params.processStepId == 3){
+                return callback("success",4)
+            }
+            if(params.processStepId == 8){
+                return callback("success",8)
+            }
         }
     })
 }
@@ -226,6 +303,8 @@ function startProcess(params,callback){
             planCheckProcess(params,callback);break;
         case 6:
             submitProcess(params ,callback);break;
+        case 8:
+            testProcess(params ,callback);break;
         case 12:
             submitToDevProcess(params ,callback);break;//上开发库环节
         case 13:
@@ -241,8 +320,8 @@ function endSubmitFileProcess(params ,callback){
             console.log(" endSubmitFileProcess msg :",result);
         }
     });
-    getNextProcess_submitFile({userId:params.userId,taskId:params.taskId},function(msg,result){
-        console.log("getNextProcess_submitFile processStep:",result);
+    getNextProcess_greenPass({userId:params.userId,taskId:params.taskId,processStepId:3},function(msg,result){
+        console.log("getNextProcess_greenPass processStep:",result);
         if(msg=="success"){
             var newParams_next = params;
             newParams_next.processStepId = result;
@@ -288,12 +367,13 @@ newParams.processStepId = 12;
 newParams.dealer = 1;//系统用户:system
 //newParams.svnLocationID = 2;//上测试库
 var i= 0;
-//var params = {taskId:1,userId:1}
-//TaskDao.addGreenTask(params,function(msg,result){//userId,taskId
-//    if(msg =="err"){
-//        console.log("addGreenTask ERR:",result);
-//    }
-//    else{
-//        console.log("addGreenTask success");
-//    }
+var params = {taskId:166,userId:1,processStepId:8,dealer:1};
+//testProcess(params,function(msg,result){
+//    console.log("testProcess:rrrrrrr",msg);
+//    console.log("testProcess:rrrrrrrrrrr",result);
+//})
+//var params = {taskId:167,userId:1,processStepId:3,dealer:1};
+//endProcess(params,function(msg,result){
+//    console.log("testProcess:",msg);
+//    console.log("testProcess:",result);
 //})
