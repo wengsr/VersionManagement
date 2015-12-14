@@ -21,6 +21,7 @@ taskSQL.countTaskSQL =  "select count(*) as count from (" +
 " select r.*,rps.dealer,rps.execTime "+
 " from requirement r JOIN reqprocessstep rps ON r.reqId = rps.reqId" +
 " AND r.turnNum = rps.turnNum and r.processStepId = rps.processStepId " +
+"  JOIN reqstate rs on r.stateId = rs.stateId" +
 " )as taskList ";
 taskSQL.countTaskSQLWithName= "select count(*) as count from " +
 " (select r.*,rs.stateName , ps.processStepName,rps.dealer,rps.execTime,u.userName as createrName ,u2.userName as dealerName" +

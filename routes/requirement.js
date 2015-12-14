@@ -82,7 +82,7 @@ function findToDealTask(req,res,startNum){
  */
 function findMyReqTask(req,res,startNum){
     var user = cookiesUtil.getCookieUser(req,res);
-    console.log("findMyReqTask:",user);
+    //console.log("findMyReqTask:",user);
     var params = {userId:user.userId,startNum:startNum};
     //console.log(params,"222222",user);
     PermissionAdmin.getMenus(params ,function(msg,menus){
@@ -95,7 +95,6 @@ function findMyReqTask(req,res,startNum){
                 return  console.log(" findDealTask err !!!")
             }
             var totalDealPage = parseInt((count-1)/30+1);
-            //console.log(result);
             //console.log(count);
             return res.render("requirements/reqIndex",{ title: '设计需求子系统',pageName:'tasks',tasks:result, count:count,
                 user:user,
