@@ -122,7 +122,7 @@ function endProcess(params,callback){
             break;
         case "4":
             endDesConfirmRDProcess(params,callback);break;
-        case "rd_5":
+        case "5":
             endDevRDProcss(params,callback);break;
         //case "rd_6":
         //    endCompleteRDProcss(taskId,nextPro,callback);break;
