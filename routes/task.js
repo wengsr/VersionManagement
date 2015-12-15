@@ -2553,3 +2553,8 @@ function getAllReqs(params,callback){//userId
     });
 }
 module.exports = router;
+//var params = {taskId:165,taskName:"test",taskCode:"test",processStepId:3,dealer:1,userId:1};
+////结束变更单上传环节。
+//ProcessStepAdmin.endCurProcess(params, function(msg,result) {//
+//    console.log("endCurProcess callback Msg:", msg);
+//});

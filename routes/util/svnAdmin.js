@@ -386,7 +386,7 @@ function commitToFinalRepository(params,callback){
  */
 svnAdmin.commitToSvn = function(params,callback){
     var svnLocationID = params.svnLocationID;
-    return callback("success","测试成功");
+    //return callback("success","测试成功");
     switch(svnLocationID){
         case 2:commitToTestRepository(params,callback);break;
         case 3:commitToFinalRepository(params,callback);break;

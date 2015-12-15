@@ -15,10 +15,8 @@ function autoToDevReposity(params,callback){
     newParams.svnLocationID = 3;//上测试库
     newParams.dealer = 235;//系统用户:system
     TaskProcess_version.newProcess(newParams,function(msg,result){
-        console.log("newProcess times！！")
         if(msg == "success"){
             SvnAdmin.commitToSvn(newParams,function(msg_commit,result){
-                console.log("commitToSvn times!")
                 callback(msg_commit,result);
                 if(msg_commit == "err"){
                     /*上发布库失败，转至版本管理员*/
