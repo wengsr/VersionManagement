@@ -319,6 +319,7 @@ function getAllTesterName(){
 }
 jQuery(document).ready(function() {
     showOldFile();
+    setBtnDisable(["submit_TestReport","btnPassTest","btnUnPassTest","btnAssignTest","btnAssignTestConfirm"]);
     //隐藏文件上传时用于替代测试通过or不通过的按钮
     $('#btnUnPassCheck2').hide();
     //隐藏文件路径信息提示条

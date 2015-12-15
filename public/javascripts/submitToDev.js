@@ -183,6 +183,7 @@ function acceptAndCompBtn(){
 jQuery(document).ready(function() {
     //showOldFile();
     acceptAndCompBtn();
+    setBtnDisable(["btnSubmitAccept","btnAutoMerge","btnMergeComplete"]);
     //接受任务
     $('#btnSubmitAccept').click(function(){
         $('#btnSubmitAccept').hide()

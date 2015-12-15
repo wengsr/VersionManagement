@@ -160,6 +160,7 @@ function showOldFile(){
 }
 
 jQuery(document).ready(function() {
+    setBtnDisable(["btnSubmitAccept","btnAutoSubmit","btnAutoUpateSubmit","btnSubmitComplete"]);
     showOldFile();
     acceptAndCompBtn();
     $('#btnAutoUpateSubmit').hide();

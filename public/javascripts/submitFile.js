@@ -76,7 +76,7 @@ function submitForm_submitFile(){
         taskType: $('#taskType').val()
     };
     var submitFile_url='task/submitFile';
-
+    setBtnDisable(["btnSubmitFile"]);
     fileUploadBtnLoading("btnSubmitFile","文件上传中...");
     ajaxSubmit(submitFile_params, submitFile_url, 'post');
     $('#btnSelectReport').hide();

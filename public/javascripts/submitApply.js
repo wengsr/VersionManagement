@@ -137,6 +137,9 @@ function checkSubmit(fields){
 
 function checkName(taskName){
     taskName = taskName.trim();
+    if(taskName === null ||(taskName === "")){
+        return false;
+    }
     taskName = taskName.match(/[\S]+/g).toString();
     taskName = taskName.replace("-修正","");
     //taskName = taskName.match(/^([\u4e00-\u9fa5]|[0-9A-Za-z.])+[-][A-Z]+[-][0-9]+[-]([\u4e00-\u9fa5]|[0-9A-Za-z.])+[-|_][0-9A-Za-z]+[-|_][0-9]+$/g);
@@ -213,7 +216,16 @@ function reqListShow(){
       $("#reqDiv").hide();
     });
 }
-
+function setBtnDisable(btnIds){
+    btnIds.forEach(function(btn){
+        var that = "#"+btn;
+        $(that).click(function(){
+            //console.log(that);
+            setTimeout(function() {$(that).attr("disabled",  true); }, 10);
+            setTimeout(function() { $(that).attr("disabled",  false); }, 200);
+        })
+    })
+}
 jQuery(document).ready(function() {
     //隐藏文件路径信息提示条
     //reqListShow();
@@ -225,7 +237,7 @@ jQuery(document).ready(function() {
     $('#oldAtta').hide();
     //$('#divPop').hide();
     $('#divAlert').hide();
-
+    setBtnDisable(["submitApply"]);
     //dynInputBlur();
     for (var i in dynFileds) {
         dynInputBlur(dynFileds[i])

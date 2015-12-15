@@ -367,7 +367,7 @@ jQuery(document).ready(function() {
     $('#divAlert').hide();
     //reqListShow();
     //$("#btnModifyTask").hide();
-
+    setBtnDisable(["btnConfirm","btnExtractFile"]);
     //隐藏文件路径信息提示条
     $('#diaInfoTip').hide();
 

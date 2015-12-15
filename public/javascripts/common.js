@@ -187,6 +187,17 @@ function AjaxRequset(params, url, subType){
             alert('error ' + textStatus + " " + errorThrown);
         }};
 }
+//防止提交按钮多次点击
+function setBtnDisable(btnId){
+    btnId.forEach(function(btn){
+        var that = "#"+btn;
+        $(that).click(function(){
+            //console.log("setBtnDisable");
+            setTimeout(function() {$(that).attr("disabled",  true); }, 10);
+            setTimeout(function() { $(that).attr("disabled",  false); }, 200);
+        })
+    })
+}
 jQuery(document).ready(function() {
     hideTip();
     resetAttaDownloadUri('a_preTestAtta');

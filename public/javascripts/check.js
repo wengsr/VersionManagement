@@ -326,6 +326,7 @@ jQuery(document).ready(function() {
     $('#diaInfoTip').hide();
     //文件上传后回传值的处理
     fileUpReturn();
+    setBtnDisable(["submit_UpReport","btnPassCheck","btnUnPassCheck","btnAssign"]);
     //选择文件后的信息提示
     $('#fulAvatar').change(function(){
         showFilePath('已选中文件：' + $('#fulAvatar').val());

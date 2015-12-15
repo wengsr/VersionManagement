@@ -146,7 +146,7 @@ function showOldFile(){
 
 
 jQuery(document).ready(function() {
-
+    setBtnDisable(["btnAssign"]);
     showOldFile();
     getAllUerName();
     //注册提交按钮的点击事件

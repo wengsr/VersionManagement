@@ -328,6 +328,7 @@ jQuery(document).ready(function() {
     $('#btnReturn').hide();
     $('#btnAssignTestConfirm').hide();
     $('#diaInfoTip').hide();
+    setBtnDisable(["btnNewTaskName","btnReTest","btnAssignTestConfirm","btnRequireTest"]);
     //文件上传后回传值的处理
     fileUpReturn();
     //选择文件后的信息提示
