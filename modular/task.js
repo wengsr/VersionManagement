@@ -1285,17 +1285,17 @@ Task.submitComplete = function(taskId, userId, callback){
             updateEndTime: ProcessStepSql.updateEndTimeAndState,
             updateTPS:"insert into taskprocessstep (taskid, processStepId, turnNum, dealer,execTime,isAuto) " +
                 " values (?,7,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?,?," +
-            "   (SELECT max(isAuto) from (select * from taskprocessstep where taskId =? and processstepId = 6) as tps ))",
+            "   (SELECT max(isAuto) from (select * from taskprocessstep where taskId =? and processstepId = 6) as tps ))"
             //测试环节
             //updateTPS2:"insert into taskprocessstep (taskid, processStepId,dealer,turnNum,execTime) " +
             //" values (?,8,?,(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?)"
-            updateTPS2:"insert into taskprocessstep (taskid, processStepId,dealer,turnNum,execTime) " +
-            "values (?,8," +
-        "   (select * from  (select tester as dealer from bugs where newTask = ?" +
-        "   union" +
-            "   select PM as dealer from project  where projectId =(select projectId from tasks where taskId = ?) ) as dealerTable limit 1)," +
-            "(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?)",
-            insertTestState:TaskTestSQL.insertStateByTaskId
+        //    updateTPS2:"insert into taskprocessstep (taskid, processStepId,dealer,turnNum,execTime) " +
+        //    "values (?,8," +
+        //"   (select * from  (select tester as dealer from bugs where newTask = ?" +
+        //"   union" +
+        //    "   select PM as dealer from project  where projectId =(select projectId from tasks where taskId = ?) ) as dealerTable limit 1)," +
+        //    "(SELECT MAX(turnNum) FROM taskprocessstep maxtps WHERE maxtps.taskId=?),?)",
+        //    insertTestState:TaskTestSQL.insertStateByTaskId
         }
         var selectRevision_params = [taskId];
         var selectDealer_params = [taskId];
@@ -1306,10 +1306,10 @@ Task.submitComplete = function(taskId, userId, callback){
         var updateEndTime_params = [now,VersionConstant.states.SUBMITTED,taskId,taskId,6];
         var updateTPS_params = [taskId,taskId,userId,now,taskId];
         var updateTPS2_params = [taskId,taskId,taskId,taskId,now];
-        var sqlMember = ["selectRevision",'selectDealer', 'updateTask', 'updateFileList','updateEndTime', 'updateTPS','updateTPS2','insertTestState'];
-        var sqlMember_params = [selectRevision_params,selectDealer_params, updateTask_params, updateFileList_params,updateEndTime_params, updateTPS_params,updateTPS2_params,insertTestState_params];
+        var sqlMember = ["selectRevision",'selectDealer', 'updateTask', 'updateFileList','updateEndTime', 'updateTPS'];
+        var sqlMember_params = [selectRevision_params,selectDealer_params, updateTask_params, updateFileList_params,updateEndTime_params, updateTPS_params];
         var i = 0;
-        var lastSql = "insertTestState";
+        var lastSql = "updateTPS";
         async.eachSeries(sqlMember, function (item, callback_async) {
             trans.query(sql[item], sqlMember_params[i++],function (err_async, result) {
                 if(item == 'selectRevision' &&(undefined==result || ''==result ||!result.length|| result[0].revision == null || result[0].revision == "" )){
@@ -2159,9 +2159,7 @@ Task.getDealer =function(params,callback) {
         });
     });
 }
-module.exports = Task;/**
- * Created by wangfeng on 2015/2/5.
- */
+module.exports = Task;
 /**
  * 将文件路径'\'转成'/'
  * @param str

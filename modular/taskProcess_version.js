@@ -7,6 +7,8 @@ var async = require('async');// 加载async 支持顺序执行
 var queues = require('mysql-queues');// 加载mysql-queues 支
 var TaskProcessSQL_v = require("./sqlStatement/taskProcessSQL_v");
 var taskProcess_version  = {};
+var TaskTestSQL = require("./sqlStatement/testStateSql");
+
 // 更新当前任务状态
 taskProcess_version.updateState= function(params,callback){
         pool.getConnection(function(err, connection) {
@@ -139,21 +141,17 @@ taskProcess_version.newTestProcess= function(params,callback){
         var trans = connection.startTransaction();
         var sql= {
             updateTask:  TaskProcessSQL_v.updateTaskProcessStep,
-            addTaskProcess : TaskProcessSQL_v.addTestProcess
+            addTaskProcess : TaskProcessSQL_v.addProcess_test,
+            insertTestState:TaskTestSQL.insertStateByTaskId
         }
         var updateTask_params = [params.processStepId,params.taskId];
-        var addTaskProcess_params =[params.taskId,params.processStepId,params.taskId,params.taskId,params.dealer];
-        if(params.processStepId == 4){
-            sql.addTaskProcess  = TaskProcessSQL_v.addProcess_planCheck;
-            addTaskProcess_params =[params.taskId,params.processStepId,params.taskId,params.taskId,params.taskId];
-        }
-        var sqlMember = ['updateTask','addTaskProcess'];
-        var sql_params = [updateTask_params, addTaskProcess_params];
+        var now = new Date().format("yyyy-MM-dd HH:mm:ss");
+        var addTaskProcess_params =[params.taskId,params.taskId,params.taskId,params.taskId,now];
+        var insertTestState_params = [params.taskId,0,params.taskId];//0:等待测试
+        var sqlMember = ['updateTask','addTaskProcess','insertTestState'];
+        var sql_params = [updateTask_params, addTaskProcess_params,insertTestState_params];
         var i= 0;
-        var lastSql = "addTaskProcess";
-        if(params.processStepId == 5 ){
-            lastSql="updateTask";
-        }
+        var lastSql = "insertTestState";
         async.eachSeries(sqlMember, function (item, callback_async) {
             //console.log(item + " ==> ",  sql[item]);
             trans.query(sql[item], sql_params[i],function (err_async, result) {

@@ -835,7 +835,12 @@ router.post('/submitComplete', function(req, res) {
     Task.submitComplete(taskId, userId, function(msg,result){
         if('success' == msg){
             jsonStr = '{"sucFlag":"success","message":"【上测试库完成】执行成功"}';
+            var params = {taskId:taskId,userId:userId,dealer:userId,processStepId:8}
+            ProcessStepAdmin.startProcess(params,function(msg_start,result_start){
+                console.log("startProcess testProcess:",msg_start);
+            })
             //判断其他变更单的文件占用情况并发邮件
+            //暂时关闭
             sendEmailToNext(req,taskId,'',7);
             findUnUsedTaskAndFileUri(taskId,req,function(fileLists){
 //                var tempTaskId = '';

@@ -36,7 +36,7 @@ function autoToDevReposity(params,callback){
                         }
                         creaters.forEach(function(creater){
                             //暂时关闭
-                            //setTimeout( Email.sendEmailToDealer_new(creater),"1000");
+                            setTimeout( Email.sendEmailToDealer_new(creater),"1000");
                         })
                     });
                 }
@@ -53,6 +53,10 @@ function  startAutoProcess(params,callback){
         default :callback("err");
     }
 }
+//开始测试环节
+function startTestProcess(params,callback){
+    TaskProcess_version.newTestProcess(params,callback);
+};
 var submitFileProcess = function(params,callback){
     //params.stateId = ReqConstant.stateId.APPLYED;
     params.processStepId = ProcessStep.SUBMITFILE ;
@@ -66,6 +70,7 @@ var testProcess = function(params,callback){
         if(msg=="success"){
             var newParams_next = params;
             newParams_next.processStepId = result;
+            //绿色通道:跳转至上发布库环节
             if(result == 12){
                 TaskProcess_version.isNeedToDevReposity(newParams_next,function(msg,resultLength){
                     if(msg=="success" && ( resultLength >0) ){//确保项目需要上发布库
@@ -85,7 +90,8 @@ var testProcess = function(params,callback){
                 });
             }
             else {
-                startProcess(newParams_next,callback);
+                //开始测试环节
+                startTestProcess(newParams_next,callback);
             }
         }
     });
@@ -151,11 +157,11 @@ var  submitFail  = function(params,callback){
             }
             result.forEach(function(item){
                 if(params.processStepId == 6){
-                    //setTimeout( Email.sendEmailToDealer_new(item),"1000");
+                    setTimeout( Email.sendEmailToDealer_new(item),"1000");
                 }
                 if(params.processStepId == 12){
                     item.processStepId = 11;
-                    //setTimeout( Email.sendEmailToDealer_new(item),"1000");
+                    setTimeout( Email.sendEmailToDealer_new(item),"1000");
                 }
             })
         });
@@ -304,7 +310,7 @@ function startProcess(params,callback){
         case 6:
             submitProcess(params ,callback);break;
         case 8:
-            testProcess(params ,callback);break;
+            testProcess(params ,callback);break;//测试环节
         case 12:
             submitToDevProcess(params ,callback);break;//上开发库环节
         case 13:

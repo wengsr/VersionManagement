@@ -146,6 +146,9 @@ function taskComplete(params){
             //sendEmailToNext(req,taskId,'',7);
             //sendEmailToCreaterSubmit(req, taskId, '', 7);
             console.log("submitComplete success!");
+            ProcessStepAdmin.startProcess(params,function(msg_start,result_start){
+                console.log("startProcess testProcess:",msg_start);
+            })
     }
     });
 }
