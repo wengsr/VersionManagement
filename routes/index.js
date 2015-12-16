@@ -226,7 +226,7 @@ var topBtnClick = function(res, req, btnName){
     if(req.session.user.isBoss){
         //return res.redirect('/leaderModel/leader');
         var cookieUser = req.cookies.user;
-        if(cookieUser){
+        if(cookieUser != undefined){
             req.session.user = cookieUser;
         }else{
             return res.redirect("/");

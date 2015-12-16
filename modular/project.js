@@ -27,12 +27,12 @@ Project.findProjectByUserId = function(currProjectId, userId, callback){
         var sql;
         var params;
         if(!currProjectId){
-            sql = 'SELECT * from project p WHERE p.projectId in (' +
+            sql = 'SELECT distinct * from project p WHERE p.projectId in (' +
                 '       select psd.projectId from processstepdealer psd ' +
-                '       where psd.userId=? and psd.processStepId=4) ORDER BY p.projectId';
+                '       where psd.userId=? and psd.processStepId in(4,6)) ORDER BY p.projectId';
             params = [userId];
         }else{
-            sql = 'SELECT * FROM' +
+            sql = 'SELECT distinct * FROM' +
                 '        (' +
                 '                SELECT *,1 as oNo from project p1 WHERE p1.projectId=?' +
                 '        UNION ALL' +
@@ -42,7 +42,7 @@ Project.findProjectByUserId = function(currProjectId, userId, callback){
                 '        p.projectId in' +
                 '        (' +
                 '            select psd.projectId from processstepdealer psd' +
-                '        where psd.userId=? and psd.processStepId=4' +
+                '        where psd.userId=? and psd.processStepId in(4,6)' +
                 '        ) ORDER BY p.projectId' +
                 '        )inTable' +
                 '        )outTable' +

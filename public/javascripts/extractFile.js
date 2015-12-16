@@ -382,6 +382,5 @@ jQuery(document).ready(function() {
     for (var i in dynEtraFileds) {
         dynInputFocus(dynEtraFileds[i])
     }
-
 });
 

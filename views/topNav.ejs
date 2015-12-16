@@ -132,7 +132,7 @@
                 <!--</button>-->
             </ul>
             <%}%>
-            <%if(user && user.isLeader){ %>
+            <%if(user && (user.isLeader||user.isAdmin)){ %>
                 <ul class="nav navbar-nav navbar-right">
                     <!--<button type="button" class="btn btn-default navbar-btn">-->
                         <!--<li class="dropdown"><a href="/leaderModel/leader">立即变身领导模式</a></li>-->
