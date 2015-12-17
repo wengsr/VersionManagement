@@ -306,7 +306,7 @@ TaskAtta.commitRar = function(attachmentId, callback){
 function  getFindChangeAttaSqlAndParams(params){
     var sqlParams = [];
     if(params.fileUriSeg =="XJ"||params.fileUriSeg =="YN"||params.fileUriSeg =="SC"){
-        sqlParams =[projectName[params.fileUriSeg],localFileSeg[params.filrUriSeg],params.startTime,params.endTime,params.startTime,params.endTime]
+        sqlParams =[projectName[params.fileUriSeg],localFileSeg[params.fileUriSeg],params.startTime,params.endTime,params.startTime,params.endTime]
     }
     if(params.fileUriSeg =="CORE"||params.fileUriSeg =="ALL"){
         sqlParams = [params.startTime,params.endTime];

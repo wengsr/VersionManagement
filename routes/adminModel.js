@@ -487,7 +487,7 @@ router.post('/exportLocalChangeAtta/', function(req, res) {
     var fileUriSeg = postParams.fileUriSeg;
     //var startDate = postParams.startDate.trim();
     //var endDate = postParams.endDate.trim();
-    console.log("postParams:",postParams.startDate == "")
+    //console.log("postParams:",postParams )
     var startDate = postParams.startDate.trim();
     var endDate = postParams.endDate.trim();
     if(startDate== undefined || startDate ==""){
@@ -500,7 +500,7 @@ router.post('/exportLocalChangeAtta/', function(req, res) {
         params.endTime = (new Date()).format(("yyyy-MM-dd HH:mm:ss")) ;
     }
     else {
-        params.endTime = endDate +" " + postParams.startTime;
+        params.endTime = endDate +" " + postParams.endTime;
     }
     params.fileUriSeg = fileUriSeg;
     Attachment.exportLocalChangeAtta(params, function (msg,attachements) {
