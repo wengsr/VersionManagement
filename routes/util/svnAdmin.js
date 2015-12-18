@@ -15,6 +15,7 @@ var OLD_FOLDER = './old';                       //系统自动提取的文件存
 var NEW_OLD_FOLDER = './attachment/newAndOld';  //开发人员上传的新旧附件
 var User = require("../../modular/user");
 var TaskProcess_version =  require("../../modular/taskProcess_version");
+var ProcessStepAdmin = require("./processStepAdmin");
 //测试路径
 //var OLD_FOLDER = 'd:\\VersionManagement\\bin\\old';                       //系统自动提取的文件存放路径
 //var NEW_OLD_FOLDER = 'd:\\VersionManagement\\bin\\attachment/newAndOld';  //开发人员上传的新旧附件
@@ -146,6 +147,7 @@ function taskComplete(params){
             //sendEmailToNext(req,taskId,'',7);
             //sendEmailToCreaterSubmit(req, taskId, '', 7);
             console.log("submitComplete success!");
+            params.processStepId = 8;
             ProcessStepAdmin.startProcess(params,function(msg_start,result_start){
                 console.log("startProcess testProcess:",msg_start);
             })
@@ -395,3 +397,4 @@ svnAdmin.commitToSvn = function(params,callback){
 }
 
 module.exports = svnAdmin;
+
