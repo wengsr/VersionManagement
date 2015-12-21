@@ -133,11 +133,11 @@ TaskTest.doTestUnPass = function(taskId, userId, noPassReason,noPassType, callba
         var i = 0;
         var lastSql = "upateTestState";
         if(noPassReason!=""){
-            sql.insertReason = "insert into taskprocessreason(taskid,processStepId,reason,type) values(?,?,?,?) ";
-            sqlMember.push("insertReason");
-            var insertReason_params = [taskId,8,noPassReason,noPassType];
-            sqlMember_params.push(insertReason_params);
-            lastSql = "insertReason";
+            sql.insertReason2 = "insert into taskprocessreason(taskid,processStepId,reason,type) values(?,?,?,?) ";
+            sqlMember.push("insertReason2");
+            var insertReason2_params = [taskId,8,noPassReason,noPassType];
+            sqlMember_params.push(insertReason2_params);
+            lastSql = "insertReason2";
         }
         async.eachSeries(sqlMember, function (item, callback_async) {
             trans.query(sql[item], sqlMember_params[i++], function (err_async, result) {
