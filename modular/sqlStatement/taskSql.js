@@ -141,6 +141,34 @@ var TaskSql = function(){
     var findTaskHistory_params = "[taskId]";
     this.updateReqId = "update tasks set reqId = (select reqId  from requirement where reqCode = ?) where taskId= ?";
     var updateReqParams = "[reqCode,taskId]"
+    this.findNeedToCommitDevReposity = "SELECT * from (" +
+    "   SELECT *  FROM" +
+    "   (SELECT  DISTINCT t.taskid, ? provice,t.processStepId ,t.state,t.taskCode,t.taskName, u.realName creater ,tps.execTime ,tps.turnNum  FROM tasks t join filelist fl on fl.fileUri like ?" +
+    "   and fl.taskId =t.taskId" +
+    "   join  taskprocessstep tps on tps.taskId = t.taskId And  tps.processStepId = 8" +
+    "   JOIN user u on t.creater = u.userId" +
+    "   and tps.execTime BETWEEN ? " +
+    "   AND ? " +
+    "   ) localTable" +
+    "   Union(	select  t.taskid,'核心' provice,t.processStepId ,t.state,t.taskCode,t.taskName, u.realName creater,tps.execTime ,tps.turnNum" +
+    "   FROM tasks t JOIN (" +
+    "   SELECT DISTINCT   taskId  FROM" +
+    "   fileList  WHERE   taskId NOT IN (" +
+    "   SELECT DISTINCT taskId" +
+    "   FROM  `filelist`" +
+    "   WHERE  fileUri LIKE '/trunk/local/%'" +
+    "   ) and fileUri like '/trunk%'" +
+    "   ) coreTasks" +
+    "   ON t.taskId = coreTasks.taskId" +
+    "   JOIN taskprocessstep tps ON t.taskId = tps.taskid" +
+    "   AND tps.processStepId = 8" +
+    "   and tps.execTime BETWEEN ? " +
+    "   AND ?" +
+    "   JOIN user u on t.creater = u.userId" +
+    "   )" +
+    "  )totalTable" +
+    "   where processstepId > 6 and processstepId < 13";
+    var findNeedToCommitDevReposity_params = "[projectName,fileUriSeg,startTime,endTime,startTime,endTime]";
 }
 
 module.exports = TaskSql;

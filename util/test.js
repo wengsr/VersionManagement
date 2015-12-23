@@ -104,10 +104,17 @@ function getFilesUri(str){
     }
     return str;
 }
-var modFiles = "trunk/web/ReceiptWeb/src/main/java/com/al/crm/receipt/cash/view/cashBill.js" +
-    "\n /trunk/web/ReceiptWeb/src/main/java/com/al/crm/receipt/cash/view/selectAccNbr.js" +
-    "   \n/trunk/web/ReceiptWeb/src/main/java/com/al/crm/receipt/cash/view/printSetting.js" +
-    "   \n/trunk/web/ReceiptWeb/src/main/java/com/al/crm/receipt/cash/view/payAfter.js" +
-    "   \n /trunk/web/ReceiptWeb/src/main/java/com/al/crm/receipt/cash/view/feeInfoManage.js"
-modFiles =getFilesUri(modFiles);
-console.log(modFiles);
+//var modFiles = "trunk/web/ReceiptWeb/src/main/java/com/al/crm/receipt/cash/view/cashBill.js" +
+//    "\n /trunk/web/ReceiptWeb/src/main/java/com/al/crm/receipt/cash/view/selectAccNbr.js" +
+//    "   \n/trunk/web/ReceiptWeb/src/main/java/com/al/crm/receipt/cash/view/printSetting.js" +
+//    "   \n/trunk/web/ReceiptWeb/src/main/java/com/al/crm/receipt/cash/view/payAfter.js" +
+//    "   \n /trunk/web/ReceiptWeb/src/main/java/com/al/crm/receipt/cash/view/feeInfoManage.js"
+//modFiles =getFilesUri(modFiles);
+var modFiles = "";
+var files =[""];
+//console.log(modFiles.split("/n"))
+//modFiles = files.concat(modFiles.split("/n"))
+var testtest ;
+var data = "提交后的版本为 48475。"
+var newRevision = data.substring(data.indexOf("提交后的版本为 ")+8,data.length-1)
+console.log("newRevision:",newRevision);

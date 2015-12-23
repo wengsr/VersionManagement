@@ -1,4 +1,6 @@
 <!--指定每个步骤处理人员-->
+<link rel="stylesheet" type="text/css" href="/stylesheets/bootstrap-clockpicker.min.css">
+<link rel="stylesheet" href="/stylesheets/bootstrap-datetimepicker.min.css">
 <div style="margin-top: 100px;"></div>
 <!--管理员列表-->
 <div id="proAdmin" class="container-fluid">
@@ -188,7 +190,51 @@
     </div>
 </div>
 
+<!--添加绿色通道人员-->
+<div id="proGreenPass" class="container-fluid">
+    <div class="panel panel-default">
+        <div class="panel-heading">绿色通道人员&emsp;&emsp;&emsp;&emsp;<a id="newAddGreenPass" href="#"><span class="glyphicon glyphicon-plus"/>添加人员</a></div>
+        <div class="panel-body table-responsive">
+            <%if(userInfo.greenPassers){var count = -1;var greenPassers = userInfo.greenPassers;%>
+            <form action="/leaderModel/delGreenPasser/<%=projects[0].projectId%>" id="formDelGreenPass" class=" bs-component form-Vertical" method='post'>
+                <input type="hidden" id="delGreenPasserId" name="delGreenPasserId"/>
+                <%greenPassers.forEach(function(passer,i){%>
+                <%if(passer){ count++;%>
+                &emsp;
+                <!-- 绿色通道人员名单按钮 -->
 
+                <div typeId="proGreenPassBtn" style="display:inline-block;margin-bottom:20px;margin-right: 15px;">
+                    <button type="button" class="btn btn-primary" typeId="proGreenPassBtn1"><%=passer.realName%>&nbsp;</button>
+                    <button type="button" class="btn btn-default" ><%=passer.endTime%>&nbsp;</button>
+                    <button typeId="xxGreenPass" type="button" class="am-close am-close-spin am-icon-times" data-toggle="modal" data-target="#proGreenPass<%=passer.userId%>"></button>
+                </div>
+
+                <!--管理人员名按钮对应的弹出删除对话框-->
+                <div id="proGreenPass<%=passer.userId%>" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-sm">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="myModalLabel" style="color: #ffffff">删除确定</h4>
+                            </div>
+                            <div class="modal-body">
+                                确定删除：【<%=passer.realName%>】绿色通道的权限？？
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                <button id="btnDelGreenPass" type="button" userId="<%=passer.userId%>" greenPassId="<%=passer.id%>" class="btn btn-primary">确定</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <%}%>
+                <%});%>
+            </form>
+            <%}%>
+        </div>
+        <div id="" class="panel-footer" recCount=""></div>
+    </div>
+</div>
 <!--添加管理员对话框-->
 <div id="divAddProAdminDialog" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -224,13 +270,20 @@
         </div>
     </div>
 </div>
-
+<!--添加人员绿色通道对话框-->
+<div id="divAddGreenPassDialog" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" id="divModel">
+            <%include addGreenPass.ejs%>
+        </div>
+    </div>
+</div>
 <script src="/javascripts/index_leader_userCtrl.js"></script>
+<script type="text/javascript" src="/javascripts/bootstrap-clockpicker.min.js"></script>
+<script type="text/javascript" src="/javascripts/bootstrap-datetimepicker.min.js"></script>
 <script>
-
     $ ("[id=btnDelProAdmin]").each (function ()
     {
-        //console.info($(this).attr('userid'));
         $(this).click(function(){
             $('#delAdminId').val($(this).attr('userid'));
             $('#formDelAdmin').submit();
@@ -263,7 +316,32 @@
             $('#formDelBoss').submit();
         })
     });
-
+    $ ("[id=btnDelProBoss]").each (function ()
+    {
+        //console.info($(this).attr('userid'));
+//        console.log("i am $().function")
+        $(this).click(function(){
+            $('#delBossId').val($(this).attr('userid'));
+            $('#formDelBoss').submit();
+        })
+    });
+    $ ("[id=btnDelGreenPass]").each (function ()
+    {
+        //console.info($(this).attr('userid'));
+        $(this).click(function(){
+            $('#delGreenPasserId').val($(this).attr('greenPassId'));
+            $('#formDelGreenPass').submit();
+        })
+    });
+    $( "#startDate").datetimepicker({format:"yyyy-mm-dd",
+        autoclose:true,
+        minView:3,
+        pickerPosition:"top-right"});
+    $( "#endDate" ).datetimepicker({format:"yyyy-mm-dd",
+        autoclose:true,
+        minView:3,
+        pickerPosition:"top-right"});
+    $('.clockpicker').clockpicker();
     $('div[typeId=proAdminBtn]').each (function(){
         var thisBtn = $(this);
         thisBtn.mouseover(function(){
@@ -306,6 +384,16 @@
             thisBtn.find('[typeId=xxBoss]').hide();
         });
         thisBtn.find('[typeId=xxBoss]').hide();
+    });
+    $('div[typeId=proGreenPassBtn]').each (function(){
+        var thisBtn = $(this);
+        thisBtn.mouseover(function(){
+            thisBtn.find('[typeId=xxGreenPass]').show();
+        });
+        thisBtn.mouseleave(function(){
+            thisBtn.find('[typeId=xxGreenPass]').hide();
+        });
+        thisBtn.find('[typeId=xxGreenPass]').hide();
     });
 
 </script>

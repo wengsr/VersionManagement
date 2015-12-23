@@ -8,7 +8,33 @@ var LeaderModel = require('../modular/leaderModel');
 var Project = require('../modular/project');
 var url = require('url');
 
+/**
+ * 日期格式化 yyyy-MM—dd HH-mm-ss
+ * @param format
+ * @returns {*}
+ */
+Date.prototype.format = function(format){
+    var o = {
+        "M+" : this.getMonth()+1, //month
+        "d+" : this.getDate(), //day
+        "H+" : this.getHours(), //hour
+        "m+" : this.getMinutes(), //minute
+        "s+" : this.getSeconds(), //second
+        "q+" : Math.floor((this.getMonth()+3)/3), //quarter
+        "S" : this.getMilliseconds() //millisecond
+    }
 
+    if(/(y+)/.test(format)) {
+        format = format.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length));
+    }
+
+    for(var k in o) {
+        if(new RegExp("("+ k +")").test(format)) {
+            format = format.replace(RegExp.$1, RegExp.$1.length==1 ? o[k] : ("00"+ o[k]).substr((""+ o[k]).length));
+        }
+    }
+    return format;
+}
 /**
  * 统计文件清单数
  * @param firstProjectId
@@ -178,6 +204,29 @@ var findAllBoss = function(currProjectId, req, res, callback){
         if(msg!='success'){
             req.session.error = "查找项目所有boss时发生错误,请记录并联系管理员";
             return res.redirect("/");
+        }
+        callback(result);
+    });
+}
+
+/**
+ * 找出项目的项目需要的人员信息
+ * @param currProjectId
+ * @param req
+ * @param res
+ * @param callback
+ */
+var findUserCtrlInfos = function(currProjectId, req, res, callback){
+    var projectId = currProjectId;
+    LeaderModel.findUserCtrlInfos(projectId, function(msg,result){
+        if(msg!='success'){
+            req.session.error = "查找项目所有boss时发生错误,请记录并联系管理员";
+            return res.redirect("/");
+        }
+        if(result.greenPassers.length>0){
+            result.greenPassers.forEach(function(item,j){
+                item.endTime = item.endTime.format("yyyy-MM-dd HH:mm:ss");
+            });
         }
         callback(result);
     });
@@ -421,19 +470,22 @@ var showLeaderPage_userCtrl = function(currProjectId, req, res, whichPage){
                 findProAllUser_disp(currProjectId, req, res, function(proAllUser_disp){//
                     findAllUser_disp(req, res, function(allUser_disp){//
                         findAllBoss(currProjectId, req,res,function(allBoss){
-                            res.render('index_leader',{
-                                title:"领导管理模式",
-                                projects:projects,                  //当前用户的所有项目
-                                fileListCount:null,                 //文件清单统计数
-                                taskCount:null,                     //变更单统计数
-                                createrTaskCount:null,              //开发人员发起的变更单数
-                                whichPage:whichPage,                //显示哪一个页面
-                                eachStepDealers:eachStepDealers,    //每个步骤的处理人
-                                proAllUser:proAllUser,              //项目所有参与人
-                                proAllUser_disp:proAllUser_disp,    //项目所有参与人（输入框显示用）
-                                allUser_disp:allUser_disp,          //系统中所有用户(输入框显示用)
-                                allBoss: allBoss
-                            });
+                            findUserCtrlInfos(currProjectId, req,res,function(userInfo){
+                                res.render('index_leader',{
+                                    title:"领导管理模式",
+                                    projects:projects,                  //当前用户的所有项目
+                                    fileListCount:null,                 //文件清单统计数
+                                    taskCount:null,                     //变更单统计数
+                                    createrTaskCount:null,              //开发人员发起的变更单数
+                                    whichPage:whichPage,                //显示哪一个页面
+                                    eachStepDealers:eachStepDealers,    //每个步骤的处理人
+                                    proAllUser:proAllUser,              //项目所有参与人
+                                    proAllUser_disp:proAllUser_disp,    //项目所有参与人（输入框显示用）
+                                    allUser_disp:allUser_disp,          //系统中所有用户(输入框显示用)
+                                    allBoss: allBoss,
+                                    userInfo:userInfo
+                                });
+                            })
                         })
 
                     });
@@ -580,6 +632,20 @@ router.post('/addBoss/:projectId', function(req, res) {
     });
 });
 
+/**
+ * 添加绿色通道
+ */
+router.post('/addGreenPass/:projectId', function(req, res) {
+    var userName = req.body["checkGreenPass"];//即将被添加的走查人员用户名
+    var curProjectId = req.params.projectId;//当前页面所统计的项目id
+    var timeParams = getTimeParams(req.body);
+    var params = {userName:userName,startTime:timeParams.startTime,endTime:timeParams.endTime,
+        projectId:curProjectId}
+    addGreenPass(params, req,res,function(allUser_disp){
+        showLeaderPage_userCtrl(curProjectId, req, res, "userCtrlPage");
+    });
+});
+
 
 /**
  * 删除管理员
@@ -624,6 +690,71 @@ router.post('/delCheck/:projectId', function(req, res) {
         showLeaderPage_userCtrl(currProjectId, req, res, "userCtrlPage");
     });
 });
+/**
+ * 删除绿色通道权限
+ */
+router.post('/delGreenPasser/:projectId', function(req, res) {
+    //var userId = req.body["delGreenPassId"];//即将被删除的走查人员的Id
+    var id = req.body["delGreenPasserId"];//即将被删除的绿色通道的Id
+    var params = {id:id};
+    var curProjectId = req.params.projectId;
+    delGreenPass(params, req, res, function(allUser_disp){
+        showLeaderPage_userCtrl(curProjectId, req, res, "userCtrlPage");
+    });
+});
 
-
+function getTimeParams(params){
+   for(var item in params){
+        item = item.trim();
+    }
+    console.log(params);
+    var startTime = new Date().format("yyyy-MM-dd HH:mm:ss");
+    var now  =new  Date();
+    now.setDate(new Date().getDate()+1)  ;
+    var endTime = now.format("yyyy-MM-dd HH:mm:ss");
+    if(params.startDate!=""){
+        params.startTime  = params.startDate +" "+ params.startTime;
+        startTime = params.startTime;
+    }
+    if(params.endDate!=""){
+        params.endTime  = params.endDate  +" "+params.endTime;
+        endTime = params.endTime;
+    }else{
+        var anotherDay =new Date(startTime);
+        anotherDay.setDate(anotherDay.getDate()+1);
+        endTime = anotherDay.format("yyyy-MM-dd HH:mm:ss")
+    }
+    console.log("startTime:",startTime);
+    console.log("endTime:",endTime);
+    return {startTime:startTime,endTime:endTime}
+}
+/**
+ * 添加绿色通道人员
+ * @param params：{projectId，startTime，endTime，userName}
+ * @param callback
+ */
+function addGreenPass(params,req,res,callback){
+    LeaderModel.addGreenPass(params, function(msg,result){
+        if(msg!='success'){
+            req.session.error = "添加项目管理员时发生错误【"+result+"】，请记录并联系管理员";
+            return res.redirect("/");
+        }
+        callback(result);
+    });
+}
+/**
+ * 删除绿色通道人员
+ * @param params：{projectId，startTime，endTime，userName}
+ * @param callback
+ */
+function delGreenPass(params,req,res,callback){
+    LeaderModel.delGreenPass(params, function(msg,result){
+        if(msg!='success'){
+            req.session.error = "添加项目管理员时发生错误【"+result+"】，请记录并联系管理员";
+            return res.redirect("/");
+        }
+        callback(result);
+    });
+}
 module.exports = router;
+

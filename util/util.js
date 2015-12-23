@@ -88,7 +88,7 @@ exports.getDaoResultToObject = function(daoResult,daoColumn){
         for(var i = 0;i<length;i++){
             newObj[daoResult[i][daoColumn]] =daoResult[i];
         }
-        console.log("newObj:",newObj);
+        //console.log("newObj:",newObj);
         return newObj;
     }
 }

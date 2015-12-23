@@ -66,7 +66,10 @@ jQuery(document).ready(function() {
             backdrop:false
         });
     });
-
-
-
+     //绿色通道权限
+    $('#newAddGreenPass').click(function(){
+        $('#divAddGreenPassDialog').modal({
+            backdrop:false
+        });
+    });
 });

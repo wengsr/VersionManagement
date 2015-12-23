@@ -425,6 +425,7 @@ var msg = "test";
 //        console.log("autoUpload success!")
 //    }
 //});
+//var versionDir = "http://crmsvn.asiainfo.org:8001/svn/hxbss/NCRM/baseLine/Source";
 //var versionDir = "http://192.168.1.22:8000/svn/hxbss/testVersion/a";
 //var svn = new Svn({username:"zhanglj6",password:"zhanglj72774"})
 //svn.checkout(localDir,versionDir,["","2015-81"],function(msg){

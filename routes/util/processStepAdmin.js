@@ -363,15 +363,15 @@ function endProcess(params,callback){
 var ProcessAdm ={
     startProcess:startProcess,
     endCurProcess: endProcess
-    }
+    };
 module.exports = ProcessAdm;
 
-var newParams = {userId:1,dealer:1,taskId:156,taskCode:"crm某某工程1_20151108_070",taskName:"NCRM开发变更单-HX-20151106-4G界面样式的调整-zhengqj3-001"}
-newParams.processStepId = 12;
-newParams.dealer = 1;//系统用户:system
-//newParams.svnLocationID = 2;//上测试库
-var i= 0;
-var params = {taskId:166,userId:1,processStepId:8,dealer:1};
+//var newParams = {userId:1,dealer:1,taskId:156,taskCode:"crm某某工程1_20151108_070",taskName:"NCRM开发变更单-HX-20151106-4G界面样式的调整-zhengqj3-001"}
+//newParams.processStepId = 12;
+//newParams.dealer = 1;//系统用户:system
+////newParams.svnLocationID = 2;//上测试库
+//var i= 0;
+//var params = {taskId:166,userId:1,processStepId:8,dealer:1};
 //testProcess(params,function(msg,result){
 //    console.log("testProcess:rrrrrrr",msg);
 //    console.log("testProcess:rrrrrrrrrrr",result);

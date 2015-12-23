@@ -4,8 +4,7 @@
 var pool = require('../util/connPool.js').getPool();
 var async = require('async');// 加载async 支持顺序执行
 var queues = require('mysql-queues');// 加载mysql-queues 支持事务
-
-
+var GreenPassSql = require("./sqlStatement/greenPassSql");
 function LeaderModel(leaderModel){
 //    this.inChange = leaderModel.inChange;     //变更中
 //    this.unChange = leaderModel.unChange;     //待占用
@@ -16,8 +15,6 @@ function LeaderModel(leaderModel){
     this.unChange = leaderModel.unChange;   //等待变更
     this.inChange = leaderModel.inChange;   //变更中
     this.commited = leaderModel.commited;   //已上库
-
-
 
     this.state = leaderModel.state;
     this.stateCount = leaderModel.stateCount;
@@ -223,6 +220,29 @@ LeaderModel.findAllBoss = function(projectId,callback){
         });
     });
 }
+/**
+ * 查找项目的用户信息(绿色通道)
+ * @param projectId
+ * @param callback
+ */
+LeaderModel.findUserCtrlInfos = function(projectId,callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN LEADERMODEL ERROR] - ', err.message);
+            return callback(err);
+        }
+        var sql = GreenPassSql.findProGreenPassers;
+        var params = [projectId];
+        connection.query(sql, params, function (err, result) {
+            if (err) {
+                console.log('[QUERY LEADERMODEL ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            connection.release();
+            callback('success',{greenPassers:result});
+        });
+    });
+}
 
 
 
@@ -414,6 +434,49 @@ LeaderModel.addBoss = function(userName, projectId, callback){
         connection.release();
     });
 }
+/**
+ * 添加项目领导
+ * @param callback
+ */
+LeaderModel.addGreenPass = function(params, callback){
+    pool.getConnection(function (err, connection) {
+        //开启事务
+        queues(connection);
+        var trans = connection.startTransaction();
+        var sql= {
+            isExist:GreenPassSql.isExist,
+            addGreenPassToProject:GreenPassSql.addGreenPass
+        }
+        var isExist_params = [params.userName,params.projectId,params.startTime,params.endTime];
+        var addGreenPassToProject_params = [params.userName,params.projectId,params.startTime,params.endTime];
+        var sqlMember = ['isExist','addGreenPassToProject'];
+        var sqlMember_params = [isExist_params,addGreenPassToProject_params];
+        var i = 0;
+        var lastSql = "addGreenPassToProject";
+        async.eachSeries(sqlMember, function (item, callback_async) {
+            trans.query(sql[item], sqlMember_params[i++],function (err_async, result) {
+                if(item == 'isExist' && undefined!=result && ''!=result && null!=result){
+                    //判断该用户是否已经有管理员权限
+                    console.log(err_async);
+                    console.log(result)
+                    trans.rollback();
+                    return callback('err','该用户已经绿色通道的权限，请勿重复添加');
+                }
+                if(err_async){
+                    trans.rollback();
+                    return callback('err',err_async);
+                }
+                if(item == lastSql && !err_async){//最后一条sql语句执行没有错就返回成功
+                    trans.commit();
+                    return callback('success');
+                }
+                callback_async(err_async, result);
+            });
+        });
+        trans.execute();//提交事务
+        connection.release();
+    });
+}
 
 /**
  * 添加项目参与者
@@ -578,13 +641,14 @@ LeaderModel.delProCheck = function(userId, projectId, callback){
         });
     });
 }
+
 /**
- * 删除领导
+ * 删除绿色通道人员
  * @param userName
  * @param projectId
  * @param callback
  */
-LeaderModel.delBoss = function(userId, projectId, callback){
+LeaderModel.delGreenPass = function(params, callback){
     pool.getConnection(function(err, connection){
         //开启事务
         queues(connection);
@@ -594,24 +658,20 @@ LeaderModel.delBoss = function(userId, projectId, callback){
             return callback(err);
         }
         var sql = {
-            deleteBoss:'delete from bossToProject' +
-                '        where userId=?' +
-            '        and  projectId=?',
-           deletePermission:"update user u set permissionId = '' where  u.userId = ? and u.userId not in (" +
-                " select btp.userId from bossToProject btp)"
+            deleteGreenPass:GreenPassSql.delGreenPass
         };
-        var deleteBoss_params = [userId,projectId];
-        var deletePermission_params = [userId];
-        var sqlMember = ['deleteBoss', 'deletePermission'];
-        var sqlMember_params = [deleteBoss_params, deletePermission_params];
+        var deleteGreenPass_params = [params.id];
+        var sqlMember = ['deleteGreenPass'];
+        var sqlMember_params = [deleteGreenPass_params];
         var i = 0;
+        var lastSql = "deleteGreenPass";
         async.eachSeries(sqlMember, function (item, callback_async) {
             trans.query(sql[item], sqlMember_params[i++],function (err_async, result) {
                 if(err_async){
                     trans.rollback();
                     return callback('err',err_async);
                 }
-                if(item == 'deletePermission' && !err_async){//最后一条sql语句执行没有错就返回成功
+                if(item == lastSql && !err_async){//最后一条sql语句执行没有错就返回成功
                     trans.commit();
                     return callback('success');
                 }
@@ -622,6 +682,5 @@ LeaderModel.delBoss = function(userId, projectId, callback){
         connection.release();
     });
 }
-
 
 module.exports = LeaderModel;
