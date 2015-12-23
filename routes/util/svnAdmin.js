@@ -259,7 +259,7 @@ var commitToTestRepository = function(params,callback){
                                             if(isSuc!='success'){
                                                 return callback( "err", errMsg);//状态修改为“自动上库成功”时出错
                                             }
-                                            taskComplete({taskId:taskId,userId:235});
+                                            //taskComplete({taskId:taskId,userId:235});
                                             return callback(  "success", "自动上库成功,请上SVN库确认无误后点击【上库完成】");
                                         });
                                     }
@@ -288,7 +288,7 @@ var commitToTestRepository = function(params,callback){
                 if(isSuc!='success'){
                     return callback( "err", errMsg);//状态修改为“自动上库成功”时出错
                 }
-                taskComplete({taskId:taskId,userId:235});
+                //taskComplete({taskId:taskId,userId:235});
                 return callback(  "success", "没有文件需要上库,请上SVN库确认无误后点击【上库完成】");
             });
         }
@@ -388,7 +388,7 @@ function commitToFinalRepository(params,callback){
  */
 svnAdmin.commitToSvn = function(params,callback){
     var svnLocationID = params.svnLocationID;
-    //return callback("success","测试成功");
+    //return callback("err","测试成功");
     switch(svnLocationID){
         case 2:commitToTestRepository(params,callback);break;
         case 3:commitToFinalRepository(params,callback);break;

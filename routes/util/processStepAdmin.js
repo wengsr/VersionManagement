@@ -9,6 +9,35 @@ var ProcessStep = require("../../util/versionConstant").processStep;
 var SvnAdmin = require("./svnAdmin");
 var Task = require("../../modular/task");
 var States =  require("../../util/versionConstant").states;
+/**
+ * 自动上库成功后，修改变更单状态为【自动上库成功】
+ * @param req
+ * @param taskId
+ * @param callback
+ */
+function autoComp( taskId,revision, callback){
+    Task.autoComp(taskId,revision, function(msg,resu){
+        if('success'!=msg){
+            return callback("err", "修改变更单状态为【自动上测试库成功】时出错,请联系管理员! 错误信息：" + resu);
+        }
+        callback("success", null);
+    });
+}
+//结束上测试库流程开始测试库流程
+function taskComplete(params){
+    Task.submitComplete(params.taskId, params.userId, function(msg,result){
+        if('success' == msg) {
+            //判断其他变更单的文件占用情况并发邮件
+            //sendEmailToNext(req,taskId,'',7);
+            //sendEmailToCreaterSubmit(req, taskId, '', 7);
+            console.log("submitComplete success!");
+            params.processStepId = 8;
+            startProcess(params,function(msg_start,result_start){
+                console.log("startProcess testProcess:",msg_start);
+            })
+        }
+    });
+}
 function autoToDevReposity(params,callback){
     var newParams = params;
     newParams.processStepId = 12;
@@ -112,6 +141,7 @@ var  submitProcess  = function(params,callback){
                 }
                 /*上测试库成功，进入测试环节*/
                 else{
+                    taskComplete({taskId:newParams.taskId,userId:235});
                     //给变更单的创建者发送邮件
                     TaskProcess_version.findCreaterAndTaskInfo(params,function(msg_get,creaters){
                         if(msg_get =="err"){
