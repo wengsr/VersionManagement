@@ -17,7 +17,7 @@ var getCookieUser = function(req, res){
         if(cookieUser){
             req.session.user = cookieUser;
         }
-        if(!req.session.user || 'undefined'==req.session.user){
+        if(!req.session.user || undefined ==req.session.user){
             return res.redirect("/");
         }
 }
@@ -43,7 +43,7 @@ var isSearchCondsExits= function(req, res){
     if(searchConds){
         return true;
     }
-    if(!searchConds || 'undefined'==searchConds){
+    if(!searchConds || undefined==searchConds){
         return res.redirect("/");
     }
 }
