@@ -19,8 +19,8 @@ var TaskSql = function(){
     this.findFiles = "select t.taskCode ,fl.fileUri  from tasks t join filelist  fl " +
     "   on t.taskid = ? and t.taskid = fl.taskid and fl.state = 0 "
     var findFiles_params = "[taskId]";
-    this.hasGreenPass  = "SELECT * from greenPass  where userId = ? and ?  BETWEEN startTime and endTime";
-    var hasGreenPass_params = "[userId]";
+    this.hasGreenPass  = "SELECT * from greenPass  where userId = (SELECT creater from tasks where taskId = ?)  and ?  BETWEEN startTime and endTime";
+    var hasGreenPass_params = "[taskId]";
     this.addGreenTaskSql = "insert into greenpasstask(taskId,userId,execTime) values(?,?,?)";
     var addGreenTaskSql = "[taskId,userId,execTime]";
     this.getTaskDealer = "SELECT * FROM tasks t JOIN" +

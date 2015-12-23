@@ -15,7 +15,7 @@ var OLD_FOLDER = './old';                       //系统自动提取的文件存
 var NEW_OLD_FOLDER = './attachment/newAndOld';  //开发人员上传的新旧附件
 var User = require("../../modular/user");
 var TaskProcess_version =  require("../../modular/taskProcess_version");
-var ProcessStepAdmin = require("./processStepAdmin");
+//var ProcessStepAdmin = require("./processStepAdmin");
 //测试路径
 //var OLD_FOLDER = 'd:\\VersionManagement\\bin\\old';                       //系统自动提取的文件存放路径
 //var NEW_OLD_FOLDER = 'd:\\VersionManagement\\bin\\attachment/newAndOld';  //开发人员上传的新旧附件
@@ -140,20 +140,20 @@ svnAdmin.getAllResivion  = function(params,callback){
     })
 }
 
-function taskComplete(params){
-    Task.submitComplete(params.taskId, params.userId, function(msg,result){
-        if('success' == msg) {
-            //判断其他变更单的文件占用情况并发邮件
-            //sendEmailToNext(req,taskId,'',7);
-            //sendEmailToCreaterSubmit(req, taskId, '', 7);
-            console.log("submitComplete success!");
-            params.processStepId = 8;
-            ProcessStepAdmin.startProcess(params,function(msg_start,result_start){
-                console.log("startProcess testProcess:",msg_start);
-            })
-    }
-    });
-}
+//function taskComplete(params){
+//    Task.submitComplete(params.taskId, params.userId, function(msg,result){
+//        if('success' == msg) {
+//            //判断其他变更单的文件占用情况并发邮件
+//            //sendEmailToNext(req,taskId,'',7);
+//            //sendEmailToCreaterSubmit(req, taskId, '', 7);
+//            console.log("submitComplete success!");
+//            params.processStepId = 8;
+//            ProcessStepAdmin.startProcess(params,function(msg_start,result_start){
+//                console.log("startProcess testProcess:",msg_start);
+//            })
+//    }
+//    });
+//}
 /**
  * 上测试库
  * @param req
@@ -388,7 +388,7 @@ function commitToFinalRepository(params,callback){
  */
 svnAdmin.commitToSvn = function(params,callback){
     var svnLocationID = params.svnLocationID;
-    //return callback("err","测试成功");
+    //return callback("success","测试成功");
     switch(svnLocationID){
         case 2:commitToTestRepository(params,callback);break;
         case 3:commitToFinalRepository(params,callback);break;

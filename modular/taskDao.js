@@ -1163,7 +1163,7 @@ exports.hasGreenPass = function(params,callback){
         else{
             var sql = TaskSql.hasGreenPass;
             var now  = (new Date()).format("yyyy-MM-dd HH:mm:ss");
-            var sql_params = [params.userId,now];
+            var sql_params = [params.taskId,now];
             connection.query(sql,sql_params,function(err,result){
                 if(err){
                     console.error("SEARCHTASKFILES ERR!!!",err);
