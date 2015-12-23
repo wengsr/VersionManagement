@@ -1,0 +1,102 @@
+<form action="/leaderModel/addGreenPass/<%=projects[0].projectId%>" id="formAddProGreenPass" class=" bs-component form-horizontal" method='post'>
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="myLargeModalLabel"><span style="color: #ffffff">添加绿色通道人员</span></h4>
+    </div>
+    <div  class="modal-body">
+        <div class="container-fluid">
+            <div class="row">
+                <!--<div class="col-lg-1"></div>-->
+                <div class="col-lg-11">
+                    <div class="form-group">
+                        <label for="inputTaskList" class="col-sm-2 control-label">人员</label>
+                        <div class="col-sm-10">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="checkGreenPass" name="checkGreenPass" placeholder="输入人员账号或姓名">
+                                <div class="input-group-btn">
+                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul id="selectUl" class="dropdown-menu dropdown-menu-right" role="menu">
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="beginDate" class="col-sm-2 control-label">开始时间</label>
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control" name="startDate" id="startDate" style="">
+                        </div>
+                        <div class="input-group clockpicker col-sm-2"  data-placement="top" data-align="top" data-autoclose="true">
+                            <input type="text" class="form-control" id ="startTime" name="startTime" value="09:00">
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-time"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="endDate" class="col-sm-2 control-label">结束时间</label>
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control" name="endDate" id="endDate" >
+                        </div>
+                        <div class="input-group clockpicker col-sm-2"   data-placement="top" data-align="top" data-autoclose="true">
+                            <input type="text" class="form-control" id ="endTime" name ="endTime" value="24:00">
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-time"></span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div >
+            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            <button id="btnSubmitProGreenPass" type="button" class="btn btn-primary" data-dismiss="modal">确定添加</button>
+        </div>
+    </div>
+</form>
+
+
+
+<!--<script src="http://libs.baidu.com/jquery/1.10.2/jquery.min.js"></script>-->
+<!--<script src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>-->
+<!--<script src="/javascripts/jquery.min.js"></script>-->
+<!--<script src="/javascripts/bootstrap.min.js"></script>-->
+<!--<script src="/javascripts/bootstrap-suggest.js"></script>-->
+
+<script>
+    <!--var ejsData_addProCheck;&lt;!&ndash;获取后台参数&ndash;&gt;-->
+    var user =<%-JSON.stringify(proAllUser_disp) %>
+            ejsData_addProCheck = {
+                proAllChecker: user
+            };
+
+    /**
+     * 展示所有可选择的走查人员供组长选择
+     * @param userNameAndRealName
+     */
+    function showSelectUser_greenPass(){
+        var proAllChecker = ejsData_addProCheck.proAllChecker;
+        $("#checkGreenPass").bsSuggest({
+            indexId: 0, //data.value 的第几个数据，作为input输入框的内容
+            indexKey: 0, //data.value 的第几个数据，作为input输入框的内容
+            data: {
+                'value':proAllChecker,
+                'defaults':''
+            }
+        });
+    }
+    showSelectUser_greenPass();
+    $('#btnSubmitProGreenPass').click(function(){
+        $('#formAddProGreenPass').submit();
+    });
+</script>
+<script>
+</script>
+
+
+
