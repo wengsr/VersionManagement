@@ -28,17 +28,19 @@ countSql.countCoreTotal = "SELECT" +
 "   	'核心' project ,t.*,tps.execTime,u.realName createrName" +
 "   FROM tasks t JOIN ( " +
 "   SELECT DISTINCT   taskId  FROM" +
-"   fileList  WHERE   taskId NOT IN (" +
+"   fileList  WHERE   taskId IN (" +
 "   SELECT DISTINCT taskId" +
 "   FROM  `filelist`" +
-"   WHERE  fileUri LIKE %local%" +
+"   WHERE  fileUri NOT LIKE '/trunk/local/%'" +
 "   )" +
 "   ) coreTasks ON t.taskId = coreTasks.taskId" +
 "   JOIN taskprocessstep tps ON t.taskId = tps.taskid" +
 "   AND tps.processStepId = 8" +
 "   AND tps.execTime BETWEEN ?" +
 "   AND ? " +
-"   JOIN user u on u.userId  = creater ";
+"   JOIN user u on u.userId  = creater " +
+"   JOIN projectType pt on" +
+"   t.projectId = pt.projectId and  pt.type = 0";
 var countCoreTotal_params = "[startTime,endTime]"
 //本地
 countSql.countLocalTotal = "SELECT" +
@@ -48,13 +50,16 @@ countSql.countLocalTotal = "SELECT" +
 "   fileList  WHERE   taskId NOT IN (" +
 "   SELECT DISTINCT taskId" +
 "   FROM  `filelist`" +
-"   WHERE  fileUri LIKE ?" +
+"    WHERE  fileUri not LIKE '/trunk/local/%'" +
 "   )" +
+"   and  fileUri LIKE ? " +
 "   ) coreTasks ON t.taskId = coreTasks.taskId" +
 "   JOIN taskprocessstep tps ON t.taskId = tps.taskid" +
 "   AND tps.processStepId = 8" +
 "   AND tps.execTime BETWEEN ?" +
 "   AND ? " +
-"   JOIN user u on u.userId  = creater ";
+"   JOIN user u on u.userId  = creater" +
+"   JOIN projectType pt on" +
+"    t.projectId = pt.projectId and  pt.type = 0 ";
 var countLocalTotal_params = "[projectName,localPath,startTime,endTime]";
 module.exports = countSql;

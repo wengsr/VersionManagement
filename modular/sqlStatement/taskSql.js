@@ -80,22 +80,31 @@ var TaskSql = function(){
         "   LEFT JOIN user oU2 ON taskTable2.creater = oU2.userId)as taskTable3 where taskTable3.taskid" +
         "   order by taskTable3.execTime desc limit ?,30"
     var findCreaterTask_params = "[userId,startNum]";
+    //核心+ 本地变更单列表
     this.getTaskListWithFileUriSegLocal = " SELECT *  FROM" +
-    "   (SELECT  DISTINCT t.taskid,? provice,t.taskCode,t.taskName, u.realName creater ,tps.execTime ,tps.turnNum  FROM tasks t join filelist fl on fl.fileUri like ?" +
+    "   (SELECT  DISTINCT t.taskid,? provice,t.taskCode,t.taskName, u.realName creater ,tps.execTime ,tps.turnNum " +
+    "    FROM tasks t join filelist fl on fl.fileUri like ?" +
     "   and fl.taskId =t.taskId" +
     "   join  taskprocessstep tps on tps.taskId = t.taskId And  tps.processStepId = 8" +
     "   and tps.execTime BETWEEN ?" +
     "   AND ? " +
     "   JOIN user u on t.creater = u.userId" +
+    "  JOIN projectType pt on" +
+    "   t.projectId = pt.projectId and  pt.type = 0" +
+    "    where t.taskId not in" +
+    "   ( SELECT DISTINCT taskId" +
+    "   FROM  `filelist`" +
+    "   WHERE  fileUri NOT LIKE '/trunk/local/%'" +
+    "   ) " +
     "   ) localTable" +
     "   Union(	select  t.taskid,'核心' provice,t.taskCode,t.taskName, u.realName creater,tps.execTime ,tps.turnNum" +
     "   FROM tasks t JOIN (" +
     "   SELECT DISTINCT   taskId  FROM" +
-    "   fileList  WHERE   taskId NOT IN (" +
+    "   fileList  WHERE   taskId  IN (" +
     "   SELECT DISTINCT taskId" +
     "   FROM  `filelist`" +
-    "   WHERE  fileUri LIKE '/trunk/local/%'" +
-    "   ) and fileUri like '/trunk%'" +
+    "   WHERE  fileUri NOT LIKE '/trunk/local/%'" +
+    "   )" +
     "   ) coreTasks" +
     "   ON t.taskId = coreTasks.taskId" +
     "   JOIN taskprocessstep tps ON t.taskId = tps.taskid" +
@@ -103,23 +112,28 @@ var TaskSql = function(){
     "   AND tps.execTime BETWEEN ? " +
     "   AND ? " +
     "   JOIN user u on t.creater = u.userId" +
-    "   ) ORDER BY taskId "
+    "  JOIN projectType pt on" +
+    "   t.projectId = pt.projectId and  pt.type = 0" +
+    "   ) ORDER BY taskId " ;
     var getTaskListWithFileUriSegLocal_params = "[projectName,fileUriSeg,startTime,endTime,startTime,endTime]";
+    //核心变更单列表
     this.getTaskListWithFileUriSegCore ="SELECT " +
     "   '核心' provice ,t.taskid,t.taskCode, t.taskName,u.realName creater,tps.execTime,tps.turnNum" +
     "   FROM tasks t JOIN (" +
     "   SELECT DISTINCT   taskId  FROM" +
-    "   fileList  WHERE   taskId NOT IN (" +
+    "   fileList  WHERE   taskId  IN (" +
     "   SELECT DISTINCT taskId" +
     "   FROM  `filelist`" +
-    "   WHERE  fileUri LIKE '/trunk/local/%'" +
-    "   ) and fileUri like '/trunk%'" +
+    "   WHERE  fileUri NOT LIKE '/trunk/local/%'" +
+    "   ) " +
     "   ) coreTasks ON t.taskId = coreTasks.taskId" +
     "   JOIN taskprocessstep tps ON t.taskId = tps.taskid" +
     "   AND tps.processStepId = 8" +
     "   AND tps.execTime BETWEEN ?" +
     "   AND ? " +
-    "   JOIN user u on u.userId = t.creater";
+    "   JOIN user u on u.userId = t.creater" +
+    "   JOIN projectType pt on" +
+    "   t.projectId = pt.projectId and  pt.type = 0";
     var getTaskListWithFileUriSegCore_params = "[startTime,endTime]";
     this.getTaskListWithFileUriSegAll = "SELECT DISTINCT t.taskid,p.projectName provice,t.taskCode,t.taskName,u.realName creater ,tps.execTime " +
     "    FROM tasks t join filelist fl  on fl.fileUri like '/trunk/%'  and fl.taskId =" +

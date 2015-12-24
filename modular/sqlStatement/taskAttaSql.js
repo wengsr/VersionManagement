@@ -61,14 +61,22 @@ var AttaSql = function(){
     "   and fl.taskId =t.taskId" +
     "   join  taskprocessstep tps on tps.taskId = t.taskId And  tps.processStepId = 8" +
     "   and tps.execTime between ? and ? " +
-    "   JOIN taskattachment ta on ta.taskId = tps.taskId and tps.turnNum = ta.turnNum  and  ta.processStepId = 3) localTable" +
+    "   JOIN taskattachment ta on ta.taskId = tps.taskId and tps.turnNum = ta.turnNum  and  ta.processStepId = 3" +
+    "   JOIN projectType pt on" +
+    "   t.projectId = pt.projectId and  pt.type = 0" +
+    "    where t.taskId not in" +
+    "   ( SELECT DISTINCT taskId" +
+    "   FROM  `filelist`" +
+    "   WHERE  fileUri NOT LIKE '/trunk/local/%'" +
+    "   ) " +
+    " ) localTable" +
     "   Union(	select  t.taskid,t.taskCode,ta.fileName,ta.fileUri,'核心' project" +//核心变更单
     "   FROM tasks t JOIN ( " +
     "   SELECT DISTINCT   taskId  FROM" +
-    "   fileList  WHERE   taskId NOT IN (" +
+    "   fileList  WHERE   taskId  IN (" +
     "   SELECT DISTINCT taskId" +
     "   FROM  `filelist`" +
-    "   WHERE  fileUri LIKE '/trunk/local/%'" +
+    "   WHERE  fileUri NOT LIKE '/trunk/local/%'" +
     "   ) and fileUri like '/trunk%') coreTasks" +
     "    ON t.taskId = coreTasks.taskId" +
     "   JOIN taskprocessstep tps ON t.taskId = tps.taskid" +
@@ -82,11 +90,13 @@ var AttaSql = function(){
     "   '核心' project ,t.taskid,t.taskCode,ta.fileName,ta.fileUri,tps.execTime" +
     "   FROM tasks t JOIN (" +
     "   SELECT DISTINCT   taskId  FROM" +
-    "   fileList  WHERE   taskId NOT IN (" +
+    "   fileList  WHERE   taskId  IN (" +
     "   SELECT DISTINCT taskId" +
     "   FROM  `filelist`    " +
-    "   WHERE  fileUri LIKE '/trunk/local/%'  " +
-    "   ) and fileUri like '/trunk%'" +
+    "   WHERE  fileUri NOT LIKE '/trunk/local/%'  " +
+    "   ) " +
+    "   JOIN projectType pt on" +
+    "   t.projectId = pt.projectId and  pt.type = 0" +
     "   ) coreTasks ON t.taskId = coreTasks.taskId" +
     "   JOIN taskprocessstep tps ON t.taskId = tps.taskid" +
     "   AND tps.processStepId = 8" +
