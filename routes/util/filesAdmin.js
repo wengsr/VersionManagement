@@ -426,11 +426,11 @@ filesAdmin.getBugNewName = function(oldName){
         num =  "0" +num;
     }
     var newName;
-    if(oldName.indexOf("修订")>-1){
+    if(oldName.indexOf("修正")>-1){
         newName = oldName.substring(0,index)+"-"+num;
     }
     else{
-        newName = oldName.substring(0,index)+"-修订-"+num;
+        newName = oldName.substring(0,index)+"-修正-"+num;
     }
     return newName;
 }

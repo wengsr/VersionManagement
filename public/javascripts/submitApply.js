@@ -249,7 +249,7 @@ jQuery(document).ready(function() {
         var check = checkSubmit(fields);
         var nameFlag = checkName($("#inputTaskName").val());
         if(!nameFlag){
-            showTipInfo('err', '请按要求填写变更单名称:NCRM开发变更单-省份简拼-日期-任务或bug号-姓名简拼(-修订)-序号！');
+            showTipInfo('err', '请按要求填写变更单名称:NCRM开发变更单-省份简拼-日期-任务或bug号-姓名简拼(-修正)-序号！');
             return;
         }
         var newFiles = $("#inputTaskNewList").val();
