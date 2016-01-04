@@ -21,7 +21,8 @@ var taskTest = require('./routes/taskTest');
 var  excel = require("./routes/excel");
 var  svn = require("./routes/svn");
 var  requirement = require("./routes/requirement");
-
+var log = require("./util/log");
+var scripts = require("./routes/index")
 
 
 // view engine setup
@@ -120,5 +121,7 @@ app.use("/excel",excel);
 app.use("/svn",svn);
 app.use("/requirement",requirement);
 app.use("/req",requirement);
-
+app.use("/scripts",scripts);
+app.use("/script",scripts);
+//app.use(test);
 module.exports = app;

@@ -14,6 +14,7 @@ function fileUploadBtnLoading(btnId,tipString){
  * @param subType
  */
 function ajaxSubmit(params, url, subType){
+    $("#btnCloseModel").hide();
     url = '/' + url;
     $.ajax({
         data: params,
@@ -25,6 +26,7 @@ function ajaxSubmit(params, url, subType){
         success: function(data){
             var dataJson = $.parseJSON(data);
             var flag =  dataJson.sucFlag;
+            $("#btnCloseModel").show();
             if('err'==flag){
                 showTipInfo('err',dataJson.message);
                 if (url == '/task/submitFile') {
@@ -57,7 +59,7 @@ function ajaxSubmit(params, url, subType){
             //$('#uploadInfo').hide();
         },
         error: function(jqXHR, textStatus, errorThrown){
-            debugger
+            $("#btnCloseModel").hide();
             alert('error ' + textStatus + " " + errorThrown);
         }
     });
@@ -73,7 +75,9 @@ function submitForm_submitFile(){
         taskId: $('#taskId').val(),
         taskName: $('#taskName').text(),
         taskCode: $('#taskCode').val(),
-        taskType: $('#taskType').val()
+        taskType: $('#taskType').val(),
+        containScript:$('[name=containScript]:checked').val(),
+        scriptComment:$("#scriptComment").val().trim()
     };
     var submitFile_url='task/submitFile';
     setBtnDisable(["btnSubmitFile"]);
@@ -129,6 +133,14 @@ function bindClick_btnUploadFile(){
         $('#diaInfoTip,#diaErrTip,#diaSuccessTip').hide();
         var fulAvatarVal = $('#fulAvatar').val();
         // var fulAvatarVal2 = $('#fulAvatar2').val();
+        if(!$('[name=containScript]:checked').length){
+            showTipInfo('err','请选择 该变更单是否【是否包含配置或脚本】');
+            return false;
+        }
+        if(($('[name=containScript]:checked').val()== 1) &&($("#scriptComment").val()).trim()==''){
+            showTipInfo('err','请填写说明 【脚本执行说明】');
+            return false;
+        }
         if(fulAvatarVal.length == 0){
             showTipInfo('err','请选择要上传的文件');
             return false;
@@ -175,7 +187,7 @@ function fileUpReturn(){
             $('#a_reportAtta').html(attaName);//设置附件a标签的内容
             resetAttaDownloadUri('a_reportAtta');//处理文件下载uri上的特殊字符
             //4.页面给出“文件上传成功与否的提示”
-            showTipInfo("success", returnInfo);
+            showTipInfo("err", returnInfo);
         }else if("false"==isUpSuccess){
             showTipInfo("err", returnInfo);
         }
@@ -194,9 +206,14 @@ jQuery(document).ready(function() {
     $('#fulAvatar').click(function(){
         $('#fulAvatar').val('');
     });
+    $("input[name=containScript][value='1']").change(function(){
+        $("#scriptCommentDiv").show();
+    });
+    $("input[name=containScript][value='0']").change(function(){
+        $("#scriptCommentDiv").hide();
+    });
     $('#fulAvatar').change(function(){
         var showMsg = '已选新旧文件：' + $('#fulAvatar').val();
-
         showFilePath(showMsg);
     });
     bindClick_btnUploadFile();

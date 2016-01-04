@@ -183,6 +183,10 @@ var TaskSql = function(){
     "  )totalTable" +
     "   where processstepId > 6 and processstepId < 13";
     var findNeedToCommitDevReposity_params = "[projectName,fileUriSeg,startTime,endTime,startTime,endTime]";
+    this.updateScript = "update tasks set containScript = ? where taskId = ?";
+    var updateScript_params = "[containScript,taskId]";
+    this.findProvice = " SELECT * from provice ";
+    var findProvice_params = "[]";
 }
 
 module.exports = TaskSql;

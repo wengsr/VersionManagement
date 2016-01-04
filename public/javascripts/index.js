@@ -175,6 +175,27 @@ function regTaskDevReposityDialog() {
         //showModelDialog(taskTagId2, realUrl, btnForm);
     });
 }
+
+/**
+ * 打开脚本状态查询
+ */
+function regTaskDevReposityDialog() {
+    var stepId = "[ scriptType=taskProcessStepId]";
+    //var url = '/users/showFileList',
+    var url = '/btnTaskCreater/';
+    $(stepId).each(function(){
+        $(this).attr('step',stepName);
+        var taskTagId = $(this).attr('id');
+        var taskId = $(this).attr('taskid');
+        var taskCreater = $(this).attr('taskcreater');
+        var dealerName = $(this).attr('dealerName');
+        var createName = $(this).attr('createName');
+        var realUrl = url + "/" + taskId + "/"+taskCreater + "/" + dealerName + "/" + createName;
+        btnForm = stepName.replace('btn','form');
+        showModelDialog(taskTagId, realUrl, btnForm);
+        //showModelDialog(taskTagId2, realUrl, btnForm);
+    });
+}
 /**
  * 记录当前被选中的taskid
  * @param taskId
@@ -210,6 +231,7 @@ jQuery(document).ready(function() {
     showModelDialog("btnFindAllTasksForBoss","/task/findAllTasksForBossPage",'formAllTasksForBoss');
     showModelDialog("btnExportTasks","/excel/exportTasks",'formExportXls');
     showModelDialog("btnExportCountTasks","/excel/exportCountTasks",'formCountXls');
+    showModelDialog("btnAllScript","/scripts/findScriptPage",'formFindAllScript');
     regTaskLink();
     regTaskFileList();
     regTaskTestDialog();

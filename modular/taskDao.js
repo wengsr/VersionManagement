@@ -1202,3 +1202,30 @@ exports.addGreenTask = function(params,callback){
         }
     })
 }
+/**
+ * 增加是否含有脚本的记录
+ * @param params
+ * @param callback
+ */
+exports.addScript = function(params,callback){
+    pool.getConnection(function(err,connection){
+        if (err) {
+            console.log('[QUERY COUNT FILE ERROR] - ', err.message);
+            return callback(err,null);
+        }
+        else{
+            var sql = TaskSql.addGreenTaskSql;
+            var now  = (new Date()).format("yyyy-MM-dd HH:mm:ss");
+            var sql_params = [params.taskId,params.userId,now];
+            connection.query(sql,sql_params,function(err,result){
+                if(err){
+                    console.error("SEARCHTASKFILES ERR!!!",err);
+                    return callback("err",result);
+                }
+                else{
+                    return callback("success");
+                }
+            })
+        }
+    })
+}

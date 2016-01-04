@@ -6,6 +6,9 @@ var router = express.Router();
 var Task = require('../modular/task');
 var TaskTest = require('../modular/taskTest');
 var Project = require('../modular/project');
+var Script  = require("../modular/script");
+var Tool = require("./util/tool")
+//var log = require("../util/log");
 /**
  * 从cookie中获取user给session，如果session中user为空，就返回主页
  * @param req
@@ -553,5 +556,241 @@ router.get('/allTaskForBoss/:curPage', function (req, res) {
     });
 });
 
+/**
+ * 首页导航栏“查看”按钮下的按钮点击 ：待处理脚本
+ * @param res
+ * @param req
+ * @param btnName
+ * @returns {*|String}
+ */
+var topBtnScriptClick = function(res, req, btnName){
+    var curPage =  req.params.curPage;
+    var userPros = [] ;
+    if(curPage ==undefined || curPage ==''){
+        curPage = 1;
+    }
+    var startNum = (curPage-1)*30 ;
+    if(startNum<0){
+        startNum = 0;
+    }
+    var cookieUser = req.cookies.user;
+    if(cookieUser!=undefined){
+        req.session.user = cookieUser;
+    }
+    var userId = req.session.user.userId;
+
+    if(btnName=='btnScriptToDeal'||btnName=='') {
+        findDealTask(userId,startNum, req, function (tasks,pageCount) {
+            findProsByTesterIdForMenuBtn(userId, req, function (testPros){
+                findProsByUserIdForApplyTaskBtn(userId, req, function (userPros) {
+                    //查找开发人员，组长，版本管理员的所属项目
+                    if(userPros.length>0){
+                        var userTmp = cookieUser;
+                        userTmp.isDev = true;
+                        saveCookieAndSession(req,res,userTmp);
+                    }
+                    userPros = userPros.concat(testPros);
+                    if (tasks.length > 0) {
+                        req.session.tasks = tasks;
+                        req.session.taskCount = tasks.length;
+                        req.session.curDealPage = curPage;
+                        return res.render('index', {
+                            title: 'AILK-CRM版本管理系统',
+                            user: req.session.user,
+                            menus: req.session.menus,
+                            tasks: req.session.tasks,
+                            taskCount: req.session.taskCount,
+                            topBtnCheckTask: btnName,
+                            userPros: userPros ,
+                            totalDealPage: pageCount,
+                            curDealPage:curPage
+                        });
+                    } else {
+                        req.session.tasks = null;
+                        req.session.taskCount = null;
+                        req.session.curDealPage = null;
+                        return res.render('index', {
+                            title: 'AILK-CRM版本管理系统',
+                            user: req.session.user,
+                            menus: req.session.menus,
+                            tasks: req.session.tasks,
+                            taskCount: req.session.taskCount,
+                            topBtnCheckTask: btnName,
+                            userPros: userPros,
+                            totalDealPage: pageCount,
+                            curDealPage:curPage
+                        });
+                    }
+                });
+            });
+        });
+    }
+}
+/**
+ * 待处理脚本
+ */
+router.get('/btnScriptToDeal/', function(req, res) {
+    topBtnScriptClick(res, req, 'btnScriptToDeal');
+});
+
+/**
+ * 待处理脚本:分页
+ */
+router.get('/btnScriptToDeal/:curPage', function(req, res) {
+    topBtnScriptClick(res, req, 'btnScriptToDeal');
+});
+
+
+/**
+ * 打开脚本的处理界面
+ */
+router.get("/scriptPage/:taskId",function(req,res){
+    var params = req.params;
+    Task.findTaskById(params.taskId,function(msg,result){
+        res.render('script/',{title:'变更单历史', taskHis:taskHis, maxTurnNum:maxTurnNum,maxTestNum:maxTestNum});
+    })
+})
+
+/**
+ * 打开查找脚本的界面
+ */
+router.get("/findScriptPage/",function(req,res){
+    var params = req.params;
+    var user= Tool.getCookieUser(req,res);
+    Task.findProvice({userId:user.userId},function(msg,result){
+        res.render('script/findScript',{provice:result });
+    })
+})
+
+/**
+ * 查找变跟单包含脚本情况
+ */
+router.post("/findScripts/",function(req,res){
+    var params = req.params;
+    var user= Tool.getCookieUser(req,res);
+    var cookieUser = req.cookies.user;
+    params.userId = user.userId;
+    var userId = params.userId;
+    params.curPage = 1;
+    var newParams = saveScriptsConds(req,res);
+    newParams.curPage = 1;
+    var btnName = "dealScript";
+    Script.findScripts(newParams,function(msg,scripts,count){
+        if(msg == "err"){
+            req.session.errorr  = "查找配置和脚本出错。"
+            return null;
+        }
+        findProsByTesterIdForMenuBtn(userId, req, function (testPros){
+            findProsByUserIdForApplyTaskBtn(userId, req, function (userPros) {
+                //查找开发人员，组长，版本管理员的所属项目
+                if(userPros.length>0){
+                    var userTmp = cookieUser;
+                    userTmp.isDev = true;
+                    saveCookieAndSession(req,res,userTmp);
+                }
+                userPros = userPros.concat(testPros);
+                var pageCount =0;
+                if (scripts.length > 0) {
+                    pageCount = parseInt((count-1)/30) + 1;
+                    req.session.scripts = scripts;
+                    req.session.scriptsCount = scripts.length;
+                    req.session.curDealPage =  params.curPage;
+                } else {
+                    req.session.scripts = null;
+                    req.session.scriptsCount = null;
+                    req.session.curDealPage = null;
+                    pageCount = 0;
+                }
+                return res.render('index', {
+                    title: 'AILK-CRM版本管理系统',
+                    user: req.session.user,
+                    menus: req.session.menus,
+                    scripts: req.session.scripts,
+                    scriptCount: req.session.scriptsCount,
+                    topBtnCheckTask: btnName,
+                    userPros: userPros ,
+                    totalDealPage: pageCount,
+                    curDealPage: params.curPage
+                });
+            });
+        });
+        //res.render('script/findScript',{provice:result });
+    })
+})
+
+/**
+ *f分页 查找变跟单包含脚本情况
+ */
+router.get("/findScripts/:curPage",function(req,res){
+    var user= Tool.getCookieUser(req,res);
+    var params = getScriptsConds(req,res);
+    var cookieUser = req.cookies.user;
+    params.userId = user.userId;
+    var userId = params.userId;
+    params.curPage = req.params.curPage;
+    var btnName = "dealScript";
+    Script.findScripts(params,function(msg,scripts,count){
+        if(msg == "err"){
+            req.session.errorr  = "查找配置和脚本出错。"
+            return null;
+        }
+        findProsByTesterIdForMenuBtn(userId, req, function (testPros){
+            findProsByUserIdForApplyTaskBtn(userId, req, function (userPros) {
+                //查找开发人员，组长，版本管理员的所属项目
+                if(userPros.length>0){
+                    var userTmp = cookieUser;
+                    userTmp.isDev = true;
+                    saveCookieAndSession(req,res,userTmp);
+                }
+                userPros = userPros.concat(testPros);
+                var pageCount =0;
+                if (scripts.length > 0) {
+                    pageCount = parseInt((count-1)/30) + 1;
+                    req.session.scripts = scripts;
+                    req.session.scriptsCount = scripts.length;
+                    req.session.curDealPage =  params.curPage;
+                } else {
+                    req.session.scripts = null;
+                    req.session.scriptsCount = null;
+                    req.session.curDealPage = null;
+                    pageCount = 0;
+                }
+                return res.render('index', {
+                    title: 'AILK-CRM版本管理系统',
+                    user: req.session.user,
+                    menus: req.session.menus,
+                    scripts: req.session.scripts,
+                    scriptCount: req.session.scriptsCount,
+                    topBtnCheckTask: btnName,
+                    userPros: userPros ,
+                    totalDealPage: pageCount,
+                    curDealPage: params.curPage
+                });
+            });
+        });
+        //res.render('script/findScript',{provice:result });
+    })
+})
+
+
+//保存查找配置脚本的条件
+function  saveScriptsConds(req,res){
+    var params =  req.body;
+    params.userId = req.session.user.userId;
+    params.startTime =  params.startDate ? params. startDate+' '+ params.startTime+":00" : '';
+    params.endTime =  params.endDate?  params.endDate+' '+ params.endTime+":59" : '';
+    req.session.findScriptConds = params;
+    return params;
+}
+//获取配置脚本的条件
+function  getScriptsConds(req,res){
+    var searchConds = req.session.findScriptConds;
+    if(searchConds){
+        return searchConds;
+    }
+    if(!searchConds || undefined==searchConds){
+        return res.redirect("/");
+    }
+}
 
 module.exports = router;

@@ -51,7 +51,11 @@
   <%- message %>                    <!--错误&成功提示信息条-->
     <%include topNav.ejs%>          <!--页面顶部导航栏-->
   <% if(user){%>
-    <%include taskDeal.ejs%>        <!--登录后的任务处理界面-->
+   <!--<%if(topBtnCheckTask == "btnScriptToDeal"){  %>-->
+     <!--<% include script/script.ejs%>-->
+   <!--<%}else{%>-->
+    <%include taskDeal.ejs%>
+  <%}%><!--登录后的任务处理界面-->
   <% }else{ %>
     <%include processShow.ejs%>     <!--首页展示-->
   <% }%>

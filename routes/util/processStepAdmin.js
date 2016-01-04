@@ -9,6 +9,7 @@ var ProcessStep = require("../../util/versionConstant").processStep;
 var SvnAdmin = require("./svnAdmin");
 var Task = require("../../modular/task");
 var States =  require("../../util/versionConstant").states;
+var Script = require("../../modular/script");
 /**
  * 自动上库成功后，修改变更单状态为【自动上库成功】
  * @param req
@@ -30,6 +31,10 @@ function taskComplete(params){
             //判断其他变更单的文件占用情况并发邮件
             //sendEmailToNext(req,taskId,'',7);
             //sendEmailToCreaterSubmit(req, taskId, '', 7);
+            var script_params = {taskId:params.taskId};
+            Script.updateStateAndTime(script_params,function(msg_script){
+                console.log("updateStateAndTime Script:",msg_script);
+            });
             console.log("submitComplete success!");
             params.processStepId = 8;
             startProcess(params,function(msg_start,result_start){
@@ -82,7 +87,24 @@ function  startAutoProcess(params,callback){
 }
 //开始测试环节
 function startTestProcess(params,callback){
-    TaskProcess_version.newTestProcess(params,callback);
+    TaskProcess_version.newTestProcess(params,function(msg,result){
+        if('success' == msg) {
+
+            //给当前处理人(测试人员）发送邮件
+            TaskProcess_version.getDealerAndTaskInfo({taskId: params.taskId}, function (msg_info, infos) {
+                if (msg_info == "err") {
+                    console.log("getDealerAndTaskInfo ERR！");
+                }
+                else {
+                    infos.forEach(function (info) {
+
+                        setTimeout(Email.sendEmailToDealer_new(info), "1000");
+                    })
+                }
+            });
+        }
+        return callback(msg,result);
+    });
 };
 var submitFileProcess = function(params,callback){
     //params.stateId = ReqConstant.stateId.APPLYED;
@@ -410,4 +432,14 @@ module.exports = ProcessAdm;
 //endProcess(params,function(msg,result){
 //    console.log("testProcess:",msg);
 //    console.log("testProcess:",result);
+//})
+
+//var params = {taskId:165, containScript:1};
+
+//Script.updateStateAndTime(params,function(msg_script){
+//    console.log("add Script:",msg_script);
+//});
+//startTestProcess({taskId:168,processStepId:8},function(msg){
+//    console.log(msg)
+//
 //})

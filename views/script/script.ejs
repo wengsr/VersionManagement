@@ -1,0 +1,83 @@
+<!--我的待处理变更单-->
+<div id="taskDiv" class="container-fluid">
+    <div class="panel panel-primary">
+        <div class="panel-heading">待处理配置或脚本</div>
+        <div class="panel-body table-responsive">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>变更单名称</th>
+                    <th>省份</th>
+                    <th>包含配置/脚本</th>
+                    <th>申请人</th>
+                    <th>状态</th>
+                </tr>
+                </thead>
+                <tbody>
+                <% var recCount=(curDealPage-1)*30%>
+                <% scripts.forEach(function(script,i){ var psId=script.processStepId;  recCount++;%>
+
+                <tr id="myToBeDealTask">
+                    <td><%=recCount%></td>
+                    <td><a id="script_<%=script.scriptId%>" href = "/script/sriptPage/<%=script.scriptId%>" createName="<%=script.createrName%>" dealerName="<%=script.dealerName%>" scriptType="taskProcessStepId>" scriptId="<%=script.scriptId%>" taskcreater="<%=script.creater%>"><%=script.taskName%></a></td>
+                    <td><%=script.proviceName%></td>
+                    <%if(script.containScript){%>
+                    <td>是</td>
+                    <%}else{%>
+                    <td>否</td>
+                    <%}%>
+                    <td><%=script.createrName==null?'':script.createrName%></td>
+                    <td><%=script.stateName%></td>
+                    <!--<td>&nbsp;&nbsp;<a class="glyphicon glyphicon-time" btnType="taskHistory" scriptId="<%=script.scriptId%>"></a></td>-->
+                </tr>
+                <% }); %>
+                </tbody>
+            </table>
+        </div>
+        <!--<% if(taskCount){%>-->
+        <!--<div class="panel-footer">共<%=taskCount%>条</div>-->
+        <!--<% } %>-->
+        <div id="recCount" class="panel-footer" recCount="<%=recCount%>">共<%=(recCount%30)==0?30:(recCount%30)%>条
+        </div>
+        <div>
+            <nav  style="float:right">
+                <%
+                var  minPage = curDealPage-2>0?curDealPage-2:1;
+                var maxPage = minPage + 4>totalDealPage?totalDealPage:minPage + 4;
+                minPage = maxPage-4<1?1:maxPage-4;
+                //                          var maxPage =curDealPage+2>totalDealPage?totalDealPage:curDealPage+2;
+                %>
+                <ul class="pagination" id="pageUl" pageCount="<%=totalDealPage%>" curPage="<%=curDealPage%>"
+                    minPage="<%=minPage%>",maxPage="<%=maxPage%>">
+                    <%if(minPage!=1){%>
+                    <li  id="pagePre">
+                        <a href="/script/findScripts/<%=parseInt(curDealPage)-1%>" aria-label="Previous" >
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <%}%>
+                    <%for(var i = minPage;i<=maxPage;i++){ %>
+                    <li  class="pageId"  value ="<%=i%>"><a href="/script/findScripts/<%=i%>"><%=i%></a></li>
+                    <%}%>
+                    <%if(maxPage<totalDealPage){%>
+                    <li  id="pageNext">
+                        <a href="/script/findScripts/<%=parseInt(curDealPage)+1%>" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <%}%>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+<div id="noTaskNotice" style="margin-top: 100px">
+    <div class="col-sm-3"></div>
+    <div class="col-sm-6">
+            <span style="font-size:20pt; color: #cccccc;height:20px; line-height:20px; text-align:center; display:block;">
+                任务全部处理完成
+            </span>
+    </div>
+    <div class="col-sm-3"></div>
+</div>

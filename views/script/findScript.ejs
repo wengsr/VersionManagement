@@ -1,0 +1,156 @@
+<!--“查找脚本或者配置”模态窗口-->
+
+<link rel="stylesheet" href="/stylesheets/bootstrap-datetimepicker.min.css">
+<link rel="stylesheet" type="text/css" href="/stylesheets/bootstrap-clockpicker.min.css">
+<!--<link rel="stylesheet" href="/resources/demos/style.css">-->
+<form action="/scripts/findScripts" id="formFindAllScript" class=" bs-component form-horizontal" method='post'>
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="myLargeModalLabel">查找包含配置或脚本变更单</h4>
+    </div>
+    <div  class="modal-body">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label for="projectName" class="col-sm-2 control-label">所属省份</label>
+                        <div class="col-sm-4">
+                            <select class="form-control" name="proviceId">
+                                <option value="" selected >--请选择--</option>
+                                <%if(provice && provice.length>0){%>
+                                <%provice.forEach(function(pro,i){%>
+                                <option value="<%=pro.proviceId%>"><%=pro.proviceName%></option>
+                                <%})%>
+                                <%}%>
+                                <option value="4">多个</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group  ">
+                        <label for="taskCreater" class="col-sm-2 control-label">发起者</label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" name="taskCreater" id="taskCreater" placeholder="真实姓名 (如：张三)">
+                        </div>
+                        <label for="containScript" class="col-sm-3 control-label">是否包含配置或脚本</label>
+                        <div class="col-sm-2 " style="margin-top:5px">
+                            是 <input type="checkbox"  name = "containScript" id ="containScript"  value = "1" >
+                            <!--否 <input type="radio"  name = "containScript" id ="containScript"  value = "0" >-->
+                        </div>
+                        </div>
+                    </div>
+                    <div class="form-group" class = "col-sm-6">
+
+                    </div>
+                    <div class="form-group">
+                        <label for="reqName" class="col-sm-2 control-label">需求名称</label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" name="reqName" id="reqName" >
+                        </div>
+                    </div>
+                    <div class="form-group">
+                    </div>
+                    <div class="form-group">
+                        <label for="taskName" class="col-sm-2 control-label">变更单名称</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" name="taskName" id="taskName" placeholder="请填写变更单名称  (如：CRM数据变更单-20150101-001-zhangsan-001)">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="beginDate" class="col-sm-2 control-label">开始时间</label>
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control" name="startDate" id="startDate" style="">
+                        </div>
+                        <div class="input-group clockpicker col-sm-2"  data-placement="top" data-align="top" data-autoclose="true">
+                            <input type="text" class="form-control" id ="startTime" name="startTime" value="09:00">
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-time"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="endDate" class="col-sm-2 control-label">结束时间</label>
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control" name="endDate" id="endDate" >
+                        </div>
+                        <div class="input-group clockpicker col-sm-2"   data-placement="top" data-align="top" data-autoclose="true">
+                            <input type="text" class="form-control" id ="endTime" name ="endTime" value="24:00">
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-time"></span>
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        <button type="submit" id ="btnFindScript" class="btn btn-primary" >查询</button>
+    </div>
+</form>
+<script type="text/javascript" src="/javascripts/bootstrap-clockpicker.min.js"></script>
+<script>
+    $(function() {
+        $( "#startDate").datetimepicker({format:"yyyy-mm-dd",
+            autoclose:true,
+            minView:3,
+            pickerPosition:"top-right"});
+
+    });
+    $(function() {
+        $( "#endDate" ).datetimepicker({format:"yyyy-mm-dd",
+            autoclose:true,
+            minView:3,
+            pickerPosition:"top-right"});
+    });
+    $('.clockpicker').clockpicker();
+
+</script>
+<script>
+    var storeSearch = function(){
+        var userId =$('[name=userId]').val();
+        var proviceId =$('[name=proviceId]').val();
+        var taskCode =$('[name=taskCode]').val();
+        var reqName =$('[name=reqName]').val();
+        var containScript = $("input[name=containScript]:checked").length ;
+        var taskname =  $('[name=taskName]').val();
+        var createrName =  $('[name=taskCreater]').val();
+        var startDate =    $('[name=startDate]').val();
+        var startTime =   $('[name=startTime]').val();
+        var endDate =   $('[name=endDate]').val();
+        var endTime =   $('[name=endTime]').val();
+        var searchConds = {
+            userId:userId,
+            proviceId:proviceId,
+            containScript:containScript,
+            taskCode:taskCode,
+            taskName:taskname,
+            reqName:reqName,
+            createrName :createrName,
+            startDate:startDate,
+            startTime :startTime,
+            endDate:endDate,
+            endTime: endTime
+        };
+        sessionStorage.setItem("finAllTaskConds", searchConds);
+    };
+//    function radioClick(){
+//        if($("[name = containScript][value='1']:checked").length){
+//            $("[name = containScript][value='1']").click(function(e){
+//                $(this).attr("checked",false);
+//                return false;
+//            })
+//        }
+//
+//    }
+    jQuery(document).ready(function() {
+        $("#btnFindTask").click(function () {
+            storeSearch();
+        });
+//        radioClick();
+    });
+</script>

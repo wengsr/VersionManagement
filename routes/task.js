@@ -116,6 +116,8 @@ var ApplyOrder = require("../modular/applyOrder");
 var TaskProcess_version = require("../modular/taskProcess_version");
 var svnAdmin = require("./util/svnAdmin");
 var Tool = require("./util/tool.js");
+var Script = require("../modular/script");
+//var log = require("../util/log");
 /**
  * 判断svn上存在该文件
  * @params files 文件名数组
@@ -1451,6 +1453,8 @@ router.post('/submitFile', function(req, res) {
     var taskId = req.body['taskId'];
     var taskName = req.body['taskName'];//上测试库时需要msg
     var typeId = req.body['taskType'];//上测试库时需要msg
+    var containScript = req.body['containScript'];//上测试库时需要msg
+    var scriptComment = req.body['scriptComment'];//上测试库时需要msg
     //var taskCode = req.body['taskCode'];//上测试库时需要msg
     var jsonStr;
     dao.searchNewAndOld(taskId,3,function(msg,newAndOld,taskCode,filesAndState,projectUri){
@@ -1482,7 +1486,8 @@ router.post('/submitFile', function(req, res) {
                         if(typeId==1){
                             msg = "附件中需包含 测试报告(.doc)，开发变更单(.xls),支撑方案设计(.doc) 请核对！"
                         }
-                         console.log("附件中需包含 测试报告(.doc)，开发变更单(.xls),请核对！");
+                         console.error(" (attachment is not correct)");
+                         console.log(" (attachment is not correct)附件中需包含 测试报告(.doc)，开发变更单(.xls),请核对！");
                         dao.delNewAndOld(taskId,3,function(msg){
                             if(msg =="err"){
                                 console.log("delNewAndOld err:");
@@ -1497,6 +1502,7 @@ router.post('/submitFile', function(req, res) {
                                 console.log("delNewAndOld err:");
                             }
                         });
+                        console.log("new and old are different!");
                         console.log("变更单压缩包里需要直接放new目录，并且new与old的差异必须与申请文件清单一致，请核对后上传！！");
                         jsonStr = '{"sucFlag":"err","message":"变更单压缩包里需要直接放new目录，并且new与old的差异必须与申请文件清单一致"}';
                         var queryObj = url.parse(req.url, true).query;
@@ -1523,6 +1529,7 @@ router.post('/submitFile', function(req, res) {
                             }
                         }
                         if(j == filesAndState.length){
+                            console.log("new and old are different!");
                             console.log("附件中的new文件夹下的文件与申请文件清单的不一致",";",allFiles[i]);
                             var message = "文件名不一致，出错文件："+allFiles[i];
                             jsonStr = '{"sucFlag":"err","message":"'+message+'"}';
@@ -1532,12 +1539,14 @@ router.post('/submitFile', function(req, res) {
                                     console.log("delNewAndOld err:");
                                 }
                             });
+                            console.log("new and old are different!");
                             console.log("附件中的修改文件与申请文件清单的不一致return1491");
                             return   res.send(queryObj.callback + '(\'' + jsonStr + '\')');;
                         }
                     }
                     var modFileNum = getModFileNum(filesAndState);
                     if(modAndDelete.length != modFileNum){//比较数据库中的修改文件和提交的文件中的是否一致
+                        console.log("new and old are different!");
                         console.log("附件中的修改文件与申请文件清单的不一致,modFileNum:",modFileNum," ",modAndDelete);
                         var message = "附件中的修改文件与申请文件清单的不一致!";
                         jsonStr = '{"sucFlag":"err","message":"'+message+'"}';
@@ -1590,7 +1599,11 @@ router.post('/submitFile', function(req, res) {
                                      return res.send(queryObj.callback + '(\'' + jsonStr + '\')');;
                                  }
                                  else{
-                                     var params = {taskId:taskId,taskName:taskName,taskCode:taskCode,processStepId:3,dealer:userId,userId:userId};
+                                     var params = {taskId:taskId,taskName:taskName,taskCode:taskCode,processStepId:3,
+                                         dealer:userId,userId:userId,containScript:containScript,scriptComment:scriptComment};
+                                     Script.addScript(params,function(msg_script){
+                                         console.log("add Script:",msg_script);
+                                     });
                                      //结束变更单上传环节。
                                      ProcessStepAdmin.endCurProcess(params, function(msg,result) {//
                                          console.log("endCurProcess callback Msg:",msg);
@@ -1813,7 +1826,6 @@ router.get('/history/:taskId', function(req, res) {
                 maxTestNum = his.testNum;
             }
         });
-
         res.render('taskHistory',{title:'变更单历史', taskHis:taskHis, maxTurnNum:maxTurnNum,maxTestNum:maxTestNum});
     });
 });
@@ -2107,6 +2119,10 @@ uploadToDB = function(req, taskId, userId, callback){
         if('success' == msg){
             //判断其他变更单的文件占用情况并发邮件
             sendEmailToNext(req,taskId,'',7);
+            var params = {taskId:taskId};
+            Script.updateStateAndTime(params,function(msg_script){
+                console.log("updateStateAndTime Script:",msg_script);
+            });
             findUnUsedTaskAndFileUri(taskId,req,function(fileLists){
                 var conflictTaskId=[];//存放受到影响的taskId
                 var conflictTaskFileUri='';//受到影响的文件路径
@@ -2557,4 +2573,11 @@ module.exports = router;
 ////结束变更单上传环节。
 //ProcessStepAdmin.endCurProcess(params, function(msg,result) {//
 //    console.log("endCurProcess callback Msg:", msg);
+//});
+var params = {taskId:165, containScript:1};
+//Script.addScript(params,function(msg_script){
+//    console.log("add Script:",msg_script);
+//});
+//Script.updateStateAndTime(params,function(msg_script){
+//    console.log("add Script:",msg_script);
 //});

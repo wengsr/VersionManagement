@@ -1,0 +1,84 @@
+<!--脚本信息查看-->
+<form action="" id="formScriptInfo" class=" bs-component form-horizontal" method='post'>
+    <input type="hidden" id="taskInfoId"  value="<%= script.scriptId%>" />
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="myLargeModalLabel">含配置或脚本变更单</h4>
+    </div>
+    <div  class="modal-body">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label for="taskName" class="col-sm-2 control-label">变更单号</label>
+                        <div class="col-sm-10" style="margin-top:6px">
+                            <span id="taskCode"><%=task.taskcode%></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputTaskName" class="col-sm-2 control-label">变更单名</label>
+                        <div class="col-sm-10" style="margin-top:6px">
+                            <span id="taskName"><%=task.taskname%></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputTaskDesc" class="col-sm-2 control-label">申请人</label>
+                        <div class="col-sm-4" style="margin-top:6px">
+                            <span id="createrName"><%=task.createName%></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="reqName" class="col-sm-2 control-label">相关需求或bug</label>
+                        <div class="col-sm-4" style="margin-top:6px">
+                            <input class="form-control" id="reqName"  disabled="disabled" value = "<%=script.reqName==null?无:script.reqName%>" >
+                        </div>
+                    </div>
+                    <div>
+                        <label for="reqName" class="col-sm-2 control-label">是否包含配置</label>
+                        <div class="col-sm-4" style="margin-top:6px">
+                            <%if(script.containScript){%>
+                            是：
+                            <%}else{%>
+                            否：
+                            <%}%>
+                            <input type ="checkbox"  id="containScript"  disabled="disabled" checked>" >
+                        </div>
+                    </div>
+
+                    <%if(script.containScript){ %>
+                    <div>
+                        <label for="provice" class="col-sm-2 control-label">所属省份</label>
+                        <div class="col-sm-10" style="margin-top:6px">
+                            <input class="form-control" id="provice"  disabled="disabled" value = "<%=script.provice%>" >
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="scriptComment" class="col-sm-2 control-label">执行说明</label>
+                        <div class="col-sm-10" style="margin-top:6px">
+                            <textarea class="form-control" id="scriptComment" rows="3" disabled="disabled"><%=script.comment%></textarea>
+                        </div>
+                    </div>
+                    <%} %>
+                    <div class="form-group">
+                        <label for="createTime" class="col-sm-2 control-label">上库时间</label>
+                        <div class="col-sm-4" style="margin-top:6px">
+                            <input class="form-control" id="createTime"  disabled="disabled" value = "<%=script.createTime==null?无:script.createTime%>" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputTaskList" class="col-sm-2 control-label">变更单</label>
+                        <div class="col-sm-4" style="margin-top:6px">
+                            <span><a id="a_attaFile" href="<%=attaFile.fileUri%>" > <%=attaFile.fileName%> </a></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div style="width:20%;float:right;">
+            <button id="btnCloseModel" type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        </div>
+    </div>
+</form>
+

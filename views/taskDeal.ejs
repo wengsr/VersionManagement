@@ -29,6 +29,21 @@
     <%include adminModel/filesHistory.ejs%>
     <%}%>
 <% } %>
+<%if(topBtnCheckTask == "dealScript"){  %>
+    <%if(scripts === null){%>
+        <div style="margin-top: 100px">
+         <div class="col-sm-3"></div>
+         <div class="col-sm-6">
+            <span style="font-size:20pt; color: #cccccc;height:20px; line-height:20px; text-align:center; display:block;">
+                    sorry,没有找到配置或脚本的记录！
+            </span>
+         </div>
+            <div class="col-sm-3"></div>
+        </div>
+    <%}else {%>
+        <%include script/script.ejs%>
+    <%}%>
+<%}%>
 <% if(topBtnCheckTask=='findAFileHistory'){%><!--版本管理员：查看变更文件历史-->
     <%if(files === null){%>
     <div style="margin-top: 100px">

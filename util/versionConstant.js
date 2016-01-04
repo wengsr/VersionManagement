@@ -1,21 +1,21 @@
-/**
+﻿/**
  * Created by lijuanZhang on 2015/10/29.
  */
 var versionConstant ={
     svnLocation:{
         CHANGATTARepository:1,
         TESTRepository : "http://crmsvn.asiainfo.org:8001/svn/hxbss/testVersion/a/",
-        DevRepository :"http://crmsvn.asiainfo.org:8001/svn/hxbss/testVersion/a-branch/"
-        //TESTRepository : "http://192.168.1.22:8000/svn/hxbss/NCRM/baseLine/Source/",
+       DevRepository :"http://crmsvn.asiainfo.org:8001/svn/hxbss/testVersion/a-branch/"
+       // TESTRepository : "http://192.168.1.22:8000/svn/hxbss/NCRM/baseLine/Source/trunk",
         //TESTRepository : "http://192.168.1.22:8001/svn/hxbss/NCRM/baseLine/Source/",
-        //DevRepository :"http://192.168.1.22:8001/svn/hxbss/NCRM_BASELINE/Sourse/trunk/"
+        //DevRepository :"http://192.168.1.22:8001/svn/hxbss/NCRM_BASELINE/Source/trunk/"
         //DevRepository :"http://192.168.1.22:8001/svn/hxbss/NCRM_BASELINE/Sourse"
     },
     paths :{
         //DevRepositoryPath:"./svn-branch/"
-        DevRepositoryPath:"D://testSvn-branch/",
+       // DevRepositoryPath:"D://testSvn-branch/",
         exportAttachmentsLocalPath :"./exportAttachmentsLocalPath/", //需要导出特定变跟单附件压缩包的路径
-        //DevRepositoryPath:"C:/app/NCRM_Baseline/NCRM_BASELINE/Sourse/trunk/"
+        DevRepositoryPath:"C:/app/NCRM_Baseline/NCRM_BASELINE/Source/trunk/",
         //DevRepositoryPath:"C:/app/NCRM_Baseline/NCRM_BASELINE/Sourse",
         attachmentLocalPath :"./",//所有变更单存放的父级路径,
         renameFiles :"./attachment/newAndOld/rename.bat" //存放重命名文件

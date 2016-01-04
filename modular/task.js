@@ -1968,7 +1968,7 @@ Task.findHistory = function(taskId,callback){
        //    "    ORDER BY turnNum,testNum,processStepId,id";
         var params = [taskId,taskId];
         var taskSql = new TaskSQL();
-        if(taskId > 1700){
+        if(taskId > 200000){
             sql = taskSql.findTaskHistory;
             params = [taskId];
         }
@@ -2156,6 +2156,29 @@ Task.getDealer =function(params,callback) {
 
             }
 
+        });
+    });
+}
+//查找NCRM 所属的项目
+Task.findProvice = function(params,callback) {
+    pool.getConnection(function (err, connection) {
+        if (err) {
+            console.log('[CONN TASKS ERROR] - ', err.message);
+            return callback(err);
+        }
+        var taskSQL = new TaskSQL();
+        var sql = taskSQL.findProvice;
+        var sqlParams = [params.userId];
+        var dealerPermissionSql_params = [params.userId];
+        connection.query(sql, sqlParams, function (err, result) {
+            if (err) {
+                console.log('[QUERY findProvice ERROR] - ', err.message);
+                return callback(err, false);
+            }
+            else{
+                connection.release();
+                return   callback('success', result);
+            }
         });
     });
 }
