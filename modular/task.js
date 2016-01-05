@@ -1690,7 +1690,8 @@ Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode
             "        JOIN processstepdealer psd ON psd.projectId = t.projectId" +
             "        JOIN processstep ps ON ps.processStepId = t.processStepId" +
             "        AND t.projectId IN (" +
-            "            SELECT utp.projectId from usertoproject utp where utp.userId = ?" +
+            "           SELECT  DISTINCT pt1.projectId FROM projecttype pt1, projecttype pt2, usertoproject utp" +
+            "           WHERE pt1.type = pt2.type AND pt2.projectId = utp.projectId AND utp.userId = ? " +
             "        )" +
             "        ) taskTable" +
             "        JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid" +
@@ -1738,7 +1739,8 @@ Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode
             "        JOIN processstepdealer psd ON psd.projectId = t.projectId" +
             "        JOIN processstep ps ON ps.processStepId = t.processStepId" +
             "        AND t.projectId IN (" +
-            "            SELECT utp.projectId from usertoproject utp where utp.userId = ?" +
+            "           SELECT  DISTINCT pt1.projectId FROM projecttype pt1, projecttype pt2, usertoproject utp" +
+            "           WHERE pt1.type = pt2.type AND pt2.projectId = utp.projectId AND utp.userId = ? " +
             "        )" +
             "        ) taskTable" +
             "        JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid" +
