@@ -77,7 +77,8 @@ function submitForm_submitFile(){
         taskCode: $('#taskCode').val(),
         taskType: $('#taskType').val(),
         containScript:$('[name=containScript]:checked').val(),
-        scriptComment:$("#scriptComment").val().trim()
+        scriptComment:$("#scriptComment").val().trim(),
+        proviceId:$("#proviceId").val()
     };
     var submitFile_url='task/submitFile';
     setBtnDisable(["btnSubmitFile"]);
@@ -139,6 +140,10 @@ function bindClick_btnUploadFile(){
         }
         if(($('[name=containScript]:checked').val()== 1) &&($("#scriptComment").val()).trim()==''){
             showTipInfo('err','请填写说明 【脚本执行说明】');
+            return false;
+        }
+        if(($('[name=containScript]:checked').val()== 1) &&($("#proviceId").val()=="")){
+            showTipInfo('err','请填写说明 【所属省份】');
             return false;
         }
         if(fulAvatarVal.length == 0){
@@ -208,9 +213,11 @@ jQuery(document).ready(function() {
     });
     $("input[name=containScript][value='1']").change(function(){
         $("#scriptCommentDiv").show();
+        $("#proviceDiv").show();
     });
     $("input[name=containScript][value='0']").change(function(){
         $("#scriptCommentDiv").hide();
+        $("#proviceDiv").hide();
     });
     $('#fulAvatar').change(function(){
         var showMsg = '已选新旧文件：' + $('#fulAvatar').val();

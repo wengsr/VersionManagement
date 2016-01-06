@@ -53,6 +53,7 @@
                             <li><a class="menuBtn" btnname="btnFindTasks" btnurl="" href="#" id="btnFindTasks"> 查找变更单 </a></li>
                             <li><a class="menuBtn" btnname="btnSubmitBug" btnurl="" href="#" id="btnSubmitBug"> 修复Bug变更单 </a></li>
                             <li><a class="menuBtn" btnname="btnFindAllTasks" btnurl="" href="#" id="btnFindAllTasks"> 查找所有变更单 </a></li>
+                            <li><a class="menuBtn" btnname="btnAllScript" btnurl="" href="#" methods="post" id="btnAllScript"> 查看配置或脚本 </a></li>
                             <%}%>
                             <%if(user && ((user.isAdmin)||(user.isLeader)||(user.isBoss))){ %>
                                <!--<li><a class="menuBtn" btnname="btnFindAllTasks" btnurl="" href="#" id="btnFindAllTasks"> 查找所有变更单 </a></li>-->
@@ -60,7 +61,6 @@
                             <%if(user && user.isAdmin){%>
                             <li><a class="menuBtn" btnname="btnFileHistory" btnurl="" href="/admin/findFileHistory" methods="post" id="btnFileHistory"> 查看文件历史记录 </a></li>
                             <li><a class="menuBtn" btnname="btnAttaHistory" btnurl="" href="/admin/findAttaHistory" methods="post" id="btnAttaHistory"> 查看附件记录 </a></li>
-                            <li><a class="menuBtn" btnname="btnAllScript" btnurl="" href="#" methods="post" id="btnAllScript"> 查看是否包含配置和脚本 </a></li>
                             <% } %>
                             <%if(user && ((user.isPM)||user.isTester)){ %>
                             <li><a class="menuBtn" btnname="btnFindTestTasks" btnurl="" href="#" id="btnFindTestTasks"> 查找测试变更单 </a></li>                            <% } %>
@@ -77,7 +77,7 @@
                             <li><a class="menuBtn" btnname="btnTaskCreater" btnurl="/btnTaskCreater" href="/btnTaskCreater" id="btnTaskCreater"> 我发起的变更单 </a></li>
                             <%}%>
                             <li><a class="menuBtn" btnname="btnToBeDeal" btnurl="/btnToBeDeal" href="/btnToBeDeal" id="btnToBeDeal"> 待处理的变更单 </a></li>
-                            <li><a class="menuBtn" btnname="btnToBeDeal" btnurl="/btnScriptToDeal" href="/btnScriptToDeal" id="btnScriptToDeal"> 待处理的脚本 </a></li>
+                            <!--<li><a class="menuBtn" btnname="btnToBeDeal" btnurl="/btnScriptToDeal" href="/btnScriptToDeal" id="btnScriptToDeal"> 待处理的脚本 </a></li>-->
                         </ul>
                     </li>
                     <%if(user && (user.isPM||user.isAdmin)){ %>

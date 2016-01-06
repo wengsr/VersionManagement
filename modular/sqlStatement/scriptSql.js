@@ -3,9 +3,9 @@
  */
 var scriptSql = {};
 //新增脚本记录
-scriptSql.addScript = "insert into scripts(taskId,reqName,execState,comment) values(?," +
-"   (select reqName from tasks t,requirement r where t.taskid = ? and  t.reqId = r.reqId),?,?) ;";
-var addScript_params =  "[taskId,taskId,stateId,comment]"
+scriptSql.addScript = "insert into scripts(taskId,reqName,execState,comment,proviceId) values(?," +
+"   (select reqName from tasks t,requirement r where t.taskid = ? and  t.reqId = r.reqId),?,?,?) ;";
+var addScript_params =  "[taskId,taskId,stateId,comment,proviceId]"
 //更新状态和时间
 scriptSql.updateStateAndTime = "UPDATE scripts set execState = ? ,createTime = ? where taskId = ?";
 var updateStateAndTime_params = "[state,createTime,taskId]"

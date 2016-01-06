@@ -1455,8 +1455,10 @@ router.post('/submitFile', function(req, res) {
     var typeId = req.body['taskType'];//上测试库时需要msg
     var containScript = req.body['containScript'];//上测试库时需要msg
     var scriptComment = req.body['scriptComment'];//上测试库时需要msg
+    var proviceId = req.body['proviceId'];//上测试库时需要msg
     //var taskCode = req.body['taskCode'];//上测试库时需要msg
     var jsonStr;
+
     dao.searchNewAndOld(taskId,3,function(msg,newAndOld,taskCode,filesAndState,projectUri){
             var att = newAndOld;
             var filesFlag =[];
@@ -1600,7 +1602,7 @@ router.post('/submitFile', function(req, res) {
                                  }
                                  else{
                                      var params = {taskId:taskId,taskName:taskName,taskCode:taskCode,processStepId:3,
-                                         dealer:userId,userId:userId,containScript:containScript,scriptComment:scriptComment};
+                                         dealer:userId,userId:userId,containScript:containScript,scriptComment:scriptComment,proviceId:proviceId};
                                      Script.addScript(params,function(msg_script){
                                          console.log("add Script:",msg_script);
                                      });

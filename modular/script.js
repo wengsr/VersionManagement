@@ -23,7 +23,7 @@ script.addScript = function(params,callback){
         queues(connection);
         var trans = connection.startTransaction();
         var sql = scriptSql.addScript;
-        var newParams = [params.taskId,params.taskId,1,params.scriptComment]//状态标识为“未上库”
+        var newParams = [params.taskId,params.taskId,1,params.scriptComment,params.proviceId]//状态标识为“未上库”
         trans.query(sql, newParams, function (err, result) {
             if (err) {
                 console.log('[ addScript ERROR] - ', err.message);
