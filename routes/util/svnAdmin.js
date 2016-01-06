@@ -175,6 +175,11 @@ var commitToTestRepository = function(params,callback){
             var newOldFile =  attaFile;       //开发人员上传的新旧文件的压缩文件
             var localDir = OLD_FOLDER + '/' + taskCode + '/upFolder';
             var svnFolder = OLD_FOLDER + '/' + taskCode;
+            //只包含配置或脚本变更单，无文件需要更新至svn
+            if(!files.addFiles&&!files.delFiles&&!files.modFiles){
+                console.log("there is no files to commit to svn");
+                return callback(  "success", "无文件需要上传,请点击【上库完成】");
+            }
             //var svnTool = new Svn({username: SVN_USER, password: SVN_PWD});
             //2.1清空upFolder文件夹，获取SVN信息的.svn文件夹
             FilesAdmin.deleteFolderRecursive(localDir);                        //删除文件夹
@@ -206,7 +211,7 @@ var commitToTestRepository = function(params,callback){
                         return callback( "err", "旧文件或文件夹在new文件夹中不存在，请手动上库！涉及文件：" + compResult.diff);
                     }
                     //没有旧文件，只有新增，没有修改和新增文件,跳转至“更新svn信息再上传”
-                    if((files.modFiles=="")&&(files.delFiles =="")){
+                    if((!files.modFiles)&&(!files.delFiles)){
                         console.log("err", "自动上库过程出现错误,请“更新svn信息再上传”");
                         return callback("err", "自动上库过程出现错误,请“更新svn信息再上传”");
                     }
@@ -400,3 +405,4 @@ module.exports = svnAdmin;
 //taskComplete({taskId:165,userId:1,processStepId:6},function(msg){
 //    console.log("taskComplete:",msg);
 //})
+//var params ={taskId:170,taskName:"NCRM开发变更单-TEST-20151112-测试-zhanglj6-002",taskCode:"crm某某工程1_20160106_083"}

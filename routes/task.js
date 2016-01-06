@@ -2257,6 +2257,10 @@ router.post('/autoUpload', function(req,res) {
                 return returnJsonMsg(req, res, "err", "旧文件或文件夹在new文件夹中不存在，请手动上测试库！涉及文件：" + compResult.diff);
             }
             //没有旧文件，只有新增，没有修改和新增文件,跳转至“更新svn信息再上传”
+            if((modTaskList=="")&&(delTaskList =="")&&(addTaskList =="")){
+                return returnJsonMsg(req, res, "success", "无文件需要上传，请直接点击【上库完成】");
+            }
+            //没有旧文件，只有新增，没有修改和新增文件,跳转至“更新svn信息再上传”
             if((modTaskList=="")&&(delTaskList =="")){
                 var updateRevision_params = {taskId:taskId,state:"自动上测试库失败"}
                 updateState(updateRevision_params);
