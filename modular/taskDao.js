@@ -896,16 +896,19 @@ exports.delTask = function(taskId,callback) {
             "   select * from taskattachment where taskid = ?",
             insertProcessStep:"insert into deletedtaskprocessstep" +
             "   select * from taskprocessstep where taskid = ?",
+            insertScript:"insert into deletedScripts" +
+            "   select * from scripts where taskid = ?",
             insertTasks:"insert into deletedtasks" +
             "   select * from tasks where taskid = ?",
             updateAttachment:"delete from taskattachment where taskId =?",
             updateFileList: "delete from filelist where taskId  = ?",
             updateTaskProcessStep: "delete from taskprocessstep where taskId  = ?",
+            updateScript: "delete from scripts where taskId  = ?",
             updateTask: "delete from tasks where taskId  = ?"
         };
-        var sql_item = ["selectState","insertFiles","insertAttachment","insertProcessStep","insertTasks",
-          "updateAttachment",  "updateFileList","updateTaskProcessStep","updateTask"];
-        var sql_params = [[taskId],[taskId],[taskId],[taskId],[taskId],[taskId],[taskId],[taskId],[taskId]];
+        var sql_item = ["selectState","insertFiles","insertAttachment","insertProcessStep","insertScript","insertTasks",
+          "updateAttachment",  "updateFileList","updateTaskProcessStep","updateScript","updateTask"];
+        var sql_params = [[taskId],[taskId],[taskId],[taskId],[taskId],[taskId],[taskId],[taskId],[taskId],[taskId],[taskId]];
         var i= 0;
         async_delTask(trans,sql,sql_item,sql_params,i,function(msg,flag){
             if(msg == "err"){
