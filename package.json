@@ -28,6 +28,6 @@
         "excel-export":"0.4.1",
         "process":"latest",
         "log4js":"latest",
-      "iconv-lite":"latest"
+        "iconv-lite":"latest"
     }
 }
