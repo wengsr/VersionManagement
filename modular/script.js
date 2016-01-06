@@ -194,8 +194,7 @@ script.findScripts = function(params,callback){
                     return callback(err,null);
                 }
                 else{
-                    console.log("query scripts:",result);
-                    console.log("query scripts count:",count[0].count);
+
                     callback('success',result,count[0].count);
                 }
             });
@@ -206,6 +205,40 @@ script.findScripts = function(params,callback){
     });
 }
 
+//查找特定配置脚本信息 scriptid
+script.findScriptsById  = function(params,callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN PAGES ERROR] - ', err.message);
+            return callback(err);
+        }
+        queues(connection);
+        var trans = connection.startTransaction();
+        var sql = scriptSql.findScriptsById;
+        var newParams = [params.scriptId];
+        var attaSql = scriptSql.findAtta,
+            attaParams =[params.scriptId];
+        trans.query(sql, newParams, function (err, result) {
+            if (err) {
+                console.log('[ findScriptsById ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            else{
+                trans.query(attaSql, attaParams, function (err, atta) {
+                    if (err) {
+                        console.log('[ findScriptAtta ERROR] - ', err.message);
+                        return callback(err,null);
+                    }
+                    else{
+                        callback('success',result[0],atta[0]);
+                    }
+                });
+            }
+        });
+        trans.execute();//提交事务
+        connection.release();
+    });
+}
 //根据传入的参数生成查找配置或者脚本 的sql 条件
 function getConditionAndSql(params){
     var newParams =[];

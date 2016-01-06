@@ -33,7 +33,7 @@ exports.getTaskList = function(params,callback){
             return callback(err);
         }
         var sql = 'select t.*, tps.*, u.realName as dealerName from' +
-            '   (select taskid,projectId, taskCode as provice,realName as creater, taskname as taskName from tasks  join user on userId = creater )' +
+            '   (select taskid,projectId, taskCode as provice,realName as creater, taskname as taskName,containScript from tasks  join user on userId = creater )' +
             '   as t  ' +
             '   JOIN taskprocessstep tps ' +
             '   JOIN User u ON t.taskid =tps.taskid and tps.processStepId = 7 and u.userId = tps.dealer ' +

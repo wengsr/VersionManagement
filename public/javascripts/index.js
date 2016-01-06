@@ -203,7 +203,23 @@ function regTaskDevReposityDialog() {
 function setTaskId(taskId){
     $('#selectedTaskId').val(taskId);
 }
-
+/**
+ * 查看配置和脚本
+ */
+function regShowScriptDialog() {
+    var stepId = "[script=script]";
+    //var url = '/users/showFileList',
+    var btnName = "btnScript";
+    var url = '/script/scriptPage';
+    $(stepId).each(function(){
+        var taskTagId = $(this).attr('id');
+        var scriptId = $(this).attr('scriptId');
+        var realUrl = url + "/" + scriptId ;
+        btnForm = btnName.replace('btn','form');
+        showModelDialog(taskTagId, realUrl, btnForm);
+        //showModelDialog(taskTagId2, realUrl, btnForm);
+    });
+}
 /**
  * 变更单记录数为0时候的处理
  */
@@ -237,6 +253,7 @@ jQuery(document).ready(function() {
     regTaskTestDialog();
     regTaskComfirminDialog();
     regTaskDevReposityDialog()//上开发库
+    regShowScriptDialog();//查看配置或脚本变更单
     //隐藏页面上方提示条
     setTimeout(function(){$('#errTip').slideUp(1000);setTimeout(function(){$('#errTip').remove()},2000)},2000);
     setTimeout(function(){$('#successTip').slideUp(1000);setTimeout(function(){$('#successTip').remove()},2000)},1000);

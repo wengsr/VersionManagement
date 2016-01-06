@@ -58,6 +58,10 @@ var exlCols = [{
     type:'string',
     width:15
 },{
+    caption:'包含脚本',
+    type:'string',
+    width:15
+},{
     caption:'上测试库日期',
     type:'String',
     width:20.85
@@ -140,6 +144,7 @@ var getRows = function(sqlResult){
         row.push(sqlResult[i].provice);
         row.push(sqlResult[i].taskName);
         row.push(sqlResult[i].creater);
+        row.push(sqlResult[i].containScript);
         row.push(sqlResult[i].execTime);
         row.push(sqlResult[i].turnNum);
         //row.push(sqlResult[i].isAuto);
@@ -226,6 +231,12 @@ router.post("/exportXls", function(req, res) {
                 if (task.execTime) {
                     task.execTime = task.execTime.format("yyyy-MM-dd HH:mm:ss");
                 }
+                if(task.containScript==1){
+                    task.containScript = "Y"
+                }
+                else{
+                    task.containScript = "N"
+                }
             });
             conf.cols = exlCols;
             conf.rows = getRows(result);
@@ -247,6 +258,13 @@ router.post("/exportXls", function(req, res) {
                 if (task.execTime) {
                     task.execTime = task.execTime.format("yyyy-MM-dd HH:mm:ss");
                 }
+                if(task.containScript ==1){
+                    task.containScript = "Y"
+                }
+                else{
+                    task.containScript = "N"
+                }
+
             });
             conf.cols = exlCols;
             conf.rows = getRows(result);

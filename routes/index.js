@@ -644,10 +644,17 @@ router.get('/btnScriptToDeal/:curPage', function(req, res) {
 /**
  * 打开脚本的处理界面
  */
-router.get("/scriptPage/:taskId",function(req,res){
+router.get("/scriptPage/:scriptId",function(req,res){
     var params = req.params;
-    Task.findTaskById(params.taskId,function(msg,result){
-        res.render('script/',{title:'变更单历史', taskHis:taskHis, maxTurnNum:maxTurnNum,maxTestNum:maxTestNum});
+    Script.findScriptsById(params,function(msg,result,atta){
+        if(result.createTime){
+            result.createTime = result.createTime.format("yyyy-MM-dd HH:mm:ss");
+            console.log(  result.createTime);
+        }
+        if(result.lastTime){
+            result.lastTime= result.lastTime.format("yyyy-MM-dd HH:mm:ss");
+        }
+        res.render('script/scriptPage',{title:'配置脚本信息', script:result,attaFile:atta});
     })
 })
 
@@ -666,7 +673,7 @@ router.get("/findScriptPage/",function(req,res){
  * 查找变跟单包含脚本情况
  */
 router.post("/findScripts/",function(req,res){
-    var params = req.params;
+    var params = req.body;
     var user= Tool.getCookieUser(req,res);
     var cookieUser = req.cookies.user;
     params.userId = user.userId;

@@ -82,7 +82,7 @@ var TaskSql = function(){
     var findCreaterTask_params = "[userId,startNum]";
     //核心+ 本地变更单列表
     this.getTaskListWithFileUriSegLocal = " SELECT *  FROM" +
-    "   (SELECT  DISTINCT t.taskid,? provice,t.taskCode,t.taskName, u.realName creater ,tps.execTime ,tps.turnNum " +
+    "   (SELECT  DISTINCT t.taskid,? provice,t.taskCode,t.taskName, u.realName creater ,tps.execTime ,tps.turnNum ,t.containScript " +
     "    FROM tasks t join filelist fl on fl.fileUri like ?" +
     "   and fl.taskId =t.taskId" +
     "   join  taskprocessstep tps on tps.taskId = t.taskId And  tps.processStepId = 8" +
@@ -97,7 +97,7 @@ var TaskSql = function(){
     "   WHERE  fileUri NOT LIKE '/trunk/local/%'" +
     "   ) " +
     "   ) localTable" +
-    "   Union(	select  t.taskid,'核心' provice,t.taskCode,t.taskName, u.realName creater,tps.execTime ,tps.turnNum" +
+    "   Union(	select  t.taskid,'核心' provice,t.taskCode,t.taskName, u.realName creater,tps.execTime ,tps.turnNum ,t.containScript" +
     "   FROM tasks t JOIN (" +
     "   SELECT DISTINCT   taskId  FROM" +
     "   fileList  WHERE   taskId  IN (" +
@@ -118,7 +118,7 @@ var TaskSql = function(){
     var getTaskListWithFileUriSegLocal_params = "[projectName,fileUriSeg,startTime,endTime,startTime,endTime]";
     //核心变更单列表
     this.getTaskListWithFileUriSegCore ="SELECT " +
-    "   '核心' provice ,t.taskid,t.taskCode, t.taskName,u.realName creater,tps.execTime,tps.turnNum" +
+    "   '核心' provice ,t.taskid,t.taskCode, t.taskName,u.realName creater,tps.execTime,tps.turnNum, t.containScript" +
     "   FROM tasks t JOIN (" +
     "   SELECT DISTINCT   taskId  FROM" +
     "   fileList  WHERE   taskId  IN (" +
@@ -135,7 +135,7 @@ var TaskSql = function(){
     "   JOIN projectType pt on" +
     "   t.projectId = pt.projectId and  pt.type = 0";
     var getTaskListWithFileUriSegCore_params = "[startTime,endTime]";
-    this.getTaskListWithFileUriSegAll = "SELECT DISTINCT t.taskid,p.projectName provice,t.taskCode,t.taskName,u.realName creater ,tps.execTime " +
+    this.getTaskListWithFileUriSegAll = "SELECT DISTINCT t.taskid,p.projectName provice,t.taskCode,t.taskName,u.realName creater ,tps.execTime ,t.containScript " +
     "    FROM tasks t join filelist fl  on fl.fileUri like '/trunk/%'  and fl.taskId =" +
     "   t.taskId JOIN" +
     "   taskprocessstep tps on tps.taskId = t.taskId And  tps.processStepId = 8 and tps.execTime between ? and ?" +
@@ -157,7 +157,8 @@ var TaskSql = function(){
     var updateReqParams = "[reqCode,taskId]"
     this.findNeedToCommitDevReposity = "SELECT * from (" +
     "   SELECT *  FROM" +
-    "   (SELECT  DISTINCT t.taskid, ? provice,t.processStepId ,t.state,t.taskCode,t.taskName, u.realName creater ,tps.execTime ,tps.turnNum  FROM tasks t join filelist fl on fl.fileUri like ?" +
+    "   (SELECT  DISTINCT t.taskid, ? provice,t.processStepId ,t.state,t.taskCode,t.taskName, u.realName creater ,tps.execTime ,tps.turnNum " +
+    "    FROM tasks t join filelist fl on fl.fileUri like ?" +
     "   and fl.taskId =t.taskId" +
     "   join  taskprocessstep tps on tps.taskId = t.taskId And  tps.processStepId = 8" +
     "   JOIN user u on t.creater = u.userId" +

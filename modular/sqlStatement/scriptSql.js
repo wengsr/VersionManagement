@@ -25,4 +25,15 @@ scriptSql.countScripts = "SELECT count(*) count from (" +
 "   where t.taskId = s.taskId and s.proviceId = p.proviceId and u.userId = t.creater and s.execState = st.stateId" +
 "   )scriptsTable "
 var countScripts_params = "[]";
+scriptSql.findScriptsById = "   SELECT s.*,t.taskName,u.realName createrName,p.proviceName ,t.containScript ,st.stateName " +
+"   from tasks t,scripts s,provice p,user u, states st" +
+"   where t.taskId = s.taskId and s.proviceId = p.proviceId and u.userId = t.creater  and s.execState = st.stateId and s.scriptId = ?" ;
+ var  findScriptId_params = "[scriptId]";
+scriptSql.findAtta = "SELECT	ta.*" +
+"   FROM" +
+"   taskattachment ta,scripts s" +
+"   WHERE" +
+"   ta.taskId = s.taskId AND ta.processStepId = 3 AND scriptId =? " +
+"   ORDER BY ta.attachmentId DESC limit 1"
+ var  findAtta_params = "[scriptId]";
 module.exports = scriptSql;
