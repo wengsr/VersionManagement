@@ -1498,7 +1498,7 @@ router.post('/submitFile', function(req, res) {
                         return returnJsonMsg(req,res,"err",msg);
                     };
                     var allFiles = scanFoldForUri(scanFold,scanFold).fileUris;//获取变更单中的文件名;
-                    if((allFiles.length==0)||(allFiles.length != filesAndState.length) ){//变更单中new文件夹下的文件数是否和数据库中的一致
+                    if((allFiles.length != filesAndState.length) ){//变更单中new文件夹下的文件数是否和数据库中的一致
                         dao.delNewAndOld(taskId,3,function(msg){
                             if(msg =="err"){
                                 console.log("delNewAndOld err:");

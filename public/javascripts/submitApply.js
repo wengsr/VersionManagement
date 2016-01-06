@@ -124,12 +124,13 @@ function checkSubmit(fields){
                 return flag;
             }
         }
-        if (($(fields[3]).val() == '')&& ($(fields[4]).val() == '')&&$(fields[5]).val() == ''){//修改清单和新增清单不能同时为空
-            flag = false;
-            $('#alertInfo').text("文件清单不能同时为空");
-            $('#divAlert').show();
-            return flag;
-        }
+        //只有配置文件
+        //if (($(fields[3]).val() == '')&& ($(fields[4]).val() == '')&&$(fields[5]).val() == ''){//修改清单和新增清单不能同时为空
+        //    flag = false;
+        //    $('#alertInfo').text("文件清单不能同时为空");
+        //    $('#divAlert').show();
+        //    return flag;
+        //}
     });
 
     return flag;
