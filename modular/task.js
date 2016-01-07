@@ -1661,7 +1661,9 @@ Task.findAllTaskByParamForBoss = function(userId,projectId,state,processStepId,t
  * @param userId
  * @param callback
  */
-Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode,taskname,createrName,dealerName,startTime,endTime,startNum,callback){
+Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode,
+                                   taskname,createrName,dealerName, startTime,endTime,startNum,reqName,
+                                   callback){
     taskcode = "%" + taskcode + "%";
     taskname = "%" + taskname + "%";
     createrName = "%" + createrName + "%";
@@ -1676,7 +1678,7 @@ Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode
             "            FROM" +
             "            (" +
             "                SELECT" +
-            "        taskTable2.*, oU2.realName AS createrName" +
+            "        taskTable2.*, oU2.realName AS createrName,r.reqName" +
             "        FROM" +
             "        (" +
             "            SELECT" +
@@ -1690,7 +1692,8 @@ Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode
             "        JOIN processstepdealer psd ON psd.projectId = t.projectId" +
             "        JOIN processstep ps ON ps.processStepId = t.processStepId" +
             "        AND t.projectId IN (" +
-            "            SELECT utp.projectId from usertoproject utp where utp.userId = ?" +
+            "           SELECT  DISTINCT pt1.projectId FROM projecttype pt1, projecttype pt2, usertoproject utp" +
+            "           WHERE pt1.type = pt2.type AND pt2.projectId = utp.projectId AND utp.userId = ?" +
             "        )" +
             "        ) taskTable" +
             "        JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid" +
@@ -1714,6 +1717,7 @@ Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode
             "        LEFT JOIN USER oU ON oTps.dealer = oU.userId" +
             "        ) taskTable2" +
             "        LEFT JOIN USER oU2 ON taskTable2.creater = oU2.userId" +
+            "       left join requirement r on taskTable2.reqId = r.reqId" +
             "        ) selectTable" +
             "        WHERE" +
             "        selectTable.taskcode LIKE ?" +
@@ -1724,7 +1728,7 @@ Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode
             "            FROM" +
             "            (" +
             "                SELECT" +
-            "        taskTable2.*, oU2.realName AS createrName" +
+            "        taskTable2.*, oU2.realName AS createrName,r.reqName" +
             "        FROM" +
             "        (" +
             "            SELECT" +
@@ -1738,7 +1742,8 @@ Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode
             "        JOIN processstepdealer psd ON psd.projectId = t.projectId" +
             "        JOIN processstep ps ON ps.processStepId = t.processStepId" +
             "        AND t.projectId IN (" +
-            "            SELECT utp.projectId from usertoproject utp where utp.userId = ?" +
+            "           SELECT  DISTINCT pt1.projectId FROM projecttype pt1, projecttype pt2, usertoproject utp" +
+            "           WHERE pt1.type = pt2.type AND pt2.projectId = utp.projectId AND utp.userId =?" +
             "        )" +
             "        ) taskTable" +
             "        JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid" +
@@ -1748,6 +1753,7 @@ Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode
             "        LEFT JOIN USER oU ON oTps.dealer = oU.userId" +
             "        ) taskTable2" +
             "        LEFT JOIN USER oU2 ON taskTable2.creater = oU2.userId" +
+            "       left join requirement r on taskTable2.reqId = r.reqId" +
             "        ) selectTable" +
             "        WHERE" +
             "        selectTable.taskcode LIKE ?" +
@@ -1755,6 +1761,13 @@ Task.findAllTaskByParam = function(userId,projectId,state,processStepId,taskcode
             "            AND selectTable.createrName LIKE ?" ;
         var params = [userId,taskcode,taskname,createrName];
         var params_count = [userId,taskcode,taskname,createrName];
+        if(reqName!=''){
+            sql_count = sql_count + "  AND selectTable.reqName LIKE ?";
+            sql = sql + "  AND selectTable.reqName LIKE ?";
+            reqName = "%" + reqName + "%";
+            params.push(reqName);
+            params_count.push(reqName);
+        }
         if(dealerName!=''){
             sql_count = sql_count + "  AND selectTable.dealerName LIKE ?";
             sql = sql + "  AND selectTable.dealerName LIKE ?";

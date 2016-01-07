@@ -1038,6 +1038,7 @@ router.post('/findAllTask', function (req, res) {
     var startTime = req.body.startTime;
     var endDate = req.body.endDate;
     var endTime = req.body.endTime;
+    var reqName = req.body.reqName.trim();
     startTime = startDate ? startDate+' '+startTime+":00" : '';
     endTime = endDate? endDate+' '+endTime+":59" : '';
     var searchConds = {
@@ -1052,11 +1053,14 @@ router.post('/findAllTask', function (req, res) {
         startDate:startDate,
         startTime :startTime,
         endDate:endDate,
-        endTime: endTime
+        endTime: endTime,
+        reqName:reqName
     };
     req.session.finAllTaskConds = searchConds;
 
-    Task.findAllTaskByParam(userId,projectId,state,processStepId,taskCode,taskname,createrName,dealerName,startTime,endTime,0,function(msg,tasks,count){
+    Task.findAllTaskByParam(userId,projectId,state,processStepId,taskCode,taskname,createrName,
+        dealerName,startTime,endTime,0,reqName,
+        function(msg,tasks,count){
         findProsByUserIdForApplyTaskBtn(userId,req,function(userPros){
             if('success'!=msg){
                 req.session.error = "模糊查询所有变更单时发生错误,请记录并联系管理员";

@@ -179,7 +179,7 @@ function regTaskDevReposityDialog() {
 /**
  * 打开脚本状态查询
  */
-function regTaskDevReposityDialog() {
+function regScriptPageDialog() {
     var stepId = "[ scriptType=taskProcessStepId]";
     //var url = '/users/showFileList',
     var url = '/btnTaskCreater/';
@@ -252,7 +252,7 @@ jQuery(document).ready(function() {
     regTaskFileList();
     regTaskTestDialog();
     regTaskComfirminDialog();
-    regTaskDevReposityDialog()//上开发库
+    regTaskDevReposityDialog();//上开发库
     regShowScriptDialog();//查看配置或脚本变更单
     //隐藏页面上方提示条
     setTimeout(function(){$('#errTip').slideUp(1000);setTimeout(function(){$('#errTip').remove()},2000)},2000);
