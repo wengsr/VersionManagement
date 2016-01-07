@@ -25,7 +25,7 @@
 </div>
 <div class="main">
     <div class="history">
-        <% if(taskHis.length && (taskHis[0].taskid < 1600)){%>
+        <% if(taskHis.length && (taskHis[0].taskid != 1930)){%>
         <!--//12.9 taskid 1566-->
         <%for(var j=0; j<=maxTurnNum; j++){%>
         <div class="history-date">
@@ -236,7 +236,7 @@
         <%}%>
         <%}else%>
         <!--新版历史消息记录 taskId>1666-->
-        <% if(taskHis.length && (taskHis[0].taskid >2000)){%>
+        <% if(taskHis.length && (taskHis[0].taskid  == 1930)){%>
         <div class="history-date">
             <ul>
                 <% var j = 0;var curTestNum = 0%>
@@ -283,7 +283,7 @@
                     <h3>安排走查</h3>
                     <dl>
                         <dt><%=tHis.realName%> &nbsp;&nbsp;&nbsp;&nbsp;<time style="display:inline;color:#d3d3d3;font-weight:normal">(<%=tHis.execTime%>)</time>
-                            <span>指定<%=tempHis.realName%>对该变更单走查</span>
+                            <span>指定<%=tHis.realName%>对该变更单走查</span>
                         </dt>
                     </dl>
                 </li>
@@ -348,7 +348,7 @@
                     <dl>
                         <dt><%=(tHis.realName==null)?"":tHis.realName%> &nbsp;&nbsp;&nbsp;&nbsp;<time style="display:inline;color:#d3d3d3;font-weight:normal">(<%=tHis.execTime%>)</time>
                             <span><%=tHis.realName%>测试完成</span>
-                            <span><%=tHis.realName%>测试后，作出“<%=tHis.state%>”的判定</span>
+                            <!--<span><%=tHis.realName%>测试后，作出“<%=tHis.state%>”的判定</span>-->
                         </dt>
                     </dl>
                 </li>
@@ -390,7 +390,7 @@
                     <h3>上发布库</h3>
                     <dl>
                         <dt><%=(tHis.realName==null)?"":tHis.realName%> &nbsp;&nbsp;&nbsp;&nbsp;<time style="display:inline;color:#d3d3d3;font-weight:normal">(<%=tHis.execTime%>)</time>
-                            <span><%=tHis.state%></span>
+                            <!--<span><%=tHis.state%></span>-->
                         </dt>
                     </dl>
                 </li>

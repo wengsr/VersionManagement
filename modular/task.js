@@ -1968,7 +1968,7 @@ Task.findHistory = function(taskId,callback){
        //    "    ORDER BY turnNum,testNum,processStepId,id";
         var params = [taskId,taskId];
         var taskSql = new TaskSQL();
-        if(taskId > 200000){
+        if(taskId ==1930){
             sql = taskSql.findTaskHistory;
             params = [taskId];
         }

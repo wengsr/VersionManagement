@@ -55,7 +55,7 @@
                     <div class="form-group">
                         <label for="scriptComment" class="col-sm-2 control-label">执行说明</label>
                         <div class="col-sm-10" style="margin-top:6px">
-                            <textarea class="form-control" id="scriptComment" rows="2" disabled="disabled"><%=script.comment?'':script.comment%></textarea>
+                            <textarea class="form-control" id="scriptComment" rows="2" disabled="disabled"><%=script.comment?script.comment:''%></textarea>
                         </div>
                     </div>
                     <%} %>
