@@ -320,48 +320,25 @@ function hasAllFiles(hasFiles){
     return flag;
 }
 /**判断变更单是否包含制定文件**/
-filesAdmin.checkNeedFiles = function(dir,isRequirement,callback){
+filesAdmin.checkNeedFiles = function(params,callback){
     var hasFiles = [false,false];
+    var dir = params.dir,
+        isRequirement = params.isRequirement;
     var needFiles = [FilesReg.testReporter,FilesReg.devOrder];
-    if(isRequirement==1){
+    if(params.isRequirement==1){
         hasFiles.push(false);
         needFiles.push(FilesReg.reqCase)
     }
+    if(params.containScript == 1){
+        hasFiles.push(false);
+        needFiles.push(FilesReg.dataFile)
+    }
     var length = hasFiles.length;
     //var i = 0;
-    fs.readdir(dir, function(err, paths) {
+    fs.readdir(params.dir, function(err, paths) {
         if (err) {
             throw err;
         }
-        //needFiles.forEach(function(item,i){
-        //    console.log("needFile:",i);
-        //    paths.forEach(function(path,j){
-        //        var _src = dir + '/' + path;
-        //        var flag = false;
-        //        fs.stat(_src, function (err, st) {
-        //            if (err) {
-        //                throw err;
-        //            }
-        //            console.log("all  "+i+"file11:",j);
-        //            if (st.isFile()) {
-        //                if(path.match(needFiles[i])){
-        //                    console.log(needFiles[i]+"file11:",path)
-        //                    console.log(i+"file12:",j)
-        //                    hasFiles[i] = true;
-        //                    //console.log("file:",i)
-        //                }
-        //            }
-        //            //if(i== length-1){
-        //            //    console.log(hasAllFiles(hasFiles));
-        //            //    return callback(hasAllFiles(hasFiles)) ;
-        //            //}
-        //            //else{
-        //            //    checkFile(needFiles,++i,length,callback);
-        //            //}
-        //        });
-        //    });
-        //});
-       //
         var  checkFile = function(paths,fileReg,j,fileLength,callback){
             if(j == fileLength){
                 return  callback("err");
@@ -451,8 +428,8 @@ var fileReg = /teswwt/g;
 //var srcpath = "D:/变更单/NCRM开发变更单-YN-20151022-云南NCRM安卓变更单系统优化-hezf2-001"
 //var srcpath = "D:/变更单/NCRM开发变更单-HX-20151013-集团回调地址支撑通过properties文件配置-lilin-001"
 //var srcpath = "D:/变更单/NCRM开发变更单-YN-20151022-云南NCRM安卓变更单系统优化-hezf2-001"
-//
-//filesAdmin.checkNeedFiles(srcpath,0,function(result){
+//var params ={dir:srcpath,isRequirement:1,containScript:1}
+//filesAdmin.checkNeedFiles(params,function(result){
 //    console.log("checkNeedFiles:",result);
 //})
 

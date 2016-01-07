@@ -1486,11 +1486,15 @@ router.post('/submitFile', function(req, res) {
                     return res.send(queryObj.callback + '(\'' + jsonStr + '\')');
                 }
                 //else{
-                FilesAdmin.checkNeedFiles(tempFold ,typeId,function(isAll){
+                var checkFiles_params = {dir:tempFold,isRequirement:typeId,containScript:containScript}
+                FilesAdmin.checkNeedFiles(checkFiles_params,function(isAll){
                     if(!isAll){
                         var msg = "附件中需包含 测试报告(.doc)，开发变更单(.xls),请核对！"
                         if(typeId==1){
                             msg = "附件中需包含 测试报告(.doc)，开发变更单(.xls),支撑方案设计(.doc) 请核对！"
+                        }
+                        if(containScript==1){
+                            msg = "附件中需包含 NCRM配置变更单、NCRM模型变更单、NCRM数据变更单（.txt,.sql) 请核对！"
                         }
                          console.error(" (attachment is not correct)");
                          console.log(" (attachment is not correct)附件中需包含 测试报告(.doc)，开发变更单(.xls),请核对！");
