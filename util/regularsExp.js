@@ -9,7 +9,7 @@ RegularsExp.changeOrderName_bug = /^([\u4e00-\u9fa5]|[0-9A-Za-z.])+[-][A-Z]+[-][
 //变更单中的文件名
 RegularsExp.filesName  = /[\/]?([a-zA-Z0-9_\-\/])*[a-zA-Z0-9_\-.]*([.][a-zA-Z0-9_]+)+/g;
 //变更单中的数据变更单
-RegularsExp.dataFile = /(^(NCRM配置变更单|NCRM模型变更单|NCRM数据变更单)-([\u4e00-\u9fa5]|[\x00-\xff])+(.txt)$|(.sql)$)/g;
+RegularsExp.dataFile = /(^(NCRM配置变更单|NCRM模型变更单|NCRM数据变更单)-([\u4e00-\u9fa5]|[\x00-\xff])+(.txt)$|(.sql)$|(.SQL)$|(.xlsx)$|(.xls)$)/g;
 //变更单中的测试报告
 RegularsExp.testReporter = /^(测试报告)([\u4e00-\u9fa5]|[\x00-\xff])+((.doc)$|(.docx)$)/g;
 //变更单中的开发变更单

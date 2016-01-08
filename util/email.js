@@ -204,6 +204,42 @@ exports.sendEmailToDealer_new = function(params){
     var content = getContent(params,operator);
     sendEmail(params.email,content,operator);
 }
-//exports.sendSqlAttaToPM("", "", "zlj", "1021890251@qq.com","send attachment","./fileTool.js");
+
+exports.sendEmailWithCCAndAttachments =function(taskcode, taskname, userName, userEmail,ccUsers,content,attachment) {
+  console.log("sendEmailWithCCAndAttachments ccUsers :",ccUsers);
+    var sendContent = '<b>亲爱的'+userName+'：<br/>' +
+        '&emsp;&emsp;您好！【变更单名称】:“'+taskname+'”   (变更单号：'+taskcode+')' +
+        '<br/><br/></b>' +
+        '<div><b>'+content+'</b><br/></div>';
+    mailOptions.html = sendContent+alink;
+    mailOptions.to = userEmail;
+    mailOptions.subject= '【版本管理系统】'+content;
+    mailOptions.cc = ccUsers;
+    var files = [];
+    attachment.forEach(function(file){
+        var fileName = file.substring(file.lastIndexOf("/")+1,file.length);
+        fileName = fileName.replace(/[\u4e00-\u9fa5]/g,"");
+        var attach ={
+            path : file,
+            filename:"DB_"+fileName
+        };
+        files.push(attach);
+    });
+    if(files.length>0){
+        mailOptions.attachments=files;
+        console.log("attachmen files : ",mailOptions.attachments);
+        transporter.sendMail(mailOptions, function(error, info){
+            if(error){
+                console.log(error);
+                mailOptions.attachments="";
+            }else{
+                console.log('Message sent endSqlAttaToPM : ' + info.response);
+                mailOptions.attachments="";
+            }
+        });
+    }
+};
+
+//exports.sendSqlAttaToPM("", "", "zlj", "1021890251@qq.com","send attachment",["./fileTool.js"]);
 //module.exports = sendMailToCreater;
 //module.exports = sendMailToDealer;

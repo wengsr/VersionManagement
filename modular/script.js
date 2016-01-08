@@ -239,6 +239,31 @@ script.findScriptsById  = function(params,callback){
         connection.release();
     });
 }
+
+//查找包含数据变更单的变更单 taskId 以及用户信息
+script.findScriptAttachInfo  = function(params,callback){
+    pool.getConnection(function(err, connection){
+        if(err){
+            console.log('[CONN PAGES ERROR] - ', err.message);
+            return callback(err);
+        }
+        queues(connection);
+        var trans = connection.startTransaction();
+        var sql = scriptSql.findProviceConfManager;//各省负责人信息
+        var newParams = [params.taskId];
+        trans.query(sql, newParams, function (err, result) {
+            if (err) {
+                console.log('[ findScriptsById ERROR] - ', err.message);
+                return callback(err,null);
+            }
+            else{
+                callback('success',result);
+            }
+        });
+        trans.execute();//提交事务
+        connection.release();
+    });
+}
 //根据传入的参数生成查找配置或者脚本 的sql 条件
 function getConditionAndSql(params){
     var newParams =[];

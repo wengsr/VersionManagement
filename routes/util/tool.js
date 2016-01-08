@@ -80,4 +80,21 @@ exports.getRevisionFromData = function(data){
 //var data ="in=enshgnjsh svn:,nenhg svn: tinsngh \r\n";
 //console.log(exports.getRevisionFromData(data));
 
-
+exports.sendEmailForSqlAttachmentToDB = function(req,taskId, content,attachment){
+    Task.findTaskAndDBById(taskId,function(msg,result){
+        if('success'!=msg){
+            req.session.error = "发送邮件时查找变更单信息发生错误,请记录并联系管理员";
+            return null;
+        }
+        if(result==null){
+            console.log("无需发数据变更单送变更单");
+            return ;
+        }
+        var taskcode = result.taskcode;
+        var taskname = result.taskname;
+        var DBName = result.realName;
+        var userEmail = result.email;
+        Email.sendSqlAttaToPM(taskcode, taskname, DBName, userEmail,content,attachment);
+        console.log("email success");
+    });
+}

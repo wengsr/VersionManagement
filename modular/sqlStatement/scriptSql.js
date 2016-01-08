@@ -36,4 +36,10 @@ scriptSql.findAtta = "SELECT	ta.*" +
 "   ta.taskId = s.taskId AND ta.processStepId = 3 AND scriptId =? " +
 "   ORDER BY ta.attachmentId DESC limit 1"
  var  findAtta_params = "[scriptId]";
+// 邮件通知：各个省份和配置脚本的负责人 + 福州
+scriptSql.findProviceConfManager = "SELECT DISTINCT t.taskId,t.taskCode,t.taskName,email,u.realName,pr.proviceId FROM tasks t ,scripts s ,provicerole pr ,user u" +
+"   where t.taskId = ? and t.containScript =1  and t.taskId = s.taskId" +
+"   and (s.proviceId = pr.proviceId or pr.proviceId = 100 or s.proviceId=100  ) and pr.roleId in(21,22) and pr.userId = u.userId" +
+"   ORDER BY proviceId desc";
+var findConfManager_params = "[taskId]"
 module.exports = scriptSql;

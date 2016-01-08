@@ -1480,7 +1480,7 @@ router.post('/submitFile', function(req, res) {
                             msg = "附件中需包含 测试报告(.doc)，开发变更单(.xls),支撑方案设计(.doc) 请核对！"
                         }
                         if(containScript==1){
-                            msg = "附件中需包含 NCRM配置变更单、NCRM模型变更单、NCRM数据变更单（.txt,.sql) 请核对！"
+                            msg = "附件中需包含 NCRM配置变更单、NCRM模型变更单、NCRM数据变更单（.txt,.sql,.xlsx,.xls 请核对！"
                         }
                          console.error(" (attachment is not correct)");
                          console.log(" (attachment is not correct)附件中需包含 测试报告(.doc)，开发变更单(.xls),请核对！");
@@ -1597,9 +1597,9 @@ router.post('/submitFile', function(req, res) {
                                  else{
                                      var params = {taskId:taskId,taskName:taskName,taskCode:taskCode,processStepId:3,
                                          dealer:userId,userId:userId,containScript:containScript,scriptComment:scriptComment,proviceId:proviceId};
-                                     Script.addScript(params,function(msg_script){
-                                         console.log("add Script:",msg_script);
-                                     });
+                                        Script.addScript(params,function(msg_script){
+                                            console.log("add Script:",msg_script);
+                                         });
                                      //结束变更单上传环节。
                                      ProcessStepAdmin.endCurProcess(params, function(msg,result) {//
                                          console.log("endCurProcess callback Msg:",msg);
@@ -1915,7 +1915,8 @@ function scanFolder(path){
         'files': fileList,
         'folders': folderList
     }
-}/**
+}
+/**
  * 获取path目录下的配置变更单
  * @param path
  * @returns {{files: Array, folders: Array}}
