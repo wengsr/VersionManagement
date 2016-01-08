@@ -8,6 +8,7 @@ var taskDao = require('../modular/taskDao');
 var TaskAtta = require('../modular/taskAtta');
 var TaskTest = require('../modular/taskTest');
 var Tool = require("./util/tool");
+var getCookieUser = Tool.getCookieUser;
 var ApplyOrder = require("../modular/applyOrder");
 
 var showFileList = function( taskId){

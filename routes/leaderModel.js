@@ -7,6 +7,8 @@ var crypto = require('crypto');
 var LeaderModel = require('../modular/leaderModel');
 var Project = require('../modular/project');
 var url = require('url');
+var Tool =  require("./util/tool");
+var getCookieUser = Tool.getCookieUser;
 
 /**
  * 日期格式化 yyyy-MM—dd HH-mm-ss

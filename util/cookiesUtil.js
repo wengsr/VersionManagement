@@ -4,9 +4,7 @@
 var CookiesUtil = {};
 CookiesUtil.getCookieUser = function(req,res){
     var cookieUser = req.cookies.user;
-    if(cookieUser){
-        req.session.user = cookieUser;
-    }
+    req.session.user = cookieUser;
     if(!req.session.user || 'undefined'==req.session.user){
         return res.redirect("/users/login");
     }

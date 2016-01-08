@@ -27,6 +27,8 @@ var taskXls = require("../modular/taskXls");
 var tool = require("./util/tool");
 var FilesAdmin = require("./util/filesAdmin");
 var ProcessStepAdmin = require("./util/processStepAdmin");
+var Tool =  require("./util/tool");
+var getCookieUser = Tool.getCookieUser;
 
 /**
  * 查找测试人员，用于显示“申请变更单”和“查找变更单”按钮等
@@ -45,22 +47,6 @@ var findProsByTesterIdForMenuBtn = function(userId,req,callback){
     });
 }
 
-/**
- * 从cookie中获取user给session，如果session中user为空，就返回主页
- * @param req
- * @param res
- * @returns {*}
- */
-var getCookieUser = function(req, res){
-    var cookieUser = req.cookies.user;
-    if(cookieUser){
-        req.session.user = cookieUser;
-    }
-    if(!req.session.user || 'undefined'==req.session.user){
-        return res.redirect("/");
-    }
-    return cookieUser;
-}
 
 /**
  * 给变更单的发起人员发邮件_测试环节

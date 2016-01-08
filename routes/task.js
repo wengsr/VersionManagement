@@ -116,6 +116,7 @@ var ApplyOrder = require("../modular/applyOrder");
 var TaskProcess_version = require("../modular/taskProcess_version");
 var svnAdmin = require("./util/svnAdmin");
 var Tool = require("./util/tool.js");
+var getCookieUser = Tool.getCookieUser;
 var Script = require("../modular/script");
 //var log = require("../util/log");
 /**
@@ -524,21 +525,6 @@ var findProsByUserIdForApplyTaskBtn = function(userId,req,callback){
     });
 }
 
-/**
- * 从cookie中获取user给session，如果session中user为空，就返回主页
- * @param req
- * @param res
- * @returns {*}
- */
-var getCookieUser = function(req, res){
-    var cookieUser = req.cookies.user;
-    if(cookieUser){
-        req.session.user = cookieUser;
-    }
-    if(!req.session.user || undefined==req.session.user){
-        return res.redirect("/");
-    }
-}
 /**
  * 判断前一次查找的条件是否存在
  * @param req

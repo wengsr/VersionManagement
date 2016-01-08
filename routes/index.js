@@ -7,23 +7,10 @@ var Task = require('../modular/task');
 var TaskTest = require('../modular/taskTest');
 var Project = require('../modular/project');
 var Script  = require("../modular/script");
-var Tool = require("./util/tool")
+var Tool =  require("./util/tool");
+var getCookieUser = Tool.getCookieUser;
 //var log = require("../util/log");
-/**
- * 从cookie中获取user给session，如果session中user为空，就返回主页
- * @param req
- * @param res
- * @returns {*}
- */
-var getCookieUser = function(req, res){
-        var cookieUser = req.cookies.user;
-        if(cookieUser){
-            req.session.user = cookieUser;
-        }
-        if(!req.session.user || undefined ==req.session.user){
-            return res.redirect("/");
-        }
-}
+
 
 /**
  * 保存信息到cookie和session中

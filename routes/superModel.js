@@ -7,7 +7,6 @@ var crypto = require('crypto');
 var SuperModel = require('../modular/superModel');
 var Project = require('../modular/project');
 var url = require('url');
-
 /**
  * 获取没有组长的项目
  * @param req

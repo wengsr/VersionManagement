@@ -18,7 +18,8 @@ var CMPOld = "/old2/";
 var Compare = require("./util/compare.js");
 var url = require('url');
 var CmdExc = require('../util/cmdExcTool');
-
+var Tool =  require("./util/tool");
+var getCookieUser = Tool.getCookieUser;
 
 /**
  * 文件上传成功失败信息返回
@@ -160,6 +161,7 @@ function fileUp(req, res, secFolder){
  * 走查报告文件上传
  */
 router.post('/checkReportUp', function(req, res) {
+    getCookieUser(req,res);
     fileUp(req, res, CHECK_REPORT_UPLOAD_FOLDER);
 });
 
@@ -170,12 +172,14 @@ router.post('/checkReportUp', function(req, res) {
  *
  */
 router.get('/fileDownLoad/:filename/:realpath',function(req,res,next){
+    getCookieUser(req,res);
     var filename = req.params.filename;
     var realpath = req.params.realpath;
     res.download(realpath,filename);
 });
 
 router.post('/submitFile', function(req, res) {
+    getCookieUser(req,res);
     fileUp(req, res, CHECK_REPORT_UPLOAD_FOLDER2);
 });
 
@@ -184,6 +188,7 @@ router.post('/submitFile', function(req, res) {
  * 测试报告上传
  */
 router.post('/unpassTesting', function(req, res) {
+    getCookieUser(req,res);
     fileUp(req, res, CHECK_REPORT_UPLOAD_FOLDER3);
 });
 
@@ -264,6 +269,7 @@ var compareOld = function(taskId,oldDir,oldDir2,excPath,callback){
  * 比对旧文件
  */
 router.post('/compareOld', function(req, res) {
+    getCookieUser(req,res);
     var taskId = req.body.taskId;
     compareOld(taskId,OLDDIR,SVNOLDDIR,CMPOld,function(msg,result){
         var queryObj = url.parse(req.url,true).query;

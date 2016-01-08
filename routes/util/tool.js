@@ -12,13 +12,11 @@ var express = require('express');
  */
 exports.getCookieUser = function(req, res){
     var cookieUser = req.cookies.user;
-    if(cookieUser){
-        req.session.user = cookieUser;
-        return cookieUser;
-    }
+    req.session.user = cookieUser;
     if(!req.session.user || 'undefined'==req.session.user){
         return res.redirect("/");
     }
+    return cookieUser;
 }
 
 /**

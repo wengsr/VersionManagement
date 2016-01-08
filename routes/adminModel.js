@@ -10,7 +10,8 @@ var VersionConstant = require("../util/versionConstant");
 var fileZip = require("../util/fileTool");
 var url = require('url');
 var fs = require("fs");
-
+var Tool =  require("./util/tool");
+var getCookieUser = Tool.getCookieUser;
 /**
  * 返回JSON信息
  * @param res
@@ -66,19 +67,9 @@ var findProsByUserIdForApplyTaskBtn = function(userId,req,callback){
 }
 /**
  * 从cookie中获取user给session，如果session中user为空，就返回主页
- * @param req
- * @param res
- * @returns {*}
  */
-var getCookieUser = function(req, res){
-    var cookieUser = req.cookies.user;
-    if(cookieUser){
-        req.session.user = cookieUser;
-    }
-    if(!req.session.user || 'undefined'==req.session.user){
-        return res.redirect("/");
-    }
-}
+
+
 router.get('/findFileHistory/', function(req, res) {
     getCookieUser(req, res);
     var userId = req.session.user.userId;
