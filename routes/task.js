@@ -1688,7 +1688,7 @@ router.post('/extractFile', function(req, res) {
                             var userStr = "文件占用的情况：";
                             for (var i in users) {
                                 userFlag = true;
-                                userStr += users[i].fileUri + ': user = (' + users[i].userId + ' ,'+  users[i].realName+');    ';
+                                userStr += users[i].fileUri + '(' + users[i].taskName + ':'+  users[i].realName+');    ';
                             }
                             jsonStr = '{"sucFlag":"success","message":"有文件被占用，无法申请","user":"' + userStr + '" ,"userFlag":"' + userFlag + '"}';
                             res.send(queryObj.callback + '(\'' + jsonStr + '\')');

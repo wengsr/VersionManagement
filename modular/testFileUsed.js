@@ -19,13 +19,13 @@ var testFileUsed = function(fileList, projectId,taskId, callback) {
             return callback("err");
         }
         var flag = false;
-        var sql ='select u.userId, u.realName, fl.fileUri from filelist fl'   +
+        var sql ='select t.taskName, u.userId, u.realName, fl.fileUri from filelist fl'   +
            '   join tasks t on fl.taskId = t.taskId  '   +
             '  JOIN taskprocessstep tps on t.taskid = tps.taskid and tps.processStepId = t.processStepId and tps.turnNum =(' +
-            '   SELECT max(turnNum) from taskprocessstep where taskId = ?)' +
+            '   SELECT max(turnNum) from taskprocessstep where taskId = t.taskId)' +
             '   join user u on tps.dealer=u.userId' +
             '    and fl.commit=0 and  fl.fileUri in (select fileUri from fileList where taskId=?)';
-        var params = [taskId,taskId];
+        var params = [taskId];
         connection.query(sql, params, function (err, result) {
             if (err) {
                 console.log('[QUERY FILELIST ERROR] - ', err.message);
