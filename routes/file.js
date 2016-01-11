@@ -149,7 +149,7 @@ function fileUp(req, res, secFolder){
 
         saveTaskAtta(req, taskId, processStepId, reportName, reportUri, function(insertId){
             if(insertId){
-                fileUpReturnInfo(res, "true", "正在校验附件请勿关闭窗口...", reportName, reportUri);
+                fileUpReturnInfo(res, "true", "文件上传成功", reportName, reportUri);
             }else{
                 fileUpReturnInfo(res, "false", "文件记录数据库时出错", '', '');
             }

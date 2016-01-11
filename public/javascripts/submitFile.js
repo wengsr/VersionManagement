@@ -192,7 +192,7 @@ function fileUpReturn(){
             $('#a_reportAtta').html(attaName);//设置附件a标签的内容
             resetAttaDownloadUri('a_reportAtta');//处理文件下载uri上的特殊字符
             //4.页面给出“文件上传成功与否的提示”
-            showTipInfo("err", returnInfo);
+            showTipInfo("err", "正在校验附件请勿关闭窗口...");
         }else if("false"==isUpSuccess){
             showTipInfo("err", returnInfo);
         }

@@ -542,7 +542,7 @@ router.post('/exportLocalChangeAtta/', function(req, res) {
             var  massage = "相关附件已成功压缩,请点击【变更单附件】进行下载";
             var jsonStr = '{"sucFlag":"' + sucFlag + '","message":"' + massage + '","fileName":"' + fileName + '","fileUri":"' + currentUri + '"}';
             var queryObj = url.parse(req.url,true).query;
-            if(zipflag){
+            if(zipflag[0]){
                 return  res.send(queryObj.callback+'(\'' + jsonStr + '\')');
             }
 
