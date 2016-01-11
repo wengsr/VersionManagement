@@ -85,7 +85,7 @@ var TaskSql = function(){
     "   (SELECT  DISTINCT t.taskid,? provice,t.taskCode,t.taskName, u.realName creater ,tps.execTime ,tps.turnNum ,t.containScript " +
     "    FROM tasks t join filelist fl on fl.fileUri like ?" +
     "   and fl.taskId =t.taskId" +
-    "   join  taskprocessstep tps on tps.taskId = t.taskId And  tps.processStepId = 8" +
+    "   join  taskprocessstep tps on tps.taskId = t.taskId And  tps.processStepId = ?" +
     "   and tps.execTime BETWEEN ?" +
     "   AND ? " +
     "   JOIN user u on t.creater = u.userId" +
@@ -108,14 +108,14 @@ var TaskSql = function(){
     "   ) coreTasks" +
     "   ON t.taskId = coreTasks.taskId" +
     "   JOIN taskprocessstep tps ON t.taskId = tps.taskid" +
-    "   AND tps.processStepId = 8" +
+    "   AND tps.processStepId = ?" +
     "   AND tps.execTime BETWEEN ? " +
     "   AND ? " +
     "   JOIN user u on t.creater = u.userId" +
     "  JOIN projectType pt on" +
     "   t.projectId = pt.projectId and  pt.type = 0" +
     "   ) ORDER BY taskId " ;
-    var getTaskListWithFileUriSegLocal_params = "[projectName,fileUriSeg,startTime,endTime,startTime,endTime]";
+    var getTaskListWithFileUriSegLocal_params = "[projectName,fileUriSeg,processStepId,startTime,endTime,processStepId,startTime,endTime]";
     //核心变更单列表
     this.getTaskListWithFileUriSegCore ="SELECT " +
     "   '核心' provice ,t.taskid,t.taskCode, t.taskName,u.realName creater,tps.execTime,tps.turnNum, t.containScript" +
@@ -128,21 +128,21 @@ var TaskSql = function(){
     "   ) " +
     "   ) coreTasks ON t.taskId = coreTasks.taskId" +
     "   JOIN taskprocessstep tps ON t.taskId = tps.taskid" +
-    "   AND tps.processStepId = 8" +
+    "   AND tps.processStepId =?" +
     "   AND tps.execTime BETWEEN ?" +
     "   AND ? " +
     "   JOIN user u on u.userId = t.creater" +
     "   JOIN projectType pt on" +
     "   t.projectId = pt.projectId and  pt.type = 0";
-    var getTaskListWithFileUriSegCore_params = "[startTime,endTime]";
+    var getTaskListWithFileUriSegCore_params = "[processStepId,startTime,endTime]";
     this.getTaskListWithFileUriSegAll = "SELECT DISTINCT t.taskid,p.projectName provice,t.taskCode,t.taskName,u.realName creater ,tps.execTime ,t.containScript " +
     "    FROM tasks t join filelist fl  on fl.fileUri like '/trunk/%'  and fl.taskId =" +
     "   t.taskId JOIN" +
-    "   taskprocessstep tps on tps.taskId = t.taskId And  tps.processStepId = 8 and tps.execTime between ? and ?" +
+    "   taskprocessstep tps on tps.taskId = t.taskId And  tps.processStepId = ? and tps.execTime between ? and ?" +
     "   JOIN taskattachment ta on ta.taskId = tps.taskId and tps.turnNum = ta.turnNum  and  ta.processStepId = 3" +
     "   JOIN project p on p.projectId = t.projectId" +
     "   JOIN user u on u.userId = t.creater";
-    var getTaskListWithFileUriSegAll_params = "[startTime,endTime]";
+    var getTaskListWithFileUriSegAll_params = "[processStepId,startTime,endTime]";
     this.findTaskHistory = "SELECT" +
     "   tps.*, u.realName,ta.fileName,ta.fileUri,tpr.reason" +
     "   FROM" +

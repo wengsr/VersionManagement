@@ -306,10 +306,10 @@ TaskAtta.commitRar = function(attachmentId, callback){
 function  getFindChangeAttaSqlAndParams(params){
     var sqlParams = [];
     if(params.fileUriSeg =="XJ"||params.fileUriSeg =="YN"||params.fileUriSeg =="SC"){
-        sqlParams =[projectName[params.fileUriSeg],localFileSeg[params.fileUriSeg],params.startTime,params.endTime,params.startTime,params.endTime]
+        sqlParams =[projectName[params.fileUriSeg],localFileSeg[params.fileUriSeg],params.processStepId,params.startTime,params.endTime,params.processStepId,params.startTime,params.endTime]
     }
     if(params.fileUriSeg =="CORE"||params.fileUriSeg =="ALL"){
-        sqlParams = [params.startTime,params.endTime];
+        sqlParams = [params.processStepId,params.startTime,params.endTime];
     }
     return {sql:findChangAttaSql[params.fileUriSeg],params:sqlParams}
 }
@@ -342,6 +342,7 @@ TaskAtta.exportLocalChangeAtta = function(params, callback){
             }
             else{
                 //console.log('success',result);
+                //console.log('success',result.length);
                 callback('success', result);
                 //callback('success', null);
             }

@@ -60,7 +60,10 @@ jQuery(document).ready(function() {
           startDate:$("#startDate").val(),
           startTime :$("#startTime").val(),
           endDate:$("#endDate").val(),
-          endTime: $("#endTime").val()};
+          endTime: $("#endTime").val(),
+          processStepId: $("[name=processStepId]:checked").val()
+      };
+
        var url ="admin/exportLocalChangeAtta";
        if((params.fileUriSeg=="")||(params.fileUriSeg==undefined)){
            showTipInfo('err', "请先选择项目");

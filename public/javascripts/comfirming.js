@@ -328,6 +328,7 @@ jQuery(document).ready(function() {
     $('#btnReturn').hide();
     $('#btnAssignTestConfirm').hide();
     $('#diaInfoTip').hide();
+    resetAttaDownloadUri('a_testReport');
     setBtnDisable(["btnNewTaskName","btnReTest","btnAssignTestConfirm","btnRequireTest"]);
     //文件上传后回传值的处理
     fileUpReturn();

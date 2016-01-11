@@ -203,6 +203,7 @@ var getExlName = function(params){
  */
 var getParams = function(req){
      var params = req.body;
+    //console.log("excel:",params);
      params.startTime = params.startDate ? params.startDate+' '+params.startTime+":00" : '';
      params.endTime = params.endDate? params.endDate+' '+params.endTime+":00" : '';
     return params;
@@ -240,6 +241,7 @@ router.post("/exportXls", function(req, res) {
             });
             conf.cols = exlCols;
             conf.rows = getRows(result);
+            //return null;
             var result = nodeExcel.execute(conf);
             var exlName = getExlName(params)+".xlsx";
             console.log("exlName",exlName);
@@ -268,6 +270,7 @@ router.post("/exportXls", function(req, res) {
             });
             conf.cols = exlCols;
             conf.rows = getRows(result);
+            //return null;
             var result = nodeExcel.execute(conf);
             var exlName = getExlName(params)+".xlsx";
             console.log("exlName",exlName);

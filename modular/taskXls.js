@@ -36,9 +36,15 @@ exports.getTaskList = function(params,callback){
             '   (select taskid,projectId, taskCode as provice,realName as creater, taskname as taskName,containScript from tasks  join user on userId = creater )' +
             '   as t  ' +
             '   JOIN taskprocessstep tps ' +
-            '   JOIN User u ON t.taskid =tps.taskid and tps.processStepId = 7 and u.userId = tps.dealer ' +
+            '   JOIN User u ON t.taskid =tps.taskid and tps.processStepId = ? and u.userId = tps.dealer ' +
             '   and   creater LIKE ?';
         var param = [];
+        if(params.processStepId== undefined){
+            param.push(13);
+        }
+        else{
+            param.push(params.processStepId );
+        }
         var  createrName = "%" + params.createrName + "%";
         param.push(createrName);
         if(params.projectId!=''){
@@ -54,6 +60,7 @@ exports.getTaskList = function(params,callback){
             param.push(params.endTime);
         }
         sql +=  '   order by execTime desc';
+        //console.log("taskXls:",param);
         connection.query(sql, param, function (err, result) {
             if (err) {
                 console.log('[QUERY TASKS ERROR] - ', err.message);
@@ -96,11 +103,15 @@ var  localFileSeg = {
 function  getFindTaskListSqlAndParams(params){
     //console.log("params:",params);
     var sqlParams = [];
+    var processStepId = 13;
+    if(params.processStepId == 7 ){
+        processStepId = params.processStepId;
+    }
     if(params.fileUriSeg =="XJ"||params.fileUriSeg =="YN"||params.fileUriSeg =="SC"){
-        sqlParams =[projectName[params.fileUriSeg],localFileSeg[params.fileUriSeg],params.startTime,params.endTime,params.startTime,params.endTime]
+        sqlParams =[projectName[params.fileUriSeg],localFileSeg[params.fileUriSeg],processStepId,params.startTime,params.endTime,processStepId,params.startTime,params.endTime]
     }
     if(params.fileUriSeg =="CORE"||params.fileUriSeg =="ALL"){
-        sqlParams = [params.startTime,params.endTime];
+        sqlParams = [processStepId,params.startTime,params.endTime];
     }
     return {sql:findChangAttaSql[params.fileUriSeg],params:sqlParams}
 }

@@ -494,6 +494,7 @@ router.post('/exportLocalChangeAtta/', function(req, res) {
         params.endTime = endDate +" " + postParams.endTime;
     }
     params.fileUriSeg = fileUriSeg;
+    params.processStepId = postParams.processStepId?postParams.processStepId:13;
     Attachment.exportLocalChangeAtta(params, function (msg,attachements) {
         if(msg =="success"){
              if(!attachements||!attachements.length){
