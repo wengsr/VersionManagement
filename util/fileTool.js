@@ -28,7 +28,7 @@ var AdmZip = require('adm-zip');
 var fs = require('fs');
 
 var archiver = require('archiver');
-exports.zipFiles = function (localBaseDir, fileList, zipFileName) {
+exports.zipFiles = function (localBaseDir, fileList, zipFileName,callback) {
     //var output = fs.createWriteStream(__dirname + '/example111.zip');
     var output = fs.createWriteStream(zipFileName);
     var archive = archiver('zip');
@@ -53,7 +53,15 @@ exports.zipFiles = function (localBaseDir, fileList, zipFileName) {
         var tmpPath = fileList[i].substr( fileList[i].lastIndexOf('/') + 1);
         archive =archive.append(fs.createReadStream(localBaseDir + fileList[i]), { name:fileList[i] });
     }
-    archive.finalize();
+    var zipfinalize =  archive.finalize({close:function(msg,result){
+        console.log("zipfinalize close:",msg)}});
+
+    if(typeof callback == 'function'){
+        zipfinalize.on("finish",function(msg,result){
+            callback("finish");
+        }) ;
+    }
+
     return [true,];
 };
 exports.extractZip = function (zipFileName, targetDir) {
@@ -166,7 +174,8 @@ var fileList = [
 var zipName ="D:/testZip/文件压缩/test1.zip";
 //var zipName ="E:/VersionManagement-master.zip";
 var fs = require('fs');
-//var flag =exports.zipFiles(localDir, fileList, zipName);
+//var flag =exports.zipFiles(localDir, fileList, zipName
+//);
 //console.log(flag);
 //fs.unlinkSync("./测试工程名称/old/");
 //exports.extractZipAsync(zipName, './测试工程名称/old/',function(msg){
@@ -175,3 +184,5 @@ var fs = require('fs');
 //exports.extractZipAsync(zipName, 'E:/test/测试工程名称/old/');
 //exports.extractZip(zipName, './测试工程名称/old/'
 //);
+//var zipFileName = "D:\\VersionManagement\\bin\\exportAttachmentsLocalPath\\ALL[2015-11-01][85768].zip"
+//console.log(fs.statSync(zipFileName ))

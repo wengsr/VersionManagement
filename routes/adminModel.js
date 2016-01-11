@@ -529,8 +529,6 @@ router.post('/exportLocalChangeAtta/', function(req, res) {
             //console.log("filesArr1:",filesArr);
             var realName = exportAttachmentsLocalPath+fileName;
             filesArr.push(renameFiles);
-            var zipflag =  fileZip.zipFiles(attachmentLocalPath,filesArr,realName);
-            console.log("filesArr1:",fileName);
             //异步
             var newUri = realName;
             var newName = fileName;
@@ -543,9 +541,13 @@ router.post('/exportLocalChangeAtta/', function(req, res) {
             var  massage = "相关附件已成功压缩,请点击【变更单附件】进行下载";
             var jsonStr = '{"sucFlag":"' + sucFlag + '","message":"' + massage + '","fileName":"' + fileName + '","fileUri":"' + currentUri + '"}';
             var queryObj = url.parse(req.url,true).query;
-            if(zipflag[0]){
-                return  res.send(queryObj.callback+'(\'' + jsonStr + '\')');
-            }
+            var zipflag =  fileZip.zipFiles(attachmentLocalPath,filesArr,realName,function(msg){
+                if(msg == "finish"){
+                    console.log("ok;")
+                    return  res.send(queryObj.callback+'(\'' + jsonStr + '\')');
+                }
+            });
+            console.log("filesArr1:",fileName);
 
             //res.download(exportAttachmentsLocalPath+fileName,fileName);
 

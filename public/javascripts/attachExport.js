@@ -69,6 +69,7 @@ jQuery(document).ready(function() {
            showTipInfo('err', "请先选择项目");
            return ;
        }
+       showTipInfo('success', "正在压缩文件，请勿关闭窗口，请等待");
        ajaxSubmit_attachExport(params,url,"post");
    })
 
