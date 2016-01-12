@@ -13,7 +13,7 @@
 <%}else {%>
 <%include adminModel/attaInfo.ejs%>
 <%}%>
-<% } %>
+<% }else %>
 <% if(topBtnCheckTask=='findFileHistory'){%><!--版本管理员：查看变更文件历史-->
    <%if(files === null){%>
     <div style="margin-top: 100px">
@@ -28,8 +28,8 @@
     <%}else {%>
     <%include adminModel/filesHistory.ejs%>
     <%}%>
-<% } %>
-<%if(topBtnCheckTask == "dealScript"){  %>
+<% } else%>
+<% if(topBtnCheckTask == "dealScript"){  %>
     <%if(scripts === null){%>
         <div style="margin-top: 100px">
          <div class="col-sm-3"></div>
@@ -43,7 +43,7 @@
     <%}else {%>
         <%include script/script.ejs%>
     <%}%>
-<%}%>
+<%} else%>
 <% if(topBtnCheckTask=='findAFileHistory'){%><!--版本管理员：查看变更文件历史-->
     <%if(files === null){%>
     <div style="margin-top: 100px">
@@ -58,7 +58,7 @@
     <%}else {%>
     <%include adminModel/aFileHistory.ejs%>
     <%}%>
-<% } %>
+<% }  else%>
 <% if(tasks){%><!--登录后的任务处理界面(有待处理的任务或自己有发起任务且未来走完流程)-->
     <% if(topBtnCheckTask=='btnTaskCreater'){%><!--我发起的变更单-->
         <%include taskDeal/taskCreater.ejs%>

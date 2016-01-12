@@ -1447,6 +1447,8 @@ router.post('/submitFile', function(req, res) {
     var scriptComment = req.body['scriptComment'];//上测试库时需要msg
     var proviceId = req.body['proviceId'];//上测试库时需要msg
     //var taskCode = req.body['taskCode'];//上测试库时需要msg
+    scriptComment= scriptComment?scriptComment:null;
+    proviceId= proviceId?proviceId:null;
     var jsonStr;
 
     dao.searchNewAndOld(taskId,3,function(msg,newAndOld,taskCode,filesAndState,projectUri){
@@ -1600,7 +1602,7 @@ router.post('/submitFile', function(req, res) {
                                         Script.addScript(params,function(msg_script){
                                             console.log("add Script:",msg_script);
                                          });
-                                     //结束变更单上传环节。
+                                    // 结束变更单上传环节。
                                      ProcessStepAdmin.endCurProcess(params, function(msg,result) {//
                                          console.log("endCurProcess callback Msg:",msg);
                                          if ('success' == msg) {
