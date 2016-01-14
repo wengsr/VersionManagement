@@ -191,9 +191,9 @@ var topBtnClick = function(res, req, btnName){
         startNum = 0;
     }
     var cookieUser = req.cookies.user;
-    if(cookieUser!=undefined){
+    //if(cookieUser!=undefined ||cookieUser!=null){
         req.session.user = cookieUser;
-    }
+    //}
     if(undefined == req.session.user){
         return res.render('index', {
             title: 'AILK-CRM版本管理系统',

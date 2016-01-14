@@ -13,7 +13,7 @@ var express = require('express');
 exports.getCookieUser = function(req, res){
     var cookieUser = req.cookies.user;
     req.session.user = cookieUser;
-    if(!req.session.user || 'undefined'==req.session.user){
+    if(!req.session.user || 'undefined'==req.session.user||!req.session){
         return res.redirect("/");
     }
     return cookieUser;

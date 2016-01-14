@@ -79,7 +79,6 @@ function fileUp(req, res, secFolder){
     form.uploadDir = UPLOAD_FOLDER + secFolder;	 //设置上传目录
     form.keepExtensions = true;	 //保留后缀
     form.maxFieldsSize = 2 * 1024 * 1024;   //文件大小
-
     form.parse(req, function(err, fields, files) {
         //获取页面上隐藏域中的值和文件的名称和路径
        // console.log("fileUp,fields:",fields);
@@ -88,7 +87,6 @@ function fileUp(req, res, secFolder){
         var processStepId = fields.processStepId;
         var reportName = files.fulAvatar.name;
         var reportUri = files.fulAvatar.path;
-
         if (err) {
             fileUpReturnInfo(res, "false", err, '', '');
             return;
@@ -149,9 +147,11 @@ function fileUp(req, res, secFolder){
 
         saveTaskAtta(req, taskId, processStepId, reportName, reportUri, function(insertId){
             if(insertId){
-                fileUpReturnInfo(res, "true", "文件上传成功", reportName, reportUri);
+                console.log("file submit success:",taskId);
+               return  fileUpReturnInfo(res, "true", "文件上传成功", reportName, reportUri);
             }else{
-                fileUpReturnInfo(res, "false", "文件记录数据库时出错", '', '');
+                console.log("file submit err:",taskId);
+                return  fileUpReturnInfo(res, "false", "文件记录数据库时出错", '', '');
             }
         });
     });

@@ -1742,29 +1742,28 @@ router.post('/extractFile', function(req, res) {
                                             var zipName = "old.zip";
                                             var zipUri = localDir + zipName;
                                             var zipFilesFlag =false ;
-                                            zipFilesFlag = fileZip.zipFiles(localDir,fileList,zipUri);
+                                            zipFilesFlag = fileZip.zipFiles(localDir,fileList,zipUri,function(msg){
+                                                if(msg == "finish"){
+                                                    dao.extractFile(taskId,userId, 2, zipName, zipUriSaved, function (msg, result) {
+                                                        if ('success' == msg) {
+                                                            var attaFlag = true;
+                                                            jsonStr = '{"sucFlag":"success","message":"【提取文件】执行成功","attaFlag":"'+attaFlag+'","attaName":"'+zipName+'","attaUri":"'+zipUriSaved+'"}';
+                                                            var queryObj = url.parse(req.url, true).query;
+                                                            res.send(queryObj.callback + '(\'' + jsonStr + '\')');
+                                                        }
+                                                        else {//提取文件更新数据库失败
+                                                            jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
+                                                            var queryObj = url.parse(req.url, true).query;
+                                                            res.send(queryObj.callback + '(\'' + jsonStr + '\')');
+                                                        }
+                                                    });
+                                                }
+                                            });
                                             var zipUriSaved = "./old/"+taskCode+"/" +zipName;
                                             var queryObj = url.parse(req.url, true).query;
                                             if(!zipFilesFlag[0]){
                                                 jsonStr = '{"sucFlag":"err","message":"【提取文件】执行失败,请检查文件路径是否正确！！！","file":"'+zipFilesFlag[1]+'"}';
                                                 res.send(queryObj.callback + '(\'' + jsonStr + '\')');
-                                            }
-                                            else {
-                                                //压缩文件成功
-                                                //console.log("zipFile success!");
-                                                dao.extractFile(taskId,userId, 2, zipName, zipUriSaved, function (msg, result) {
-                                                    if ('success' == msg) {
-                                                        var attaFlag = true;
-                                                        jsonStr = '{"sucFlag":"success","message":"【提取文件】执行成功","attaFlag":"'+attaFlag+'","attaName":"'+zipName+'","attaUri":"'+zipUriSaved+'"}';
-                                                        var queryObj = url.parse(req.url, true).query;
-                                                        res.send(queryObj.callback + '(\'' + jsonStr + '\')');
-                                                    }
-                                                    else {//提取文件更新数据库失败
-                                                        jsonStr = '{"sucFlag":"err","message":"' + result + '"}';
-                                                        var queryObj = url.parse(req.url, true).query;
-                                                        res.send(queryObj.callback + '(\'' + jsonStr + '\')');
-                                                    }
-                                                });
                                             }
                                         }
                                     });

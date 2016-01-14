@@ -28,41 +28,49 @@ var AdmZip = require('adm-zip');
 var fs = require('fs');
 
 var archiver = require('archiver');
+//判断待压缩的一系列文件是否存在；
+function filesExist(localBaseDir, fileList){
+    for (var i = 0; i < fileList.length; i++) {
+        if(!fs.existsSync(localBaseDir + fileList[i])){
+            console.log("【zipFiles failed！ file not exit！】",fileList[i]);
+            //fs.close(output);
+            return [false,fileList[i]];
+        }
+        if(i== fileList.length-1){
+            return [true];
+        }
+    }
+}
 exports.zipFiles = function (localBaseDir, fileList, zipFileName,callback) {
     //var output = fs.createWriteStream(__dirname + '/example111.zip');
     var output = fs.createWriteStream(zipFileName);
     var archive = archiver('zip');
-
-    //output.on('close', function() {
-    //    console.log(archive.pointer() + ' total bytes');
-    //    //console.log('archiver has been finalized and the output file descriptor has closed.');
-    //});
-
-    archive.on('error', function(err) {
-        throw err;
-    });
-    archive.pipe(output);
-    for (var i = 0; i < fileList.length; i++) {
-        if(!fs.existsSync(localBaseDir + fileList[i])){
-            if(fs.existsSync(zipFileName)){
-                fs.unlink(zipFileName);
-            }
-            console.log("【zipFiles failed！】",fileList[i]);
-            return [false,fileList[i]];
+    var result =  filesExist(localBaseDir, fileList);
+        console.log("fileExist：",result);
+        if(!result[0]){
+            console.log("return here:",result);
+           return  result;
         }
-        var tmpPath = fileList[i].substr( fileList[i].lastIndexOf('/') + 1);
-        archive =archive.append(fs.createReadStream(localBaseDir + fileList[i]), { name:fileList[i] });
-    }
-    var zipfinalize =  archive.finalize({close:function(msg,result){
-        console.log("zipfinalize close:",msg)}});
+        console.log("filezip start：",result);
+        if(fs.existsSync(zipFileName)){
+            fs.unlink(zipFileName);
+        }
+        for (var i = 0; i < fileList.length; i++) {
+            var tmpPath = fileList[i].substr( fileList[i].lastIndexOf('/') + 1);
+            archive =archive.append(fs.createReadStream(localBaseDir + fileList[i]), { name:fileList[i] });
+        }
+        archive.on('error', function(err) {
+            throw err;
+        });
+        archive.pipe(output);
+        var zipfinalize =  archive.finalize();
 
-    if(typeof callback == 'function'){
-        zipfinalize.on("finish",function(msg,result){
-            callback("finish");
-        }) ;
-    }
-
-    return [true,];
+        if(typeof callback == 'function'){
+            zipfinalize.on("finish",function(msg,result){
+                callback("finish");
+            }) ;
+        }
+        return [true,];
 };
 exports.extractZip = function (zipFileName, targetDir) {
     var zip = new AdmZip(zipFileName);
