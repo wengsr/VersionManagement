@@ -125,9 +125,9 @@ var Script = require("../modular/script");
  *
  */
 var svnExist =function(files,projectUri,callback){
-   var svn = new Svn(SVN_USER,SVN_PWD);
+    var svn = new Svn(SVN_USER,SVN_PWD);
     if(files.length==0){
-       return callback(true);
+        return callback(true);
     }
     for(var i in files){
         files[i] = projectUri+files[i];
@@ -151,21 +151,38 @@ var svnNotExist =function(files,projectUri,callback){
     if(files.length==0){
       return   callback(true);
     }
-    console.log("svnNotExist:",projectUri);
+    //console.log("svnNotExist:",projectUri);
+    var svnUris =[];
     for(var i in files ) {
-        var svnUri = projectUri + files[i];
-        svn.propget(svnUri, function (msg) {
+        svnUris.push(projectUri + files[i]);
+        //svn.propget(svnUri, function (msg) {
+        //    if (msg === "err") {
+        //        if(i == (files.length -1)){
+        //          return   callback(true);
+        //        }
+        //    }
+        //    else {
+        //        return callback(false);
+        //    }
+        //});
+    }
+    var propgetNotExistSync = function(fileUris, i,callback){
+        if(i == fileUris.length){
+            return    callback(true);
+        }
+        svn.propget(fileUris[i],function (msg) {
+            //console.log("not exist file:",i);
             if (msg === "err") {
-                if(i == (files.length -1)){
-                  return   callback(true);
-                }
+                i++;
+               return propgetNotExistSync(fileUris, i,callback);
             }
             else {
-                return callback(false);
+                return   callback(false);
             }
         });
     }
-    return false;
+    propgetNotExistSync(svnUris,0,callback);
+    //return false;
 };
 /**
  * 保存附件信息到数据库
@@ -1601,7 +1618,7 @@ router.post('/submitFile', function(req, res) {
                                          dealer:userId,userId:userId,containScript:containScript,scriptComment:scriptComment,proviceId:proviceId};
                                         Script.addScript(params,function(msg_script){
                                             console.log("add Script:",msg_script);
-                                         });
+                                 });
                                     // 结束变更单上传环节。
                                      ProcessStepAdmin.endCurProcess(params, function(msg,result) {//
                                          console.log("endCurProcess callback Msg:",msg);
