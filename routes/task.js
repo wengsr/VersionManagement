@@ -1124,6 +1124,7 @@ router.get('/findAllTask/:curPage', function (req, res) {
     var startTime = searchConds.startTime;
     var endDate = searchConds.endDate;
     var endTime = searchConds.endTime;
+    var reqName = searchConds.reqName;
     var curPage = req.params.curPage;
     var startNum = (curPage-1)*30 -1;
     if(startNum< 0){
@@ -1131,7 +1132,8 @@ router.get('/findAllTask/:curPage', function (req, res) {
     }
     startTime = startDate ? startDate+' '+startTime+":00" : '';
     endTime = endDate? endDate+' '+endTime+":59" : '';
-    Task.findAllTaskByParam(userId,projectId,state,processStepId,taskCode,taskname,createrName,dealerName,startTime,endTime,startNum,function(msg,tasks,count){
+    Task.findAllTaskByParam(userId,projectId,state,processStepId,taskCode,taskname,createrName,
+        dealerName,startTime,endTime,startNum,reqName,function(msg,tasks,count){
         //console.log(tasks,'dddddd',count);
         findProsByUserIdForApplyTaskBtn(userId,req,function(userPros){
             if('success'!=msg){
