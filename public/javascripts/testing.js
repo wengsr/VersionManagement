@@ -204,6 +204,7 @@ function checkInput_test(){
  */
 function bindClick_btnUploadFile(){
     $('#submit_TestReport').on('click',function(){
+        $('#submit_TestReport').hide();
         $('#diaInfoTip,#diaErrTip,#diaSuccessTip,#btnAssignTest').hide();
         var fulAvatarVal = $('#fulAvatar').val();
         if(fulAvatarVal.length == 0){
@@ -275,7 +276,6 @@ function fileUpReturn(){
             //1.隐藏“选择测试报告”按钮
             $('#btnSelectReport').hide();
             //2.隐藏“上传测试报告”按钮，并显示“测试通过”、“测试不通过”按钮
-            $('#submit_TestReport').hide();
             //3.把已上传报告的名称和下载链接显示在页面上
             $('#a_reportAtta').attr('href',reportAttaUri);//设置附件a标签的链接
             $('#a_reportAtta').html(reportAttaName);//设置附件a标签的内容

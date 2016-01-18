@@ -66,7 +66,7 @@
                             <%if(stateId>0){%>
                             <textarea class="form-control" id="reqDesc" rows="3" name="reqDesc" disabled><%=taskInfo.reqDesc==undefined?"":taskInfo.reqDesc%></textarea>
                             <%}else{%>
-                                <textarea class="form-control" id="reqDesc" rows="3" name="reqDesc"></textarea>
+                                <textarea class="form-control" id="reqDesc" rows="3" maxlength="500" name="reqDesc"></textarea>
                             <%}%>
                         </div>
                     </div>

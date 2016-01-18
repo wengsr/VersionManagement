@@ -204,13 +204,13 @@ function checkInput_check(){
  */
 function bindClick_btnUploadFile(){
     $('#submit_UpReport').on('click',function(){
+        $('#submit_UpReport').hide();
         $('#diaInfoTip,#diaErrTip,#diaSuccessTip,#btnAssign').hide();
         var fulAvatarVal = $('#fulAvatar').val();
         if(fulAvatarVal.length == 0){
             showTipInfo('err','请选择要上传的文件');
             return false;
         }
-
         var extName = fulAvatarVal.substring(fulAvatarVal.lastIndexOf('.'),fulAvatarVal.length).toLowerCase();
         if(extName != '.rar' && extName != '.xls'){
             showTipInfo('err','只支持rar和xls文件');
@@ -283,6 +283,7 @@ function fileUpReturn(){
             //4.页面给出“文件上传成功与否的提示”
             showTipInfo("success", returnInfo);
         }else if("false"==isUpSuccess){
+            $('#submit_UpReport').show();
             showTipInfo("err", returnInfo);
         }
     });

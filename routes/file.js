@@ -83,15 +83,15 @@ function fileUp(req, res, secFolder){
         //获取页面上隐藏域中的值和文件的名称和路径
        // console.log("fileUp,fields:",fields);
        //console.log("files:",files);
-        var taskId = fields.taskId;
-        var processStepId = fields.processStepId;
-        var reportName = files.fulAvatar.name;
-        var reportUri = files.fulAvatar.path;
-        if (err) {
+        if (err || files.fulAvatar== undefined ) {
             fileUpReturnInfo(res, "false", err, '', '');
             return;
         }
-
+        var taskId = fields.taskId;
+        console.log("file of taskId:",taskId);
+        var processStepId = fields.processStepId;
+        var reportName = files.fulAvatar.name;
+        var reportUri = files.fulAvatar.path;
         var extName = '';  //后缀名
         switch (files.fulAvatar.type) {
             case 'application/x-zip-compressed':

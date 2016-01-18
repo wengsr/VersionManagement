@@ -391,8 +391,8 @@ var openTask = function(stepName, req, res, callback){
                                             "fileUri": '#'
                                         });
                                     }
-
-                                    res.render('taskInfo',{task:t, addFileList:addFileList, modifyFileList:modifyFileList, delFileList:delFileList, attaFile:atta, reportAtta:reportAtta});
+                                    res.render('taskInfo',{task:t, addFileList:addFileList, modifyFileList:modifyFileList,
+                                        delFileList:delFileList, attaFile:atta, reportAtta:reportAtta,unPassReason:null});
                                 });
                             });
                         });

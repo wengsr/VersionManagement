@@ -989,7 +989,6 @@ router.post('/findTask', function (req, res) {
                 req.session.error = "模糊查询变更单时发生错误,请记录并联系管理员";
                 return null;
             }
-
             if(tasks.length>0){
                 var pageCount = parseInt((count-1)/30 + 1);
                 req.session.tasks = tasks;
