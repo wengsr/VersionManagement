@@ -91,7 +91,18 @@ Svn.prototype.commit = function (localDir, callback) {
         }
     });
 };
-
+function changdDelFileName(files){
+    if((files=="")||(files.length==1&&files[0]=="")){
+       return files;
+    }
+    else{
+        //for(var i =0;i<files.length;i++){
+       files.forEach(function(i,file){
+           file = file.split(1);
+           console.log(file);
+       })
+    }
+}
 
 /**
  * 自动上库功能
@@ -103,8 +114,10 @@ Svn.prototype.autoUpload = function(taskName, localDir, delFileList, callback) {
     //1.设置参数
     this.client.option('cwd', localDir);
     var client   = this.client;
+
     //2.删除
     if((delFileList.length>0) && (delFileList[0]!='')) {
+        delFileList = changdDelFileName(delFileList);//将文件开头的“/” 去掉；
         client.del(delFileList, function (err, data) {
             if (err) return callback('err', err);
             console.log('删除本地SVN文件成功');

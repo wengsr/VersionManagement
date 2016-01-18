@@ -124,8 +124,13 @@ Svn.prototype.autoUpload = function(taskName, localDir, delFileList, callback) {
     var client   = this.client;
     //2.删除
     if(delFileList&&(delFileList.length>0) && (delFileList[0]!='')) {
+        delFileList =changdDelFileName(delFileList);//将文件开头的“/” 去掉；
         client.del(delFileList, function (err, data) {
-            if (err) return callback('err', err);
+            console.log("client:",client);
+            if (err){
+                console.log("svn delete err:",err);
+                return callback('err', err);
+            }
             console.log('删除本地SVN文件成功');
             //3.修改(包括新增)
             client.addLocal(function (modifyErr, modifyData) {
@@ -313,7 +318,6 @@ Svn.prototype.svnExists = function(filePath,versionDir,svnMessage,callback){
                     }
                 });
             }
-
         });
     }
     else{
@@ -403,32 +407,67 @@ Svn.prototype.merge = function(devRepositoryPath,testRepository,preRisions,revis
         })
     })
 }
+function changdDelFileName(files){
+    if((files=="")||(files.length==1&&files[0]=="")){
+        return files;
+    }
+    else{
+        //for(var i =0;i<files.length;i++){
+        files.forEach(function(file,i){
+            if(file[0]=="/"){
+                files[i] = file.substring(1,file.length);
+            }
+
+
+            //console.log(file);
+        })
+        //console.log(files);
+        return files;
+    }
+}
     //2.删除
 module.exports = Svn;
 /********测试案例*********/
     //var svn = new Svn({userName:"zhanglj6",password:"zhanglj72774"});
-    var svn = new Svn({userName:"cmsys",password:"717705"});
+
 var versionDir = "http://192.168.1.22:8000/svn/hxbss/testVersion/a";
 //var versionDir = "http://192.168.1.22:8000/svn/hxbss/NCRM/baseLine/Source/trunk";
 var localDir = "D:/testSvn-branch";
-//var localDir = "D:/svn_baseline";
+//var localDir = "D:/CRM2.9_20160118_0434";
+//var localDir = "D:\\testSvn/";
 //var localDir = "C:/app/NCRM_Baseline/NCRM_BASELINE/Source/trunk";
 //var msg = "NCRM开发变更单-XJ-20150815-订单资源释放-jinsh3-001";
 var msg = "test";
-//svn.autoUpload(msg, localDir,[],function(isSuccess,result){//除了被删除的文件，目录下的所有文件将被提交
-//    console.log("result:",result=="")
-//    if('success' != isSuccess){
-//        console.log("autoUpload ERR!")
-//    }
-//    if('success'== isSuccess){
+//var infoFiles = ["http://192.168.1.22:8001/svn/hxbss/NCRM/baseLine/Source/trunk/local/SC_TRUNK/MarketWeb/src/main/java/com/al/crm/market/file/upload/FileUpload.java",
+//    "http://192.168.1.22:8001/svn/hxbss/NCRM/baseLine/Source/trunk/local/SC_TRUNK/MarketWeb/src/main/java/com/al/crm/market/file/upload/FtpApche.java",
+//    "http://192.168.1.22:8001/svn/hxbss/NCRM/baseLine/Source/trunk/local/SC_TRUNK/MarketWeb/src/main/java/com/al/crm/market/file/upload/SFTPUtil.java"];
+//var testfiles = ["trunk/local/SC_TRUNK/MarketWeb/src/main/java/com/al/crm/market/file/upload/FileUpload.java",
+//    "/trunk/local/SC_TRUNK/MarketWeb/src/main/java/com/al/crm/market/file/upload/FtpApche.java",
+//    "/trunk/local/SC_TRUNK/MarketWeb/src/main/java/com/al/crm/market/file/upload/SFTPUtil.java"];
+//var svn = new Svn({userName:"cmsys",password:"717705"});
+//var delFiles = "FileUpload.java"
+//var delFiles =["/path4/testB.txt","/add1/add2.txt"] ;
 //
-//        console.log("autoUpload success!")
-//    }
+//console.log("test:",changdDelFileName(testfiles))
+
+//var client = new Client({
+//    cwd: localDir,
+//userName:"cmsys",password:"717705"
 //});
+//client.del(delFiles, function (err, data) {
+//    console.log(client)
+//    if (err){
+//        console.log("svn delete err:",err);
+//        //return callback('err', err);
+//        return
+//    }
+//    console.log('删除本地SVN文件成功');});
+
 //var versionDir = "http://crmsvn.asiainfo.org:8001/svn/hxbss/NCRM/baseLine/Source";
-//var versionDir = "http://192.168.1.22:8000/svn/hxbss/testVersion/a";
+//var versionDir = "http://192.168.1.22:8001/svn/hxbss/testVersion/a";
 //var svn = new Svn({username:"zhanglj6",password:"zhanglj72774"})
-//svn.checkout(localDir,versionDir,["","2015-81"],function(msg){
+//var localDir =   "D:\\变更单\\变更单"
+//svn.checkout(localDir,versionDir,["2015-81"],function(msg){
 //    console.log("checkout:",msg)
 //});
 //var revision = 49320;
@@ -437,4 +476,4 @@ var msg = "test";
 //    console.log("merge111:",msg)
 //    console.log("merge data111:",data)
 //});
-////
+//
