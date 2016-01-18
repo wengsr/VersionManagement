@@ -132,6 +132,7 @@ function bindClick_btnUploadFile(){
 
     $('#btnSubmitFile').on('click',function(){
         $('#diaInfoTip,#diaErrTip,#diaSuccessTip').hide();
+        $('#btnSubmitFile').hide();
         var fulAvatarVal = $('#fulAvatar').val();
         // var fulAvatarVal2 = $('#fulAvatar2').val();
         if(!$('[name=containScript]:checked').length){
@@ -182,7 +183,7 @@ function fileUpReturn(){
         var attaUri = $(window.frames["ifm_fileUpRe"].document).find("#reportAttaUri").val();
         if("true"==isUpSuccess){
             //1.隐藏“上传新旧文件”按钮
-            $('#btnSubmitFile').hide();
+
             //2.显示“上传文件成功文件”按钮
             submitForm_submitFile();
             $('#btnSelectReport').hide();
@@ -194,6 +195,7 @@ function fileUpReturn(){
             //4.页面给出“文件上传成功与否的提示”
             showTipInfo("err", "正在校验附件请勿关闭窗口...");
         }else if("false"==isUpSuccess){
+            $('#btnSubmitFile').show();
             showTipInfo("err", returnInfo);
         }
     });
