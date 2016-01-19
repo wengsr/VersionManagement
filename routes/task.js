@@ -118,7 +118,7 @@ var svnAdmin = require("./util/svnAdmin");
 var Tool = require("./util/tool.js");
 var getCookieUser = Tool.getCookieUser;
 var Script = require("../modular/script");
-//var log = require("../util/log");
+var log = require("../util/log");
 /**
  * 判断svn上存在该文件
  * @params files 文件名数组

@@ -10,7 +10,7 @@ var TaskTest = require('../modular/taskTest');
 var Tool = require("./util/tool");
 var getCookieUser = Tool.getCookieUser;
 var ApplyOrder = require("../modular/applyOrder");
-
+var log = require("../util/log");
 var showFileList = function( taskId){
     taskDao.getFileList(taskId,function(msg,result) {
         if(msg ==="success"){

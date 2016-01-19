@@ -20,6 +20,7 @@ var url = require('url');
 var CmdExc = require('../util/cmdExcTool');
 var Tool =  require("./util/tool");
 var getCookieUser = Tool.getCookieUser;
+var log = require("../util/log");
 
 /**
  * 文件上传成功失败信息返回

@@ -10,6 +10,7 @@ var SvnAdmin = require("./svnAdmin");
 var Task = require("../../modular/task");
 var States =  require("../../util/versionConstant").states;
 var Script = require("../../modular/script");
+var log = require("../../util/log");
 /**
  * 自动上库成功后，修改变更单状态为【自动上库成功】
  * @param req
