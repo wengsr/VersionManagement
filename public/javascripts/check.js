@@ -209,11 +209,13 @@ function bindClick_btnUploadFile(){
         var fulAvatarVal = $('#fulAvatar').val();
         if(fulAvatarVal.length == 0){
             showTipInfo('err','请选择要上传的文件');
+            $('#submit_UpReport').show();
             return false;
         }
         var extName = fulAvatarVal.substring(fulAvatarVal.lastIndexOf('.'),fulAvatarVal.length).toLowerCase();
         if(extName != '.rar' && extName != '.xls'){
             showTipInfo('err','只支持rar和xls文件');
+            $('#submit_UpReport').show();
             return false;
         }
 

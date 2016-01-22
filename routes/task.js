@@ -520,6 +520,9 @@ var findHistory = function(taskId,req,callback){
             if(task.execTime){
                 task.execTime = task.execTime.format("yyyy-MM-dd HH:mm:ss");
             }
+            if (task.endTime) {
+                task.endTime = task.endTime.format("yyyy-MM-dd HH:mm:ss");
+            }
         });
         callback(result);
     });
@@ -2138,6 +2141,9 @@ uploadToDB = function(req, taskId, userId, callback){
             var params = {taskId:taskId};
             Script.updateStateAndTime(params,function(msg_script){
                 console.log("updateStateAndTime Script:",msg_script);
+            });
+            var EmailSever = require("./service/email");
+            EmailSever.sendSqlAttachmentToDBs({taskId: taskId, userId: userId}, function (msg) {
             });
             findUnUsedTaskAndFileUri(taskId,req,function(fileLists){
                 var conflictTaskId=[];//存放受到影响的taskId

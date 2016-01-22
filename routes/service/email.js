@@ -33,7 +33,8 @@ function getSqlAttachment(path){
         'files': fileList
     }
 }
-email.sendSqlAttachmentToDBs = function(req,params,callback){
+//将含有配置或脚本的变更单发给各个省份负责人
+email.sendSqlAttachmentToDBs = function (params, callback) {
     Script.findScriptAttachInfo(params,function(msg,result){
         if(msg == "err"){
             return console.log("sendSqlAttachmentToDBs ERROR：",params.taskId,"  ",result);

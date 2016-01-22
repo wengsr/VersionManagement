@@ -137,18 +137,22 @@ function bindClick_btnUploadFile(){
         // var fulAvatarVal2 = $('#fulAvatar2').val();
         if(!$('[name=containScript]:checked').length){
             showTipInfo('err','请选择 该变更单是否【是否包含配置或脚本】');
+            $('#btnSubmitFile').show();
             return false;
         }
         if(($('[name=containScript]:checked').val()== 1) &&($("#scriptComment").val()).trim()==''){
             showTipInfo('err','请填写说明 【脚本执行说明】');
+            $('#btnSubmitFile').show();
             return false;
         }
         if(($('[name=containScript]:checked').val()== 1) &&($("#proviceId").val()=="")){
             showTipInfo('err','请填写说明 【所属省份】');
+            $('#btnSubmitFile').show();
             return false;
         }
         if(fulAvatarVal.length == 0){
             showTipInfo('err','请选择要上传的文件');
+            $('#btnSubmitFile').show();
             return false;
         }
         var fileName = fulAvatarVal.substring(fulAvatarVal.lastIndexOf("\\")+1,fulAvatarVal.lastIndexOf('.'));
@@ -156,11 +160,13 @@ function bindClick_btnUploadFile(){
         var extName = fulAvatarVal.substring(fulAvatarVal.lastIndexOf('.'),fulAvatarVal.length).toLowerCase();
         if(extName != '.rar'&& extName != '.zip'){
             showTipInfo('err','只支持rar,zip文件');
+            $('#btnSubmitFile').show();
             return false;
         }
         //限定变更单名和附件名要一致
         if(taskName != fileName){
             showTipInfo('err','变更单名和上传的附件名要一致');
+            $('#btnSubmitFile').show();
             return false;
         }
         //submitForm_submitFile();

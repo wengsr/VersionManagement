@@ -165,6 +165,10 @@ var  submitProcess  = function(params,callback){
                 /*上测试库成功，进入测试环节*/
                 else{
                     taskComplete({taskId:newParams.taskId,userId:235});
+                    //若有脚本则发送给各个省份的负责人
+                    var EmailSever = require("../service/email");
+                    EmailSever.sendSqlAttachmentToDBs(params, function (msg) {
+                    });
                     //给变更单的创建者发送邮件
                     TaskProcess_version.findCreaterAndTaskInfo(params,function(msg_get,creaters){
                         if(msg_get =="err"){

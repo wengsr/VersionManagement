@@ -282,7 +282,7 @@
                 <li>
                     <h3>安排走查</h3>
                     <dl>
-                        <dt><%=tHis.realName%> &nbsp;&nbsp;&nbsp;&nbsp;<time style="display:inline;color:#d3d3d3;font-weight:normal">(<%=tHis.execTime%>)</time>
+                        <dt><%=tHis.realName%> &nbsp;&nbsp;&nbsp;&nbsp;<time style="display:inline;color:#d3d3d3;font-weight:normal">(<%=tHis.endTime?tHis.endTime:tHis.execTime%>)</time>
                             <span>指定<%=tHis.realName%>对该变更单走查</span>
                         </dt>
                     </dl>
@@ -292,7 +292,8 @@
                 <li>
                     <h3>走查</h3>
                     <dl>
-                        <dt><%=tHis.realName%> &nbsp;&nbsp;&nbsp;&nbsp;<time style="display:inline;color:#d3d3d3;font-weight:normal">(<%=tHis.execTime%>)</time>
+                        <dt><%=tHis.realName%> &nbsp;&nbsp;&nbsp;&nbsp;<time style="display:inline;color:#d3d3d3;font-weight:normal">(<%=tHis.endTime?tHis.endTime:tHis.execTime%>)</time>
+                            <%if(tHis.endTime){%>
                                         <span>走查该变更单后，做出“走查通过”的判定<br/>
                                             <%if(tHis.fileUri!=null){%>
                                             <label>上传了走查报告：<a typeId="attaLink" href="<%=tHis.fileUri%>" style="color:#32B1EC"><%=tHis.fileName%></a></label>。
@@ -302,6 +303,7 @@
                                             <span>说明：<%= tHis.reason %></span>
                                             <% } %>
                                         </span>
+                            <%}%>
                         </dt>
                     </dl>
                 </li>
@@ -330,7 +332,7 @@
                 <li>
                     <h3>测试</h3>
                     <dl>
-                        <dt><%=tHis.realName==undefined?"":tHis.realName%> &nbsp;&nbsp;&nbsp;&nbsp;<time style="display:inline;color:#d3d3d3;font-weight:normal">(<%=tHis.execTime%>)</time>
+                        <dt><%=tHis.realName==undefined?"":tHis.realName%> &nbsp;&nbsp;&nbsp;&nbsp;<time style="display:inline;color:#d3d3d3;font-weight:normal">(<%=tHis.endTime?tHis.endTime:tHis.execTime%>)</time>
                             <span><%=tHis.realName== undefined ?'':tHis.realName +'接受了'%>测试任务</span>
                             <%if(tHis.fileUri!=null){%>
                             测试报告：<a typeId="attaLink" href="<%=tHis.fileUri%>" style="color:#32B1EC"><%=tHis.fileName%></a><br/>
