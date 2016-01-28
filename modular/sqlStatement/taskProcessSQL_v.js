@@ -88,7 +88,7 @@ taskProcessSql_v.getAllVersionManagers = "select u.userName ,u.realName,u.email,
 var getAllVersionManagers_params = "[taskId]"
 //获取配置管理员和变更单的信息
 taskProcessSql_v.getVMAndTaskInfo = "select u.userName ,u.realName,u.email,t.taskCode,t.taskName ,7 as processStepId,ao.revision,ao.devRevision from tasks t" +
-"   left JOIN user_2_role u2r on u2r.roleId= 8" +
+"   left JOIN userToRole u2r on u2r.roleId= 8" +
 "   JOIN user u on u.userId = u2r.userId" +
 "   JOIN applyorder ao on ao.taskId = t.taskId  and t.taskId = ?";
 var getVMAndTaskInfo_params = "[taskId]";

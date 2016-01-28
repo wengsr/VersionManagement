@@ -85,7 +85,10 @@ var copyFile = function(sourceDir, destDir, fileName){
     console.log("复制完成");
 }
 router.post("/commitChangeRar/",function(req, res){
-    Tool.getCookieUser(req, res);
+    var cookieUser = Tool.getCookieUser(req, res);
+    if (!cookieUser) {
+        return;
+    }
     //var attachmentId = req.params.attachmentId;
     var attachmentId = req.body.attachmentId;
     AttaSql.searchAttaAndSvn(attachmentId,changeRarSvnId,function(msg,result){
@@ -144,7 +147,10 @@ router.post("/commitChangeRar/",function(req, res){
 });
 /*将变更单复制到指定路径下*/
 router.post("/copyRar/",function(req, res) {
-    Tool.getCookieUser(req, res);
+    var cookieUser = Tool.getCookieUser(req, res);
+    if (!cookieUser) {
+        return;
+    }
     var attachmentId = req.body.attachmentId;
     console.log("copyRar:",attachmentId);
     var AttaSql2 = AttaSql;
@@ -206,7 +212,10 @@ router.post("/copyRar/",function(req, res) {
     });
 });
 router.get("/commitRarManual/:attachmentId",function(req, res){
-    Tool.getCookieUser(req, res);
+    var cookieUser = Tool.getCookieUser(req, res);
+    if (!cookieUser) {
+        return;
+    }
     //var attachmentId = req.params.attachmentId;
    if(!req.cookies.user.isAdmin){
        res.redirect("/");

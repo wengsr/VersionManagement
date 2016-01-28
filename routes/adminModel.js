@@ -71,8 +71,11 @@ var findProsByUserIdForApplyTaskBtn = function(userId,req,callback){
 
 
 router.get('/findFileHistory/', function(req, res) {
-    getCookieUser(req, res);
-    var userId = req.session.user.userId;
+    var cookieUser = getCookieUser(req, res);
+    if(!cookieUser){
+        return;
+    }
+    var userId = cookieUser.userId;
     var dao = require('../modular/taskDao');
     //var curPage =typeof(req.param.pageNo)===undefined ?1:req.param.pageNo ;
     var curPage =1 ;
@@ -111,8 +114,11 @@ router.get('/findFileHistory/', function(req, res) {
     });
 });
 router.get('/findFileHistory/:pageNo', function(req, res) {
-    getCookieUser(req, res);
-    var userId = req.session.user.userId;
+    var cookieUser = getCookieUser(req, res);
+    if(!cookieUser){
+        return;
+    }
+    var userId = cookieUser.userId;
     var dao = require('../modular/taskDao');
     var curPage =req.params.pageNo ;
     //var curPage =1 ;
@@ -150,8 +156,11 @@ router.get('/findFileHistory/:pageNo', function(req, res) {
     });
 });
 router.get('/aFileHistory/:fileId/:pageNo', function(req, res) {
-    getCookieUser(req, res);
-    var userId = req.session.user.userId;
+    var cookieUser = getCookieUser(req, res);
+    if(!cookieUser){
+        return;
+    }
+    var userId = cookieUser.userId;
     var dao = require('../modular/taskDao');
     var fileId =req.params.fileId ;
     var curPage =req.params.pageNo ;
@@ -192,8 +201,11 @@ router.get('/aFileHistory/:fileId/:pageNo', function(req, res) {
     });
 });
 router.get('/aFileHistory/:fileId', function(req, res) {
-    getCookieUser(req, res);
-    var userId = req.session.user.userId;
+    var cookieUser = getCookieUser(req, res);
+    if(!cookieUser){
+        return;
+    }
+    var userId = cookieUser.userId;
     var dao = require('../modular/taskDao');
     var fileId =req.params.fileId ;
     //var curPage =req.params.pageNo ;
@@ -235,8 +247,11 @@ router.get('/aFileHistory/:fileId', function(req, res) {
 });
 //根据文件名查询文件变更记录
 router.post('/aFileHistory/', function(req, res) {
-    getCookieUser(req, res);
-    var userId = req.session.user.userId;
+    var cookieUser = getCookieUser(req, res);
+    if(!cookieUser){
+        return;
+    }
+    var userId = cookieUser.userId;
     var dao = require('../modular/taskDao');
     var fileUri = req.body.fileUri;
     fileUri = fileUri.match(/[\S]+/g).toString();
@@ -292,8 +307,11 @@ router.post('/aFileHistory/', function(req, res) {
 });
 //查看待上传变更单附件
 router.get('/findAttaHistory/', function(req, res) {
-    getCookieUser(req, res);
-    var userId = req.session.user.userId;
+    var cookieUser = getCookieUser(req, res);
+    if(!cookieUser){
+        return;
+    }
+    var userId = cookieUser.userId;
     //var dao = require('../modular/taskDao');
     //var curPage =typeof(req.param.pageNo)===undefined ?1:req.param.pageNo ;
     var curPage =1 ;
@@ -345,8 +363,11 @@ router.get('/findAttaHistory/', function(req, res) {
     });
 });
 router.post('/findAttaHistory/', function(req, res) {
-    getCookieUser(req, res);
-    var userId = req.session.user.userId;
+    var cookieUser = getCookieUser(req, res);
+    if(!cookieUser){
+        return;
+    }
+    var userId = cookieUser.userId;
     //var dao = require('../modular/taskDao');
     //var curPage =typeof(req.param.pageNo)===undefined ?1:req.param.pageNo ;
     var curPage =1 ;
@@ -398,8 +419,11 @@ router.post('/findAttaHistory/', function(req, res) {
     });
 });
 router.get('/findAttaHistory/:curPage', function(req, res) {
-    getCookieUser(req, res);
-    var userId = req.session.user.userId;
+    var cookieUser = getCookieUser(req, res);
+    if(!cookieUser){
+        return;
+    }
+    var userId = cookieUser.userId;
     var curPage = req.params.curPage;
     var totalAttaPage = 1;
     var startNum = (curPage-1)*30;
@@ -452,8 +476,11 @@ router.get('/findAttaHistory/:curPage', function(req, res) {
 
 //打开导出本地变更单附件压缩包页面
 router.get('/exportLocalChangeAttaPage/', function(req, res) {
-    getCookieUser(req, res);
-    var userId = req.session.user.userId;
+    var cookieUser = getCookieUser(req, res);
+    if(!cookieUser){
+        return;
+    }
+    var userId = cookieUser.userId;
     return res.render('adminModel/attachExport.ejs');
 });
 /**
@@ -469,8 +496,11 @@ var returnJsonMsg = function(req, res, sucFlag, msg){
 }
 //导出本地变更单附件压缩包
 router.post('/exportLocalChangeAtta/', function(req, res) {
-    getCookieUser(req, res);
-    var userId = req.session.user.userId;
+    var cookieUser = getCookieUser(req, res);
+    if(!cookieUser){
+        return;
+    }
+    var userId = cookieUser.userId;
     var postParams = req.body;
     //console.log("post body:",req.body)
     //console.log("post params:",req.params)
@@ -558,8 +588,11 @@ router.post('/exportLocalChangeAtta/', function(req, res) {
 });
 //打开上传附件至svn的页面
 router.get('/commitChangeRarPage/:attachmentId', function(req, res) {
-    getCookieUser(req, res);
-    var userId = req.session.user.userId;
+    var cookieUser = getCookieUser(req, res);
+    if(!cookieUser){
+        return;
+    }
+    var userId = cookieUser.userId;
     var attachmentId = req.params.attachmentId;
     Attachment.findAttachmentInfo(attachmentId, function (msg,attachments) {
         return res.render('adminModel/attachCommit.ejs', {attachment:attachments});

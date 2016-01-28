@@ -212,7 +212,10 @@ var getParams = function(req){
  * 按要求导出变更单
  */
 router.post("/exportXls", function(req, res) {
-    Tool.getCookieUser(req, res);
+    var cookieUser = Tool.getCookieUser(req, res);
+    if(!cookieUser){
+        return;
+    }
     var params = getParams(req);
     //console.log("exportXls:",params);
     var conf = {};
@@ -282,8 +285,11 @@ router.post("/exportXls", function(req, res) {
 });
 
 router.get("/exportTasks", function(req, res) {
-    Tool.getCookieUser(req, res);
-    var userId = req.session.user.userId;
+    var cookieUser =  Tool.getCookieUser(req, res);
+    if(!cookieUser){
+        return;
+    }
+    var userId = cookieUser.userId;
     User.findUserProjectForFindAllTask(userId,function(msg,projects){
         if('success'!=msg){
             req.session.error = "查找用户能操作的项目时发生错误,请记录并联系管理员";
@@ -297,7 +303,10 @@ router.get("/exportTasks", function(req, res) {
  * 按要求统计变更单的通过率
  */
 router.post("/exportCountXls", function(req, res) {
-    Tool.getCookieUser(req, res);
+    var cookieUser =  Tool.getCookieUser(req, res);
+    if(!cookieUser){
+        return;
+    }
     var params = getParams(req);
     var conf = {};
     TaskXls.countTasks(params, function (msg, result) {
@@ -317,8 +326,11 @@ router.post("/exportCountXls", function(req, res) {
 });
 
 router.get("/exportCountTasks", function(req, res) {
-    Tool.getCookieUser(req, res);
-    var userId = req.session.user.userId;
+    var cookieUser =  Tool.getCookieUser(req, res);
+    if(!cookieUser){
+        return;
+    }
+    var userId = cookieUser.userId;
     User.findUserProjectForFindAllTask(userId,function(msg,projects){
         if('success'!=msg){
             req.session.error = "查找用户能操作的项目时发生错误,请记录并联系管理员";

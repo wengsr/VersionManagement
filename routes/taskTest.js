@@ -364,7 +364,10 @@ var newTaskName = function(req,res,taskId,creater,tester,taskName){
  * “走查转给其它测试人员的业务实现”业务实现
  */
 router.post('/assignTest', function(req, res) {
-    getCookieUser(req, res);
+    var cookieUser =  Tool.getCookieUser(req, res);
+    if(!cookieUser){
+        return;
+    }
     var nextDelear = req.body['nextDealer'];
     var taskId = req.body['taskId'];
     var jsonStr;
@@ -413,12 +416,15 @@ router.post('/testPass', function(req, res) {
  * “测试不通过”业务实现
  */
 router.post('/testUnPass', function(req, res) {
-    getCookieUser(req, res);
+    var cookieUser =  Tool.getCookieUser(req, res);
+    if(!cookieUser){
+        return;
+    }
     var taskId = req.body['taskId'];
     var creater = req.body['creater'];
     var noPassReason =  req.body['noPassReason'];
     var noPassType = req.body['unPassType'];
-    var dealer = req.session.user.userId;
+    var dealer = cookieUser.userId;
     var jsonStr;
     TaskTest.doTestUnPass(taskId,dealer,noPassReason,noPassType,function(msg,result){
         if('success' == msg){
@@ -436,9 +442,12 @@ router.post('/testUnPass', function(req, res) {
  * 测试主管：查找所有变更单与测试相关的业务逻辑
  */
 router.post('/findAllTestTasks', function (req, res) {
-    getCookieUser(req, res);
+    var cookieUser =  getCookieUser(req, res);
+    if(!cookieUser){
+        return;
+    }
     var conds  = getSearchConds(req);
-    var userId = req.session.user.userId;
+    var userId = cookieUser.userId;
     //req.session.finAllTaskConds = conds;
 
     //Task.findAllTaskByParam(userId,projectId,state,processStepId,taskCode,taskname,createrName,startTime,endTime,0,function(msg,tasks,count){

@@ -153,6 +153,7 @@ var saveCookieAndSession = function(req,res,user){
     req.session.user = user;
     req.session.success = "登录成功";
     var minute = 1000*60*60;   //maxAge的单位为毫秒,这里设置为60分钟
+    //var minute = 1000*30;   //maxAge的单位为毫秒,这里设置为60分钟
     res.cookie('user', user, {maxAge: minute}, {httpOnly: true});//设置到cookie中
 }
 /**

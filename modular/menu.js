@@ -29,7 +29,7 @@ Menu.findMenuByUserId = function(userId,callback){
             ' JOIN per_2_menu p2m ON p2m.menuId = m.menuId AND m.state=1' +
             ' JOIN permission per ON per.permissionId = p2m.permissionId AND per.state=1' +
             ' JOIN role r ON r.permissionId = per.permissionId' +
-            ' JOIN user_2_role u2r ON u2r.roleId = r.roleId' +
+            ' JOIN userToRole u2r ON u2r.roleId = r.roleId' +
             ' JOIN user u ON u2r.userId = u.userId AND u.userId = ?' +
             ' ORDER BY m.sort';
         var params = [userId];

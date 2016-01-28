@@ -565,9 +565,12 @@ var isSearchCondsExits= function(req, res){
 router.get('/addTaskPage', function(req, res) {
   // res.send('respond with a resource');
 //    res.render('taskInfo', { title: 'Express' });
-    getCookieUser(req, res);
+    var cookieUser = getCookieUser(req, res);
+    if (!cookieUser) {
+        return;
+    }
     var allProject ;
-        dao.searchAllProject(req.session.user.userId,function(msg,result){
+    dao.searchAllProject(cookieUser.userId, function (msg, result) {
             if(msg == "err"){
                 return req.session.error ="查找项目失败，请联系管理员";
             }
@@ -586,11 +589,14 @@ router.get('/addTaskPage', function(req, res) {
 router.get('/addTaskPage/:reqId/:reqName', function(req, res) {
     // res.send('respond with a resource');
 //    res.render('taskInfo', { title: 'Express' });
-    getCookieUser(req, res);
+    var cookieUser = getCookieUser(req, res);
+    if (!cookieUser) {
+        return;
+    }
     var reqId = req.params.reqId;
     var reqName = req.params.reqName;
     var allProject ;
-    dao.searchAllProject(req.session.user.userId,function(msg,result){
+    dao.searchAllProject(cookieUser.userId, function (msg, result) {
         if (msg == "success") {
             allProject = result;
             res.render('submitApply', {project: allProject, requirements: {reqId:reqId,reqName:reqName}, isReq: true});//isReq:判断是否是从设计系统直接进入
@@ -602,9 +608,12 @@ router.get('/addTaskPage/:reqId/:reqName', function(req, res) {
 });
 //申请修复bug的变更单
 router.get('/addBugTaskPage', function(req, res) {
-    getCookieUser(req, res);
+    var cookieUser = getCookieUser(req, res);
+    if (!cookieUser) {
+        return;
+    }
     var allProject ;
-    dao.searchAllBugs(req.session.user.userId,function(msg,result){
+    dao.searchAllBugs(cookieUser.userId, function (msg, result) {
         if(msg == "success"){
             allProject = result;
             res.render('submitBugsApply',{bugs:result})
@@ -617,7 +626,10 @@ router.get('/addBugTaskPage', function(req, res) {
 });
 
 router.post('/addBugTask', function (req, res) {
-    getCookieUser(req, res);
+    var cookieUser = getCookieUser(req, res);
+    if (!cookieUser) {
+        return;
+    }
     var message ="";//返回的结果提示信息；
     var taskName = req.body.taskName;
     //var tasker = req.body.inputTasker;
@@ -655,7 +667,10 @@ router.post('/addBugTask', function (req, res) {
     });
 });
 router.post('/addTask', function (req, res) {
-    getCookieUser(req, res);
+    var cookieUser = getCookieUser(req, res);
+    if (!cookieUser) {
+        return;
+    }
     var message ="";//返回的结果提示信息；
     var taskName = req.body.taskName;
     //var tasker = req.body.inputTasker;
@@ -698,7 +713,10 @@ router.post('/addTask', function (req, res) {
 });
 
 router.post('/acceptMission', function(req, res) {
-    getCookieUser(req, res);
+    var cookieUser = getCookieUser(req, res);
+    if (!cookieUser) {
+        return;
+    }
     var taskId = req.body['taskId'];
     var processStepId = req.body['processStepId'];
     var userId = req.session.user.userId;
@@ -715,7 +733,10 @@ router.post('/acceptMission', function(req, res) {
  * “安排走查”业务实现
  */
 router.post('/planCheck', function(req, res) {
-    getCookieUser(req, res);
+    var cookieUser = getCookieUser(req, res);
+    if (!cookieUser) {
+        return;
+    }
     var userId = req.session.user.userId;
     var nextDelear = req.body['nextDealer'];
     var taskId = req.body['taskId'];
@@ -735,8 +756,11 @@ router.post('/planCheck', function(req, res) {
  * “走查转给其它走查人员的业务实现”业务实现
  */
 router.post('/assignCheck', function(req, res) {
-    getCookieUser(req, res);
-    var userId = req.session.user.userId;
+    var cookieUser = getCookieUser(req, res);
+    if (!cookieUser) {
+        return;
+    }
+    var userId = cookieUser.userId;
     var nextDelear = req.body['nextDealer'];
     var taskId = req.body['taskId'];
     var jsonStr;
@@ -756,8 +780,11 @@ router.post('/assignCheck', function(req, res) {
  * “走查通过”业务实现
  */
 router.post('/checkPass', function(req, res) {
-    getCookieUser(req, res);
-    var userId = req.session.user.userId;
+    var cookieUser = getCookieUser(req, res);
+    if (!cookieUser) {
+        return;
+    }
+    var userId = cookieUser.userId;
     var taskId = req.body['taskId'];
     var taskName = req.body['taskName'];
     var taskCode = req.body['taskCode'];
@@ -783,10 +810,12 @@ router.post('/checkPass', function(req, res) {
  * “走查不通过”业务实现
  */
 router.post('/checkUnPass', function(req, res) {
-    getCookieUser(req, res);
-    var userId = req.session.user.userId;
+    var cookieUser = getCookieUser(req, res);
+    if (!cookieUser) {
+        return;
+    }
+    var userId = cookieUser.userId;
     var taskId = req.body['taskId'];
-    var userId = req.session.user.userId;
     var noPassReason = req.body['noPassReason'];
     var jsonStr;
     Task.doCheckUnPass(taskId, userId, noPassReason, function(msg,result){
@@ -807,10 +836,13 @@ router.post('/checkUnPass', function(req, res) {
  * “上库步骤_接受任务”业务实现
  */
 router.post('/submitAccept', function(req, res) {
-    getCookieUser(req, res);
+    var cookieUser = getCookieUser(req, res);
+    if (!cookieUser) {
+        return;
+    }
+    var userId = cookieUser.userId;
     var taskId = req.body['taskId'];
     var processStepId =req.body["processStepId"];
-    var userId = req.session.user.userId;
     var taskState ;
     if(parseInt(processStepId) == 6){
         taskState = '上测试库';
@@ -836,9 +868,12 @@ router.post('/submitAccept', function(req, res) {
  * “上库步骤_上库完成”业务实现
  */
 router.post('/submitComplete', function(req, res) {
-    getCookieUser(req, res);
+    var cookieUser = getCookieUser(req, res);
+    if (!cookieUser) {
+        return;
+    }
+    var userId = cookieUser.userId;
     var taskId = req.body['taskId'];
-    var userId = req.session.user.userId;
     var jsonStr;
     Task.submitComplete(taskId, userId, function(msg,result){
         if('success' == msg){
@@ -898,8 +933,11 @@ router.post('/submitComplete', function(req, res) {
  * 查找变更单页面展示
  */
 router.get('/findTaskPage', function(req, res) {
-    getCookieUser(req, res);
-    var userId = req.session.user.userId;
+    var cookieUser = getCookieUser(req, res);
+    if (!cookieUser) {
+        return;
+    }
+    var userId = cookieUser.userId;
     User.findUserProject(userId,function(msg,projects){
         if('success'!=msg){
             req.session.error = "查找用户能操作的项目时发生错误,请记录并联系管理员";
@@ -915,8 +953,8 @@ router.get('/findTaskPage', function(req, res) {
  * 查找所有变更单页面展示
  */
 router.get('/findAllTaskPage', function(req, res) {
-    getCookieUser(req, res);
-    var userId = req.session.user.userId;
+    var cookiesUser = getCookieUser(req, res);
+    var userId = cookiesUser.userId;
     User.findUserProjectForFindAllTask(userId,function(msg,projects){
         if('success'!=msg){
             req.session.error = "查找用户能操作的项目时发生错误,请记录并联系管理员";
@@ -929,8 +967,8 @@ router.get('/findAllTaskPage', function(req, res) {
  * 领导查找所有变更单页面展示
  */
 router.get('/findAllTasksForBossPage', function(req, res) {
-    getCookieUser(req, res);
-    var userId = req.session.user.userId;
+    var cookiesUser = getCookieUser(req, res);
+    var userId = cookiesUser.userId;
     User.findProjectForFindAllTaskForBoss(userId,function(msg,projects){
             if('success'!=msg){
                 req.session.error = "查找用户能操作的项目时发生错误,请记录并联系管理员";
@@ -957,8 +995,11 @@ router.post('/findTask', function (req, res) {
 //    var taskDetails = req.body.taskDetails;
 //    var taskNewFiles = req.body.taskNewFiles;;
 //    var taskModFiles = req.body.taskModFiles;
-    getCookieUser(req, res);
-    var userId = req.session.user.userId;
+    var cookieUser = getCookieUser(req, res);
+    if (!cookieUser) {
+        return;
+    }
+    var userId = cookieUser.userId;
     var projectId = req.body.projectName;
     var state = req.body.taskState;
     var processStepId = req.body.taskStep;
@@ -1030,8 +1071,11 @@ router.post('/findTask', function (req, res) {
  * 查找所有变更单业务逻辑
  */
 router.post('/findAllTask', function (req, res) {
-    getCookieUser(req, res);
-    var userId = req.session.user.userId;
+    var cookieUser = getCookieUser(req, res);
+    if (!cookieUser) {
+        return;
+    }
+    var userId = cookieUser.userId;
     var projectId = req.body.projectName;
     var state = req.body.taskState;
     var processStepId = req.body.taskStep;
@@ -1110,7 +1154,11 @@ router.post('/findAllTask', function (req, res) {
  * 查找所有变更单:分页查找
  */
 router.get('/findAllTask/:curPage', function (req, res) {
-    getCookieUser(req, res);
+    var cookieUser = getCookieUser(req, res);
+    if (!cookieUser) {
+        return;
+    }
+    var userId = cookieUser.userId;
     isSearchCondsExits(req,res);
     //console.log(req.session.finAllTaskConds);
     var searchConds = req.session.finAllTaskConds;
@@ -1182,7 +1230,11 @@ router.get('/findAllTask/:curPage', function (req, res) {
  * 查找领导能查查看所有变更单:分页查找
  */
 router.get('/findAllTaskForBoss/:curPage', function (req, res) {
-    getCookieUser(req, res);
+    var cookieUser = getCookieUser(req, res);
+    if (!cookieUser) {
+        return;
+    }
+    var userId = cookieUser.userId;
     isSearchCondsExits(req,res);
     var searchConds = req.session.finAllTaskConds;
     var userId = searchConds.userId;
@@ -1250,9 +1302,12 @@ router.get('/findAllTaskForBoss/:curPage', function (req, res) {
  * 查找领导能查查看所有变更单:分页查找
  */
 router.get('/allTaskForBoss/:curPage', function (req, res) {
-    getCookieUser(req, res);
+    var cookieUser = getCookieUser(req, res);
+    if (!cookieUser) {
+        return;
+    }
+    var userId = cookieUser.userId;
     var searchConds = req.session.finAllTaskConds;
-    var userId = req.session.user.userId;
     //var projectId = searchConds.projectId;
     //var state =searchConds.state;
     //var processStepId = searchConds.processStepId;
@@ -1318,7 +1373,10 @@ router.get('/allTaskForBoss/:curPage', function (req, res) {
  * 查找所有变更单:分页查找
  */
 router.get('/findTask/:curPage', function (req, res) {
-    getCookieUser(req, res);
+    var cookieUser = getCookieUser(req, res);
+    if (!cookieUser) {
+        return;
+    }
     isSearchCondsExits(req,res);
     var searchConds = req.session.finAllTaskConds;
     var userId = searchConds.userId;
@@ -1385,8 +1443,11 @@ router.get('/findTask/:curPage', function (req, res) {
  * 领导查找所有变更单业务逻辑
  */
 router.post('/findAllTaskForBoss', function (req, res) {
-    getCookieUser(req, res);
-    var userId = req.session.user.userId;
+    var cookieUser = getCookieUser(req, res);
+    if (!cookieUser) {
+        return;
+    }
+    var userId = cookieUser.userId;
     var projectId = req.body.projectName;
     var state = req.body.taskState;
     var processStepId = req.body.taskStep;
@@ -1459,8 +1520,11 @@ router.post('/findAllTaskForBoss', function (req, res) {
  * 上传新旧文件
  */
 router.post('/submitFile', function(req, res) {
-    getCookieUser(req, res);
-    var userId = req.session.user.userId;
+    var cookieUser = getCookieUser(req, res);
+    if (!cookieUser) {
+        return;
+    }
+    var userId = cookieUser.userId;
     var taskId = req.body['taskId'];
     var taskName = req.body['taskName'];//上测试库时需要msg
     var typeId = req.body['taskType'];//上测试库时需要msg
@@ -1651,13 +1715,16 @@ router.post('/submitFile', function(req, res) {
  *t提取旧文件
  */
 router.post('/extractFile', function(req, res) {
-    getCookieUser(req, res);
+    var cookieUser = getCookieUser(req, res);
+    if (!cookieUser) {
+        return;
+    }
+    var userId = cookieUser.userId;
     var taskId = req.body['taskId'];
     var taskProject = req.body['taskProject'];
     var taskCode = req.body['taskCode'];
     var  modFiles = req.body['modFilesList'];
     var  delFiles = req.body['delFilesList'];
-    var userId = req.session.user.userId;
     var jsonStr;
     var userFlag = false;
     modFiles =getFilesUri(modFiles);
@@ -1802,8 +1869,11 @@ router.post('/extractFile', function(req, res) {
  * 修改变更单
  */
 router.post('/modifyTask', function(req, res) {
-    getCookieUser(req, res);
-    var userId = req.session.user.userId;
+    var cookieUser = getCookieUser(req, res);
+    if (!cookieUser) {
+        return;
+    }
+    var userId = cookieUser.userId;
     var taskId = req.body['taskId'];
     var taskDetails =  req.body['taskDesc'];
     var taskType=  req.body['taskType'];
@@ -2214,11 +2284,14 @@ function updateState(params){
  * 自动上库功能
  */
 router.post('/autoUpload', function(req,res) {
-    getCookieUser(req, res);
+    var cookieUser = getCookieUser(req, res);
+    if (!cookieUser) {
+        return;
+    }
+    var userId = cookieUser.userId;
     //1.获取参数
     //1.1获取普通参数
     var taskId = req.body['taskId'];
-    var userId = req.session.user.userId;
     var nextDealer = req.body['nextDealer'];
     var taskCode = req.body['taskCode'];
     var taskName = req.body['taskName'];
@@ -2249,6 +2322,9 @@ router.post('/autoUpload', function(req,res) {
     mkdirsSync(localDir+"/.svn");
     mkdirsSync(svnFolder+"/extractRarFolder");
     mkdirsSync(oldSvnDown);
+    if (!fs.existsSync(svnFolder + "/.svn")) {
+        return callback("success", "无文件需要上传,请点击【上库完成】");
+    }
     copy(svnFolder+"/.svn", localDir+"/.svn");//拷贝对应的.svn文件夹到upFolder文件夹下
     //updateSvnCode();//调用Svn工具的autoUpload方法上库。(在解压前到SVN上更新使用，暂不用)
     //2.2解压缩文件到[提交变更单]文件夹。
@@ -2356,11 +2432,14 @@ router.post('/autoUpload', function(req,res) {
  * 自动合并变更单
  */
 router.post('/autoMerge', function(req,res) {
-    getCookieUser(req, res);
+    var cookieUser = getCookieUser(req, res);
+    if (!cookieUser) {
+        return;
+    }
+    var userId = cookieUser.userId;
     //1.获取参数
     //1.1获取普通参数
     var taskId = req.body['taskId'];
-    var userId = req.session.user.userId;
     var taskCode = req.body['taskCode'];
     var taskName = req.body['taskName'];
     var newParams = {taskId:taskId,userId:userId,dealer:userId,taskName:taskName,svnLocationID:3}
@@ -2373,10 +2452,13 @@ router.post('/autoMerge', function(req,res) {
  * 填写开发库版本号
  */
 router.post('/updateDevRevision', function(req,res) {
-    getCookieUser(req, res);
+    var cookieUser = getCookieUser(req, res);
+    if (!cookieUser) {
+        return;
+    }
+    var userId = cookieUser.userId;
     //1.获取参数
     var taskId = req.body['taskId'];
-    var userId = req.session.user.userId;
     var devRevision = req.body['devRevision'];
     var taskName = req.body['taskName'];
     var newParams = {taskId:taskId,userId:userId,dealer:userId,devRevision:devRevision}
@@ -2396,10 +2478,13 @@ router.post('/updateDevRevision', function(req,res) {
  * 填写测试库版本号
  */
 router.post('/updateRevision', function(req,res) {
-    getCookieUser(req, res);
+    var cookieUser = getCookieUser(req, res);
+    if (!cookieUser) {
+        return;
+    }
+    var userId = cookieUser.userId;
     //1.获取参数
     var taskId = req.body['taskId'];
-    var userId = req.session.user.userId;
     var revision = req.body['revision'];
     var taskName = req.body['taskName'];
     var newParams = {taskId:taskId,userId:userId,dealer:userId,revision:revision}
@@ -2419,11 +2504,13 @@ router.post('/updateRevision', function(req,res) {
  *上开发库完成
  */
 router.post('/commitToDevComplete', function(req,res) {
-    getCookieUser(req, res);
-    //1.获取参数
+    var cookieUser = getCookieUser(req, res);
+    if (!cookieUser) {
+        return;
+    }
+    var userId = cookieUser.userId;
     //1.1获取普通参数
     var taskId = req.body['taskId'];
-    var userId = req.session.user.userId;
     var devRevision = req.body['taskCode'];
     var taskName = req.body['taskName'];
     var newParams = {taskId:taskId,userId:userId,dealer:userId,processStepId:12}
@@ -2441,11 +2528,14 @@ router.post('/commitToDevComplete', function(req,res) {
 });
 /**此次的提交是基于变更文件中包含新增文件，且失败提交过至少一次，文件夹的解压缩就可舍去。目的在于更新.svn**/
 router.post('/updateSvnAndCommit', function(req,res) {
-    getCookieUser(req, res);
+    var cookieUser = getCookieUser(req, res);
+    if (!cookieUser) {
+        return;
+    }
+    var userId = cookieUser.userId;
     //1.获取参数
     //1.1获取普通参数
     var taskId = req.body['taskId'];
-    var userId = req.session.user.userId;
     var nextDealer = req.body['nextDealer'];
     var taskCode = req.body['taskCode'];
     var taskName = req.body['taskName'];
@@ -2497,6 +2587,9 @@ router.post('/updateSvnAndCommit', function(req,res) {
                         return returnJsonMsg(req, res, "err", "更新svn信息出错!");
                     }
                     console.log("getCheckFiles checkout files success!!!");
+                    if (!fs.existsSync(tempFolder + "/.svn")) {
+                        return callback("success", "无文件需要上传,请点击【上库完成】");
+                    }
                     copy(tempFolder+"/.svn", localDir+"/.svn");//拷贝对应的.svn文件夹到upFolder文件夹下
                     //3.到数据库中查找【系统】用户
                     findSys(function(isSuc, sysUser){
@@ -2535,7 +2628,10 @@ router.post('/updateSvnAndCommit', function(req,res) {
 });
 
 router.post("/delTask",function(req, res){
-    getCookieUser(req, res);
+    var cookieUser = getCookieUser(req, res);
+    if (!cookieUser) {
+        return;
+    }
     //1.获取参数
     //1.1获取普通参数
     var taskId = req.body['taskId'];
@@ -2563,9 +2659,9 @@ router.post("/delTask",function(req, res){
 router.post('/getAllReqs', function(req, res) {
     // res.send('respond with a resource');
 //    res.render('taskInfo', { title: 'Express' });
-    getCookieUser(req, res);
+    var cookiesUser = getCookieUser(req, res);
     var allProject ;
-    getAllReqs({userId:req.session.user.userId},function(msg_req,requirements) {
+    getAllReqs({userId: cookiesUser.userId}, function (msg_req, requirements) {
         if (msg_req == "success") {
             var queryObj = url.parse(req.url,true).query;
             res.send(queryObj.callback+'(\'{"message":"success","requirements": '+requirements+'}\')');

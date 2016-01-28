@@ -13,10 +13,16 @@ var express = require('express');
 exports.getCookieUser = function(req, res){
     var cookieUser = req.cookies.user;
     req.session.user = cookieUser;
-    if(!req.session.user || 'undefined'==req.session.user||!req.session){
+    //console.log("cookieUser:",cookieUser);
+    //console.log("session:",req.session.user);
+    if (!cookieUser || ('undefined' == cookieUser) || !cookieUser) {
+        console.log("cookieUser:", undefined);
         return res.redirect("/");
     }
-    return cookieUser;
+    else {
+        return cookieUser;
+    }
+
 }
 
 /**

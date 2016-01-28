@@ -144,8 +144,9 @@ function fileUp(req, res, secFolder){
 //                //  console.log(newPath);
 //                fs.renameSync((files.fulAvatar)[i].path, newPath);  //重命名
 //            }
+            return  fileUpReturnInfo(res, "false", "一次只允许上传一个文件", "", "");
         }
-
+        //console.log("start saveTaskAtta:",taskId);
         saveTaskAtta(req, taskId, processStepId, reportName, reportUri, function(insertId){
             if(insertId){
                 console.log("file submit success:",taskId);
@@ -162,8 +163,13 @@ function fileUp(req, res, secFolder){
  * 走查报告文件上传
  */
 router.post('/checkReportUp', function(req, res) {
-    getCookieUser(req,res);
-    fileUp(req, res, CHECK_REPORT_UPLOAD_FOLDER);
+    var cookieUser = getCookieUser(req,res);
+    if(cookieUser){
+        fileUp(req, res, CHECK_REPORT_UPLOAD_FOLDER);
+    }
+    else{
+        console.log("cookie is undefined!")
+    }
 });
 
 
@@ -173,15 +179,26 @@ router.post('/checkReportUp', function(req, res) {
  *
  */
 router.get('/fileDownLoad/:filename/:realpath',function(req,res,next){
-    getCookieUser(req,res);
+   var cookieUser =  getCookieUser(req,res);
+    if(!cookieUser){
+        return ;
+    }
     var filename = req.params.filename;
     var realpath = req.params.realpath;
     res.download(realpath,filename);
 });
 
 router.post('/submitFile', function(req, res) {
-    getCookieUser(req,res);
-    fileUp(req, res, CHECK_REPORT_UPLOAD_FOLDER2);
+    console.log("cookies:",req.cookies);
+    console.log("session:",req.session.user);
+    var cookieUser = getCookieUser(req,res);
+    if(cookieUser){
+        fileUp(req, res, CHECK_REPORT_UPLOAD_FOLDER2);
+    }
+    else{
+        console.log("cookie is undefined!")
+    }
+
 });
 
 
@@ -189,15 +206,27 @@ router.post('/submitFile', function(req, res) {
  * 测试报告上传
  */
 router.post('/unpassTesting', function(req, res) {
-    getCookieUser(req,res);
-    fileUp(req, res, CHECK_REPORT_UPLOAD_FOLDER3);
+    var cookieUser = getCookieUser(req,res);
+    if(cookieUser){
+        fileUp(req, res, CHECK_REPORT_UPLOAD_FOLDER3);
+    }
+    else{
+        console.log("cookie is undefined!")
+    }
 });
 
 /**
  * 测试不通过时，测试人员重发测试报告
  */
 router.post('/testReportByCreater', function(req, res) {
-    fileUp(req, res, CHECK_REPORT_UPLOAD_FOLDER3);
+    var cookieUser = getCookieUser(req,res);
+    if(cookieUser){
+        fileUp(req, res, CHECK_REPORT_UPLOAD_FOLDER3);
+    }
+    else{
+        console.log("cookie is undefined!")
+    }
+
 });
 
 /**
@@ -270,7 +299,10 @@ var compareOld = function(taskId,oldDir,oldDir2,excPath,callback){
  * 比对旧文件
  */
 router.post('/compareOld', function(req, res) {
-    getCookieUser(req,res);
+    var cookieUser = getCookieUser(req,res);
+    if(!cookieUser){
+        return;
+    }
     var taskId = req.body.taskId;
     compareOld(taskId,OLDDIR,SVNOLDDIR,CMPOld,function(msg,result){
         var queryObj = url.parse(req.url,true).query;
