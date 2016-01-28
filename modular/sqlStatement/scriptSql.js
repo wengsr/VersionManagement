@@ -12,11 +12,20 @@ var updateStateAndTime_params = "[state,createTime,taskId]"
 //更新状态
 scriptSql.updateState = "UPDATE scripts set execState = ?  where taskId = ?";
 var updateStateAndTime_params = "[state,taskId]"
+//scriptSql.findScripts = "SELECT *  from (" +
+//"   SELECT s.*,t.taskName,u.realName createrName,p.proviceName ,t.containScript ,st.stateName " +
+//"   from tasks t,scripts s,provice p,user u, states st" +
+//"   where t.taskId = s.taskId and s.proviceId = p.proviceId and u.userId = t.creater  and s.execState = st.stateId" +
+//"   )scriptsTable "
 scriptSql.findScripts = "SELECT *  from (" +
-"   SELECT s.*,t.taskName,u.realName createrName,p.proviceName ,t.containScript ,st.stateName " +
-"   from tasks t,scripts s,provice p,user u, states st" +
-"   where t.taskId = s.taskId and s.proviceId = p.proviceId and u.userId = t.creater  and s.execState = st.stateId" +
-"   )scriptsTable "
+"   SELECT s.*,t.taskName,u.realName createrName,p.proviceName ,t.containScript ,st.stateName" +
+"   from tasks t" +
+"   join scripts s on  t.taskId = s.taskId" +
+"   join user u on u.userId = t.creater" +
+"   join states st on s.execState = st.stateId" +
+"   left join provice p" +
+"   on   p.proviceId = s.proviceId  " +
+"   )scriptsTable ";
 var findScript_params = "[]";
 
 scriptSql.countScripts = "SELECT count(*) count from (" +
