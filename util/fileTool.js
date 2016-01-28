@@ -43,6 +43,9 @@ function filesExist(localBaseDir, fileList){
 }
 exports.zipFiles = function (localBaseDir, fileList, zipFileName,callback) {
     //var output = fs.createWriteStream(__dirname + '/example111.zip');
+    if (fs.existsSync(zipFileName)) {
+        fs.unlink(zipFileName);
+    }
     var output = fs.createWriteStream(zipFileName);
     var archive = archiver('zip');
     var result =  filesExist(localBaseDir, fileList);
@@ -52,9 +55,7 @@ exports.zipFiles = function (localBaseDir, fileList, zipFileName,callback) {
            return  result;
         }
         console.log("filezip start：",result);
-        if(fs.existsSync(zipFileName)){
-            fs.unlink(zipFileName);
-        }
+
         for (var i = 0; i < fileList.length; i++) {
             var tmpPath = fileList[i].substr( fileList[i].lastIndexOf('/') + 1);
             archive =archive.append(fs.createReadStream(localBaseDir + fileList[i]), { name:fileList[i] });
@@ -67,9 +68,11 @@ exports.zipFiles = function (localBaseDir, fileList, zipFileName,callback) {
 
         if(typeof callback == 'function'){
             zipfinalize.on("finish",function(msg,result){
+                console.log("zipFile finished")
                 callback("finish");
             }) ;
         }
+    console.log("zipFile return")
         return [true,];
 };
 exports.extractZip = function (zipFileName, targetDir) {
