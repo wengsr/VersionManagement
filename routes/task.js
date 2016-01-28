@@ -954,6 +954,9 @@ router.get('/findTaskPage', function(req, res) {
  */
 router.get('/findAllTaskPage', function(req, res) {
     var cookiesUser = getCookieUser(req, res);
+    if (!cookiesUser) {
+        return;
+    }
     var userId = cookiesUser.userId;
     User.findUserProjectForFindAllTask(userId,function(msg,projects){
         if('success'!=msg){
@@ -968,6 +971,9 @@ router.get('/findAllTaskPage', function(req, res) {
  */
 router.get('/findAllTasksForBossPage', function(req, res) {
     var cookiesUser = getCookieUser(req, res);
+    if (!cookiesUser) {
+        return;
+    }
     var userId = cookiesUser.userId;
     User.findProjectForFindAllTaskForBoss(userId,function(msg,projects){
             if('success'!=msg){
@@ -2660,6 +2666,9 @@ router.post('/getAllReqs', function(req, res) {
     // res.send('respond with a resource');
 //    res.render('taskInfo', { title: 'Express' });
     var cookiesUser = getCookieUser(req, res);
+    if (!cookiesUser) {
+        return;
+    }
     var allProject ;
     getAllReqs({userId: cookiesUser.userId}, function (msg_req, requirements) {
         if (msg_req == "success") {

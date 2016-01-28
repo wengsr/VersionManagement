@@ -9,6 +9,9 @@ var TaskAtta = require('../modular/taskAtta');
 var TaskTest = require('../modular/taskTest');
 var Tool = require("./util/tool");
 var getCookieUser = Tool.getCookieUser;
+if(!cookiesUser){
+    return ;
+}
 var ApplyOrder = require("../modular/applyOrder");
 var log = require("../util/log");
 var showFileList = function( taskId){
@@ -537,6 +540,9 @@ function getTaskInfos(params,callback){
  */
 function openTaskDialog(stepName,req,res){
      var user = Tool.getCookieUser(req,res);
+    if(!user){
+        return ;
+    }
      var userId = user.userId;
     var params  = req.params;
     params.userId = user.userId;

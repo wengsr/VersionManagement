@@ -51,6 +51,9 @@ function findAllTask(req,res,params){
  */
 function findToDealTask(req,res,startNum){
     var user = cookiesUtil.getCookieUser(req,res);
+    if (!user) {
+        return;
+    }
     var params = {userId:user.userId,startNum:startNum};
     //console.log(params,"222222",user);
     PermissionAdmin.getMenus(params ,function(msg,menus){
@@ -82,6 +85,9 @@ function findToDealTask(req,res,startNum){
  */
 function findMyReqTask(req,res,startNum){
     var user = cookiesUtil.getCookieUser(req,res);
+    if (!user) {
+        return;
+    }
     //console.log("findMyReqTask:",user);
     var params = {userId:user.userId,startNum:startNum};
     //console.log(params,"222222",user);
@@ -112,6 +118,9 @@ function findMyReqTask(req,res,startNum){
  */
 function findReqTaskHistory(req,res,params){
     var user = cookiesUtil.getCookieUser(req,res);
+    if (!user) {
+        return;
+    }
     TaskAdmin.findReqHistory(params,function(msg,taskHis){
         var maxTurnNum=taskHis[0].maxTurnNum;
         res.render('requirements/reqHistory',{title:'任务历史记录', taskHis:taskHis, maxTurnNum:maxTurnNum});
@@ -122,6 +131,9 @@ function findReqTaskHistory(req,res,params){
  */
 function findReqAtta(req,res,params,curPage){
     var user = cookiesUtil.getCookieUser(req,res);
+    if (!user) {
+        return;
+    }
     if(curPage< 0){
         curPage = 1;
     }
@@ -160,6 +172,9 @@ router.post('/findDealTask', function(req, res, next) {
 });
 router.get('/newReqApply', function(req, res, next) {
     var user = cookiesUtil.getCookieUser(req,res);
+    if (!user) {
+        return;
+    }
     //var allParams = Util.getParamsFromReq(req);
     var params = {userId:user.userId} ;
     //var getButtonParams=[allParams.stateId,allParams.userId,allParams.userId,allParams.reqId]
@@ -189,7 +204,11 @@ function showReqProcessPage(req,res,params){
     var user = cookiesUtil.getCookieUser(req,res);
     //var allParams = Util.getParamsFromReq(req);
     //var params = req.body;
+    if (!user) {
+        return;
+    }
     params.userId=user.userId;
+
     //console.log("reqProcess:",params);
     TaskAdmin.getTaskInfo(params,function(msg,allInfo){
         if(msg == "success"){
@@ -222,6 +241,9 @@ router.get('/reqProcess/:reqId/:reqProcessStepId/:processStepId/:stateId', funct
 });
 router.post('/newApply', function(req, res, next) {
     var user = cookiesUtil.getCookieUser(req,res);
+    if (!user) {
+        return;
+    }
     var params = req.body;
     params.userId=user.userId;
     var execTime = new Date().format("yyyy-MM-dd HH:mm:ss");
@@ -249,6 +271,9 @@ router.post('/newApply', function(req, res, next) {
 router.post('/nextProcess', function(req, res, next) {
     var user = cookiesUtil.getCookieUser(req,res);
     //var allParams = Util.getParamsFromReq(req);
+    if (!user) {
+        return;
+    }
     var params = req.body;
     params.userId=user.userId;
     //console.log("nextProcess:",params);
@@ -275,6 +300,9 @@ router.post('/nextProcess', function(req, res, next) {
 router.post('/findReqs', function(req, res, next) {
     var user = cookiesUtil.getCookieUser(req,res);
     //var allParams = Util.getParamsFromReq(req);
+    if (!user) {
+        return;
+    }
     var params = req.body;
     //console.log("findReqs:",params)
     params.userId=user.userId;
@@ -296,6 +324,9 @@ router.post('/findReqs', function(req, res, next) {
  */
 router.get('/findReqs/:curDealPage', function(req, res, next) {
     var user = cookiesUtil.getCookieUser(req,res);
+    if (!user) {
+        return;
+    }
     var params  = tool.getFindReqsParams(req);
     //var params = req.body;
      params.user= user;
@@ -316,6 +347,9 @@ router.get('/findReqs/:curDealPage', function(req, res, next) {
  */
 router.get('/findReqs', function(req, res, next) {
     var user = cookiesUtil.getCookieUser(req,res);
+    if (!user) {
+        return;
+    }
     //var allParams = Util.getParamsFromReq(req);
     var params = req.body;
     params.userId=user.userId;
@@ -338,6 +372,9 @@ router.get('/findReqs', function(req, res, next) {
  */
 router.post('/nextDealer', function(req, res, next) {
     var user = cookiesUtil.getCookieUser(req,res);
+    if (!user) {
+        return;
+    }
     var params = req.body;
     params.userId=user.userId;
     var dealerData = {userName:params.dealer,processStepId:params.processStepId,
@@ -359,6 +396,9 @@ router.post('/nextDealer', function(req, res, next) {
  */
 router.post('/deleteDealer', function(req, res, next) {
     var user = cookiesUtil.getCookieUser(req, res);
+    if (!user) {
+        return;
+    }
     //var allParams = Util.getParamsFromReq(req);
     var params = req.body;
     params.userId = user.userId;
@@ -377,7 +417,9 @@ router.post('/deleteDealer', function(req, res, next) {
  */
 router.post('/deleteAtta', function(req, res, next) {
     var user = cookiesUtil.getCookieUser(req, res);
-
+    if (!user) {
+        return;
+    }
     //var allParams = Util.getParamsFromReq(req);
     var params = req.body;
     params.userId = user.userId;
@@ -438,6 +480,9 @@ router.get('/history/:reqId', function(req, res) {
 router.post('/findAllAttas/', function(req, res) {
     var params = req.body;
     var user = cookiesUtil.getCookieUser(req,res);
+    if (!user) {
+        return;
+    }
     //var allParams = Util.getParamsFromReq(req);
     var params = req.body;
     params.userId=user.userId;
@@ -458,6 +503,9 @@ router.post('/findAllAttas/', function(req, res) {
  */
 router.get('/findAllAttas/:curPage', function(req, res) {
     var user = cookiesUtil.getCookieUser(req,res);
+    if (!user) {
+        return;
+    }
     var params = tool.getFindAllAttasParams(req);
     var curPage = req.params.curPage;
     findReqAtta(req,res,params,curPage);
@@ -467,6 +515,9 @@ router.get('/findAllAttas/:curPage', function(req, res) {
  */
 router.get('/findAttasPage', function(req, res) {
     var user = cookiesUtil.getCookieUser(req,res);
+    if (!user) {
+        return;
+    }
     //var allParams = Util.getParamsFromReq(req);
     var params = {userId:user.userId} ;
     Project.getUserProject(params,function(msg,result){
@@ -486,6 +537,9 @@ router.get('/findAttasPage', function(req, res) {
  */
 router.post('/deleteReq', function(req, res) {
     var user = cookiesUtil.getCookieUser(req,res);
+    if (!user) {
+        return;
+    }
     //var allParams = Util.getParamsFromReq(req);
     var params = req.body;
     params.userId= user.userId;
@@ -501,6 +555,9 @@ router.post('/deleteReq', function(req, res) {
  */
 router.post('/addRTime', function(req, res) {
     var user = cookiesUtil.getCookieUser(req,res);
+    if (!user) {
+        return;
+    }
     //var allParams = Util.getParamsFromReq(req);
     var params = req.body;
     params.userId= user.userId;

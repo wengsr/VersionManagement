@@ -495,7 +495,10 @@ router.get('/btnToBeDeal/', function(req, res) {
  * 查找领导能查查看所有变更单:分页查找
  */
 router.get('/allTaskForBoss/:curPage', function (req, res) {
-    getCookieUser(req, res);
+    var cookiesUser = getCookieUser(req, res);
+    if (!cookiesUser) {
+        return;
+    }
     isSearchCondsExits(req,res);
     var searchConds = req.session.finAllTaskConds;
     var userId = req.session.user.userId;
@@ -651,6 +654,9 @@ router.get("/scriptPage/:scriptId",function(req,res){
 router.get("/findScriptPage/",function(req,res){
     var params = req.params;
     var user= Tool.getCookieUser(req,res);
+    if (!cookiesUser) {
+        return;
+    }
     Task.findProvice({userId:user.userId},function(msg,result){
         res.render('script/findScript',{provice:result });
     })
@@ -661,8 +667,11 @@ router.get("/findScriptPage/",function(req,res){
  */
 router.post("/findScripts/",function(req,res){
     var params = req.body;
-    var user= Tool.getCookieUser(req,res);
-    var cookieUser = req.cookies.user;
+    var user = Tool.getCookieUser(req, res)
+    if (!user) {
+        return;
+    }
+    cookieUser = req.cookies.user;
     params.userId = user.userId;
     var userId = params.userId;
     params.curPage = 1;
@@ -717,6 +726,9 @@ router.post("/findScripts/",function(req,res){
  */
 router.get("/findScripts/:curPage",function(req,res){
     var user= Tool.getCookieUser(req,res);
+    if (!user) {
+        return;
+    }
     var params = getScriptsConds(req,res);
     var cookieUser = req.cookies.user;
     params.userId = user.userId;

@@ -388,6 +388,9 @@ router.post('/assignTest', function(req, res) {
  */
 router.post('/testPass', function(req, res) {
     var user = getCookieUser(req, res);
+    if (!user) {
+        return;
+    }
     var taskId = req.body['taskId'];
     var creater = req.body['creater'];
     var reason =  req.body['reason'];
@@ -495,7 +498,11 @@ router.post('/findAllTestTasks', function (req, res) {
 });
 
 router.get('/findAllTestTasks/:curPage', function (req, res) {
-    getCookieUser(req, res);
+    var user = getCookieUser(req, res);
+    if (!user) {
+        return;
+    }
+
     var conds  = getSearchCondsForPaging(req);
     var userId = req.session.user.userId;
     var curPage = req.params.curPage;
@@ -551,7 +558,10 @@ router.get('/findAllTestTasks/:curPage', function (req, res) {
  * 查找所有变更单页面展示
  */
 router.get('/findAllTestTasksPage', function(req, res) {
-    getCookieUser(req, res);
+    var user = getCookieUser(req, res);
+    if (!user) {
+        return;
+    }
     var userId = req.session.user.userId;
     User.findTestProjectForFindAllTask(userId,function(msg,projects){
         if('success'!=msg){
@@ -565,7 +575,10 @@ router.get('/findAllTestTasksPage', function(req, res) {
  * 查找变更单页面展示
  */
 router.get('/findTestTasksPage', function(req, res) {
-    getCookieUser(req, res);
+    var user = getCookieUser(req, res);
+    if (!user) {
+        return;
+    }
     var userId = req.session.user.userId;
     User.findTestProjectForFindAllTask(userId,function(msg,projects){
         if('success'!=msg){
@@ -579,7 +592,10 @@ router.get('/findTestTasksPage', function(req, res) {
  * 测试人员：查找所有变更单与测试相关的业务逻辑
  */
 router.post('/findTestTasks', function (req, res) {
-    getCookieUser(req, res);
+    var user = getCookieUser(req, res);
+    if (!user) {
+        return;
+    }
     var conds  = getSearchConds(req);
     var userId = req.session.user.userId;
     req.session.finAllTaskConds = conds;
@@ -629,7 +645,10 @@ router.post('/findTestTasks', function (req, res) {
  * 查找所有变更单页面展示
  */
 router.get('/findAllTestTasksPage', function(req, res) {
-    getCookieUser(req, res);
+    var user = getCookieUser(req, res);
+    if (!user) {
+        return;
+    }
     var userId = req.session.user.userId;
     User.findTestProjectForFindTask(userId,function(msg,projects){
         if('success'!=msg){
@@ -661,6 +680,9 @@ router.get('/taskTestedCount', function(req, res) {
  */
 router.post('/noTest', function(req, res) {
     var user = getCookieUser(req, res);
+    if (!user) {
+        return;
+    }
     var taskId = req.body['taskId'];
     var reason = req.body['reason'];
     var dealer = req.session.user.userId;
@@ -687,7 +709,10 @@ router.post('/noTest', function(req, res) {
  * “请求重新测试”业务实现
  */
 router.post('/reTest', function(req, res) {
-    getCookieUser(req, res);
+    var user = getCookieUser(req, res);
+    if (!user) {
+        return;
+    }
     var taskId = req.body['taskId'];
     var preDealer = req.body['preDealer'];
     var reason =  req.body['reason'];
@@ -709,7 +734,10 @@ router.post('/reTest', function(req, res) {
  * 测试不通过，新建变更单名”业务实现
  */
 router.post('/newTaskName', function(req, res) {
-    getCookieUser(req, res);
+    var user = getCookieUser(req, res);
+    if (!user) {
+        return;
+    }
     var taskId = req.body['taskId'];
     var tester = req.body['preDealer'];
     var taskName =  req.body['taskName'];

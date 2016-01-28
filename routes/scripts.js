@@ -103,6 +103,9 @@ router.get("/scriptPage/:scriptId",function(req,res){
 router.get("/findScriptPage/",function(req,res){
     var params = req.params;
     var user= Tool.getCookieUser(req,res);
+    if (!user) {
+        return;
+    }
     Task.findProvice({userId:user.userId},function(msg,result){
         res.render('script/findScript',{provice:result });
     })
@@ -114,6 +117,9 @@ router.get("/findScriptPage/",function(req,res){
 router.post("/findScripts/",function(req,res){
     var params = req.params;
     var user= Tool.getCookieUser(req,res);
+    if (!user) {
+        return;
+    }
     params.userId = user.userId;
     params.curPage = 1;
     params.curPage = 1;
