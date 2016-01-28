@@ -86,6 +86,7 @@ TaskAtta.saveTaskAtta = function(taskId, processStepId, fileName, fileUri, callb
         connection.query(sql, params, function (err, result) {
             if (err) {
                 console.log('[QUERY ATTACHMENT ERROR] - ', err.message);
+                connection.release();
                 return callback('err',err);
             }
             connection.release();

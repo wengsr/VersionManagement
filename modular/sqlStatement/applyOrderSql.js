@@ -28,7 +28,7 @@ applyOrderSql.getApplyOrder= "select t.* ,ao.id,ao.orderId,ao.revision,ao.devRev
 "  JOIN applyorder ao2 ON ao.orderId = ao2.orderId and ao2.taskId = ?" +
 "  order by t.taskId";
 var getApplyOrderInfo_params="[taskId]";
-applyOrderSql.getApplyOrderAtta = "select ta.* ,ao.orderId,ao.revision,ao.devRevision from taskattachment ta  JOIN" +
+applyOrderSql.getApplyOrderAtta = "select  DISTINCT ta.* ,ao.orderId,ao.revision,ao.devRevision from taskattachment ta  JOIN" +
 "   (select * from (SELECT max(turnNum) turnNum,ta2.taskId from taskattachment ta2 GROUP BY taskId ) maxTurn)  maxTurnTable" +
 "   on maxTurnTable.taskId = ta.taskId And ta.turnNum = maxTurnTable.turnNum" +
 "   JOIN applyorder ao on ao.taskId = ta.taskId" +

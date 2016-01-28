@@ -427,8 +427,8 @@ var fileReg = /teswwt/g;
 //filesAdmin.containFiles(fileDir,fileReg);
 //var srcpath = "D:/变更单/NCRM开发变更单-YN-20151022-云南NCRM安卓变更单系统优化-hezf2-001"
 //var srcpath = "D:/变更单/NCRM开发变更单-HX-20151013-集团回调地址支撑通过properties文件配置-lilin-001"
-//var srcpath = "D:/变更单/NCRM开发变更单-YN-20151022-云南NCRM安卓变更单系统优化-hezf2-001"
-//var params ={dir:srcpath,isRequirement:1,containScript:1}
+var srcpath = "D:\\变更单\\NCRM开发变更单-SC-20160114-质押购机流程优化-cheny-001"
+var params = {dir: srcpath, isRequirement: 1, containScript: 1}
 //filesAdmin.checkNeedFiles(params,function(result){
 //    console.log("checkNeedFiles:",result);
 //})
