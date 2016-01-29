@@ -130,7 +130,6 @@ var file  = "NCRM-XJ-20150811--chenwc-001.zip"
 var msg = file.substring(file.lastIndexOf("/"),file.lastIndexOf("."));
 //commitChangeRar(path,file,msg);
 var existPath = "D:/test/test/testTest8/";
-console.log(getLastPath(existPath));
 //svnExists(existPath);
 var versionDir = "http://192.168.1.22:8000/svn/hxbss/testVersion/a/";
 var oldPath = "D:/test/";

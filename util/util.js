@@ -18,7 +18,7 @@ exports.getDaoResultPro = function(result,proName){
             proVal.push(result[i][proName]);
         }
     }
-    console.log("getDaoResultPro:",proVal);
+    //console.log("getDaoResultPro:",proVal);
     return proVal;
 };
 /**
@@ -72,7 +72,7 @@ exports.getNextItemOfArr=function(array,item){
      }
 };
 exports.getParamsFromReq = function(req,res){
-    console.log("req params:",req.body);
+    //console.log("req params:",req.body);
      return req.body;
 }
 exports.getInfoItem  = function(getInfoItem){

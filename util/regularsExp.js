@@ -16,8 +16,8 @@ RegularsExp.testReporter = /^(测试报告)([\u4e00-\u9fa5]|[\x00-\xff])+((.doc)
 RegularsExp.devOrder= /^(NCRM开发变更单)([\u4e00-\u9fa5]|[\x00-\xff])+((.xls)$|(.xlsx)$)/g;
 //支撑方案  "CTC-CRM-PSO-模块名称-需求简述.doc
 RegularsExp.reqCase= /^(CTC-CRM-PSO-)([\u4e00-\u9fa5]|[\x00-\xff])+(支撑方案设计)((.docx)$|(.doc)$)/g;
-var testFile ="CTC-CRM-PSO-HX-20151013-集团回调地址支撑通过properties支撑方案设计.dox";
-console.log(testFile.match(RegularsExp.reqCase));
+//var testFile ="CTC-CRM-PSO-HX-20151013-集团回调地址支撑通过properties支撑方案设计.dox";
+//console.log(testFile.match(RegularsExp.reqCase));
 
 
 

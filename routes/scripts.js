@@ -88,7 +88,6 @@ router.get("/scriptPage/:scriptId",function(req,res){
     Script.findScriptsById(params,function(msg,result,atta){
         if(result.createTim!= null){
             result.createTime = result.createTime.format("yyyy-MM-dd HH:mm:ss");
-            console.log(  result.createTime);
         }
         if(result.lastTime){
             result.lastTime= result.lastTime.format("yyyy-MM-dd HH:mm:ss");

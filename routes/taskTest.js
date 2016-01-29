@@ -291,7 +291,7 @@ var showTestedCountPage = function(currProjectId, req, res, whichPage){
         else {
             firstProjectId = currProjectId;
         }
-        console.log("req:", req.body);
+        //console.log("req:", req.body);
         var params = getParams(req);
         taskXls.countTasks(params,function (msg,result) {//统计文件清单数
             var params = pageParam(result);
@@ -394,7 +394,6 @@ router.post('/testPass', function(req, res) {
     var taskId = req.body['taskId'];
     var creater = req.body['creater'];
     var reason =  req.body['reason'];
-    console.log("testPass:",reason);
     var dealer = req.session.user.userId;
     var jsonStr;
     TaskTest.doTestPass(taskId,dealer,reason,function(msg,result){

@@ -21,7 +21,6 @@ function copyRar_ajaxsubmit(params, url, subType){
         success: function(data){
             var dataJson = $.parseJSON(data);
             var flag =  dataJson.sucFlag;
-            console.log(flag);
             if('err'==flag){
                 $("#btnCopyRar").show();
                 showTipInfo('err',dataJson.message);
@@ -48,7 +47,6 @@ function commitRar_ajaxsubmit(params, url, subType){
         success: function(data){
             var dataJson = $.parseJSON(data);
             var flag =  dataJson.sucFlag;
-            console.log(flag);
             if('err'==flag){
                 $("#btnCopyRar").show();
                 $("#btnCommitRar").show();

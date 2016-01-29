@@ -95,7 +95,7 @@ Project.findLeaderProjectByUserId = function(currProjectId, userId, callback){
                 return callback(err,null);
             }
             connection.release();
-            console.log(result);
+            //console.log(result);
             callback('success',result);
         });
     });

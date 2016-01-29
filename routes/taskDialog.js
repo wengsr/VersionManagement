@@ -9,9 +9,6 @@ var TaskAtta = require('../modular/taskAtta');
 var TaskTest = require('../modular/taskTest');
 var Tool = require("./util/tool");
 var getCookieUser = Tool.getCookieUser;
-if(!cookiesUser){
-    return ;
-}
 var ApplyOrder = require("../modular/applyOrder");
 var log = require("../util/log");
 var showFileList = function( taskId){

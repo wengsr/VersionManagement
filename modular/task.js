@@ -479,9 +479,8 @@ Task.findCreateTaskByUserId = function(userId,startNum,callback){
             }
             else{
                 connection.query(sql, params, function (err, result) {
-                    console.log(sql);
-                    console.log(params);
-
+                    //console.log(sql);
+                    //console.log(params);
                     if (err) {
                         console.log('[QUERY TASKS ERROR] - ', err.message);
                         return callback(err,null);
@@ -851,7 +850,7 @@ Task.findTaskByTaskId_psi = function(taskId, processStepId ,callback){
                 return callback(err,null);
             }
             connection.release();
-            console.log(result);
+            //console.log(result);
             return  callback('success',result[0]);
         });
     });

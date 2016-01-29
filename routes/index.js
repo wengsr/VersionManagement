@@ -639,7 +639,6 @@ router.get("/scriptPage/:scriptId",function(req,res){
     Script.findScriptsById(params,function(msg,result,atta){
         if(result.createTime){
             result.createTime = result.createTime.format("yyyy-MM-dd HH:mm:ss");
-            console.log(  result.createTime);
         }
         if(result.lastTime){
             result.lastTime= result.lastTime.format("yyyy-MM-dd HH:mm:ss");
@@ -654,7 +653,7 @@ router.get("/scriptPage/:scriptId",function(req,res){
 router.get("/findScriptPage/",function(req,res){
     var params = req.params;
     var user= Tool.getCookieUser(req,res);
-    if (!cookiesUser) {
+    if (!user) {
         return;
     }
     Task.findProvice({userId:user.userId},function(msg,result){

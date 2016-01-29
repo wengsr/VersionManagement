@@ -33,7 +33,6 @@ function ajaxSubmit_apply(params,url,subType){
             showTipInfo('success', dataJson.message);
 
         }
-        console.log("success Funtion:",this.ajaxOptions);
     }
     $.ajax(ajaxOptions);
 }
@@ -53,7 +52,6 @@ function ajaxSubmit_submit(params,url,subType){
             hideTag("#btnSubmit");
             $("#dynButtons").replaceWith(buttonsString);
         }
-        console.log("success Funtion:",this.ajaxOptions);
     }
     $.ajax(ajaxOptions);
 }
@@ -74,7 +72,6 @@ function ajaxSubmit_nextDealer(params,url,subType){
             resDeleteDealerClick("xxDealerAdmin","xxDealerReq");
             showTipInfo('success', dataJson.message);
         }
-        console.log("success Funtion:",this.ajaxOptions);
     }
     $.ajax(ajaxOptions);
 }
@@ -92,7 +89,6 @@ function ajaxSubmit_addRTime(params,url,subType){
             $("#btnAddRTime").hide();
             showTipInfo('success', dataJson.message);
         }
-        console.log("success Funtion:",this.ajaxOptions);
     }
     $.ajax(ajaxOptions);
 }

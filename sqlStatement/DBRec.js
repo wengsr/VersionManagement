@@ -17,7 +17,7 @@ function DBRec(tableName){
     //插入多条记录，字段数目相同
     this.saveSql = function(params){
         var colsName = ObjectTrans.getNames(params)[0];
-        console.log(colsName);
+        //console.log(colsName);
         var colsVals = ObjectTrans.getVals(params);
         var sql = "insert into "+tableName+" (" +colsName.join(",") +") values ";
         var QM = [];

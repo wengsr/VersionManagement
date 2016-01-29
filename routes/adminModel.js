@@ -330,7 +330,7 @@ router.get('/findAttaHistory/', function(req, res) {
                 var pageCount = parseInt((count-1)/30) + 1;
                 req.session.attachemts = attachemts;
                 req.session.attachemtsCount = attachemts.length;
-                console.log("find Attachment;",pageCount,"   ",curPage,"   ",count,"  ",attachemts.length);
+
                 return res.render('index', {
                     title: 'AILK-CRM版本管理系统',
                     user:req.session.user,
@@ -386,7 +386,6 @@ router.post('/findAttaHistory/', function(req, res) {
             var pageCount = parseInt((count-1)/30) + 1;
             req.session.attachemts = attachemts;
             req.session.attachemtsCount = attachemts.length;
-            console.log("find Attachment;",pageCount,"   ",curPage,"   ",count,"  ",attachemts.length);
             return res.render('index', {
                 title: 'AILK-CRM版本管理系统',
                 user:req.session.user,

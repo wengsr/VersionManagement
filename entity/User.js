@@ -55,6 +55,4 @@ var zlj = {
      password:"123456",
     realName: "ZLJ"
 }
-var user = new User(zlj);
-console.log(user)
-console.log(user.getProperty("userName"));
+//var user = new User(zlj);

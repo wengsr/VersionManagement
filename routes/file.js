@@ -189,8 +189,6 @@ router.get('/fileDownLoad/:filename/:realpath',function(req,res,next){
 });
 
 router.post('/submitFile', function(req, res) {
-    console.log("cookies:",req.cookies);
-    console.log("session:",req.session.user);
     var cookieUser = getCookieUser(req,res);
     if(cookieUser){
         fileUp(req, res, CHECK_REPORT_UPLOAD_FOLDER2);
@@ -253,7 +251,6 @@ var compareOld = function(taskId,oldDir,oldDir2,excPath,callback){
                 if(!fs.existsSync(cmpPath2)){//首次比对解压从svn提取的old.zip
                     fs.mkdirSync(cmpPath2);
                     CmdExc.extractRar(svnOldPath,cmpPath2,function(flag){
-                        console.log("cmpPath2:",svnOldPath,"   ",cmpPath2);
                         if(flag ==="false"){
                             console.log("extractRar:解压失败");
                             console.error("extractRar：FAIL ")

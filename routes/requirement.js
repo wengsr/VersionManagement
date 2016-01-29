@@ -217,7 +217,6 @@ function showReqProcessPage(req,res,params){
                 if(msg=="err"){
                     return req.sessoin.error = "获取按钮失败";
                 }
-                console.log("buttons:",buttons);
                 res.render('requirements/reqProcess',{reqProcessStepId:params.reqProcessStepId,allInfo:allInfo,infoDivs:"",stateId:allInfo.taskInfo.stateId,
                     buttons:buttons,projectId:allInfo.taskInfo.projectId,processStepId:allInfo.taskInfo.processStepId,
                     taskInfo:allInfo.taskInfo,reqId:

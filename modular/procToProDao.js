@@ -29,7 +29,6 @@ procToProDao.updateProcess = function(params,callback){
             return util.hasDAOErr(err," get Connection err!!!",callback);
         }
         var updateSql = (new dBRec("processToProject")).updateSql(params);
-        console.log(updateSql);
         connection.query(updateSql.sql, updateSql.params, function (err, result) {
             if (err) {
                 return util.hasDAOErr(err," updateProcess err!!!",callback);

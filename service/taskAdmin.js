@@ -259,10 +259,6 @@ TaskAdmin.searchAtta = function(params ,callback){
             sql_params.push(params.startNum);
             console.log("startNum",params.startNum);
         }
-        console.log("sql:",sql);
-        console.log("sql_params:",sql_params);
-        console.log("sql_Count:",sql_Count);
-        console.log("count_params:",count_params);
 
         connection.query(sql_Count,count_params,function(err,count){
             if (err) {
@@ -355,7 +351,7 @@ TaskAdmin.findReqHistory = function(params,callback){
                 task.execTime = task.execTime.format("yyyy-MM-dd HH:mm:ss");
             }
         });
-        console.log("findRedHistory result:",result);
+        //console.log("findRedHistory result:",result);
         callback("success",result);
     });
 }
@@ -365,7 +361,7 @@ TaskAdmin.deleteReq = function(params,callback){
         if(msg =="err"){
             return callback("err");
         }
-        console.log("findRedHistory result:",result);
+        //console.log("findRedHistory result:",result);
         callback("success",result);
     });
 }
@@ -375,7 +371,7 @@ TaskAdmin.addRTime = function(params,callback){
         if(msg =="err"){
             return callback("err");
         }
-        console.log("addRTime result:",result);
+        //console.log("addRTime result:",result);
         callback("success",result);
     });
 }
@@ -388,7 +384,7 @@ TaskAdmin.sendEmail = function(params){
         }
         //console.log("searchEmailInfo result:",result);
         if(result.length){
-            console.log("sendEmail info:",result);
+            //console.log("sendEmail info:",result);
           for(var i = 0;i<result.length;i++){
               setTimeout( Email.sendEmailToDealer(result[i]),"10000") ;
           }

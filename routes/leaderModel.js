@@ -709,7 +709,6 @@ function getTimeParams(params){
    for(var item in params){
         item = item.trim();
     }
-    console.log(params);
     var startTime = new Date().format("yyyy-MM-dd HH:mm:ss");
     var now  =new  Date();
     now.setDate(new Date().getDate()+1)  ;
@@ -726,8 +725,6 @@ function getTimeParams(params){
         anotherDay.setDate(anotherDay.getDate()+1);
         endTime = anotherDay.format("yyyy-MM-dd HH:mm:ss")
     }
-    console.log("startTime:",startTime);
-    console.log("endTime:",endTime);
     return {startTime:startTime,endTime:endTime}
 }
 /**

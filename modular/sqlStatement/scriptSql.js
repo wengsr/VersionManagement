@@ -34,10 +34,16 @@ scriptSql.countScripts = "SELECT count(*) count from (" +
 "   where t.taskId = s.taskId and s.proviceId = p.proviceId and u.userId = t.creater and s.execState = st.stateId" +
 "   )scriptsTable "
 var countScripts_params = "[]";
-scriptSql.findScriptsById = "   SELECT s.*,t.taskName,u.realName createrName,p.proviceName ,t.containScript ,st.stateName " +
-"   from tasks t,scripts s,provice p,user u, states st" +
-"   where t.taskId = s.taskId and s.proviceId = p.proviceId and u.userId = t.creater  and s.execState = st.stateId and s.scriptId = ?" ;
- var  findScriptId_params = "[scriptId]";
+//scriptSql.findScriptsById = "   SELECT s.*,t.taskName,u.realName createrName,p.proviceName ,t.containScript ,st.stateName " +
+//"   from tasks t,scripts s,provice p,user u, states st" +
+//"   where t.taskId = s.taskId and s.proviceId = p.proviceId and u.userId = t.creater  and s.execState = st.stateId and s.scriptId = ?" ;
+ scriptSql.findScriptsById ="SELECT s.*,t.taskName,u.realName createrName,p.proviceName ,t.containScript ,st.stateName" +
+"   from tasks t" +
+"   JOIN scripts s on t.taskId = s.taskId  and s.scriptId = 14" +
+"   JOIN user u     on  u.userId = t.creater" +
+"   left JOIN states st on s.execState = st.stateId" +
+"   left JOIN provice p on s.proviceId = p.proviceId"
+var  findScriptId_params = "[scriptId]";
 scriptSql.findAtta = "SELECT	ta.*" +
 "   FROM" +
 "   taskattachment ta,scripts s" +

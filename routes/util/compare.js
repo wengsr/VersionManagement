@@ -212,7 +212,7 @@ exports.getCheckFiles = function(svn,modAndDelFiles,addFiles,versionDir,callback
        });
      }
     getAllPath(addFiles,versionDir,function(msg){
-        console.log("getAllPaths :",allFiles);
+        //console.log("getAllPaths :",allFiles);
         callback(allFiles);
     })
 }

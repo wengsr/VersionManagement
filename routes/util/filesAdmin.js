@@ -419,7 +419,7 @@ filesAdmin.newRenameFile = function(fileContent,fileName){
         fs.unlinkSync(fileName);
     }
     fs.appendFileSync(fileName, fileContent);
-    console.log(fileContent);
+    //console.log(fileContent);
     //return fileName;
 }
 var fileDir = "D:/test/path4";

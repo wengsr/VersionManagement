@@ -472,7 +472,6 @@ TaskTest.findTaskByTesterId_P = function(userId,startNum,callback){
                         return callback(err,null);
                     }
                     connection.release();
-                    console.log("find Test Task:",result);
                     callback('success',result, count[0].pageCount);
                 });
             }
