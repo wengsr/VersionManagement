@@ -2329,7 +2329,7 @@ router.post('/autoUpload', function(req,res) {
     mkdirsSync(svnFolder+"/extractRarFolder");
     mkdirsSync(oldSvnDown);
     if (!fs.existsSync(svnFolder + "/.svn")) {
-        return callback("success", "无文件需要上传,请点击【上库完成】");
+        return returnJsonMsg(req, res, "err", "无法自动上库，请手工上库后，点击【上库完成】!");
     }
     copy(svnFolder+"/.svn", localDir+"/.svn");//拷贝对应的.svn文件夹到upFolder文件夹下
     //updateSvnCode();//调用Svn工具的autoUpload方法上库。(在解压前到SVN上更新使用，暂不用)
@@ -2555,6 +2555,9 @@ router.post('/updateSvnAndCommit', function(req,res) {
     }
     var modTaskList = req.body['modifyTaskList'];
     var modFileList = modTaskList.split('\n');
+    if (modTaskList == "") {
+        return returnJsonMsg(req, res, "err", "请手动上测试库后点击【上测试库完成】");
+    }
     var modAndDelFiles = modFileList.concat(addFileList);
     //1.3获取上传的附件名
     var a_attaFile = req.body['a_attaFile'];

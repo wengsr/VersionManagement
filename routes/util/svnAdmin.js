@@ -190,7 +190,7 @@ var commitToTestRepository = function(params,callback){
             FilesAdmin.mkdirsSync(svnFolder+"/extractRarFolder");
             FilesAdmin.mkdirsSync(oldSvnDown);
             if (!fs.existsSync(svnFolder + "/.svn")) {
-                return callback("success", "无文件需要上传,请点击【上库完成】");
+                return callback("err", "无.svn 信息");
             }
             FilesAdmin.copy(svnFolder+"/.svn", localDir+"/.svn");//拷贝对应的.svn文件夹到upFolder文件夹下
             //updateSvnCode();//调用Svn工具的autoUpload方法上库。(在解压前到SVN上更新使用，暂不用)
