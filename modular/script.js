@@ -2,9 +2,9 @@
  * Created by lijuanZhang on 2015/12/29.
  */
 
-var scriptSql  = require("./sqlStatement/scriptSql");
-var TaskSql  = new(require("./sqlStatement/taskSql"))();
-var log =  require("../util/log");
+var scriptSql = require("./sqlStatement/scriptSql");
+var TaskSql = new (require("./sqlStatement/taskSql"))();
+var log = require("../util/log");
 var Date = require("../util/Date");
 var pool = require('../util/connPool.js').getPool();
 var queues = require('mysql-queues');// 加载mysql-queues 支持事务
@@ -14,34 +14,36 @@ var script = {}
  * @param params
  * @param callback
  */
-script.addScript = function(params,callback){
-    pool.getConnection(function(err, connection){
-        if(err){
+script.addScript = function (params, callback) {
+    pool.getConnection(function (err, connection) {
+        if (err) {
             console.log('[CONN PAGES ERROR] - ', err.message);
             return callback(err);
         }
         queues(connection);
         var trans = connection.startTransaction();
         var sql = scriptSql.addScript;
-        var newParams = [params.taskId,params.taskId,1,params.scriptComment,params.proviceId]//状态标识为“未上库”
+        //var upateSql = scriptSql.updateScript;
+        //var selectSql = scriptSql.selectScript;
+        var newParams = [params.taskId, params.taskId, 1, params.scriptComment, params.proviceId]//状态标识为“未上库”
         trans.query(sql, newParams, function (err, result) {
             if (err) {
                 console.log('[ addScript ERROR] - ', err.message);
                 //connection.release();
-                return callback(err,null);
+                return callback(err, null);
             }
-            if(params.containScript){
-                var updateTaskScriptSql =TaskSql.updateScript ;
-                trans.query(updateTaskScriptSql, [params.containScript,params.taskId], function (err, result) {
+            if (params.containScript) {
+                var updateTaskScriptSql = TaskSql.updateScript;
+                trans.query(updateTaskScriptSql, [params.containScript, params.taskId], function (err, result) {
                     if (err) {
                         console.log('[ updateTaskScriptSql ERROR] - ', err.message);
                         trans.rollback();
                         //connection.release();
-                        return callback(err,null);
+                        return callback(err, null);
                     }
-                    else{
+                    else {
                         //connection.release();
-                        return callback("success",result);
+                        return callback("success", result);
                     }
                 });
             }
@@ -55,9 +57,9 @@ script.addScript = function(params,callback){
  * @param params
  * @param callback
  */
-script.updateStateAndTime = function(params,callback){
-    pool.getConnection(function(err, connection){
-        if(err){
+script.updateStateAndTime = function (params, callback) {
+    pool.getConnection(function (err, connection) {
+        if (err) {
             console.log('[CONN PAGES ERROR] - ', err.message);
             return callback(err);
         }
@@ -65,23 +67,23 @@ script.updateStateAndTime = function(params,callback){
         var trans = connection.startTransaction();
         var sql = scriptSql.updateStateAndTime;
         var now = (new Date()).format("yyyy-MM-dd HH:mm:ss");
-        var newParams = [2,now,params.taskId]//状态标识为“未处理”:2
+        var newParams = [2, now, params.taskId]//状态标识为“未处理”:2
         trans.query(sql, newParams, function (err, result) {
             if (err) {
                 console.log('[ addScript ERROR] - ', err.message);
-                return callback(err,null);
+                return callback(err, null);
             }
-            if(params.containScript){
-                var updateTaskScriptSql =TaskSql.updateScript ;
-                trans.query(updateTaskScriptSql, [params.containScript,params.taskId], function (err, result) {
+            if (params.containScript) {
+                var updateTaskScriptSql = TaskSql.updateScript;
+                trans.query(updateTaskScriptSql, [params.containScript, params.taskId], function (err, result) {
                     if (err) {
                         console.log('[ updateTaskScriptSql ERROR] - ', err.message);
                         trans.rollback();
-                        return callback(err,null);
+                        return callback(err, null);
                     }
                 });
             }
-            callback('success',result);
+            callback('success', result);
         });
         trans.execute();//提交事务
         connection.release();
@@ -92,9 +94,9 @@ script.updateStateAndTime = function(params,callback){
  * @param params
  * @param callback
  */
-script.updateState = function(params,callback){
-    pool.getConnection(function(err, connection){
-        if(err){
+script.updateState = function (params, callback) {
+    pool.getConnection(function (err, connection) {
+        if (err) {
             console.log('[CONN PAGES ERROR] - ', err.message);
             return callback(err);
         }
@@ -102,23 +104,23 @@ script.updateState = function(params,callback){
         var trans = connection.startTransaction();
         var sql = scriptSql.updateState;
         var now = (new Date()).format("yyyy-MM-dd HH:mm:ss");
-        var newParams = [params.scriptState,params.taskId]
+        var newParams = [params.scriptState, params.taskId]
         trans.query(sql, newParams, function (err, result) {
             if (err) {
                 console.log('[ addScript ERROR] - ', err.message);
-                return callback(err,null);
+                return callback(err, null);
             }
-            if(params.containScript){
-                var updateTaskScriptSql =TaskSql.updateScript ;
-                trans.query(updateTaskScriptSql, [params.containScript,params.taskId], function (err, result) {
+            if (params.containScript) {
+                var updateTaskScriptSql = TaskSql.updateScript;
+                trans.query(updateTaskScriptSql, [params.containScript, params.taskId], function (err, result) {
                     if (err) {
                         console.log('[ updateTaskScriptSql ERROR] - ', err.message);
                         trans.rollback();
-                        return callback(err,null);
+                        return callback(err, null);
                     }
                 });
             }
-            callback('success',result);
+            callback('success', result);
         });
         trans.execute();//提交事务
         connection.release();
@@ -130,9 +132,9 @@ script.updateState = function(params,callback){
  * @param params
  * @param callback
  */
-script.updateState = function(params,callback){
-    pool.getConnection(function(err, connection){
-        if(err){
+script.updateState = function (params, callback) {
+    pool.getConnection(function (err, connection) {
+        if (err) {
             console.log('[CONN PAGES ERROR] - ', err.message);
             return callback(err);
         }
@@ -140,22 +142,22 @@ script.updateState = function(params,callback){
         var trans = connection.startTransaction();
         var sql = scriptSql.updateState;
         var now = (new Date()).format("yyyy-MM-dd HH:mm:ss");
-        var newParams = [params.scriptState,params.taskId]
+        var newParams = [params.scriptState, params.taskId]
         trans.query(sql, newParams, function (err, result) {
             if (err) {
                 console.log('[ addScript ERROR] - ', err.message);
-                return callback(err,null);
+                return callback(err, null);
             }
-            if(params.containScript){
-                var updateTaskScriptSql =TaskSql.updateScript ;
-                trans.query(updateTaskScriptSql, [params.containScript,params.taskId], function (err, result) {
+            if (params.containScript) {
+                var updateTaskScriptSql = TaskSql.updateScript;
+                trans.query(updateTaskScriptSql, [params.containScript, params.taskId], function (err, result) {
                     if (err) {
                         console.log('[ updateTaskScriptSql ERROR] - ', err.message);
                         trans.rollback();
-                        return callback(err,null);
+                        return callback(err, null);
                     }
-                    else{
-                       return  callback('success',result);
+                    else {
+                        return callback('success', result);
                     }
                 });
             }
@@ -170,9 +172,9 @@ script.updateState = function(params,callback){
  * @param params
  * @param callback
  */
-script.findScripts = function(params,callback){
-    pool.getConnection(function(err, connection){
-        if(err){
+script.findScripts = function (params, callback) {
+    pool.getConnection(function (err, connection) {
+        if (err) {
             console.log('[CONN PAGES ERROR] - ', err.message);
             return callback(err);
         }
@@ -182,20 +184,19 @@ script.findScripts = function(params,callback){
         var countsql = scriptSql.countScripts;
         var conditionsql = getConditionAndSql(params);
         var newParams = conditionsql.params;
-        conditionsql = conditionsql.sql;
-        trans.query(sql+" "+conditionsql, newParams, function (err, result) {
+        var condSql = conditionsql.sql;
+        trans.query(sql + " " + condSql, newParams, function (err, result) {
             if (err) {
-                console.log('[ addScript ERROR] - ', err.message);
-                return callback(err,null);
+                console.log('[ findScripts ERROR] - ', err.message);
+                return callback(err, null);
             }
-            trans.query(countsql+" "+conditionsql, newParams, function (err, count) {
+            trans.query(countsql + " " + conditionsql.countSql, conditionsql.countParams, function (err, count) {
                 if (err) {
-                    console.log('[ addScript ERROR] - ', err.message);
-                    return callback(err,null);
+                    console.log('[ findScripts ERROR] - ', err.message);
+                    return callback(err, null);
                 }
-                else{
-
-                    callback('success',result,count[0].count);
+                else {
+                    callback('success', result, count[0].count);
                 }
             });
 
@@ -206,9 +207,9 @@ script.findScripts = function(params,callback){
 }
 
 //查找特定配置脚本信息 scriptid
-script.findScriptsById  = function(params,callback){
-    pool.getConnection(function(err, connection){
-        if(err){
+script.findScriptsById = function (params, callback) {
+    pool.getConnection(function (err, connection) {
+        if (err) {
             console.log('[CONN PAGES ERROR] - ', err.message);
             return callback(err);
         }
@@ -217,20 +218,20 @@ script.findScriptsById  = function(params,callback){
         var sql = scriptSql.findScriptsById;
         var newParams = [params.scriptId];
         var attaSql = scriptSql.findAtta,
-            attaParams =[params.scriptId];
+            attaParams = [params.scriptId];
         trans.query(sql, newParams, function (err, result) {
             if (err) {
                 console.log('[ findScriptsById ERROR] - ', err.message);
-                return callback(err,null);
+                return callback(err, null);
             }
-            else{
+            else {
                 trans.query(attaSql, attaParams, function (err, atta) {
                     if (err) {
                         console.log('[ findScriptAtta ERROR] - ', err.message);
-                        return callback(err,null);
+                        return callback(err, null);
                     }
-                    else{
-                        callback('success',result[0],atta[0]);
+                    else {
+                        callback('success', result[0], atta[0]);
                     }
                 });
             }
@@ -241,9 +242,9 @@ script.findScriptsById  = function(params,callback){
 }
 
 //查找包含数据变更单的变更单 taskId 以及用户信息
-script.findScriptAttachInfo  = function(params,callback){
-    pool.getConnection(function(err, connection){
-        if(err){
+script.findScriptAttachInfo = function (params, callback) {
+    pool.getConnection(function (err, connection) {
+        if (err) {
             console.log('[CONN PAGES ERROR] - ', err.message);
             return callback(err);
         }
@@ -254,10 +255,10 @@ script.findScriptAttachInfo  = function(params,callback){
         trans.query(sql, newParams, function (err, result) {
             if (err) {
                 console.log('[ findScriptsById ERROR] - ', err.message);
-                return callback(err,null);
+                return callback(err, null);
             }
-            else{
-                callback('success',result);
+            else {
+                callback('success', result);
             }
         });
         trans.execute();//提交事务
@@ -265,38 +266,42 @@ script.findScriptAttachInfo  = function(params,callback){
     });
 }
 //根据传入的参数生成查找配置或者脚本 的sql 条件
-function getConditionAndSql(params){
-    var newParams =[];
+function getConditionAndSql(params) {
+    var newParams = [];
+    var countParams;
     var sql = [];
-    if(params.proviceId!=''){
-        sql.push("  proviceId = ? ") ;
+    var countSql;
+    if (params.proviceId != '') {
+        sql.push("  proviceId = ? ");
         newParams.push(params.proviceId);
     }
-    if(params.startTime!=''){
-        sql.push("  createTime > ? ") ;
+    if (params.startTime != '') {
+        sql.push("  createTime > ? ");
         newParams.push(params.startTime);
     }
-    if(params.endTime!=''){
-        sql.push("   createTime < ? ") ;
+    if (params.endTime != '') {
+        sql.push("   createTime < ? ");
         newParams.push(params.endTime);
     }
-    if(params.reqName!=''){
-        sql.push("  reqName like ? ") ;
-        newParams.push('%'+params.reqName+'%');
+    if (params.reqName != '') {
+        sql.push("  reqName like ? ");
+        newParams.push('%' + params.reqName + '%');
     }
-    if(params.containScript == 1){
-        sql.push("  containScript = ? ") ;
+    if (params.containScript == 1) {
+        sql.push("  containScript = ? ");
         newParams.push(params.containScript);
     }
-    if(!sql.length){
-        sql = " order by createTime desc limit ?,30";
-        newParams.push((params.curPage-1)*30);
+    countParams = newParams;
+    if (!sql.length) {
+        countSql = "";
+        sql = "group by taskId order by createTime desc limit ?,30";
+        newParams.push((params.curPage - 1) * 30);
     }
-    else{
-        sql = " where " + sql.join(" and ") + "order by createTime desc limit ?,30";
-        newParams.push((params.curPage-1)*30);
+    else {
+        countSql = " where " + sql.join(" and ");
+        sql = " where " + sql.join(" and ") + "group by taskId order by createTime desc limit ?,30";
+        newParams.push((params.curPage - 1) * 30);
     }
-   return { sql:sql,params :newParams}
+    return {sql: sql, params: newParams, countSql: countSql, countParams: countParams}
 }
 module.exports = script;
-//console.log(new Date().format("yyyy-MM-dd HH:mm:ss"));

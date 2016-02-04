@@ -6,6 +6,10 @@ var scriptSql = {};
 scriptSql.addScript = "insert into scripts(taskId,reqName,execState,comment,proviceId) values(?," +
 "   (select reqName from tasks t,requirement r where t.taskid = ? and  t.reqId = r.reqId),?,?,?) ;";
 var addScript_params = "[taskId,taskId,stateId,comment,proviceId]"
+//更新脚本记录，走查不通过时，多次上传变更单；
+scriptSql.updateScript = "insert into scripts(taskId,reqName,execState,comment,proviceId) values(?," +
+"   (select reqName from tasks t,requirement r where t.taskid = ? and  t.reqId = r.reqId),?,?,?) ;";
+var addScript_params = "[taskId,taskId,stateId,comment,proviceId]"
 //更新状态和时间
 scriptSql.updateStateAndTime = "UPDATE scripts set execState = ? ,createTime = ? where taskId = ?";
 var updateStateAndTime_params = "[state,createTime,taskId]"
@@ -43,7 +47,7 @@ var countScripts_params = "[]";
 //"   where t.taskId = s.taskId and s.proviceId = p.proviceId and u.userId = t.creater  and s.execState = st.stateId and s.scriptId = ?" ;
 scriptSql.findScriptsById = "SELECT s.*,t.taskName,u.realName createrName,p.proviceName ,t.containScript ,st.stateName" +
 "   from tasks t" +
-"   JOIN scripts s on t.taskId = s.taskId  and s.scriptId = 14" +
+"   JOIN scripts s on t.taskId = s.taskId  and s.scriptId = ?" +
 "   JOIN user u     on  u.userId = t.creater" +
 "   left JOIN states st on s.execState = st.stateId" +
 "   left JOIN provice p on s.proviceId = p.proviceId"

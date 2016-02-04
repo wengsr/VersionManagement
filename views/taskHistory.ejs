@@ -239,13 +239,14 @@
         <% if(taskHis.length && (taskHis[0].taskid > 1800)){ %>
         <div class="history-date">
             <ul>
-                <% var j = 0;var curTestNum = 0%>
+                <% var j = 0;var curTestNum = 0;var curTurnNum = 0 %>
                 <h2 class="data01"><a href="#">第<%=j+1%>轮</a></h2>
                 <%taskHis.forEach(function(tHis, item){%>
-                <%if(tHis.turnNum == j+1){%>
+                <% if(tHis.turnNum == j + 1){  j++; %>
                 <h2 class="data01"><a href="#">第<%=j+1%>轮</a></h2>
+
                 <%}%>
-                <%if(tHis.testNum == curTestNum+1){%>
+                <% if(tHis.testNum == curTestNum + 1){curTestNum++; %>
                 <h2 class="data01"><a href="#">第<%=curTestNum+1%>轮测试</a></h2>
                 <%}%>
                 <%if(tHis.processStepId == 2){%>
@@ -294,15 +295,16 @@
                     <dl>
                         <dt><%=tHis.realName%> &nbsp;&nbsp;&nbsp;&nbsp;<time style="display:inline;color:#d3d3d3;font-weight:normal">(<%=tHis.endTime?tHis.endTime:tHis.execTime%>)</time>
                             <%if(tHis.endTime){%>
-                                        <span>走查该变更单后，做出“走查通过”的判定<br/>
-                                            <%if(tHis.fileUri!=null){%>
-                                            <label>上传了走查报告：<a typeId="attaLink" href="<%=tHis.fileUri%>" style="color:#32B1EC"><%=tHis.fileName%></a></label>。
-                                            <%}%>
-                                            <% if(tHis.reason != null){ %>
-                                            <br/>
+                            <span>走查该变更单：<%= tHis.state?tHis.state:"无" %><br/>
+                                <% if(tHis.fileUri != null){ %>
+                                <label>上传了走查报告：<a typeId="attaLink" href="<%= tHis.fileUri %>"
+                                                  style="color:#32B1EC"><%= tHis.fileName %></a></label>。
+                                <% } %>
+                                <% if(tHis.reason != null){ %>
+                                <br/>
                                             <span>说明：<%= tHis.reason %></span>
-                                            <% } %>
-                                        </span>
+                                <% } %>
+                            </span>
                             <%}%>
                         </dt>
                     </dl>
@@ -400,7 +402,7 @@
                     <h3>上发布库</h3>
                     <dl>
                         <dt><%=(tHis.realName==null)?"":tHis.realName%> &nbsp;&nbsp;&nbsp;&nbsp;<time style="display:inline;color:#d3d3d3;font-weight:normal">(<%=tHis.execTime%>)</time>
-                            <span><%= tHis.state %></span>
+                            <span><%= tHis.state ? tHis.state : "" %></span>
                         </dt>
                     </dl>
                 </li>
