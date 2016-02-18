@@ -312,6 +312,8 @@ router.post('/findReqs', function(req, res, next) {
     if(params.endDate ==""){
         params.endTime ="";
     }
+    params.startTime = params.startDate ? params.startDate + ' ' + params.startTime + ":00" : '';
+    params.endTime = params.endDate ? params.endDate + ' ' + params.endTime + ":59" : '';
 
     tool.saveFindReqsParams(req,params);
     //console.log("nextProcess:",params);
