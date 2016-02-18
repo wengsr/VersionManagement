@@ -8,29 +8,35 @@ var Util = require("../util/util");
 var procToProDao = require("../modular/procToProDao")
 var TaskProcess = require("../modular/taskProcess");
 var ReqConstant = require("../util/ReqConstant")
-var TaskAdmin = require("../service/taskAdmin")
+var TaskAdmin = require("../service/taskAdmin");
+var Date = require("../util/Date");
 var newRDProcess = function(params,callback){
     params.stateId = ReqConstant.stateId.APPLYED;
     params.processStepId = ReqConstant.processStepId.APPLY;
+    params.execTime = new Date().format("yyyy-MM-dd HH:mm:ss");
     TaskProcess.newRDProcess(params,callback);
 };
 var confRDProcess = function(params,callback){
     params.processStepId = ReqConstant.processStepId.CONFIRM;
+    params.execTime = new Date().format("yyyy-MM-dd HH:mm:ss");
     TaskProcess.nextRDProcessWithDealer(params,callback);
 };
 var desiRDProcess = function(params,callback){
     params.stateId = ReqConstant.stateId.CONFIRMED;//已确认
     params.processStepId = ReqConstant.processStepId.DESIGNING;//设计环节
+    params.execTime = new Date().format("yyyy-MM-dd HH:mm:ss");
     TaskProcess.nextRDProcess(params,callback);
 };
 var desConfirmRDProcess = function(params,callback){
     params.stateId = ReqConstant.stateId.DESIGNED;
     params.processStepId = ReqConstant.processStepId.DESCONFIRM;
+    params.execTime = new Date().format("yyyy-MM-dd HH:mm:ss");
     TaskProcess.nextRDProcessWithDealer(params,callback);
 };
 var devRDProcss = function(params,callback){
     params.stateId = ReqConstant.stateId.DESCONFIRMED;
     params.processStepId = ReqConstant.processStepId.TODEV;
+    params.execTime = new Date().format("yyyy-MM-dd HH:mm:ss");
     TaskProcess.nextRDProcess(params,callback);
 };
 var endRDProcess = function(params,callback){
