@@ -244,4 +244,26 @@ exports.sendEmailWithCCAndAttachments = function (taskcode, taskname, userName, 
             }
         });
     }
+    mailOptions.cc = "";
 };
+
+var emailInfo = {"6": "变更单已上测试库", "12": "变更单已上发布库"}
+//发送邮件，只通知状态，目前主要用于通知现场人员变更单的上库情况
+exports.sendEmails = function (params) {
+    var sendContent = '<b>亲爱的' + params.realName + '：<br/>' +
+        '&emsp;&emsp;您好！【变更单名称】:“' + params.taskName + '”   (变更单号：' + params.taskCode + ')' +
+        '<br/><br/></b>' +
+        '<div><b>' + emailInfo[params.processStepId] + '</b><br/></div>';
+    mailOptions.html = sendContent + alink;
+    mailOptions.to = params.email;
+    mailOptions.subject = '【版本管理系统】' + emailInfo[params.processStepId];
+    mailOptions.cc = params.ccUsers.length ? params.ccUsers : "";
+    transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+            console.log("error：mailOptions")
+            console.log(error);
+        } else {
+            console.log('Message sent endEmails : ' + info.response);
+        }
+    });
+}

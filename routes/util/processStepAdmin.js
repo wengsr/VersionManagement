@@ -169,6 +169,9 @@ var  submitProcess  = function(params,callback){
                     var EmailSever = require("../service/email");
                     EmailSever.sendSqlAttachmentToDBs(params, function (msg) {
                     });
+                    //发送给相关人员
+                    EmailSever.sendEmails({taskId: taskId, processStepId: 6}, function (msg) {
+                    });
                     //给变更单的创建者发送邮件
                     TaskProcess_version.findCreaterAndTaskInfo(params,function(msg_get,creaters){
                         if(msg_get =="err"){
@@ -326,6 +329,10 @@ function endSubmitToDev(params,callback){
             creaters.forEach(function(creater){
                 creater.processStepId = 12;//邮件内容设置
                 setTimeout( Email.sendEmailToDealer_new(creater),"1000");
+                //发送给相关人员
+                var EmailSever = require("../service/email");
+                EmailSever.sendEmails({taskId: taskId, processStepId: 12}, function (msg) {
+                });
             })
         });
         var endParams = newParams;

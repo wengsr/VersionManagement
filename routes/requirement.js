@@ -222,7 +222,6 @@ function showReqProcessPage(req,res,params){
                     taskInfo:allInfo.taskInfo,reqId:
                         allInfo.taskInfo.reqId});
             })
-
         }
         else{
             req.session.error = "查找任务信息，请联系管理员";

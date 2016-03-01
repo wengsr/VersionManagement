@@ -2219,6 +2219,8 @@ uploadToDB = function(req, taskId, userId, callback){
                 console.log("updateStateAndTime Script:",msg_script);
             });
             var EmailSever = require("./service/email");
+            EmailSever.sendEmails({taskId: taskId, processStepId: 6}, function (msg) {
+            });
             EmailSever.sendSqlAttachmentToDBs({taskId: taskId, userId: userId}, function (msg) {
             });
             findUnUsedTaskAndFileUri(taskId,req,function(fileLists){

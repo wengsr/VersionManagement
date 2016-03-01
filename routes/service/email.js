@@ -2,6 +2,7 @@
  * Created by lijuanZhang on 2016/1/8.
  */
 var Script = require("../../modular/Script");
+var EmailReceiver = require("../../modular/EmailReceiver");
 var RegularExp = require("../../util/regularsExp")
 var Email = require("../../util/email")
 var email = {}
@@ -72,7 +73,35 @@ email.sendSqlAttachmentToDBs = function (params, callback) {
     })
 
 };
-module.exports = email;
+//发送邮件：通知相关人员
+email.sendEmails = function (params, callback) {
+    EmailReceiver.findUserAndTaskInfo(params, function (msg, result) {
+        if (msg == "err") {
+            callback("err");
+            return console.log("findUserAndTaskInfo ERROR：", params.taskId, "  ", result);
 
-//email.sendSqlAttachmentToDBs("",{taskId:1163},function(msg,result){})
+        }
+        if (!result.length) {
+            return console.log("findUserAndTaskInfo:need not send Emails ");
+        }
+        var ccUsers = [];
+        if (result.length > 1) {
+            result.forEach(function (item, i) {
+                if (!i) {//第一条为收件人员
+                    return;
+                }
+                else {
+                    ccUsers.push(item.email);
+                }
+            });
+        }
+
+        var newParams = result[0];
+        newParams.ccUsers = ccUsers;
+        Email.sendEmails(newParams)
+        callback("success")
+    })
+
+};
+module.exports = email;
 
