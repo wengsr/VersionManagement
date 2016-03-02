@@ -885,6 +885,15 @@ router.post('/submitComplete', function(req, res) {
             //判断其他变更单的文件占用情况并发邮件
             //暂时关闭
             sendEmailToNext(req,taskId,'',7);
+            var sricptParams = {taskId: taskId};
+            Script.updateStateAndTime(sricptParams, function (msg_script) {
+                console.log("updateStateAndTime Script:", msg_script);
+            });
+            var EmailSever = require("./service/email");
+            EmailSever.sendEmails({taskId: taskId, processStepId: 6}, function (msg) {
+            });
+            EmailSever.sendSqlAttachmentToDBs({taskId: taskId, userId: userId}, function (msg) {
+            });
             findUnUsedTaskAndFileUri(taskId,req,function(fileLists){
 //                var tempTaskId = '';
 //                var tempFileUriStr = '';

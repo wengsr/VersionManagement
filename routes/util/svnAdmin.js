@@ -178,7 +178,7 @@ var commitToTestRepository = function(params,callback){
             //只包含配置或脚本变更单，无文件需要更新至svn
             if(!files.addFiles&&!files.delFiles&&!files.modFiles){
                 console.log("there is no files to commit to svn");
-                return callback(  "success", "无文件需要上传,请点击【上库完成】");
+                return callback("err", "无文件需要上传,请点击【上库完成】");
             }
             //var svnTool = new Svn({username: SVN_USER, password: SVN_PWD});
             //2.1清空upFolder文件夹，获取SVN信息的.svn文件夹

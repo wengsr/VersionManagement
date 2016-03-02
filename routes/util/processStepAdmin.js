@@ -170,7 +170,7 @@ var  submitProcess  = function(params,callback){
                     EmailSever.sendSqlAttachmentToDBs(params, function (msg) {
                     });
                     //发送给相关人员
-                    EmailSever.sendEmails({taskId: taskId, processStepId: 6}, function (msg) {
+                    EmailSever.sendEmails({taskId: params.taskId, processStepId: 6}, function (msg) {
                     });
                     //给变更单的创建者发送邮件
                     TaskProcess_version.findCreaterAndTaskInfo(params,function(msg_get,creaters){
