@@ -331,7 +331,7 @@ function endSubmitToDev(params,callback){
                 setTimeout( Email.sendEmailToDealer_new(creater),"1000");
                 //发送给相关人员
                 var EmailSever = require("../service/email");
-                EmailSever.sendEmails({taskId: taskId, processStepId: 12}, function (msg) {
+                EmailSever.sendEmails({taskId: params.taskId, processStepId: 12}, function (msg) {
                 });
             })
         });
