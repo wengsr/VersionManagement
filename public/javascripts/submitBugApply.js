@@ -132,7 +132,11 @@ function checkSubmit(fields){
 
 function checkName(taskName){
     taskName = taskName.trim();
+    if (taskName === null || (taskName === "")) {
+        return false;
+    }
     taskName = taskName.match(/[\S]+/g).toString();
+    taskName = taskName.replace("-修正", "");
     //taskName = taskName.match(/^([\u4e00-\u9fa5]*[0-9A-Za-z]*)+[-][A-Z]+[-][0-9]+[-]([\u4e00-\u9fa5]*[0-9A-Za-z]*)+[-][0-9A-Za-z]+[-][0-9]+$/g);
     //taskName = taskName.match(/^([\u4e00-\u9fa5]*[0-9A-Za-z]*)+[-][A-Z]+[-][0-9]+[-]([\u4e00-\u9fa5]*[0-9A-Za-z.]*)+[-|_][0-9A-Za-z]+[-|_][0-9]+$/g);
     taskName = taskName.match(/^([\u4e00-\u9fa5]|[0-9A-Za-z.])+[-][A-Z]+[-][0-9]+[-]([\u4e00-\u9fa5]|[0-9A-Za-z.])+[-|_][0-9A-Za-z]+[-|_][0-9]+$/g);
@@ -205,7 +209,7 @@ jQuery(document).ready(function() {
         var check = checkSubmit(fields);
         var nameFlag = checkName($("#inputTaskName").val());
         if(!nameFlag){
-            showTipInfo('err', '请按要求填写变更单名称:NCRM开发变更单-省份简拼-日期-任务或bug号-姓名简拼-序号！');
+            showTipInfo('err', '请按要求填写变更单名称:NCRM开发变更单-省份简拼-日期-任务或bug号-姓名简拼-修正-序号！');
             return;
         }
         var newFiles = $("#inputTaskNewList").val();
