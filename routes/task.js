@@ -1793,7 +1793,8 @@ router.post('/extractFile', function(req, res) {
                             var userStr = "文件占用的情况：";
                             for (var i in users) {
                                 userFlag = true;
-                                userStr += users[i].fileUri + '(' + users[i].taskName + ':'+  users[i].realName+');    ';
+                                var realName = users[i].realName ? users[i].realName : '等待上库';
+                                userStr += users[i].fileUri + '(' + users[i].taskName + ':' + realName + ');    ';
                             }
                             jsonStr = '{"sucFlag":"success","message":"有文件被占用，无法申请","user":"' + userStr + '" ,"userFlag":"' + userFlag + '"}';
                             res.send(queryObj.callback + '(\'' + jsonStr + '\')');
