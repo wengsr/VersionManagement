@@ -162,7 +162,8 @@ var async_delTask = function(conn,sql,sql_item,sql_params,i ,callback){
             return callback("err");
         }
 
-        else if((sql_item[i] == "selectState")&&((result[0].state =="上测试库完成")||(result.processStepId>7))){
+        else if ((sql_item[i] == "selectState") && ((result[0].state == "上测试库完成") || (result[0].processStepId > 6))) {
+            console.log(" has submitted  to repositry");
                 return  callback("success",false);
         }
        else {
