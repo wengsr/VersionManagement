@@ -889,7 +889,7 @@ exports.delTask = function(taskId,callback) {
         //    updateTaskProcessStep: "update  taskprocessstep set processStepId = -1 where taskId = ?"
         //};
         var sql = {
-            selectState: "select state from tasks where taskId = ? ",
+            selectState: "select * from tasks where taskId = ? ",
             insertFiles:"insert into deletedfilelist" +
             "   select * from filelist where taskid = ?",
             insertAttachment:"insert into deletedtaskattachment" +
