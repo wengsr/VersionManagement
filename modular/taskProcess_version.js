@@ -253,6 +253,7 @@ taskProcess_version.findCreaterAndTaskInfo = function(params,callback){
             if (err) {
                 console.log("findCreaterAndTaskInfo  result:", err.message);
                 callback("err");
+                connection.release();
                 return;
             }
             else{

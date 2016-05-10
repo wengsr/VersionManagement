@@ -63,6 +63,7 @@ function resetAttaDownloadUri(aInputId){
     attaUri = attaUri.replace(/\//g,'%2F');
     attaName = attaName.replace(/\./g,'%2E');
     attaName = attaName.replace(/\//g,'%2F');
+    attaName = attaName.trim();
     var currentUri = '/file/fileDownLoad/' + attaName + '/' + attaUri;
     $(aInput).attr('href',currentUri);
 }

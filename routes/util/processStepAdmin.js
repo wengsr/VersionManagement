@@ -176,9 +176,11 @@ var  submitProcess  = function(params,callback){
                     TaskProcess_version.findCreaterAndTaskInfo(params,function(msg_get,creaters){
                         if(msg_get =="err"){
                             console.error("获取创建者出错！");
+                            return;
                         }
                         if(!result.length){
                             console.error("没有找到创建者！");
+                            return;
                         }
                         creaters.forEach(function(creater){
                             setTimeout( Email.sendEmailToDealer_new(creater),"1000");
