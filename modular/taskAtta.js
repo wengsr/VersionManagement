@@ -285,6 +285,7 @@ TaskAtta.commitRar = function(attachmentId, callback){
        'XJ':AttaSql.findLocalChangeAtta,
        'YN':AttaSql.findLocalChangeAtta,
        'SC':AttaSql.findLocalChangeAtta,
+       'SD': AttaSql.findLocalChangeAtta,
        'CORE':AttaSql.findCoreChangeAtta,
        'ALL':AttaSql.findAllChangeAtta
    }
@@ -292,13 +293,15 @@ TaskAtta.commitRar = function(attachmentId, callback){
        'XJ':"新疆",
        'YN':"云南",
        'SC':"四川",
+       'SD': "山东",
        'CORE':"核心"
    };
    //本地对应的文件路径特征
     var  localFileSeg = {
          'XJ':"/trunk/local/XJ_TRUNK/%",
          'YN':"/trunk/local/YN_TRUNK/%",
-         'SC':"/trunk/local/SC_TRUNK/%"
+        'SC': "/trunk/local/SC_TRUNK/%",
+        'SD': "/trunk/local/SD_TRUNK/%"
     }
 /**
  * 根据传入的文件的路径信息查找对应的变更单
@@ -306,7 +309,7 @@ TaskAtta.commitRar = function(attachmentId, callback){
  */
 function  getFindChangeAttaSqlAndParams(params){
     var sqlParams = [];
-    if(params.fileUriSeg =="XJ"||params.fileUriSeg =="YN"||params.fileUriSeg =="SC"){
+    if (params.fileUriSeg == "XJ" || params.fileUriSeg == "YN" || params.fileUriSeg == "SC" || params.fileUriSeg == "SD") {
         sqlParams =[projectName[params.fileUriSeg],localFileSeg[params.fileUriSeg],params.processStepId,params.startTime,params.endTime,params.processStepId,params.startTime,params.endTime]
     }
     if(params.fileUriSeg =="CORE"||params.fileUriSeg =="ALL"){
