@@ -354,7 +354,7 @@ exports.addBugTask = function (taskInfo,callback) {
                 if (item == 'selectProject') {
                     if (result.length > 0) {
                         project = result;
-                        var taskCount = project[0].taskCount;
+                        var taskCount = project[0].taskCount%10000;
                         projectName = project[0].projectName;
                         var count =project[0].taskCount;
                         var newDate = new Date();

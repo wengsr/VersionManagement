@@ -2,12 +2,10 @@
  * Created by lijuanZhang on 2015/9/1.
  */
 
-/**
- * Created by wengs_000 on 2015/2/6 0006.
- */
 var AdmZip = require('adm-zip');
 var fs = require('fs');
 var archiver = require('archiver');
+//压缩文件
 exports.zipFiles = function (localBaseDir, fileList, zipFileName) {
     var output = fs.createWriteStream(zipFileName);
     var archive = archiver('zip');
@@ -29,6 +27,7 @@ exports.zipFiles = function (localBaseDir, fileList, zipFileName) {
     archive.finalize();
     return [true,];
 };
+
 exports.extractZip = function (zipFileName, targetDir) {
     var zip = new AdmZip(zipFileName);
     zip.extractAllTo(targetDir);

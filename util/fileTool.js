@@ -75,6 +75,8 @@ exports.zipFiles = function (localBaseDir, fileList, zipFileName,callback) {
     console.log("zipFile return")
         return [true,];
 };
+
+//解压文件
 exports.extractZip = function (zipFileName, targetDir) {
     var zip = new AdmZip(zipFileName);
     zip.extractAllTo(targetDir);

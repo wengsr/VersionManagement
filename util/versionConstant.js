@@ -15,7 +15,7 @@ var versionConstant ={
         //DevRepositoryPath:"./svn-branch/"
        // DevRepositoryPath:"D://testSvn-branch/",
         exportAttachmentsLocalPath :"./exportAttachmentsLocalPath/", //需要导出特定变跟单附件压缩包的路径
-        DevRepositoryPath:"C:/app/NCRM_Baseline/NCRM_BASELINE/Source/trunk/",
+        DevRepositoryPath:"C:/app/NCRM_Baseline/NCRM_BASELINE/Source/trunk/",//发布库代码本机路径（服务器)
         //DevRepositoryPath:"C:/app/NCRM_Baseline/NCRM_BASELINE/Sourse",
         attachmentLocalPath :"./",//所有变更单存放的父级路径,
         renameFiles :"./attachment/newAndOld/rename.bat" //存放重命名文件

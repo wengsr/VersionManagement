@@ -391,6 +391,10 @@ var sendEmailToNext = function(req,taskId,dealer, stepId,content){
                 req.session.error = "发送邮件时查找变更单信息发生错误,请记录并联系管理员";
                 return null;
             }
+            if (!result) {
+                console.log("走查人员发送邮件时查找人员信息出错,请记录并联系管理员");
+                return null;
+            }
             var taskcode = result.taskcode;
             var taskname = result.taskname;
             var dealer = result.realName;
