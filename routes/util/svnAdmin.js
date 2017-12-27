@@ -310,14 +310,19 @@ var commitToTestRepository = function(params,callback){
  * @param i
  */
 function svnMergeToBranch(svn,revisions ,i,callback){
-        var TESTRepository = VersionConstant.svnLocation.TESTRepository;
-        var devRepositoryPath = VersionConstant.paths.DevRepositoryPath;
+
         if(i == revisions.length){
             //return callback("success","申请单已成功合并，共"+i+"个变更单");
             console.log("申请单已成功合并，共"+i+"个变更单!!!");
             var message =  "申请单已成功合并，共"+i+"个变更单";
             return callback( "success", message);
         }else{
+            var projectType = revisions[i].type;
+            var TESTRepository = VersionConstant.svnLocation.TESTRepository[projectType];
+            var devRepositoryPath = VersionConstant.paths.DevRepositoryPath[projectType];
+            if (!TESTRepository || !devRepositoryPath) {
+                return callback("err", "上发布，服务器本地路径为空！");
+            }
             if(revisions[i].revision == -1){
                 i++;
                 return  svnMergeToBranch(svn,revisions ,i,callback);
@@ -407,5 +412,5 @@ svnAdmin.commitToSvn = function(params,callback){
 module.exports = svnAdmin;
 //taskComplete({taskId:165,userId:1,processStepId:6},function(msg){
 //    console.log("taskComplete:",msg);
-//})
+// })
 //var params ={taskId:170,taskName:"NCRM开发变更单-TEST-20151112-测试-zhanglj6-002",taskCode:"crm某某工程1_20160106_083"}

@@ -324,7 +324,8 @@ filesAdmin.checkNeedFiles = function(params,callback){
     var hasFiles = [false,false];
     var dir = params.dir,
         isRequirement = params.isRequirement;
-    var needFiles = [FilesReg.testReporter,FilesReg.devOrder];
+    //var needFiles = [FilesReg.testReporter,FilesReg.devOrder];
+    var needFiles = [FilesReg.testReporter];
     if(params.isRequirement==1){
         hasFiles.push(false);
         needFiles.push(FilesReg.reqCase)

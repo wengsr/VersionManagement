@@ -23,7 +23,8 @@ var updateRevision_params="[revision,preRevision,id]";
 applyOrderSql.selectApplyOrder ="select * from applyorder where taskId = ?"
 var selectApplyOrder = "[taskId]"
 //获取申请单的相关信息
-applyOrderSql.getApplyOrder= "select t.* ,ao.id,ao.orderId,ao.revision,ao.devRevision,ao.preRevision from tasks t " +
+applyOrderSql.getApplyOrder = "select pt.type,t.* ,ao.id,ao.orderId,ao.revision,ao.devRevision,ao.preRevision ,pt.type from tasks t " +
+    " join projectType pt on  t.projectId = pt.projectId " +
 "  join applyorder  ao ON t.taskId = ao.taskId " +
 "  JOIN applyorder ao2 ON ao.orderId = ao2.orderId and ao2.taskId = ?" +
 "  order by t.taskId";
