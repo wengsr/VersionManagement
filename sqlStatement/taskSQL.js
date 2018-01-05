@@ -95,6 +95,7 @@ var searchEmailInfo = "[reqId]";
 taskSQL.searchAllNeedReqs = "SELECT r.reqId,r.reqName FROM requirement r join reqprocessstep rps on r.reqId = rps.reqId" +
 "   and r.turnNum = rps.turnNum and r.processStepId = rps.processStepId and rps.dealer = ? and rps.processStepId = 5;"
 taskSQL.searchAllReqs = "SELECT DISTINCT r.reqId,r.reqCode,r.reqName FROM requirement r join reqprocessstep rps " +
-"on r.reqId = rps.reqId and r.turnNum = rps.turnNum and r.processStepId = rps.processStepId and r.processStepId > 4 ";
+"on r.reqId = rps.reqId and r.turnNum = rps.turnNum and r.processStepId = rps.processStepId and "+
+    " rps.dealer=? and (( r.typeId=1 and r.processStepId > 4) or(r.typeId=2 and r.processStepId>=1))";
 var searchAllReqs_params = "[userId]"
 module.exports = taskSQL;

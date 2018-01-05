@@ -263,7 +263,8 @@ exports.searchAllReqs = function(userId, callback){
     pool.getConnection(function (err, connection){
         var sql = TaskSql_req.searchAllReqs ;
         //var param = [userId];
-        var param = [];
+        var param = [userId];
+        console.log(sql);
         connection.query(sql,param,function (err, result){
             if (err) {
                 console.log("searchAllProject ERR;", err.message);

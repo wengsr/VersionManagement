@@ -44,7 +44,7 @@
 
                     </div>
                     <div class="form-group" id ='divTaskType'>
-                        <label  class="col-sm-2 control-label">是否是需求</label>
+                        <label  class="col-sm-2 control-label">是否是需求/BUG</label>
                         <div class="col-sm-10">
                             <%if(isReq){%>
                             是 <input type="radio"  name = "taskType" id ="taskType" value = "1" checked disabled >
@@ -57,7 +57,7 @@
                     </div>
 
                     <div class="form-group" id = "reqDiv" hidden>
-                        <label for="req" class="col-sm-2 control-label">需求名称</label>
+                        <label for="req" class="col-sm-2 control-label">需求/BUG名称</label>
                         <div class="col-sm-10">
                             <%if(!isReq){%>
                             <div class="input-group">
