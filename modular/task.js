@@ -242,11 +242,11 @@ Task.findDealTaskByUserId = function(userId,startNum,callback){
             '   AND tps1.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps1 where maxtps1.taskId = t1.taskid)' +
             '   AND tps1.testNum =(SELECT MAX(testNum) from taskprocessstep maxtps2 where maxtps2.taskId = t1.taskid)' +
             '   AND tps1.processStepId = t1.processStepId' +
-            '   AND (tps1.dealer is NULL AND tps1.processStepId in (2,6)' +
+            '   AND (tps1.dealer is NULL AND tps1.processStepId in (2,6,12)' +
             '   OR' +
-            '   tps1.dealer is NOT NULL AND tps1.processStepId not in (2,6) AND tps1.dealer=?' +
+            '   tps1.dealer is NOT NULL AND tps1.processStepId not in (2,6,12) AND tps1.dealer=?' +
             '   OR' +
-            '   tps1.dealer is NOT NULL AND tps1.processStepId in (2,6) AND tps1.dealer=?' +
+            '   tps1.dealer is NOT NULL AND tps1.processStepId in (2,6,12) AND tps1.dealer=?' +
             '   )) taskTable' +
             '   JOIN taskprocessstep oTps ON oTps.taskid = taskTable.taskid' +
             '   AND oTps.turnNum IN(SELECT MAX(turnNum) from taskprocessstep maxtps2 where maxtps2.taskId = taskTable.taskid)' +

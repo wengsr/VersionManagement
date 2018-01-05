@@ -7,6 +7,7 @@ var TaskAttaSql = require("./sqlStatement/taskAttaSql");
 var AttaSql =new TaskAttaSql();
 //var queues = require('mysql-queues');// 加载mysql-queues 支持事务
 
+var VersionConstant = require("../util/versionConstant");
 function TaskAtta(taskAtta){
     this.attachmentId = taskAtta.attachmentId;
     this.taskId = taskAtta.taskId;
@@ -287,6 +288,7 @@ TaskAtta.commitRar = function(attachmentId, callback){
        'SC':AttaSql.findLocalChangeAtta,
        'SD': AttaSql.findLocalChangeAtta,
        'CORE':AttaSql.findCoreChangeAtta,
+       'CRM3': AttaSql.findCRMChangeAtta,
        'ALL':AttaSql.findAllChangeAtta
    }
    var projectName = {
@@ -294,7 +296,8 @@ TaskAtta.commitRar = function(attachmentId, callback){
        'YN':"云南",
        'SC':"四川",
        'SD': "山东",
-       'CORE':"核心"
+       'CORE': "核心",
+       "CRM#": "智慧BSS"
    };
    //本地对应的文件路径特征
     var  localFileSeg = {
@@ -312,8 +315,11 @@ function  getFindChangeAttaSqlAndParams(params){
     if (params.fileUriSeg == "XJ" || params.fileUriSeg == "YN" || params.fileUriSeg == "SC" || params.fileUriSeg == "SD") {
         sqlParams =[projectName[params.fileUriSeg],localFileSeg[params.fileUriSeg],params.processStepId,params.startTime,params.endTime,params.processStepId,params.startTime,params.endTime]
     }
-    if(params.fileUriSeg =="CORE"||params.fileUriSeg =="ALL"){
+    else if (params.fileUriSeg == "CORE" || params.fileUriSeg == "ALL") {
         sqlParams = [params.processStepId,params.startTime,params.endTime];
+    }
+    else if (params.fileUriSeg == "CRM3") {
+        sqlParams = [params.processStepId, params.startTime, params.endTime, VersionConstant.projectType["CRM3"]]
     }
     return {sql:findChangAttaSql[params.fileUriSeg],params:sqlParams}
 }
@@ -337,8 +343,8 @@ TaskAtta.exportLocalChangeAtta = function(params, callback){
         //}
         var newParams = [params.fileUriSeg,params.startTime,params.endTime];
         var sqlAndParams = getFindChangeAttaSqlAndParams(params);
-        //console.log('success', sqlAndParams.sql);
-        //console.log('success', sqlAndParams.params);
+        console.log('success', sqlAndParams.sql);
+        console.log('success', sqlAndParams.params);
         connection.query(sqlAndParams.sql,sqlAndParams.params, function (err, result) {
             if (err) {
                 console.log('[QUERY findLocalChangeAtta ERROR] - ', err.message);

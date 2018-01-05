@@ -143,6 +143,15 @@ var TaskSql = function(){
     "   JOIN project p on p.projectId = t.projectId" +
     "   JOIN user u on u.userId = t.creater";
     var getTaskListWithFileUriSegAll_params = "[processStepId,startTime,endTime]";
+    this.getTaskListWithProjectType = "SELECT DISTINCT t.taskid,p.projectName provice,t.taskCode,t.taskName,u.realName creater ,tps.execTime ,t.containScript " +
+        "    FROM tasks t join filelist fl  on fl.taskId =" +
+        "   t.taskId JOIN" +
+        "   taskprocessstep tps on tps.taskId = t.taskId And  tps.processStepId = ? and tps.execTime between ? and ?" +
+        "   JOIN taskattachment ta on ta.taskId = tps.taskId and tps.turnNum = ta.turnNum  and  ta.processStepId = 3" +
+        "   JOIN project p on p.projectId = t.projectId" +
+        "   JOIN user u on u.userId = t.creater" +
+        " JOIN projecttype pt on p.projectId = pt.projectId and pt.type = ?";
+    var getTaskListWithProjectType_params = "[processStepId,startTime,endTime,projectType]";
     this.findTaskHistory = "SELECT" +
     "   tps.*, u.realName,ta.fileName,ta.fileUri,tpr.reason" +
     "   FROM" +

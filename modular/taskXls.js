@@ -2,6 +2,8 @@ var pool = require('../util/connPool.js').getPool();
 var async = require('async');// 加载async 支持顺序执行
 var queues = require('mysql-queues');// 加载mysql-queues 支持事务
 var taskSql = require('./sqlStatement/taskSql');
+
+var VersionConstant = require("../util/versionConstant");
 /**
  *根据查找条件拼接sql语句
  * @param sql
@@ -83,7 +85,9 @@ var findChangAttaSql = {
     'SC':TaskSql.getTaskListWithFileUriSegLocal,
     'SD': TaskSql.getTaskListWithFileUriSegLocal,
     'CORE':TaskSql.getTaskListWithFileUriSegCore,
-    'ALL':TaskSql.getTaskListWithFileUriSegAll
+    'ALL': TaskSql.getTaskListWithFileUriSegAll,
+    'CRM3': TaskSql.getTaskListWithProjectType
+
 }
 var projectName = {
     'XJ':"新疆",
@@ -113,8 +117,11 @@ function  getFindTaskListSqlAndParams(params){
     if (params.fileUriSeg == "XJ" || params.fileUriSeg == "YN" || params.fileUriSeg == "SC" || params.fileUriSeg == "SD") {
         sqlParams =[projectName[params.fileUriSeg],localFileSeg[params.fileUriSeg],processStepId,params.startTime,params.endTime,processStepId,params.startTime,params.endTime]
     }
-    if(params.fileUriSeg =="CORE"||params.fileUriSeg =="ALL"){
+    else if (params.fileUriSeg == "CORE" || params.fileUriSeg == "ALL") {
         sqlParams = [processStepId,params.startTime,params.endTime];
+    }
+    else if (params.fileUriSeg == "CRM3") {
+        sqlParams = [params.processStepId, params.startTime, params.endTime, VersionConstant.projectType["CRM3"]]
     }
     return {sql:findChangAttaSql[params.fileUriSeg],params:sqlParams}
 }
@@ -126,7 +133,6 @@ exports.getTaskListWithFileUriSeg = function(params,callback){
             return callback(err);
         }
         var sqlAndParams = getFindTaskListSqlAndParams(params);
-        //console.log("params222:",sqlAndParams.params);
         connection.query(sqlAndParams.sql, sqlAndParams.params, function (err, result) {
             if (err) {
                 console.log('[QUERY TASKS ERROR] - ', err.message);

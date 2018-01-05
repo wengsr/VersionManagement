@@ -113,7 +113,16 @@ var AttaSql = function(){
     "   AND ? " +
     "   JOIN taskattachment ta on ta.taskId = tps.taskId" +
     "   and tps.turnNum = ta.turnNum  and  ta.processStepId = 3";
-    var findCoreChangeAtta_params = "[processStepId,startTime,endTime]"
+    var findCoreChangeAtta_params = "[processStepId,startTime,endTime]";
+    //全部CRM3变更单
+    this.findCRMChangeAtta = "SELECT DISTINCT t.taskid,t.taskCode,ta.fileName,ta.fileUri,p.projectName ,t.containScript " +
+        "    FROM tasks t join filelist fl  on  fl.taskId =" +
+        "   t.taskId JOIN" +
+        "   taskprocessstep tps on tps.taskId = t.taskId And  tps.processStepId = ? and tps.execTime between ? and ? " +
+        "   JOIN taskattachment ta on ta.taskId = tps.taskId and tps.turnNum = ta.turnNum  and  ta.processStepId = 3 " +
+        "   JOIN project p on p.projectId = t.projectId " +
+        " JOIN projecttype pt on p.projectId = pt.projectId and pt.type = ?";
+    var findCoreChangeAtta_params = "[processStepId,startTime,endTime,projectType]";
 };
 
 module.exports = AttaSql;

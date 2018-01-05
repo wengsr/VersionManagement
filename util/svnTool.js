@@ -463,13 +463,40 @@ var msg = "test";
 //    }
 //    console.log('删除本地SVN文件成功');});
 
-//var versionDir = "http://crmsvn.asiainfo.org:8001/svn/hxbss/NCRM/baseLine/Source";
-//var versionDir = "http://192.168.1.22:8001/svn/hxbss/testVersion/a";
-//var svn = new Svn({username:"zhanglj6",password:"zhanglj72774"})
-//var localDir =   "D:\\变更单\\变更单"
-//svn.checkout(localDir,versionDir,["2015-81"],function(msg){
-//    console.log("checkout:",msg)
-//});
+// var versionDir = "http://192.168.1.22:8001/svn/hxbss/NCRM_BASELINE/branches/20160918-62234-xj-branch";
+// //var versionDir = "http://192.168.1.22:8001/svn/hxbss/NCRM/baseLine/Source";
+// ////var versionDir = "http://192.168.1.22:8001/svn/hxbss/testVersion/a";
+// var svn = new Svn({username:"zhanglj6",password:"zhanglj72774"})
+// var localDir =   "D:\\svn\\xj_branch"
+// svn.checkout(localDir,versionDir,["/web/SuperSoWeb/src/main/java/com/al/crm/service/intf/ISoSmo.java",
+//
+//     "/web/SuperSoWeb/src/main/java/com/al/crm/superSo/prepareOrder/PreOrderQuery.java",
+//     "/web/SuperSoWeb/src/main/java/com/al/crm/superSo/prepareOrder/PreOrderQueryList.java",
+//     "/service/SoManager/src/main/java/com/al/crm/so/query/bmo/impl/SoQueryBMOImpl.java",
+//     "/service/SoManager/src/main/java/com/al/crm/so/query/bmo/ISoQueryBMO.java",
+//     "/service/SoManager/src/main/java/com/al/crm/so/query/dao/ISoQueryDAO.java",
+//     "/service/SoManager/src/main/java/com/al/crm/so/query/smo/impl/SoQuerySMOImpl.java",
+//     "/service/SoManager/src/main/java/com/al/crm/so/query/smo/ISoQuerySMO.java",
+//     "/service/CrmServiceWeb/src/main/java/com/al/crm/controler/so/SoServiceControler.java",
+//     "/service/SoManager/src/main/resources/com/al/crm/so/query/dao/ISoQueryMapper.xml",
+//     "/common/CrmCommon/src/main/java/com/al/crm/crmcommon/MDA.java"
+//
+//
+// ],function(msg){
+//     console.log("checkout:",msg)
+// });
+//var localDir = "D:\\变更单\\2016-06\\upFolder";
+//var delFileList =[];
+//svn.autoUpload('test', localDir, delFileList, function(err,msg){
+//  console.log(err,":commit ",msg);
+//})
+//var dir2 =  "D:\\testSvn2";
+//var svn2 =  new Svn({username:"zhanglj6",password:"zhanglj72774"})
+//svn2.autoUpload('dele2', dir2, delFileList, function(err,msg){
+//    console.log(err,":commit2 ",msg);
+//})
+
+
 //var revision = 49320;
 //var preRevision = 49320;
 //svn.merge(localDir,versionDir,preRevision,revision,msg,function(msg,data){
