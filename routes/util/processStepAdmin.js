@@ -37,7 +37,10 @@ function taskComplete(params){
                 console.log("updateStateAndTime Script:",msg_script);
             });
             console.log("submitComplete success!");
-            params.processStepId = 8;
+            //暂时跳过测试库
+            // params.processStepId = 8;
+            params.processStepId = 12;
+            //end
             startProcess(params,function(msg_start,result_start){
                 console.log("startProcess testProcess:",msg_start);
             })

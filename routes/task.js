@@ -882,7 +882,10 @@ router.post('/submitComplete', function(req, res) {
     Task.submitComplete(taskId, userId, function(msg,result){
         if('success' == msg){
             jsonStr = '{"sucFlag":"success","message":"【上测试库完成】执行成功"}';
-            var params = {taskId:taskId,userId:userId,dealer:userId,processStepId:8}
+            //暂时跳过测试库
+            // var params = {taskId:taskId,userId:userId,dealer:userId,processStepId:8}
+            var params = {taskId: taskId, userId: userId, dealer: userId, processStepId: 12}
+            //end
             ProcessStepAdmin.startProcess(params,function(msg_start,result_start){
                 console.log("startProcess testProcess:",msg_start);
             })
@@ -2731,3 +2734,5 @@ var params = {taskId:165, containScript:1};
 //Script.updateStateAndTime(params,function(msg_script){
 //    console.log("add Script:",msg_script);
 //});
+// var path  = "C:\\Users\\Administrator\\Desktop\\变更单\\智慧BSS开发变更单-SC-20180112-修改成电相关规则-lianhw-001\\new";
+// console.dir(scanFoldForUri(path,path))
