@@ -364,7 +364,9 @@ function getFilesUriFromFilesA(str){
         var tmp;
         //tmp = str[i].match(/[\/a-zA-Z0-9_\/]+[.a-zA-Z0-9_]+/g);
         //tmp = str[i].match(/[\/]?([a-zA-Z0-9_\/])*[a-zA-Z0-9_\-]+([.][a-zA-Z0-9_]+)+/g);
-        var tmp = str[i].match(/[\/]?([a-zA-Z0-9])+([a-zA-Z0-9_\-\/.])*[a-zA-Z0-9_\-]+([.][a-zA-Z0-9_]+)+/g);
+        // var tmp = str[i].match(/[\/]?([a-zA-Z0-9])+([a-zA-Z0-9_\-\/.])*[a-zA-Z0-9_\-]+([.][a-zA-Z0-9_]+)+/g);
+        var tmp = str[i].match(/[\/]?([a-zA-Z0-9\u4e00-\u9fa5])+([a-zA-Z0-9_\-\/\u4e00-\u9fa5.])*[a-zA-Z0-9_\-\u4e00-\u9fa5]*([.][a-zA-Z0-9_]+)+/g);
+
         if(  tmp!=null){
             str[i] = tmp.toString();
             if(str[i][0]!='/'){
