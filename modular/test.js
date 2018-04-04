@@ -1,70 +1,124 @@
 /**
-* Created by wengs_000 on 2015/1/27 0027.
-*/
-var mysql = require('mysql');
-//wengsr
-var connection = mysql.createConnection({
-    host: '127.0.0.1',
-    user: 'root',
-    password: 'root',
-    charset: 'UTF8_GENERAL_CI',
-    database: 'versionmanage'
-});
+ * Created by Administrator on 2016/8/3.
+ */
 
-connection.connect();
-
-var userAddSql = 'INSERT INTO tasks(name,creater) VALUES(?,?)';
-var userAddSql_Params =[ 'abcde','abcd'];
-//增
-var sqlFunction ='testFunction("awabcdwwww","abcd")';
-//connection.query("select "+ sqlFunction, function (err, result) {
-//    if (err) {
-//        console.log('[INSERT ERROR] - ', err.message);
-//        return;
-//    }
-//
-//    console.log('--------------------------INSERT----------------------------');
-//    //console.log('INSERT ID:',result.insertId);
-//    console.log('INSERT ID:', result);
-//    console.log('-----------------------------------------------------------------\n\n');
-//});
-//connection.end();
-var arra = [];
-//console.log("arrr:",arra.join("#"));
-var taskName ="NCRM开发变更单-HX-20151013-集团回调地址支撑通过properties文件配置-修正-lilin-001";
-taskName = taskName.replace("-修正","");
-console.log(taskName);
-taskName = taskName.match(/^([\u4e00-\u9fa5]|[0-9A-Za-z.])+[-][A-Z]+[-][0-9]+[-]([\u4e00-\u9fa5]|[0-9A-Za-z.])+[-|_][0-9A-Za-z]+[-|_][0-9]+$/g);
-Date.prototype.format = function(format){
-    var o = {
-        "M+" : this.getMonth()+1, //month
-        "d+" : this.getDate(), //day
-        "H+" : this.getHours(), //hour
-        "m+" : this.getMinutes(), //minute
-        "s+" : this.getSeconds(), //second
-        "q+" : Math.floor((this.getMonth()+3)/3), //quarter
-        "S" : this.getMilliseconds() //millisecond
-    }
-
-    if(/(y+)/.test(format)) {
-        format = format.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length));
-    }
-
-    for(var k in o) {
-        if(new RegExp("("+ k +")").test(format)) {
-            format = format.replace(RegExp.$1, RegExp.$1.length==1 ? o[k] : ("00"+ o[k]).substr((""+ o[k]).length));
+var test = {
+    isLeapYear: function (year) {
+        return (0 == year % 4 && ((year % 100 != 0) || (this.getYear() % 400 == 0)));
+    },
+    getDaysByMonthDiff: function (year, month, diff) {
+        var monthDays = [31, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];//12月，1月。。。12月
+        var firstMonth = month - diff;
+        var diffYear = 0
+        while (firstMonth <= 0) {
+            firstMonth += 12;
+            diffYear++;
+        }
+        ;
+        var diffDays = 0;
+        var curMonth = firstMonth;
+        for (var j = 0; j < diff; j++) {
+            if (curMonth == 13) {
+                curMonth = 1;
+            }
+            if ((curMonth == 1) && (j > 0)) {
+                diffYear--;
+            }
+            if ((curMonth == 2) && (this.isLeapYear(year - diffYear))) {
+                diffDays = diffDays + 29;
+            }
+            else {
+                diffDays = diffDays + monthDays[curMonth];
+            }
+            curMonth++;
+        }
+        return diffDays;
+    },
+    getTimeBydiff: function (date, diff, type) {
+        type = type.toUpperCase();
+        if ((type != "D") && (type != "W") && (type != "M")) {
+            console.error("只支持type为D(day),W(week),M(month)的转换");
+            return date;
+        }
+        var newDate;
+        switch (type) {
+            case "D":
+                newDate = this.getDateByDayDiff(date, diff);
+                break;
+            case "W":
+                diff = diff * 7;
+                date = this.getDateByDayDiff(date, diff);
+                break;
+            case "M":
+                newDate = this.getDateByMonthDiff(date, diff);
+                break;
+        }
+        return newDate;
+    },
+    getDateByMonthDiff: function (date, diff) {
+        var year = date.getFullYear();
+        var month = date.getMonth() + 1;
+        var day = date.getDate();
+        var firstMonth = month - diff;
+        var diffYear = 0;
+        while (firstMonth <= 0) {
+            firstMonth += 12;
+            diffYear++;
+        }
+        year = year - diffYear;
+        day = this.dealDay(year, firstMonth, day);
+        date.setYear(year);
+        var newMonth = firstMonth - 1;
+        //date.setMonth(newMonth);
+        date.setDate(day);
+        date.setMonth(newMonth);
+        return date
+    },
+    getDateByDayDiff: function (date, diff) {
+        var monthDays = [31, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];//12月，1月。。。12月
+        var year = date.getFullYear();
+        var month = date.getMonth() + 1;
+        var day = date.getDate();
+        var firstDay = day - diff;
+        var diffYear = 0;
+        if (diff > 15) {
+            console.log("按天设置时：最多只能设置15天内！！！");
+            return date;
+        }
+        var diffMonth = 0;
+        while (firstDay <= 0) {
+            firstDay += monthDays[month - 1];
+            diffMonth++;
+        }
+        month = month - diffMonth;
+        while (month <= 0) {
+            month += 12;
+            diffYear++;
+        }
+        year = year - diffYear;
+        day = this.dealDay(year, month, firstDay);
+        date.setYear(year);
+        date.setMonth(month - 1);
+        date.setDate(day);
+        return date
+    },
+    dealDay: function (year, month, day) {
+        var monthDays = [31, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];//12月，1月。。。12月
+        if ((day < 28) || ((month != 2) && (day < 31))) {
+            return day
+        }
+        else if ((month != 2) && (day == 31)) { //非2月
+            return monthDays[month];
+        } else {//2月
+            if (this.isLeapYear(year)) {
+                return 29;
+            }
+            else {
+                return 28;
+            }
         }
     }
-    return format;
 }
-var test = '[{"reqId":11,"reqCode":"crm某某工程1_20151005_0002","reqName":"dds"},{"reqId":26,"reqCode":"crm某某工程1_20151012_0016","reqName":"sssds"},{"reqId":26,"reqCode":"crm某某工程1_20151012_0016","reqName":"sssds"},{"reqId":30,"reqCode":"crm某某工程1_20151013_0019","reqName":"dddsssssssswwwwwwwwwwwwwww"},{"reqId":30,"reqCode":"crm某某工程1_20151013_0019","reqName":"dddsssssssswwwwwwwwwwwwwww"}]'
-//
-//var test = '[{"reqId":"11","reqCode":"crm某某工程1_20151005_0002","reqName":"dds"},{"reqId":"26","reqCode":"crm某某工程1_20151012_0016","reqName":"sssds"},' +
-//    '{"reqId":"26","reqCode":"crm某某工程1_20151012_0016","reqName":"sssds"},' +
-//    '{"reqId":"30","reqCode":"crm某某工程1_20151013_0019","reqName":"dddsssssssswwwwwwwwwwwwwww"},' +
-//    '{"reqId":"30","reqCode":"crm某某工程1_20151013_0019","reqName":"dddsssssssswwwwwwwwwwwwwww"}]'
-//console.log(JSON.stringify(test))
-//var test ='{"message":"success","requirements": [{"reqId":11,"reqCode":"crm某某工程1_20151005_0002","reqName":"ddswwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"},{"reqId":26,"reqCode":"crm某某工程1_20151012_0016","reqName":"sssds"},{"reqId":30,"reqCode":"crm某某工程1_20151013_0019","reqName":"dddsssssssswwwwwwwwwwwwwww"}]} ';
-//console.log(JSON.parse(test))
-//var path = require("path");
-//console.log(path("./"));]
+
+var date = new Date("2016-5-31 00:01:01");
+console.log(test.getTimeBydiff(date, 3, 'M'));

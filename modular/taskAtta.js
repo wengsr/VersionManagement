@@ -297,7 +297,7 @@ TaskAtta.commitRar = function(attachmentId, callback){
        'SC':"四川",
        'SD': "山东",
        'CORE': "核心",
-       "CRM#": "智慧BSS"
+       "CRM#": "CRM3.0"
    };
    //本地对应的文件路径特征
     var  localFileSeg = {

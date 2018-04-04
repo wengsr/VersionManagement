@@ -335,7 +335,9 @@ var isSearchCondsExits= function(req, res){
     function checkName(req,res,taskName) {
        taskName = taskName.trim();
        //taskName = taskName.match(/^([\u4e00-\u9fa5]*[0-9A-Za-z]*)+[-][A-Z]+[-][0-9]+[-]([\u4e00-\u9fa5]*[0-9A-Za-z]*)+[-|_][0-9A-Za-z]+[-|_][0-9]+$/g);
-       taskName = taskName.match(/^([\u4e00-\u9fa5]|[0-9A-Za-z.])+[-][A-Z]+[-][0-9]+[-]([\u4e00-\u9fa5]|[0-9A-Za-z.])+[-|_][0-9A-Za-z]+[-|_][0-9]+$/g);
+       // taskName = taskName.match(/^([\u4e00-\u9fa5]|[0-9A-Za-z.])+[-][A-Z]+[-][0-9]+[-]([\u4e00-\u9fa5]|[0-9A-Za-z.])+[-|_][0-9A-Za-z]+[-|_][0-9]+$/g);
+       taskName = taskName.match(/^(CRM3.0|([\u4e00-\u9fa5]|[0-9A-Za-z.]))+[-][A-Z]+[-][0-9]+(-(MX|SJ|PZ|RMI|_)*)?(-(BUG|XQ))?(-)([\u4e00-\u9fa5]|[0-9A-Za-z.])+[-|_][0-9A-Za-z]+[-|_][0-9]+$/g);
+
        if (taskName === null) {
            jsonStr = '{"sucFlag":"err","message":"请按要求填写变更单名称:NCRM开发变更单-省份简拼-日期-任务或bug号-姓名简拼-序号"}';
            var queryObj = url.parse(req.url,true).query;

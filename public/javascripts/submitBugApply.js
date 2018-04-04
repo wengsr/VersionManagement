@@ -139,7 +139,8 @@ function checkName(taskName){
     taskName = taskName.replace("-修正", "");
     //taskName = taskName.match(/^([\u4e00-\u9fa5]*[0-9A-Za-z]*)+[-][A-Z]+[-][0-9]+[-]([\u4e00-\u9fa5]*[0-9A-Za-z]*)+[-][0-9A-Za-z]+[-][0-9]+$/g);
     //taskName = taskName.match(/^([\u4e00-\u9fa5]*[0-9A-Za-z]*)+[-][A-Z]+[-][0-9]+[-]([\u4e00-\u9fa5]*[0-9A-Za-z.]*)+[-|_][0-9A-Za-z]+[-|_][0-9]+$/g);
-    taskName = taskName.match(/^([\u4e00-\u9fa5]|[0-9A-Za-z.])+[-][A-Z]+[-][0-9]+[-]([\u4e00-\u9fa5]|[0-9A-Za-z.])+[-|_][0-9A-Za-z]+[-|_][0-9]+$/g);
+    // taskName = taskName.match(/^([\u4e00-\u9fa5]|[0-9A-Za-z.])+[-][A-Z]+[-][0-9]+[-]([\u4e00-\u9fa5]|[0-9A-Za-z.])+[-|_][0-9A-Za-z]+[-|_][0-9]+$/g);
+    taskName = taskName.match(/^(CRM3.0|([\u4e00-\u9fa5]|[0-9A-Za-z.]))+[-][A-Z]+[-][0-9]+(-(MX|SJ|PZ|RMI|_)*)?(-(BUG|XQ))?(-)([\u4e00-\u9fa5]|[0-9A-Za-z.])+[-|_][0-9A-Za-z]+[-|_][0-9]+$/g);
     if(taskName === null){
         return false;
     }
