@@ -3,8 +3,8 @@
 */
 var log4js = require('log4js');
 log4js.configure({
-   appenders: [
-       {
+   appenders: {
+       file:{
            type: "file",
            filename: 'versionManagement.log',
            maxLogSize: 100000000,
@@ -13,15 +13,15 @@ log4js.configure({
            //category: [ 'versionMangement','console' ],
            pattern: "-yyy-MM-dd",
            alwaysIncludePattern: true
-       },
-       {
+         },
+       console:{
            type: "console"
-       }
-   ],
-   replaceConsole: true
+        }
+   },
+    categories: { default: { appenders: ['file'], level: 'error' } }
 });
 var log = log4js.getLogger("VersionManagement");
-log.setLevel(log4js.levels.TRACE)
+//log.setLevel(log4js.levels.TRACE)
 exports.log = log4js;
 
 
